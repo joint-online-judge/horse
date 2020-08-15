@@ -1,11 +1,15 @@
-from sanic_restplus import Api, Resource, fields
+from sanic_restplus import Resource
+from webargs import fields
 
-from joj.horse import api
+from joj.horse.utils.api import create_namespace, Locations
 
-ns = api.namespace('user', description='user operations')
+ns = create_namespace('user', description='user operations')
 
 
 @ns.route('/login')
 class UserLogin(Resource):
-    async def get(self, request):
-        return 'login'
+
+    @ns.argument('uid', fields.Int(required=True), Locations.QUERY, 'User ID')
+    async def get(self, request, args):
+        print(args)
+        return request.json
