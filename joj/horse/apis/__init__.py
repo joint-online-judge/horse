@@ -1,6 +1,7 @@
 from joj.horse import app
 
 import joj.horse.apis.user
+import joj.horse.apis.misc
 
 
 def include_router(module):
@@ -8,3 +9,4 @@ def include_router(module):
 
 
 include_router(user)
+include_router(misc)
