@@ -8,6 +8,8 @@ from joj.horse.utils.oauth import jaccount
 from joj.horse.utils.url import generate_url
 from joj.horse.utils.session import set_session
 
+from joj.horse.models.user import create_by_jaccount
+
 router = APIRouter()
 router_name = "user"
 router_prefix = "/api/v1"
@@ -45,10 +47,19 @@ async def jaccount_auth(request: Request, state: str, code: str):
     except:
         raise HTTPException(status_code=400, detail="Jaccount authentication failed")
 
-    request.session.oauth_state = ''
-    request.session.name = id_token.name
-    request.session.uid = id_token.sub
-    await set_session(request.session)
+    # print(id_token)
+    # request.session.oauth_state = ''
+    # request.session.name = id_token.name
+    # request.session.uid = id_token.sub
+
+    await create_by_jaccount(
+        student_id=id_token.code,
+        jaccount_name=id_token.sub,
+        real_name=id_token.name,
+        ip=request.client.host,
+    )
+
+    # await set_session(request.session)
 
     redirect_url = generate_url()
     return RedirectResponse(redirect_url)

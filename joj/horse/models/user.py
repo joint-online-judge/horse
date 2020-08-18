@@ -4,23 +4,29 @@ import re
 from pydantic import validator, EmailStr
 from motor.motor_asyncio import AsyncIOMotorClient
 from joj.horse.odm import Document
-from pymongo import IndexModel
+from pymongo import IndexModel, ASCENDING
 
 UID_RE = re.compile(r'-?\d+')
 UNAME_RE = re.compile(r'[^\s\u3000](.{,254}[^\s\u3000])?')
+
 
 class User(Document):
     class Mongo:
         collection = "users"
         indexes = [
-            IndexModel("uname", unique=True),
-            IndexModel("mail", unique=True),
+            IndexModel([("scope", ASCENDING), ("uname_lower", ASCENDING)], unique=True),
+            IndexModel([("scope", ASCENDING), ("mail_lower", ASCENDING)], unique=True),
         ]
 
+    scope: str
     uname: str
     mail: EmailStr
 
-    student_id: int = 0
+    uname_lower: str = None
+    mail_lower: str = None
+    gravatar: str = None
+
+    student_id: str = ''
     real_name: str = ''
 
     salt: str = ''
@@ -31,21 +37,42 @@ class User(Document):
     login_timestamp: datetime
     login_ip: str
 
-    gravatar: str = None
-
-    @validator("uname")
+    @validator("uname", pre=True)
     def validate_uname(cls, v: str):
         if not UNAME_RE.fullmatch(v):
             raise ValueError('uname')
-        return v.lower()
+        return v
 
-    @validator("mail")
-    def validate_mail(cls, v: str):
-        return v.lower()
+    @validator("uname_lower", pre=True, always=True)
+    def default_uname_lower(cls, v, *, values, **kwargs):
+        return v or values["uname"].strip().lower()
+
+    @validator("mail_lower", pre=True, always=True)
+    def default_mail_lower(cls, v, *, values, **kwargs):
+        return v or values["mail"].strip().lower()
 
     @validator("gravatar", pre=True, always=True)
     def default_gravatar(cls, v, *, values, **kwargs):
-        return v or values["mail"]
+        return v or values["mail"].strip().lower()
 
 
-# async def create(user: User):
+async def create(user: User):
+    try:
+        await user.insert()
+    except Exception as e:
+        raise e
+
+
+async def create_by_jaccount(student_id: str, jaccount_name: str, real_name: str, ip: str):
+    user = User(
+        scope="sjtu",
+        uname=jaccount_name,
+        mail=EmailStr(jaccount_name + "@sjtu.edu.cn"),
+        student_id=student_id,
+        real_name=real_name,
+        register_timestamp=datetime.utcnow(),
+        register_ip=ip,
+        login_timestamp=datetime.utcnow(),
+        login_ip=ip,
+    )
+    await create(user=user)

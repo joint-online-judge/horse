@@ -5,7 +5,7 @@ from joj.horse.utils.fastapi import FastAPI
 from joj.horse.utils.cache import test_cache
 from joj.horse.utils.session import SessionMiddleware
 from joj.horse.utils.version import get_version, get_git_version
-from joj.horse.utils.db import init_collections, ensure_indexes
+from joj.horse.utils.db import get_db, ensure_indexes
 
 app = FastAPI(
     title=settings.app_name,
@@ -25,7 +25,7 @@ from uvicorn.config import logger
 async def startup_event():
     try:
         await test_cache()
-        init_collections()
+        get_db()
         await ensure_indexes()
     except RetryError as e:
         logger.error("Initialization failed, exiting.")
