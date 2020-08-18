@@ -31,3 +31,9 @@ def init_cache():
 def get_cache(name: str) -> BaseCache:
     init_cache()
     return caches.get(name)
+
+
+def test_cache():
+    init_cache()
+    caches.get("default")
+    caches.get("session")

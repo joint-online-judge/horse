@@ -6,9 +6,8 @@ setup(
     packages=['joj.horse'],
     include_package_data=True,
     install_requires=[
-        'fastapi',
+        'fastapi[all]',
         'uvicorn',
-        'starlette',
         'aiohttp',
         'click>=7',
         'celery>=4.4',
@@ -17,6 +16,7 @@ setup(
         'Motor-ODM',
         'pydantic[dotenv]',
         'oauth-jaccount',
-        'aiocache[redis]'
+        'aiocache[redis,msgpack]',
+        'tenacity',
     ],
 )

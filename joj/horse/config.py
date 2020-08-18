@@ -1,4 +1,5 @@
 from functools import lru_cache, wraps
+import asyncio
 
 import click
 from pydantic import BaseSettings
@@ -17,7 +18,7 @@ class Settings(BaseSettings):
     app_name: str = "JOJ Horse"
     host: str = "0.0.0.0"
     port: int = 34765
-    url_prefix: str = "https://joj.sjtu.edu.cn"
+    url_prefix: str = "http://127.0.0.1:34765"
 
     session_ttl: int = 14 * 24 * 60 * 60  # 14 days, in seconds
 
@@ -111,6 +112,14 @@ def cli_command(name: str = None):
         return wrapped
 
     return decorator
+
+
+def cli_async(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        return asyncio.run(f(*args, **kwargs))
+
+    return wrapper
 
 
 settings = get_settings()

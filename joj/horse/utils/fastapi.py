@@ -1,7 +1,7 @@
 from fastapi import *
 from fastapi import Request as FastApiRequest
 
-from joj.horse.utils.session import Session
+from joj.horse.utils.session import Session, set_session
 
 
 class Request(FastApiRequest):
@@ -11,3 +11,6 @@ class Request(FastApiRequest):
                 "session" in self.scope
         ), "SessionMiddleware must be installed to access request.session"
         return self.scope["session"]
+
+    async def update_session(self):
+        await set_session(self.session)
