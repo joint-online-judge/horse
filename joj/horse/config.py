@@ -16,9 +16,9 @@ class Settings(BaseSettings):
     4. The default field values for the Settings model
     """
     app_name: str = "JOJ Horse"
-    host: str = "0.0.0.0"
+    host: str = "127.0.0.1"
     port: int = 34765
-    url_prefix: str = "http://127.0.0.1:34765"
+    url_prefix: str = "http://%s:%d" % (host, port)
 
     session_ttl: int = 14 * 24 * 60 * 60  # 14 days, in seconds
 

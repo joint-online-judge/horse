@@ -6,6 +6,7 @@ from joj.horse.utils.fastapi import APIRouter, Request, HTTPException
 
 from joj.horse.utils.oauth import jaccount
 from joj.horse.utils.url import generate_url
+from joj.horse.utils.session import set_session
 
 router = APIRouter()
 router_name = "user"
@@ -19,7 +20,7 @@ async def jaccount_login(request: Request):
     redirect_url = generate_url(router_name, "jaccount", "auth")
     url, state = client.get_authorize_url(redirect_url)
     request.session.oauth_state = state
-    await request.update_session()
+    await set_session(request.session)
     return {"redirect_url": url}
 
 
@@ -46,7 +47,7 @@ async def jaccount_auth(request: Request, state: str, code: str):
     request.session.oauth_state = ''
     request.session.name = id_token.name
     request.session.uid = id_token.sub
-    await request.update_session()
+    await set_session(request.session)
 
     redirect_url = generate_url()
     return RedirectResponse(redirect_url)
