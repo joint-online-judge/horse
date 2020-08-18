@@ -1,10 +1,19 @@
-from tenacity import retry, stop_after_attempt, wait_fixed, RetryError
+from tenacity import RetryError
 
+from joj.horse.config import settings
 from joj.horse.utils.fastapi import FastAPI
 from joj.horse.utils.cache import test_cache
 from joj.horse.utils.session import SessionMiddleware
+from joj.horse.utils.version import get_version, get_git_version
 
-app = FastAPI()
+app = FastAPI(
+    title=settings.app_name,
+    version=get_version(),
+    description="Git version: " + get_git_version(),
+    openapi_url="/api/v1/openapi.json",
+    docs_url="/api/v1",
+    redoc_url="/api/v1/redoc",
+)
 
 app.add_middleware(SessionMiddleware)
 
@@ -22,3 +31,4 @@ async def startup_event():
 
 
 import joj.horse.apis
+

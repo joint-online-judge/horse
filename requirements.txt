@@ -1,0 +1,14 @@
+pbr
+fastapi[all]
+fastapi-versioning
+uvicorn
+aiohttp
+click>=7
+celery>=4.4
+gitpython>=3.1.7
+motor>=2.1.0
+Motor-ODM
+pydantic[dotenv]
+oauth-jaccount
+aiocache[redis,msgpack]
+tenacity

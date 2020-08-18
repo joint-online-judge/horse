@@ -6,10 +6,11 @@ celery_app.conf.update({
     'result_backend': 'rpc://',
     'result_persistent': False,
     'task_routes': ([
-        ('joj.tiger.*', {'queue': 'tiger'}),
-        ('joj.horse.*', {'queue': 'horse'}),
-    ], )
+                        ('joj.tiger.*', {'queue': 'tiger'}),
+                        ('joj.horse.*', {'queue': 'horse'}),
+                    ],)
 })
+
 
 @celery_app.task(name='joj.horse.compile')
 def compile_task_end(result):

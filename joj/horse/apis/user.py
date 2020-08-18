@@ -10,6 +10,7 @@ from joj.horse.utils.session import set_session
 
 router = APIRouter()
 router_name = "user"
+router_prefix = "/api/v1"
 
 
 @router.get("/jaccount/login")
@@ -17,7 +18,7 @@ async def jaccount_login(request: Request):
     client = jaccount.get_client()
     if client is None:
         raise HTTPException(status_code=400, detail="Jaccount not supported")
-    redirect_url = generate_url(router_name, "jaccount", "auth")
+    redirect_url = generate_url(router_prefix, router_name, "jaccount", "auth")
     url, state = client.get_authorize_url(redirect_url)
     request.session.oauth_state = state
     await set_session(request.session)
@@ -32,7 +33,7 @@ async def jaccount_auth(request: Request, state: str, code: str):
     if request.session.oauth_state != state:
         raise HTTPException(status_code=400, detail="Invalid authentication state")
 
-    redirect_url = generate_url(router_name, "jaccount", "auth")
+    redirect_url = generate_url(router_prefix, router_name, "jaccount", "auth")
     token_url, headers, body = client.get_token_url(code=code, redirect_url=redirect_url)
 
     try:
