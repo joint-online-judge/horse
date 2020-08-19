@@ -57,22 +57,32 @@ class User(Document):
 
 
 async def create(user: User):
-    try:
-        await user.insert()
-    except Exception as e:
-        raise e
+    return await user.insert() and user or None
 
 
-async def create_by_jaccount(student_id: str, jaccount_name: str, real_name: str, ip: str):
-    user = User(
-        scope="sjtu",
-        uname=jaccount_name,
-        mail=EmailStr(jaccount_name + "@sjtu.edu.cn"),
-        student_id=student_id,
-        real_name=real_name,
-        register_timestamp=datetime.utcnow(),
-        register_ip=ip,
-        login_timestamp=datetime.utcnow(),
-        login_ip=ip,
-    )
-    await create(user=user)
+async def get_by_uname(scope: str, uname: str) -> User:
+    user = await User.find_one({'scope': scope, 'uname_lower': uname.strip().lower()})
+    return user
+
+
+async def login_by_jaccount(student_id: str, jaccount_name: str, real_name: str, ip: str) -> User:
+    scope = "sjtu"
+    user = await get_by_uname(scope=scope, uname=jaccount_name)
+    if user:
+        user.login_timestamp = datetime.utcnow()
+        user.login_ip = ip
+        await user.save()
+    else:
+        user = User(
+            scope=scope,
+            uname=jaccount_name,
+            mail=EmailStr(jaccount_name + "@sjtu.edu.cn"),
+            student_id=student_id,
+            real_name=real_name,
+            register_timestamp=datetime.utcnow(),
+            register_ip=ip,
+            login_timestamp=datetime.utcnow(),
+            login_ip=ip,
+        )
+        user = await create(user=user)
+    return user

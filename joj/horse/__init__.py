@@ -1,4 +1,5 @@
 from tenacity import RetryError
+from starlette.responses import RedirectResponse
 
 from joj.horse.config import settings
 from joj.horse.utils.fastapi import FastAPI
@@ -6,6 +7,7 @@ from joj.horse.utils.cache import test_cache
 from joj.horse.utils.session import SessionMiddleware
 from joj.horse.utils.version import get_version, get_git_version
 from joj.horse.utils.db import get_db, ensure_indexes
+from joj.horse.utils.url import generate_url
 
 app = FastAPI(
     title=settings.app_name,
@@ -31,6 +33,14 @@ async def startup_event():
         logger.error("Initialization failed, exiting.")
         logger.disabled = True
         exit(-1)
+
+
+# we temporarily redirect "/" to "/api/v1" for debugging
+
+@app.get("/")
+async def redirect_to_docs():
+    redirect_url = generate_url("/api/v1")
+    return RedirectResponse(redirect_url)
 
 
 import joj.horse.apis

@@ -6,13 +6,23 @@ from joj.horse.utils.fastapi import APIRouter, Request, HTTPException
 
 from joj.horse.utils.oauth import jaccount
 from joj.horse.utils.url import generate_url
-from joj.horse.utils.session import set_session
+from joj.horse.utils.session import set_session, clear_session
 
-from joj.horse.models.user import create_by_jaccount
+from joj.horse.models.user import login_by_jaccount
 
 router = APIRouter()
 router_name = "user"
 router_prefix = "/api/v1"
+
+
+@router.get("/logout")
+async def logout(request: Request):
+    oauth_provider = request.session.oauth_provider
+    url = ""
+    await clear_session(request.session.key)
+    if oauth_provider == "jaccount":
+        url = get_jaccount_logout_url()
+    return {"redirect_url": url}
 
 
 @router.get("/jaccount/login")
@@ -42,24 +52,32 @@ async def jaccount_auth(request: Request, state: str, code: str):
         async with aiohttp.ClientSession() as http:
             async with http.post(token_url, headers=headers, data=body.encode("utf-8")) as response:
                 data = await response.json()
-                parsed_data = jwt.decode(data['id_token'], verify=False)
+                parsed_data = jwt.decode(data["id_token"], verify=False)
                 id_token = jaccount.IDToken(**parsed_data)
     except:
         raise HTTPException(status_code=400, detail="Jaccount authentication failed")
 
-    # print(id_token)
-    # request.session.oauth_state = ''
-    # request.session.name = id_token.name
-    # request.session.uid = id_token.sub
-
-    await create_by_jaccount(
+    user = await login_by_jaccount(
         student_id=id_token.code,
         jaccount_name=id_token.sub,
         real_name=id_token.name,
         ip=request.client.host,
     )
+    if user is None:
+        raise HTTPException(status_code=400, detail="Duplicate")
 
-    # await set_session(request.session)
+    request.session.oauth_state = ""
+    request.session.oauth_provider = "jaccount"
+    request.session.user = user
+    await set_session(request.session)
 
     redirect_url = generate_url()
     return RedirectResponse(redirect_url)
+
+
+def get_jaccount_logout_url():
+    client = jaccount.get_client()
+    if client is None:
+        raise HTTPException(status_code=400, detail="Jaccount not supported")
+    redirect_url = generate_url()
+    return client.get_logout_url(redirect_url)
