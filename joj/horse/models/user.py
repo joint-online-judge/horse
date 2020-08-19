@@ -56,13 +56,12 @@ class User(Document):
         return v or values["mail"].strip().lower()
 
 
-async def create(user: User):
+async def create(user: User) -> User:
     return await user.insert() and user or None
 
 
 async def get_by_uname(scope: str, uname: str) -> User:
-    user = await User.find_one({'scope': scope, 'uname_lower': uname.strip().lower()})
-    return user
+    return await User.find_one({'scope': scope, 'uname_lower': uname.strip().lower()})
 
 
 async def login_by_jaccount(student_id: str, jaccount_name: str, real_name: str, ip: str) -> User:
