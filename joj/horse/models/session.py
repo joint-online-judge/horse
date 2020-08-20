@@ -11,4 +11,4 @@ class Session(BaseModel):
     oauth_state: Optional[str] = ''
     oauth_provider: Optional[str] = ''
 
-    user: User = None
+    user: Optional[User] = None

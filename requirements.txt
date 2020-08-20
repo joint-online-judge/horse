@@ -11,4 +11,3 @@ pydantic[dotenv]
 oauth-jaccount
 aiocache[redis,msgpack]
 tenacity
-git+https://github.com/codello/Motor-ODM

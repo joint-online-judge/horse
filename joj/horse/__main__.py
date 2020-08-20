@@ -1,7 +1,8 @@
 import uvicorn
 
 # from joj.horse import app
-from joj.horse.config import cli_command, settings
+from joj.horse.config import settings
+from joj.horse.utils.cli import cli_command
 
 
 @cli_command()

@@ -21,7 +21,7 @@ from typing import (
 
 from bson import CodecOptions, ObjectId
 from motor.core import AgnosticClientSession, AgnosticCollection, AgnosticDatabase
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from pydantic.main import ModelMetaclass
 from pymongo import IndexModel, ReadPreference, ReturnDocument, WriteConcern
 from pymongo.errors import DuplicateKeyError
@@ -119,12 +119,12 @@ class DocumentMetaclass(ModelMetaclass):
     """
 
     def __new__(
-        mcs,
-        name: str,
-        bases: Sequence[type],
-        namespace: "DictStrAny",
-        abstract: bool = False,
-        **kwargs: Any,
+            mcs,
+            name: str,
+            bases: Sequence[type],
+            namespace: "DictStrAny",
+            abstract: bool = False,
+            **kwargs: Any,
     ) -> "DocumentMetaclass":
         mcs.validate(name, bases, namespace, abstract)
         mongo: "MongoType" = Mongo
@@ -145,7 +145,7 @@ class DocumentMetaclass(ModelMetaclass):
 
     @classmethod
     def validate(
-        mcs, name: str, bases: Sequence[type], namespace: "DictStrAny", abstract: bool
+            mcs, name: str, bases: Sequence[type], namespace: "DictStrAny", abstract: bool
     ) -> None:
         if "Mongo" in namespace:
             mongo = namespace["Mongo"]
@@ -189,6 +189,7 @@ class Document(BaseModel, metaclass=DocumentMetaclass, abstract=True):
 
     __db__: Optional[AgnosticDatabase]
     __collection__: Optional[AgnosticCollection] = None
+    __references__: List[str] = []
 
     id: ObjectId = Field(None, alias="_id")
     """The document's ID in the database.
@@ -207,7 +208,21 @@ class Document(BaseModel, metaclass=DocumentMetaclass, abstract=True):
             raise TypeError(
                 f"Cannot instantiate abstract document {__pydantic_self__.__class__.__name__}"
             )
+
+        from joj.horse.odm.reference import Reference
+        for key, value in __pydantic_self__.__fields__.items():
+            for mro in value.type_.__mro__:
+                if mro == Reference:
+                    __pydantic_self__.__references__.append(key)
+                    if key in data and isinstance(data[key], str) or isinstance(data[key], ObjectId):
+                        data[key] = value.type_(id=data[key])
+                    break
+        # print(__pydantic_self__.__references__)
+
         super().__init__(**data)
+        # for key, value in __pydantic_self__.__fields__.items():
+        #     if value.type_.__name__ == 'ReferenceClass':
+        #         __pydantic_self__.__references__.append(key)
 
     @classmethod
     def use(cls: Type["Document"], db: AgnosticDatabase) -> None:
@@ -252,7 +267,7 @@ class Document(BaseModel, metaclass=DocumentMetaclass, abstract=True):
 
     @classmethod
     async def init_indexes(
-        cls, drop: bool = True, session: AgnosticClientSession = None, **kwargs: Any
+            cls, drop: bool = True, session: AgnosticClientSession = None, **kwargs: Any
     ) -> None:
         """Creates the indexes for this collection of documents.
 
@@ -272,10 +287,10 @@ class Document(BaseModel, metaclass=DocumentMetaclass, abstract=True):
         await im.ensure_indexes(cls.__mongo__.indexes, drop=drop)
 
     def mongo(
-        self,
-        *,
-        include: Union["AbstractSetIntStr", "DictIntStrAny"] = None,
-        exclude: Union["AbstractSetIntStr", "DictIntStrAny"] = None,
+            self,
+            *,
+            include: Union["AbstractSetIntStr", "DictIntStrAny"] = None,
+            exclude: Union["AbstractSetIntStr", "DictIntStrAny"] = None,
     ) -> "DictStrAny":
         """Converts this object into a dictionary suitable to be saved to MongoDB."""
         document = self.dict(
@@ -283,6 +298,11 @@ class Document(BaseModel, metaclass=DocumentMetaclass, abstract=True):
         )
         if self.id is None:
             document.pop("_id", None)
+
+        # only save id for references
+        for key in self.__references__:
+            if key in document and document[key] is not None:
+                document[key] = document[key]["id"]
         return document
 
     async def insert(self, *args: Any, **kwargs: Any) -> bool:
@@ -301,7 +321,7 @@ class Document(BaseModel, metaclass=DocumentMetaclass, abstract=True):
 
     @classmethod
     async def insert_many(
-        cls: Type["GenericDocument"], *objects: "GenericDocument", **kwargs: Any
+            cls: Type["GenericDocument"], *objects: "GenericDocument", **kwargs: Any
     ) -> None:
         """Inserts multiple documents at once.
 
@@ -314,7 +334,7 @@ class Document(BaseModel, metaclass=DocumentMetaclass, abstract=True):
         for obj, inserted_id in zip(objects, result.inserted_ids):
             obj.id = inserted_id
 
-    async def save(self, upsert: bool = True, *args: Any, **kwargs: Any,) -> bool:
+    async def save(self, upsert: bool = True, *args: Any, **kwargs: Any, ) -> bool:
         """Saves this instance to the database.
 
         By default this method creates the document in the database if it doesn't exist.
@@ -363,7 +383,7 @@ class Document(BaseModel, metaclass=DocumentMetaclass, abstract=True):
 
     @classmethod
     async def delete_many(
-        cls: Type["GenericDocument"], *objects: "GenericDocument"
+            cls: Type["GenericDocument"], *objects: "GenericDocument"
     ) -> int:
         """Deletes all specified objects.
 
@@ -377,10 +397,10 @@ class Document(BaseModel, metaclass=DocumentMetaclass, abstract=True):
 
     @classmethod
     def find(
-        cls: Type["GenericDocument"],
-        filter: "DictStrAny" = None,
-        *args: Any,
-        **kwargs: Any,
+            cls: Type["GenericDocument"],
+            filter: "DictStrAny" = None,
+            *args: Any,
+            **kwargs: Any,
     ) -> AsyncIterator["GenericDocument"]:
         """Returns an iterable over a cursor returning documents matching ``filter``.
 
@@ -395,10 +415,10 @@ class Document(BaseModel, metaclass=DocumentMetaclass, abstract=True):
 
     @classmethod
     async def find_one(
-        cls: Type["GenericDocument"],
-        filter: "DictStrAny" = None,
-        *args: Any,
-        **kwargs: Any,
+            cls: Type["GenericDocument"],
+            filter: "DictStrAny" = None,
+            *args: Any,
+            **kwargs: Any,
     ) -> Optional["GenericDocument"]:
         """Returns a single document from the collection."""
         doc = await cls.collection().find_one(filter, *args, **kwargs)
@@ -406,10 +426,10 @@ class Document(BaseModel, metaclass=DocumentMetaclass, abstract=True):
 
     @classmethod
     async def find_one_and_delete(
-        cls: Type["GenericDocument"],
-        filter: "DictStrAny" = None,
-        *args: Any,
-        **kwargs: Any,
+            cls: Type["GenericDocument"],
+            filter: "DictStrAny" = None,
+            *args: Any,
+            **kwargs: Any,
     ) -> Optional["GenericDocument"]:
         """Finds a document and deletes it.
 
@@ -421,12 +441,12 @@ class Document(BaseModel, metaclass=DocumentMetaclass, abstract=True):
 
     @classmethod
     async def find_one_and_replace(
-        cls: Type["GenericDocument"],
-        filter: "DictStrAny",
-        replacement: Union["DictStrAny", "GenericDocument"],
-        return_document: bool = ReturnDocument.BEFORE,
-        *args: Any,
-        **kwargs: Any,
+            cls: Type["GenericDocument"],
+            filter: "DictStrAny",
+            replacement: Union["DictStrAny", "GenericDocument"],
+            return_document: bool = ReturnDocument.BEFORE,
+            *args: Any,
+            **kwargs: Any,
     ) -> Optional["GenericDocument"]:
         """Finds a document and replaces it.
 
@@ -450,11 +470,11 @@ class Document(BaseModel, metaclass=DocumentMetaclass, abstract=True):
 
     @classmethod
     async def find_one_and_update(
-        cls: Type["GenericDocument"],
-        filter: "DictStrAny",
-        update: "DictStrAny",
-        *args: Any,
-        **kwargs: Any,
+            cls: Type["GenericDocument"],
+            filter: "DictStrAny",
+            update: "DictStrAny",
+            *args: Any,
+            **kwargs: Any,
     ) -> Optional["GenericDocument"]:
         """Finds a document and updates it.
 
@@ -468,7 +488,7 @@ class Document(BaseModel, metaclass=DocumentMetaclass, abstract=True):
 
     @classmethod
     async def count_documents(
-        cls, filter: Mapping = None, *args: Any, **kwargs: Any
+            cls, filter: Mapping = None, *args: Any, **kwargs: Any
     ) -> int:
         """Returns the number of documents in this class's collection.
 

@@ -1,6 +1,7 @@
 import aiohttp
 import jwt
 from starlette.responses import RedirectResponse
+from uvicorn.config import logger
 
 from joj.horse.utils.fastapi import APIRouter, Request, HTTPException
 
@@ -57,6 +58,7 @@ async def jaccount_auth(request: Request, state: str, code: str):
     except:
         raise HTTPException(status_code=400, detail="Jaccount authentication failed")
 
+    logger.info("Jaccount login: " + str(id_token))
     user = await login_by_jaccount(
         student_id=id_token.code,
         jaccount_name=id_token.sub,

@@ -1,10 +1,11 @@
 from datetime import datetime
 import re
+from typing import Optional
 
 from pydantic import validator, EmailStr
-from motor.motor_asyncio import AsyncIOMotorClient
-from joj.horse.odm import Document
 from pymongo import IndexModel, ASCENDING
+
+from joj.horse.odm import Document, Reference
 
 UID_RE = re.compile(r'-?\d+')
 UNAME_RE = re.compile(r'[^\s\u3000](.{,254}[^\s\u3000])?')
@@ -54,6 +55,11 @@ class User(Document):
     @validator("gravatar", pre=True, always=True)
     def default_gravatar(cls, v, *, values, **kwargs):
         return v or values["mail"].strip().lower()
+
+
+class UserReference(Reference):
+    data: Optional[User] = None
+    reference = User
 
 
 async def create(user: User) -> User:
