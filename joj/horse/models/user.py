@@ -34,9 +34,9 @@ class User(Document):
     hash: str = ''
 
     register_timestamp: datetime
-    register_ip: str
+    register_ip: str = "0.0.0.0"
     login_timestamp: datetime
-    login_ip: str
+    login_ip: str = "0.0.0.0"
 
     @validator("uname", pre=True)
     def validate_uname(cls, v: str):
@@ -55,6 +55,14 @@ class User(Document):
     @validator("gravatar", pre=True, always=True)
     def default_gravatar(cls, v, *, values, **kwargs):
         return v or values["mail"].strip().lower()
+
+    @validator("register_timestamp", pre=True, always=True)
+    def default_register_timestamp(cls, v, *, values, **kwargs):
+        return v or datetime.utcnow()
+
+    @validator("login_timestamp", pre=True, always=True)
+    def default_login_timestamp(cls, v, *, values, **kwargs):
+        return v or datetime.utcnow()
 
 
 class UserReference(Reference):
