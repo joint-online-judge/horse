@@ -10,6 +10,7 @@ from joj.horse.odm import Document
 from joj.horse.models.user import UserReference
 from joj.horse.models.domain import DomainReference
 from joj.horse.models.problem import ProblemReference
+from joj.horse.models.problem_set import ProblemSetReference
 
 
 class RecordStatus(IntEnum):
@@ -63,7 +64,7 @@ class Record(Document):
     memory_kb: int = 0
     domain: DomainReference
     problem: ProblemReference
-    problem_set: Optional[int] = None  # modify later
+    problem_set: Optional[ProblemSetReference] = None  # modify later
     problem_data: int  # modify later
     user: UserReference
     code_type: RecordCodeType

@@ -10,7 +10,9 @@ class Domain(Document):
     class Mongo:
         collection = "domains"
         indexes = [
-            IndexModel("owner")
+            IndexModel("url", unique=True),
+            IndexModel("owner"),
+            IndexModel("name"),
         ]
 
     url: str
@@ -24,3 +26,5 @@ class Domain(Document):
 class DomainReference(Reference):
     data: Optional[Domain] = None
     reference = Domain
+
+

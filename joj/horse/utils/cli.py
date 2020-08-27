@@ -53,8 +53,8 @@ def cli_command_end():
                         _settings.__setattr__(key, value)
                 else:
                     new_kwargs[key] = value
-            from joj.horse.utils.db import get_db
-            get_db()
+            # from joj.horse.utils.db import get_db
+            # get_db()
             return func(*args, **new_kwargs)
 
         return wrapped

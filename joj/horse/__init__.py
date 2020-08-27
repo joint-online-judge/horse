@@ -1,3 +1,5 @@
+import asyncio
+
 from tenacity import RetryError
 from starlette.responses import RedirectResponse
 
@@ -26,6 +28,7 @@ from uvicorn.config import logger
 @app.on_event("startup")
 async def startup_event():
     try:
+        logger.info("Using %s." % asyncio.get_running_loop().__module__)
         await test_cache()
         get_db()
         await ensure_indexes()
@@ -36,7 +39,6 @@ async def startup_event():
 
 
 # we temporarily redirect "/" to "/api/v1" for debugging
-
 @app.get("/")
 async def redirect_to_docs():
     redirect_url = generate_url("/api/v1")
@@ -44,4 +46,3 @@ async def redirect_to_docs():
 
 
 import joj.horse.apis
-

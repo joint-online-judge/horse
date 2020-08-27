@@ -1,6 +1,7 @@
 pbr
 fastapi[all]
 fastapi-versioning
+fastapi-utils
 uvicorn
 aiohttp
 click>=7

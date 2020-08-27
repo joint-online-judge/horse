@@ -1,11 +1,14 @@
 from functools import lru_cache
+import asyncio
+from typing import Type, List
 
 # from pydantic_odm.db import MongoDBManager
 from motor.motor_asyncio import AsyncIOMotorClient
+from uvicorn.config import logger
 
 from joj.horse.config import settings
-from joj.horse.models.user import User
-from joj.horse.models.domain import Domain
+from joj.horse.odm import Document
+from joj.horse.models import *
 
 
 @lru_cache()
@@ -18,18 +21,31 @@ def get_db():
     #     }
     # }).init_connections()
     # db = db_manager.databases.get('default')
+    # print(asyncio.get_running_loop())
+    logger.info("Starting mongodb connection.")
     client = AsyncIOMotorClient(settings.db_host, settings.db_port)
     db = client.get_database(settings.db_name)
     _init_collections(db)
     return db
 
 
+collections: List[Type[Document]] = [
+    Domain,
+    DomainRole,
+    DomainUser,
+    Problem,
+    ProblemSet,
+    Record,
+    User,
+]
+
+
 def _init_collections(db):
-    User.use(db)
-    Domain.use(db)
+    for model in collections:
+        model.use(db)
 
 
-@lru_cache()
 async def ensure_indexes():
-    await User.init_indexes()
-    await Domain.init_indexes()
+    for model in collections:
+        logger.info("Ensure indexes for \"%s\"." % model.__mongo__.collection)
+        await model.init_indexes()
