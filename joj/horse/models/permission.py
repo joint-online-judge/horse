@@ -1,4 +1,37 @@
+from enum import Enum, auto
 from pydantic import BaseModel
+
+
+class ScopeType(Enum):
+    GENERAL = "general"
+    PROBLEM = "problem"
+    PROBLEM_SET = "problem_set"
+    RECORD = "record"
+    UNKNOWN = "unknown"
+
+
+class PermissionType(Enum):
+    VIEW = "view"
+    VIEW_MOD_BADGE = "view_mod_badge"
+    VIEW_HIDDEN = "view_hidden"
+    VIEW_CONFIG = "view_config"
+    VIEW_CONFIG_SELF = "view_config_self"
+
+    EDIT_PERMISSION = "edit_permission"
+    EDIT_DESCRIPTION = "edit_description"
+    EDIT_CONFIG = "edit_config"
+    EDIT_CONFIG_SELF = "edit_config_self"
+
+    CREATE = "create"
+    SUBMIT = "submit"
+    CLAIM = "claim"
+    SCOREBOARD = "scoreboard"
+    MANAGE = "manage"
+    DETAIL = "detail"
+    CODE = "code"
+    REJUDGE = "rejudge"
+
+    UNKNOWN = "unknown"
 
 
 class GeneralPermission(BaseModel):
