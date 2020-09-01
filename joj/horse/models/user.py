@@ -32,6 +32,7 @@ class User(Document):
 
     salt: str = ''
     hash: str = ''
+    role: str = 'user'
 
     register_timestamp: datetime
     register_ip: str = "0.0.0.0"
