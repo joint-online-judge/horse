@@ -11,3 +11,10 @@ class Request(FastApiRequest):
                 "session" in self.scope
         ), "SessionMiddleware must be installed to access request.session"
         return self.scope["session"]
+
+
+class Pagination:
+    def __init__(self, skip: int = 0, limit: int = 0):
+        self.skip = skip
+        self.limit = limit
+

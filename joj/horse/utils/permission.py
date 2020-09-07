@@ -1,5 +1,4 @@
-from abc import ABC, abstractmethod
-from typing import Union, Optional
+from typing import Optional
 from bson import ObjectId
 from pydantic import BaseModel
 
@@ -22,7 +21,7 @@ class PermissionChecker:
         self.site_permission: Optional[SitePermission] = None
         self.domain_permission: Optional[DomainPermission] = None
 
-    async def init(self):
+    async def init(self) -> 'PermissionChecker':
         if self.user and await self.user.reload():
             self.site_role = self.user.role
         if self.site_role == DefaultRole.ROOT:
@@ -37,7 +36,10 @@ class PermissionChecker:
                 self.domain_role = domain_user.role
         if self.domain_role == DefaultRole.ROOT:
             return self
-        domain_role = await DomainRole.find_one({'domain': self.domain, 'role': self.domain_role})
+        if self.domain:
+            domain_role = await DomainRole.find_one({'domain': self.domain, 'role': self.domain_role})
+        else:
+            domain_role = None
         if domain_role:
             self.domain_permission = domain_role.permission
         elif self.domain_role in DEFAULT_DOMAIN_PERMISSION:
@@ -67,11 +69,11 @@ class PermissionChecker:
         # permission denied if every check failed
         return False
 
-    def ensure(self, scope: ScopeType, permission: PermissionType):
+    def ensure(self, scope: ScopeType, permission: PermissionType) -> None:
         if not self.check(scope, permission):
             raise HTTPException(status_code=403, detail="%s.%s Permission Denied." % (scope, permission))
 
-    def ensure_or(self, *args):
+    def ensure_or(self, *args) -> None:
         if not args:
             return
         scope, permission = (ScopeType.UNKNOWN, PermissionType.UNKNOWN)
@@ -84,6 +86,6 @@ class PermissionChecker:
                 pass
         raise HTTPException(status_code=403, detail="%s.%s Permission Denied." % (scope, permission))
 
-    def ensure_and(self, *args):
+    def ensure_and(self, *args) -> None:
         for arg in args:
             self.ensure(*arg)

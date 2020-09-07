@@ -1,6 +1,8 @@
-from typing import Type, Optional
+from typing import Type, Optional, TypeVar
 from enum import Enum
 from pydantic import BaseModel
+
+BaseModelType = TypeVar('BaseModelType', bound=BaseModel)
 
 
 class DefaultRole(str, Enum):
@@ -8,6 +10,7 @@ class DefaultRole(str, Enum):
     ADMIN = "admin"
     USER = "user"
     GUEST = "guest"
+    JUDGE = "judge"
 
 
 class ScopeType(str, Enum):
@@ -78,9 +81,10 @@ class ProblemSetPermission(BaseModel):
 
 
 class RecordPermission(BaseModel):
-    view: bool = False
+    view: bool = True
     detail: bool = False
     code: bool = False
+    judge: bool = False
     rejudge: bool = False
 
 
@@ -109,7 +113,7 @@ class SitePermission(DomainPermission):
     user: UserSpecificPermission = UserSpecificPermission()
 
 
-def __get_default_permission(model: Type[BaseModel], value: Optional[bool]):
+def __get_default_permission(model: Type[BaseModelType], value: Optional[bool]) -> BaseModelType:
     obj = model()
     if value is not None:
         for key in obj.__fields_set__:
@@ -129,8 +133,8 @@ def __get_default_domain_permission(value: Optional[bool] = None):
 def __get_default_site_permission(value1: Optional[bool] = None, value2: Optional[bool] = None):
     return SitePermission(
         **__get_default_domain_permission(value1).dict(),
-        user=__get_default_permission(GeneralPermission, value2),
-        domain=__get_default_permission(ProblemPermission, value2),
+        user=__get_default_permission(UserSpecificPermission, value2),
+        domain=__get_default_permission(DomainSpecificPermission, value2),
     )
 
 
@@ -141,9 +145,17 @@ DEFAULT_DOMAIN_PERMISSION = {
     DefaultRole.GUEST: __get_default_domain_permission(False),
 }
 
+# set permission for judge
+__DEFAULT_JUDGE_PERMISSION = __get_default_site_permission(False, False)
+__DEFAULT_JUDGE_PERMISSION.record.code = True
+__DEFAULT_JUDGE_PERMISSION.record.judge = True
+__DEFAULT_JUDGE_PERMISSION.problem.view_config = True
+__DEFAULT_JUDGE_PERMISSION.problem_set.view_config = True
+
 DEFAULT_SITE_PERMISSION = {
     DefaultRole.ROOT: __get_default_site_permission(True, True),
     DefaultRole.ADMIN: __get_default_site_permission(None, True),
     DefaultRole.USER: __get_default_site_permission(False, None),
     DefaultRole.GUEST: __get_default_site_permission(False, False),
+    DefaultRole.JUDGE: __DEFAULT_JUDGE_PERMISSION,
 }
