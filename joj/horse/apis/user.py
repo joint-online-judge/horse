@@ -3,13 +3,13 @@ import jwt
 from starlette.responses import RedirectResponse
 from uvicorn.config import logger
 
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Depends
 
 from joj.horse.utils.oauth import jaccount
 from joj.horse.utils.url import generate_url
-from joj.horse.utils.session import set_session, clear_session
 
 from joj.horse.models.user import login_by_jaccount
+from joj.horse.utils.auth import Authentication
 
 router = APIRouter()
 router_name = "user"
@@ -17,11 +17,10 @@ router_prefix = "/api/v1"
 
 
 @router.get("/logout")
-async def logout(request: Request):
-    # oauth_provider = request.session.oauth_provider
+async def logout(auth: Authentication = Depends(Authentication)):
     url = ""
     # await clear_session(request.session.key)
-    if oauth_provider == "jaccount":
+    if auth.jwt and auth.jwt.type == "jaccount":
         url = get_jaccount_logout_url()
     return {"redirect_url": url}
 

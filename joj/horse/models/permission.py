@@ -20,6 +20,9 @@ class ScopeType(str, Enum):
     RECORD = "record"
     UNKNOWN = "unknown"
 
+    DOMAIN = "domain"
+    USER = "user"
+
 
 class PermissionType(str, Enum):
     VIEW = "view"

@@ -2,11 +2,10 @@ import asyncio
 
 from tenacity import RetryError
 from starlette.responses import RedirectResponse
+from fastapi import FastAPI
 
 from joj.horse.config import settings
-from joj.horse.utils.fastapi import FastAPI
 from joj.horse.utils.cache import test_cache
-from joj.horse.utils.session import SessionMiddleware
 from joj.horse.utils.version import get_version, get_git_version
 from joj.horse.utils.db import get_db, ensure_indexes
 from joj.horse.utils.url import generate_url
