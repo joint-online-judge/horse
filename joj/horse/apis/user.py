@@ -3,7 +3,7 @@ import jwt
 from starlette.responses import RedirectResponse
 from uvicorn.config import logger
 
-from joj.horse.utils.fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException
 
 from joj.horse.utils.oauth import jaccount
 from joj.horse.utils.url import generate_url
@@ -18,9 +18,9 @@ router_prefix = "/api/v1"
 
 @router.get("/logout")
 async def logout(request: Request):
-    oauth_provider = request.session.oauth_provider
+    # oauth_provider = request.session.oauth_provider
     url = ""
-    await clear_session(request.session.key)
+    # await clear_session(request.session.key)
     if oauth_provider == "jaccount":
         url = get_jaccount_logout_url()
     return {"redirect_url": url}
@@ -33,8 +33,8 @@ async def jaccount_login(request: Request):
         raise HTTPException(status_code=400, detail="Jaccount not supported")
     redirect_url = generate_url(router_prefix, router_name, "jaccount", "auth")
     url, state = client.get_authorize_url(redirect_url)
-    request.session.oauth_state = state
-    await set_session(request.session)
+    # request.session.oauth_state = state
+    # await set_session(request.session)
     return {"redirect_url": url}
 
 

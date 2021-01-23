@@ -12,3 +12,4 @@ pydantic[dotenv]
 oauth-jaccount
 aiocache[redis,msgpack]
 tenacity
+python-jose[cryptography]

@@ -31,6 +31,11 @@ class Settings(BaseSettings):
     redis_host: str = "localhost"
     redis_port: int = 6379
 
+    # jwt config
+    jwt_secret_key: str
+    jwt_algorithm : str = 'HS256'
+    jwt_expire_seconds: int = 30
+
     # oauth config
     oauth_jaccount: bool = False
     oauth_jaccount_id: str = ''
