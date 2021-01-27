@@ -6,16 +6,7 @@ packages or frameworks and are adapted here to reduce the number of dependencies
 import inspect
 from inspect import isclass, ismodule
 from types import ModuleType
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Iterable,
-    Optional,
-    Sequence,
-    TypeVar,
-    Union,
-)
+from typing import (Any, Callable, Iterable, Optional, Sequence, TYPE_CHECKING, TypeVar, Union)
 
 if TYPE_CHECKING:
     T = TypeVar("T", bound=type)
@@ -24,7 +15,7 @@ if TYPE_CHECKING:
 
 
 def inherit_class(
-    name: str, self: Optional["T"], parent: "T", merge: Iterable[str] = None
+        name: str, self: Optional["T"], parent: "T", merge: Iterable[str] = None
 ) -> "T":
     """
     Performs a pseudo-inheritance by creating a new class that inherits from ``self``
@@ -89,7 +80,7 @@ def merge_values(value1: Any, value2: Any) -> Any:
 
 
 def monkey_patch(
-    cls: Union[type, ModuleType], name: Optional[str] = None
+        cls: Union[type, ModuleType], name: Optional[str] = None
 ) -> Callable[["C"], "C"]:
     """
     Monkey patches class or module by adding to it decorated function. Anything
@@ -111,7 +102,7 @@ def monkey_patch(
         if name:
             func_name = name
         elif func.__name__.startswith(f"{cls.__name__}__"):
-            func_name = func.__name__[len(f"{cls.__name__}__") :]
+            func_name = func.__name__[len(f"{cls.__name__}__"):]
         else:
             func_name = func.__name__
 

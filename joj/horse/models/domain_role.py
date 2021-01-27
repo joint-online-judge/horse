@@ -1,15 +1,11 @@
 from datetime import datetime
-from enum import Enum
-from bson import ObjectId
-from typing import Union
-from pymongo import IndexModel, ASCENDING
 
-from pydantic import validator, BaseModel
+from pydantic import validator
+from pymongo import ASCENDING, IndexModel
 
-from joj.horse.odm import Document
-from joj.horse.models.user import UserReference
 from joj.horse.models.domain import DomainReference
 from joj.horse.models.permission import DomainPermission
+from joj.horse.odm import Document
 
 
 class DomainRole(Document):

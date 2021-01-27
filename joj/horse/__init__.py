@@ -1,14 +1,15 @@
 import asyncio
 
-from tenacity import RetryError
-from starlette.responses import RedirectResponse
 from fastapi import FastAPI
+from starlette.responses import RedirectResponse
+from tenacity import RetryError
+from uvicorn.config import logger
 
 from joj.horse.config import settings
 from joj.horse.utils.cache import test_cache
-from joj.horse.utils.version import get_version, get_git_version
-from joj.horse.utils.db import get_db, ensure_indexes
+from joj.horse.utils.db import ensure_indexes, get_db
 from joj.horse.utils.url import generate_url
+from joj.horse.utils.version import get_git_version, get_version
 
 app = FastAPI(
     title=settings.app_name,
@@ -18,10 +19,6 @@ app = FastAPI(
     docs_url="/api/v1",
     redoc_url="/api/v1/redoc",
 )
-
-# app.add_middleware(SessionMiddleware)
-
-from uvicorn.config import logger
 
 
 @app.on_event("startup")

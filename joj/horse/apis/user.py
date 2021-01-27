@@ -17,21 +17,18 @@ router_prefix = "/api/v1"
 @router.get("/logout")
 async def logout(auth: Authentication = Depends(Authentication)):
     url = ""
-    # await clear_session(request.session.key)
     if auth.jwt and auth.jwt.type == "jaccount":
         url = get_jaccount_logout_url()
     return {"redirect_url": url}
 
 
 @router.get("/jaccount/login")
-async def jaccount_login(request: Request):
+async def jaccount_login():
     client = jaccount.get_client()
     if client is None:
         raise HTTPException(status_code=400, detail="Jaccount not supported")
     redirect_url = generate_url(router_prefix, router_name, "jaccount", "auth")
     url, state = client.get_authorize_url(redirect_url)
-    # request.session.oauth_state = state
-    # await set_session(request.session)
     return {"redirect_url": url}
 
 
@@ -66,12 +63,6 @@ async def jaccount_auth(request: Request, state: str, code: str):
         raise HTTPException(status_code=400, detail="Duplicate")
 
     jwt = generate_jwt(user=user, type='jaccount')
-
-    # request.session.oauth_state = ""
-    # request.session.oauth_provider = "jaccount"
-    # request.session.user = user
-    # await set_session(request.session)
-
     redirect_url = generate_url()
     logger.info(user)
     logger.info('jwt=%s', jwt)

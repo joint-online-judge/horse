@@ -1,7 +1,7 @@
 from functools import lru_cache
 
-from pydantic import BaseModel
 import oauth_jaccount
+from pydantic import BaseModel
 
 from joj.horse.config import settings
 

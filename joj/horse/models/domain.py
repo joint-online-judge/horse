@@ -1,9 +1,9 @@
-from bson import ObjectId
 from typing import Optional
-from pymongo import IndexModel, ASCENDING
 
-from joj.horse.odm import Document, Reference
+from pymongo import IndexModel
+
 from joj.horse.models.user import UserReference
+from joj.horse.odm import Document, Reference
 
 
 class Domain(Document):
@@ -26,5 +26,3 @@ class Domain(Document):
 class DomainReference(Reference):
     data: Optional[Domain] = None
     reference = Domain
-
-

@@ -1,10 +1,8 @@
-from fastapi_utils.cbv import cbv
-from typing import Optional
-from fastapi_utils.inferring_router import InferringRouter
 from fastapi import Depends
+from fastapi_utils.inferring_router import InferringRouter
 
+from joj.horse.models.permission import PermissionType, ScopeType
 from joj.horse.utils.auth import Authentication
-from joj.horse.models.permission import ScopeType, PermissionType
 
 router = InferringRouter()
 router_name = "domain"

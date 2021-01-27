@@ -1,8 +1,7 @@
-from joj.horse import app
-
 import joj.horse.apis.domain
 import joj.horse.apis.misc
 import joj.horse.apis.user
+from joj.horse import app
 
 
 def include_router(module):

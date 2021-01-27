@@ -1,9 +1,9 @@
-from datetime import datetime
 import re
+from datetime import datetime
 from typing import Optional
 
-from pydantic import validator, EmailStr
-from pymongo import IndexModel, ASCENDING
+from pydantic import EmailStr, validator
+from pymongo import ASCENDING, IndexModel
 
 from joj.horse.odm import Document, Reference
 

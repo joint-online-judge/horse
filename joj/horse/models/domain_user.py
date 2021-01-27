@@ -1,13 +1,11 @@
 from datetime import datetime
-from bson import ObjectId
-from typing import Union
-from pymongo import IndexModel, ASCENDING
 
 from pydantic import validator
+from pymongo import ASCENDING, IndexModel
 
-from joj.horse.odm import Document
-from joj.horse.models.user import UserReference
 from joj.horse.models.domain import DomainReference
+from joj.horse.models.user import UserReference
+from joj.horse.odm import Document
 
 
 class DomainUser(Document):
@@ -28,5 +26,3 @@ class DomainUser(Document):
     @validator("join_at", pre=True, always=True)
     def default_join_at(cls, v, *, values, **kwargs):
         return v or datetime.utcnow()
-
-

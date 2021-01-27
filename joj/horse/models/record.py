@@ -1,16 +1,15 @@
+from datetime import datetime
 from enum import IntEnum
 from typing import List, Optional
-from datetime import datetime
 
 from pydantic import BaseModel
-from pymongo import IndexModel, ASCENDING, DESCENDING
+from pymongo import ASCENDING, DESCENDING, IndexModel
 
-from joj.horse.odm import Document
-
-from joj.horse.models.user import UserReference
 from joj.horse.models.domain import DomainReference
 from joj.horse.models.problem import ProblemReference
 from joj.horse.models.problem_set import ProblemSetReference
+from joj.horse.models.user import UserReference
+from joj.horse.odm import Document
 
 
 class RecordStatus(IntEnum):

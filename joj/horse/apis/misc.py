@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Request, HTTPException
-from joj.horse.utils.version import get_version, get_git_version
+from fastapi import APIRouter
 
 from joj.horse.models.misc import Version
+from joj.horse.utils.version import get_git_version, get_version
 
 router = APIRouter()
 router_name = "misc"

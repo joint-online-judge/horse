@@ -1,9 +1,7 @@
 import asyncio
-from joj.horse.utils.db import get_db, ensure_indexes
-from joj.horse.models.domain import Domain
-from joj.horse.models.user import User, UserReference
 
-from bson import ObjectId
+from joj.horse.models.domain import Domain
+from joj.horse.utils.db import ensure_indexes, get_db
 
 
 async def main():

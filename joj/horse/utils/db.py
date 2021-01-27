@@ -1,14 +1,13 @@
 from functools import lru_cache
-import asyncio
-from typing import Type, List
+from typing import List, Type
 
 # from pydantic_odm.db import MongoDBManager
 from motor.motor_asyncio import AsyncIOMotorClient
 from uvicorn.config import logger
 
 from joj.horse.config import settings
-from joj.horse.odm import Document
 from joj.horse.models import *
+from joj.horse.odm import Document
 
 
 @lru_cache()

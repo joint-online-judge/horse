@@ -2,9 +2,8 @@ from functools import lru_cache
 
 from aiocache import caches
 from aiocache.base import BaseCache
-
-from uvicorn.config import logger
 from tenacity import retry, stop_after_attempt, wait_fixed
+from uvicorn.config import logger
 
 from joj.horse.config import settings
 

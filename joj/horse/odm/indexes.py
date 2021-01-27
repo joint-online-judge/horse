@@ -16,10 +16,10 @@ class IndexManager:
     """
 
     def __init__(
-        self,
-        collection: AgnosticCollection,
-        session: AgnosticClientSession,
-        **kwargs: Any
+            self,
+            collection: AgnosticCollection,
+            session: AgnosticClientSession,
+            **kwargs: Any
     ) -> None:
         self.collection = collection
         self.session = session
@@ -27,7 +27,7 @@ class IndexManager:
         self.db_indexes: Optional[Dict[str, SON]] = None
 
     async def ensure_indexes(
-        self, indexes: Iterable[IndexModel], drop: bool = True
+            self, indexes: Iterable[IndexModel], drop: bool = True
     ) -> None:
         """Ensures that the specified ``indexes`` exist in the databse.
 

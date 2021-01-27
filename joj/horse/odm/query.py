@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, TYPE_CHECKING, Union
 
 from bson import Code
 
@@ -95,11 +95,11 @@ class Query(Dict[str, Any]):
 
     @classmethod
     def text(
-        cls,
-        search: str,
-        language: str = None,
-        case_sensitive: bool = None,
-        diacritic_sensitive: bool = None,
+            cls,
+            search: str,
+            language: str = None,
+            case_sensitive: bool = None,
+            diacritic_sensitive: bool = None,
     ) -> "Query":
         """Constructs a ``$text`` query using the specified arguments."""
         text: Dict[str, Union[str, bool]] = {"$search": search}

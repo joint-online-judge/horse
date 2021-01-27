@@ -4,31 +4,18 @@ The :class:`Document` class is the main entry point to Motor-ODM and provides it
 interface.
 """
 
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    AsyncIterator,
-    Callable,
-    Iterator,
-    List,
-    Mapping,
-    Optional,
-    Sequence,
-    Type,
-    TypeVar,
-    Union,
-)
+from typing import (Any, AsyncIterator, Callable, Iterator, List, Mapping, Optional, Sequence, TYPE_CHECKING, Type,
+                    TypeVar, Union)
 
 from bson import CodecOptions, ObjectId
 from motor.core import AgnosticClientSession, AgnosticCollection, AgnosticDatabase
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 from pydantic.main import ModelMetaclass
 from pymongo import IndexModel, ReadPreference, ReturnDocument, WriteConcern
 from pymongo.errors import DuplicateKeyError
 from pymongo.read_concern import ReadConcern
 
 from joj.horse.odm.helpers import monkey_patch
-
 from .helpers import inherit_class
 from .indexes import IndexManager
 from .query import q

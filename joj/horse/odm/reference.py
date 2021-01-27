@@ -1,6 +1,8 @@
 from typing import Optional, Union
+
 from bson import ObjectId
-from pydantic import validator, BaseModel
+from pydantic import BaseModel, validator
+
 from .document import Document
 
 
