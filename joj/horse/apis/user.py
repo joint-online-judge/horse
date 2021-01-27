@@ -1,15 +1,13 @@
 import aiohttp
-import jwt
+import jose.jwt
+from fastapi import APIRouter, Depends, HTTPException, Request
 from starlette.responses import RedirectResponse
 from uvicorn.config import logger
 
-from fastapi import APIRouter, Request, HTTPException, Depends
-
+from joj.horse.models.user import login_by_jaccount
+from joj.horse.utils.auth import Authentication, generate_jwt
 from joj.horse.utils.oauth import jaccount
 from joj.horse.utils.url import generate_url
-
-from joj.horse.models.user import login_by_jaccount
-from joj.horse.utils.auth import Authentication
 
 router = APIRouter()
 router_name = "user"
@@ -42,8 +40,8 @@ async def jaccount_auth(request: Request, state: str, code: str):
     client = jaccount.get_client()
     if client is None:
         raise HTTPException(status_code=400, detail="Jaccount not supported")
-    if request.session.oauth_state != state:
-        raise HTTPException(status_code=400, detail="Invalid authentication state")
+    # if request.session.oauth_state != state:
+    #     raise HTTPException(status_code=400, detail="Invalid authentication state")
 
     redirect_url = generate_url(router_prefix, router_name, "jaccount", "auth")
     token_url, headers, body = client.get_token_url(code=code, redirect_url=redirect_url)
@@ -52,7 +50,7 @@ async def jaccount_auth(request: Request, state: str, code: str):
         async with aiohttp.ClientSession() as http:
             async with http.post(token_url, headers=headers, data=body.encode("utf-8")) as response:
                 data = await response.json()
-                parsed_data = jwt.decode(data["id_token"], verify=False)
+                parsed_data = jose.jwt.get_unverified_claims(data["id_token"])
                 id_token = jaccount.IDToken(**parsed_data)
     except:
         raise HTTPException(status_code=400, detail="Jaccount authentication failed")
@@ -67,13 +65,17 @@ async def jaccount_auth(request: Request, state: str, code: str):
     if user is None:
         raise HTTPException(status_code=400, detail="Duplicate")
 
-    request.session.oauth_state = ""
-    request.session.oauth_provider = "jaccount"
-    request.session.user = user
-    await set_session(request.session)
+    jwt = generate_jwt(user=user, type='jaccount')
+
+    # request.session.oauth_state = ""
+    # request.session.oauth_provider = "jaccount"
+    # request.session.user = user
+    # await set_session(request.session)
 
     redirect_url = generate_url()
-    return RedirectResponse(redirect_url)
+    logger.info(user)
+    logger.info('jwt=%s', jwt)
+    return RedirectResponse(redirect_url, headers={'JWT': jwt})
 
 
 def get_jaccount_logout_url():

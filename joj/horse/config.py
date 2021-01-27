@@ -32,9 +32,9 @@ class Settings(BaseSettings):
     redis_port: int = 6379
 
     # jwt config
-    jwt_secret_key: str
-    jwt_algorithm : str = 'HS256'
-    jwt_expire_seconds: int = 30
+    jwt_secret: str
+    jwt_algorithm: str = 'HS256'
+    jwt_expire_seconds: int = 14 * 24 * 60 * 60  # 14 days, in seconds
 
     # oauth config
     oauth_jaccount: bool = False

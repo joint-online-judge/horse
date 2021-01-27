@@ -19,7 +19,7 @@ app = FastAPI(
     redoc_url="/api/v1/redoc",
 )
 
-app.add_middleware(SessionMiddleware)
+# app.add_middleware(SessionMiddleware)
 
 from uvicorn.config import logger
 

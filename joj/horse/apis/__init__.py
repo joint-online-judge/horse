@@ -11,4 +11,4 @@ def include_router(module):
 
 include_router(domain)
 include_router(misc)
-include_router(misc)
+include_router(user)

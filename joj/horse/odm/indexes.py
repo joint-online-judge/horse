@@ -96,6 +96,8 @@ class IndexManager:
         equal to the existing ``db_index`` in the database.
         """
         dbi = db_index.copy()
-        del dbi["v"]
-        del dbi["ns"]
+        if "v" in dbi:
+            del dbi["v"]
+        if "ns" in dbi:
+            del dbi["ns"]
         return dbi == index.document  # type: ignore

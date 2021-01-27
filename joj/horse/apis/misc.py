@@ -1,4 +1,4 @@
-from joj.horse.utils.fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException
 from joj.horse.utils.version import get_version, get_git_version
 
 from joj.horse.models.misc import Version
