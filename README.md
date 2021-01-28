@@ -9,7 +9,7 @@ The new generation of JOJ Backend. "Horse" is related to speed, an excellent fea
 + rabbitmq
 + redis
 
-## Environment
+## Misc
 
 `pylint` is used as default linter. For your ease, you may need to add the following to `~/.pylintrc`(especially for VSCode users).
 
@@ -20,3 +20,15 @@ extension-pkg-whitelist=pydantic
 disable=
     C0114, # missing-module-docstring
 ```
+
+## Installation
+
+(setup venv)
+
+```bash
+pip3 install -e .
+vi .env # configure environment
+python3 -m joj.horse
+```
+
+Check <http://127.0.0.1:34765/api/v1> for api documentation.
