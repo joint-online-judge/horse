@@ -9,12 +9,11 @@ router_name = "domain"
 router_prefix = "/api/v1"
 
 
-@router.get("/list")
+@router.post("/list")
 async def list_user_domains(auth: Authentication = Depends(Authentication)):
     """
     List all domains in which {user} has a role.
     Use current login user if {user} is not specified.
     """
     auth.ensure(ScopeType.GENERAL, PermissionType.UNKNOWN)
-
     print("self")
