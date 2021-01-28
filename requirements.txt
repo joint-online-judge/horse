@@ -13,3 +13,4 @@ oauth-jaccount
 aiocache[redis,msgpack]
 tenacity
 python-jose[cryptography]
+fastapi-jwt-auth

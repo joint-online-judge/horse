@@ -4,6 +4,7 @@ from typing import Optional
 import jose.jwt
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi_jwt_auth import AuthJWT
 from pydantic import BaseModel
 
 from joj.horse.config import settings
@@ -24,6 +25,23 @@ class JWTToken(BaseModel):
     type: str
 
 
+class Settings(BaseModel):
+    authjwt_secret_key: str
+    # Configure application to store and get JWT from cookies
+    authjwt_token_location: set = {"cookies"}
+    # Only allow JWT cookies to be sent over https
+    authjwt_cookie_secure: bool = False
+    # Enable csrf double submit protection. default is True
+    authjwt_cookie_csrf_protect: bool = True
+
+
+@AuthJWT.load_config
+def get_config():
+    return Settings(
+        authjwt_secret_key=settings.jwt_secret
+    )
+
+
 def generate_jwt(user: User, type: str = ''):
     exp = datetime.utcnow() + timedelta(seconds=settings.jwt_expire_seconds)
     token = JWTToken(
@@ -38,19 +56,32 @@ def generate_jwt(user: User, type: str = ''):
 
 
 # noinspection PyBroadException
-def decode_jwt(jwt: Optional[HTTPAuthorizationCredentials] = Depends(jwt_scheme)) -> Optional[JWTToken]:
-    try:
-        payload = jose.jwt.decode(jwt.credentials, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
-        return JWTToken(**payload)
-    except Exception:
-        return None
+# def decode_jwt(jwt: Optional[HTTPAuthorizationCredentials] = Depends(jwt_scheme)) -> Optional[JWTToken]:
+#     try:
+#         payload = jose.jwt.decode(jwt.credentials, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+#         return JWTToken(**payload)
+#     except Exception:
+#         return None
+
+
+def authjwt_decode_jwt(auth_jwt: AuthJWT = Depends()) -> Optional[JWTToken]:
+    auth_jwt.jwt_optional()
+    payload = auth_jwt.get_raw_jwt()
+    if payload:
+        try:
+            return JWTToken(**payload)
+        except:
+            raise HTTPException(status_code=401, detail='jwt format unknown')
+    return None
+
+# def authjwt_encode_jwt(auth_jwt: AuthJWT = Depends()) -> str:
+
 
 
 # noinspection PyBroadException
-async def get_current_user(jwt_decoded=Depends(decode_jwt)) -> Optional[User]:
+async def get_current_user(jwt_decoded=Depends(authjwt_decode_jwt)) -> Optional[User]:
     try:
-        user = await get_by_uname(scope=jwt_decoded.scope, uname=jwt_decoded.name)
-        return user
+        return await get_by_uname(scope=jwt_decoded.scope, uname=jwt_decoded.name)
     except Exception:
         return None
 
