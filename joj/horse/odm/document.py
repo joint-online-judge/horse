@@ -278,6 +278,7 @@ class Document(BaseModel, metaclass=DocumentMetaclass, abstract=True):
             *,
             include: Union["AbstractSetIntStr", "DictIntStrAny"] = None,
             exclude: Union["AbstractSetIntStr", "DictIntStrAny"] = None,
+            json_compatible: bool = False,
     ) -> "DictStrAny":
         """Converts this object into a dictionary suitable to be saved to MongoDB."""
         document = self.dict(
@@ -290,6 +291,12 @@ class Document(BaseModel, metaclass=DocumentMetaclass, abstract=True):
         for key in self.__references__:
             if key in document and document[key] is not None:
                 document[key] = document[key]["id"]
+
+        if json_compatible:
+            for key, value in document.items():
+                if isinstance(value, ObjectId):
+                    document[key] = str(value)
+
         return document
 
     async def insert(self, *args: Any, **kwargs: Any) -> bool:
@@ -410,6 +417,13 @@ class Document(BaseModel, metaclass=DocumentMetaclass, abstract=True):
         """Returns a single document from the collection."""
         doc = await cls.collection().find_one(filter, *args, **kwargs)
         return cls(**doc) if doc else None
+
+    @classmethod
+    async def find_by_id(
+            cls: Type["GenericDocument"],
+            _id: Union[str, ObjectId]
+    ) -> Optional["GenericDocument"]:
+        return await cls.find_one({"_id": _id})
 
     @classmethod
     async def find_one_and_delete(

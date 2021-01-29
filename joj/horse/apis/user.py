@@ -1,5 +1,6 @@
 import aiohttp
 import jose.jwt
+from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi_jwt_auth import AuthJWT
 from starlette.responses import RedirectResponse
@@ -84,3 +85,20 @@ def get_jaccount_logout_url():
         raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Jaccount not supported")
     redirect_url = generate_url()
     return client.get_logout_url(redirect_url)
+
+
+async def parse_uid(uid: str, auth: Authentication = Depends()) -> User:
+    if uid == "me":
+        if auth.user:
+            return auth.user
+    else:
+        user = await User.find_by_id(uid)
+        if user:
+            return user
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+
+@router.get('/{uid}/domains')
+async def list_domains(user: User = Depends(parse_uid)):
+    print(user.dict())
+    return user.mongo(json_compatible=True)

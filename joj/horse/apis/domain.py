@@ -1,4 +1,6 @@
-from fastapi import Depends
+from typing import Optional
+
+from fastapi import Depends, Query
 from fastapi_utils.inferring_router import InferringRouter
 
 from joj.horse.models.permission import PermissionType, ScopeType
@@ -9,8 +11,8 @@ router_name = "domain"
 router_prefix = "/api/v1"
 
 
-@router.post("/list")
-async def list_user_domains(auth: Authentication = Depends(Authentication)):
+@router.get("/list")
+async def list_user_domains(auth: Authentication = Depends(Authentication), uid: Optional[str] = None):
     """
     List all domains in which {user} has a role.
     Use current login user if {user} is not specified.
