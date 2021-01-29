@@ -6,7 +6,7 @@ from starlette.responses import RedirectResponse
 from uvicorn.config import logger
 
 from joj.horse.models.misc import RedirectModel
-from joj.horse.models.user import login_by_jaccount
+from joj.horse.models.user import User
 from joj.horse.utils.auth import Authentication, auth_jwt_encode
 from joj.horse.utils.oauth import jaccount
 from joj.horse.utils.url import generate_url
@@ -57,7 +57,7 @@ async def jaccount_auth(request: Request, state: str, code: str, auth_jwt: AuthJ
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Jaccount authentication failed")
 
     logger.info("Jaccount login: " + str(id_token))
-    user = await login_by_jaccount(
+    user = await User.login_by_jaccount(
         student_id=id_token.code,
         jaccount_name=id_token.sub,
         real_name=id_token.name,

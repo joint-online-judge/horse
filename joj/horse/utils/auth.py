@@ -14,7 +14,7 @@ from joj.horse.models.domain_role import DomainRole
 from joj.horse.models.domain_user import DomainUser
 from joj.horse.models.permission import DEFAULT_DOMAIN_PERMISSION, DEFAULT_SITE_PERMISSION, DefaultRole, \
     DomainPermission, PermissionType, ScopeType, SitePermission
-from joj.horse.models.user import User, get_by_uname
+from joj.horse.models.user import User
 
 jwt_scheme = HTTPBearer(bearerFormat='JWT', auto_error=False)
 
@@ -105,7 +105,7 @@ def auth_jwt_encode(auth_jwt: AuthJWT, user: User, channel: str = '') -> str:
 # noinspection PyBroadException
 async def get_current_user(jwt_decoded=Depends(auth_jwt_decode)) -> Optional[User]:
     try:
-        return await get_by_uname(scope=jwt_decoded.scope, uname=jwt_decoded.name)
+        return await User.find_by_uname(scope=jwt_decoded.scope, uname=jwt_decoded.name)
     except Exception:
         return None
 

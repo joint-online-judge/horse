@@ -65,38 +65,35 @@ class User(Document):
     def default_login_timestamp(cls, v, *, values, **kwargs):
         return v or datetime.utcnow()
 
+    @classmethod
+    async def find_by_uname(cls, scope: str, uname: str) -> 'User':
+        return await cls.find_one({'scope': scope, 'uname_lower': uname.strip().lower()})
+
+    @classmethod
+    async def login_by_jaccount(cls, student_id: str, jaccount_name: str, real_name: str, ip: str) -> 'User':
+        scope = "sjtu"
+        user = await cls.find_by_uname(scope=scope, uname=jaccount_name)
+        if user:
+            user.login_timestamp = datetime.utcnow()
+            user.login_ip = ip
+            await user.save()
+        else:
+            user = User(
+                scope=scope,
+                uname=jaccount_name,
+                mail=EmailStr(jaccount_name + "@sjtu.edu.cn"),
+                student_id=student_id,
+                real_name=real_name,
+                register_timestamp=datetime.utcnow(),
+                register_ip=ip,
+                login_timestamp=datetime.utcnow(),
+                login_ip=ip,
+            )
+            if not await user.insert():
+                user = None
+        return user
+
 
 class UserReference(Reference):
     data: Optional[User] = None
     reference = User
-
-
-async def create(user: User) -> User:
-    return await user.insert() and user or None
-
-
-async def get_by_uname(scope: str, uname: str) -> User:
-    return await User.find_one({'scope': scope, 'uname_lower': uname.strip().lower()})
-
-
-async def login_by_jaccount(student_id: str, jaccount_name: str, real_name: str, ip: str) -> User:
-    scope = "sjtu"
-    user = await get_by_uname(scope=scope, uname=jaccount_name)
-    if user:
-        user.login_timestamp = datetime.utcnow()
-        user.login_ip = ip
-        await user.save()
-    else:
-        user = User(
-            scope=scope,
-            uname=jaccount_name,
-            mail=EmailStr(jaccount_name + "@sjtu.edu.cn"),
-            student_id=student_id,
-            real_name=real_name,
-            register_timestamp=datetime.utcnow(),
-            register_ip=ip,
-            login_timestamp=datetime.utcnow(),
-            login_ip=ip,
-        )
-        user = await create(user=user)
-    return user
