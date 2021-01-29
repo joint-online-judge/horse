@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional, Union, Type
 
 from bson import ObjectId
 from pydantic import BaseModel, validator
@@ -9,7 +9,7 @@ from .document import Document
 class Reference(BaseModel):
     id: Union[ObjectId, str]
     data: Optional[Document] = None
-    reference: type(Document) = Document
+    reference: Type[Document] = Document
 
     @validator('id', allow_reuse=True, pre=True)
     def validate_id(cls, v):
