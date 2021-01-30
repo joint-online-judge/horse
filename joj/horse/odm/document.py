@@ -423,6 +423,7 @@ class Document(BaseModel, metaclass=DocumentMetaclass, abstract=True):
             cls: Type["GenericDocument"],
             _id: Union[str, ObjectId]
     ) -> Optional["GenericDocument"]:
+        """Returns a single document from the collection by ObjectId."""
         return await cls.find_one({"_id": _id})
 
     @classmethod

@@ -1,13 +1,14 @@
+from typing import List
+
 import aiohttp
-import jose.jwt
-from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi_jwt_auth import AuthJWT
 from starlette.responses import RedirectResponse
 from uvicorn.config import logger
 
+from joj.horse.models import DomainUser, DomainUserResponse, User, UserResponse
 from joj.horse.models.misc import RedirectModel
-from joj.horse.models.user import User
+from joj.horse.utils import errors
 from joj.horse.utils.auth import Authentication, auth_jwt_encode
 from joj.horse.utils.oauth import jaccount
 from joj.horse.utils.url import generate_url
@@ -52,7 +53,7 @@ async def jaccount_auth(request: Request, state: str, code: str, auth_jwt: AuthJ
         async with aiohttp.ClientSession() as http:
             async with http.post(token_url, headers=headers, data=body.encode("utf-8")) as response:
                 data = await response.json()
-                parsed_data = jose.jwt.get_unverified_claims(data["id_token"])
+                parsed_data = auth_jwt.get_raw_jwt(data["id_token"])
                 id_token = jaccount.IDToken(**parsed_data)
     except:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Jaccount authentication failed")
@@ -91,14 +92,22 @@ async def parse_uid(uid: str, auth: Authentication = Depends()) -> User:
     if uid == "me":
         if auth.user:
             return auth.user
+        raise errors.InvalidAuthenticationError()
     else:
         user = await User.find_by_id(uid)
         if user:
             return user
-    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        raise errors.UserNotFoundError(uid)
 
 
-@router.get('/{uid}/domains')
-async def list_domains(user: User = Depends(parse_uid)):
-    print(user.dict())
-    return user.mongo(json_compatible=True)
+@router.get('/{uid}', response_model=UserResponse)
+async def get_user(user: User = Depends(parse_uid)):
+    return UserResponse(**user.dict())
+
+
+@router.get('/{uid}/domains', response_model=List[DomainUserResponse])
+async def get_user_domains(user: User = Depends(parse_uid)):
+    domains = []
+    async for domain in DomainUser.find({"user": user.id}):
+        domains.append(DomainUserResponse(**domain.dict()))
+    return domains

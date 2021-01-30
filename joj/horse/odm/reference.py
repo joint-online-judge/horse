@@ -1,4 +1,4 @@
-from typing import Optional, Union, Type
+from typing import Optional, Type, Union
 
 from bson import ObjectId
 from pydantic import BaseModel, validator
@@ -21,7 +21,7 @@ class Reference(BaseModel):
             raise ValueError('error')
 
     async def populate(self):
-        self.data = await self.reference.find_one({"_id": self.id})
+        self.data = await self.reference.find_by_id(self.id)
         return self.data
 
     def dict(self, **kwargs):

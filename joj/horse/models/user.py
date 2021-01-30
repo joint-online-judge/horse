@@ -2,22 +2,18 @@ import re
 from datetime import datetime
 from typing import Optional
 
-from pydantic import EmailStr, validator
+from pydantic import BaseModel, EmailStr, validator
 from pymongo import ASCENDING, IndexModel
 
-from joj.horse.odm import Document, Reference
+from joj.horse.odm import Document, Reference, object_id_to_str
 
 UID_RE = re.compile(r'-?\d+')
 UNAME_RE = re.compile(r'[^\s\u3000](.{,254}[^\s\u3000])?')
 
 
-class User(Document):
-    class Mongo:
-        collection = "users"
-        indexes = [
-            IndexModel([("scope", ASCENDING), ("uname_lower", ASCENDING)], unique=True),
-            IndexModel([("scope", ASCENDING), ("mail_lower", ASCENDING)], unique=True),
-        ]
+class UserResponse(BaseModel):
+    id: str
+    _normalize_id = validator('id', pre=True, allow_reuse=True)(object_id_to_str)
 
     scope: str
     uname: str
@@ -64,6 +60,15 @@ class User(Document):
     @validator("login_timestamp", pre=True, always=True)
     def default_login_timestamp(cls, v, *, values, **kwargs):
         return v or datetime.utcnow()
+
+
+class User(Document, UserResponse):
+    class Mongo:
+        collection = "users"
+        indexes = [
+            IndexModel([("scope", ASCENDING), ("uname_lower", ASCENDING)], unique=True),
+            IndexModel([("scope", ASCENDING), ("mail_lower", ASCENDING)], unique=True),
+        ]
 
     @classmethod
     async def find_by_uname(cls, scope: str, uname: str) -> 'User':

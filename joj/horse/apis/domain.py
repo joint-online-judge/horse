@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import Depends, Query
+from fastapi import Depends
 from fastapi_utils.inferring_router import InferringRouter
 
 from joj.horse.models.permission import PermissionType, ScopeType
