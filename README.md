@@ -29,6 +29,7 @@ disable=
 pip3 install -e .
 vi .env # configure environment
 python3 -m joj.horse
+# or just press F5 in VS Code
 ```
 
 Check <http://127.0.0.1:34765/api/v1> for api documentation.
