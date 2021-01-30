@@ -9,7 +9,7 @@ from uvicorn.config import logger
 from joj.horse.models.misc import RedirectModel
 from joj.horse.models.user import User
 from joj.horse.utils.auth import Authentication, auth_jwt_encode
-import joj.horse.utils.oauth.jaccount as jaccount
+from joj.horse.utils.oauth import jaccount
 from joj.horse.utils.url import generate_url
 
 router = APIRouter()

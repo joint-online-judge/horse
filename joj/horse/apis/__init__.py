@@ -1,6 +1,4 @@
-import joj.horse.apis.domain as domain
-import joj.horse.apis.misc as misc
-import joj.horse.apis.user as user
+from joj.horse.apis import domain, misc, user
 from joj.horse import app
 
 
