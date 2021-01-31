@@ -105,7 +105,8 @@ def auth_jwt_encode(auth_jwt: AuthJWT, user: User, channel: str = '') -> str:
 # noinspection PyBroadException
 async def get_current_user(jwt_decoded=Depends(auth_jwt_decode)) -> Optional[User]:
     try:
-        return await User.find_by_uname(scope=jwt_decoded.scope, uname=jwt_decoded.name)
+        user = await User.find_by_uname(scope=jwt_decoded.scope, uname=jwt_decoded.name)
+        return user
     except Exception:
         return None
 

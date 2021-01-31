@@ -1,11 +1,9 @@
 from datetime import datetime
-from typing import Union
 
 from pydantic import BaseModel, validator
 from pymongo import ASCENDING, IndexModel
 
-from joj.horse.models.domain import DomainReference
-from joj.horse.models.user import UserReference, UserResponse
+# from joj.horse.models.user import UserReference, UserResponse
 from joj.horse.odm import Document, object_id_to_str
 
 
@@ -14,7 +12,7 @@ class DomainUserResponse(BaseModel):
     _normalize_id = validator('id', pre=True, allow_reuse=True)(object_id_to_str)
 
     domain: str
-    user: Union[str, UserResponse]
+    # user: Union[str, UserResponse]
     role: str
 
     join_at: datetime
@@ -33,5 +31,5 @@ class DomainUser(Document, DomainUserResponse):
             IndexModel([("domain", ASCENDING), ("user", ASCENDING)], unique=True),
         ]
 
-    domain: DomainReference
-    user: UserReference
+    # domain: DomainReference
+    # user: UserReference

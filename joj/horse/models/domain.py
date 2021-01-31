@@ -2,7 +2,7 @@ from typing import Optional
 
 from pymongo import IndexModel
 
-from joj.horse.models.user import UserReference
+# from joj.horse.models.user import UserReference
 from joj.horse.odm import Document, Reference
 
 
@@ -17,7 +17,7 @@ class Domain(Document):
 
     url: str
     name: str
-    owner: UserReference
+    # owner: UserReference
 
     gravatar: str = ""
     bulletin: str = ""

@@ -1,12 +1,11 @@
-from typing import List
-
 import aiohttp
+import jwt
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi_jwt_auth import AuthJWT
 from starlette.responses import RedirectResponse
 from uvicorn.config import logger
 
-from joj.horse.models import DomainUser, DomainUserResponse, User, UserResponse
+from joj.horse import models, schemas
 from joj.horse.models.misc import RedirectModel
 from joj.horse.utils import errors
 from joj.horse.utils.auth import Authentication, auth_jwt_encode
@@ -53,13 +52,14 @@ async def jaccount_auth(request: Request, state: str, code: str, auth_jwt: AuthJ
         async with aiohttp.ClientSession() as http:
             async with http.post(token_url, headers=headers, data=body.encode("utf-8")) as response:
                 data = await response.json()
-                parsed_data = auth_jwt.get_raw_jwt(data["id_token"])
+                parsed_data = jwt.decode(data["id_token"], verify=False)
                 id_token = jaccount.IDToken(**parsed_data)
-    except:
+    except Exception as e:
+        print(e)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Jaccount authentication failed")
 
     logger.info("Jaccount login: " + str(id_token))
-    user = await User.login_by_jaccount(
+    user = await models.User.login_by_jaccount(
         student_id=id_token.code,
         jaccount_name=id_token.sub,
         real_name=id_token.name,
@@ -68,15 +68,15 @@ async def jaccount_auth(request: Request, state: str, code: str, auth_jwt: AuthJ
     if user is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Jaccount login failed")
 
-    jwt = auth_jwt_encode(auth_jwt=auth_jwt, user=user, channel='jaccount')
+    access_jwt = auth_jwt_encode(auth_jwt=auth_jwt, user=user, channel='jaccount')
 
     redirect_url = generate_url()
     logger.info(user)
-    logger.info('jwt=%s', jwt)
+    logger.info('jwt=%s', access_jwt)
 
     response = RedirectResponse(redirect_url)
     response.delete_cookie(key='jaccount_state')
-    auth_jwt.set_access_cookies(jwt, response=response)
+    auth_jwt.set_access_cookies(access_jwt, response=response)
     return response
 
 
@@ -88,26 +88,26 @@ def get_jaccount_logout_url():
     return client.get_logout_url(redirect_url)
 
 
-async def parse_uid(uid: str, auth: Authentication = Depends()) -> User:
+async def parse_uid(uid: str, auth: Authentication = Depends()) -> models.User:
     if uid == "me":
         if auth.user:
             return auth.user
         raise errors.InvalidAuthenticationError()
     else:
-        user = await User.find_by_id(uid)
+        user = await models.User.find_by_id(uid)
         if user:
             return user
         raise errors.UserNotFoundError(uid)
 
 
-@router.get('/{uid}', response_model=UserResponse)
-async def get_user(user: User = Depends(parse_uid)):
-    return UserResponse(**user.dict())
+@router.get('/{uid}', response_model=schemas.User)
+async def get_user(user: models.User = Depends(parse_uid)):
+    # print(schemas.User.from_orm(user))
+    return schemas.User.from_orm(user)
 
-
-@router.get('/{uid}/domains', response_model=List[DomainUserResponse])
-async def get_user_domains(user: User = Depends(parse_uid)):
-    domains = []
-    async for domain in DomainUser.find({"user": user.id}):
-        domains.append(DomainUserResponse(**domain.dict()))
-    return domains
+# @router.get('/{uid}/domains', response_model=List[DomainUserResponse])
+# async def get_user_domains(user: User = Depends(parse_uid)):
+#     domains = []
+#     async for domain in DomainUser.find({"user": user.id}):
+#         domains.append(DomainUserResponse(**domain.dict()))
+#     return domains

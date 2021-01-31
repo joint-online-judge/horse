@@ -3,7 +3,6 @@ from datetime import datetime
 from pydantic import validator
 from pymongo import ASCENDING, IndexModel
 
-from joj.horse.models.domain import DomainReference
 from joj.horse.models.permission import DomainPermission
 from joj.horse.odm import Document
 
@@ -19,7 +18,7 @@ class DomainRole(Document):
 
     permission: DomainPermission = DomainPermission()
 
-    domain: DomainReference
+    # domain: DomainReference
     role: str
     updated_at: datetime
 
