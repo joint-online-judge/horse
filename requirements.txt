@@ -16,4 +16,3 @@ pymongo>=3.11.2
 tenacity>=6.3.1
 umongo[motor]>=3.0.0
 uvicorn>=0.13.3
-python-jose
