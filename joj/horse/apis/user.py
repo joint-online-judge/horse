@@ -1,7 +1,8 @@
 import aiohttp
 import jwt
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import Depends, HTTPException, Request, Response, status
 from fastapi_jwt_auth import AuthJWT
+from fastapi_utils.inferring_router import InferringRouter
 from starlette.responses import RedirectResponse
 from uvicorn.config import logger
 
@@ -12,7 +13,7 @@ from joj.horse.utils.auth import Authentication, auth_jwt_encode
 from joj.horse.utils.oauth import jaccount
 from joj.horse.utils.url import generate_url
 
-router = APIRouter()
+router = InferringRouter()
 router_name = "user"
 router_prefix = "/api/v1"
 
@@ -100,10 +101,9 @@ async def parse_uid(uid: str, auth: Authentication = Depends()) -> models.User:
         raise errors.UserNotFoundError(uid)
 
 
-@router.get('/{uid}', response_model=schemas.User)
-async def get_user(user: models.User = Depends(parse_uid)):
-    # print(schemas.User.from_orm(user))
-    return schemas.User.from_orm(user)
+@router.get('/{uid}')
+async def get_user(user: models.User = Depends(parse_uid)) -> schemas.UserBase:
+    return schemas.UserBase.from_orm(user)
 
 # @router.get('/{uid}/domains', response_model=List[DomainUserResponse])
 # async def get_user_domains(user: User = Depends(parse_uid)):

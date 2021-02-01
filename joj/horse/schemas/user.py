@@ -10,7 +10,7 @@ UID_RE = re.compile(r'-?\d+')
 UNAME_RE = re.compile(r'[^\s\u3000](.{,254}[^\s\u3000])?')
 
 
-class User(BaseModel):
+class UserBase(BaseModel):
     class Config:
         orm_mode = True
 
@@ -27,14 +27,8 @@ class User(BaseModel):
     student_id: str = ''
     real_name: str = ''
 
-    salt: str = ''
-    hash: str = ''
-    role: str = 'user'
-
     register_timestamp: datetime
-    register_ip: str = "0.0.0.0"
     login_timestamp: datetime
-    login_ip: str = "0.0.0.0"
 
     @validator("uname", pre=True)
     def validate_uname(cls, v: str):
@@ -61,3 +55,12 @@ class User(BaseModel):
     @validator("login_timestamp", pre=True, always=True)
     def default_login_timestamp(cls, v, *, values, **kwargs):
         return v or datetime.utcnow()
+
+
+class User(UserBase):
+    salt: str = ''
+    hash: str = ''
+    role: str = 'user'
+
+    register_ip: str = "0.0.0.0"
+    login_ip: str = "0.0.0.0"

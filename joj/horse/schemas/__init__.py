@@ -1,1 +1,1 @@
-from joj.horse.schemas.user import User
+from joj.horse.schemas.user import User, UserBase
