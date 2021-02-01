@@ -1,6 +1,6 @@
 from typing import Optional
 
-import jose.jwt
+import jwt
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -71,7 +71,7 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
 
 
 def jwt_token_encode(token: JWTToken):
-    encoded_jwt = jose.jwt.encode(token.dict(), settings.jwt_secret, algorithm=settings.jwt_algorithm)
+    encoded_jwt = jwt.encode(token.dict(), settings.jwt_secret, algorithm=settings.jwt_algorithm)
     return encoded_jwt
 
 
