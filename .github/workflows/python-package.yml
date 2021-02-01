@@ -38,13 +38,14 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Generate openapi.json
       run: |
-        python3 -m joj.horse.openapi
+        python3 -m joj.horse.openapi > openapi.json
     - uses: fregante/setup-git-user@v1
     - name: Push openapi.json to repo
       run: |
-        export VISUAL=vim
-        export EDITOR="$VISUAL"
+        git checkout openapi || git checkout -b openapi
+        git status
         git add openapi.json
-        git commit --amend
-        git fetch origin master
-        git push origin HEAD:master
+        git commit -m 'update openapi.json'
+        git push --set-upstream origin openapi
+        git status
+        
