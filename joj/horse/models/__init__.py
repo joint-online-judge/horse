@@ -6,4 +6,5 @@
 # from joj.horse.models.problem import Problem, ProblemReference
 # from joj.horse.models.problem_set import ProblemSet, ProblemSetReference
 # from joj.horse.models.record import Record
+from joj.horse.models.domain import Domain
 from joj.horse.models.user import User

@@ -7,7 +7,7 @@ from starlette.responses import RedirectResponse
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
-from joj.horse.models.misc import RedirectModel
+from joj.horse.schemas.misc import RedirectModel
 from joj.horse.utils import errors
 from joj.horse.utils.auth import Authentication, auth_jwt_encode
 from joj.horse.utils.oauth import jaccount

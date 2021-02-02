@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from joj.horse.models.misc import JWT, Version
+from joj.horse.schemas.misc import JWT, Version
 from joj.horse.utils.auth import Authentication, jwt_token_encode
 from joj.horse.utils.version import get_git_version, get_version
 

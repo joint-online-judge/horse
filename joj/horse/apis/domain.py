@@ -3,6 +3,7 @@ from typing import Optional
 from fastapi import Depends
 from fastapi_utils.inferring_router import InferringRouter
 
+from joj.horse import models, schemas
 from joj.horse.models.permission import PermissionType, ScopeType
 from joj.horse.utils.auth import Authentication
 
@@ -19,3 +20,15 @@ async def list_user_domains(auth: Authentication = Depends(Authentication), uid:
     """
     auth.ensure(ScopeType.GENERAL, PermissionType.UNKNOWN)
     print("self")
+
+
+@router.post("/create")
+async def create_domain(url: str, name: str, auth: Authentication = Depends()):
+    domain = schemas.Domain(
+        url=url,
+        name=name,
+        owner=auth.user.id
+    )
+    domain = models.Domain(**domain.dict())
+    print(domain)
+    await domain.commit()
