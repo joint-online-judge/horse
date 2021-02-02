@@ -37,16 +37,16 @@ jobs:
         if [ -f requirements.txt ]; then pip install -e .; fi
     - name: Git setup
       uses: fregante/setup-git-user@v1
-    - name: Generate openapi.tmp.json
+    - name: Generate openapi.json
       run: |
-        python3 -m joj.horse.openapi > openapi.tmp.json
-    - name: Git checkout & add & commit & push
-      run: |
-        git fetch
-        git checkout openapi || git checkout -b openapi
-        mv -f openapi.tmp.json openapi.json
-        git status
-        git add openapi.json
-        git commit -m 'update openapi.json'
-        git push --set-upstream origin openapi
-        git status
+        mkdir -p build
+        python3 -m joj.horse.openapi > build/openapi.json
+    - name: Deploy to GitHub Pages
+      if: success()
+      uses: crazy-max/ghaction-github-pages@v2
+      with:
+        target_branch: openapi
+        build_dir: build
+        keep_history: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
