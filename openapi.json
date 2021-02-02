@@ -1,0 +1,477 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "JOJ Horse",
+    "description": "Git version: 5633e3d",
+    "version": "0.0.0"
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Redirect To Docs",
+        "operationId": "redirect_to_docs__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/domain/list": {
+      "get": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "List User Domains",
+        "description": "List all domains in which {user} has a role.\nUse current login user if {user} is not specified.",
+        "operationId": "list_user_domains_api_v1_domain_list_get",
+        "parameters": [
+          {
+            "required": false,
+            "schema": {
+              "title": "Uid",
+              "type": "string"
+            },
+            "name": "uid",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Domain",
+              "type": "string"
+            },
+            "name": "domain",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/misc/version": {
+      "get": {
+        "tags": [
+          "misc"
+        ],
+        "summary": "Version",
+        "operationId": "version_api_v1_misc_version_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Version"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/misc/jwt": {
+      "get": {
+        "tags": [
+          "misc"
+        ],
+        "summary": "Jwt",
+        "operationId": "jwt_api_v1_misc_jwt_get",
+        "parameters": [
+          {
+            "required": false,
+            "schema": {
+              "title": "Domain",
+              "type": "string"
+            },
+            "name": "domain",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JWT"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/user/logout": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Logout",
+        "operationId": "logout_api_v1_user_logout_get",
+        "parameters": [
+          {
+            "required": false,
+            "schema": {
+              "title": "Domain",
+              "type": "string"
+            },
+            "name": "domain",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedirectModel"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/user/jaccount/login": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Jaccount Login",
+        "operationId": "jaccount_login_api_v1_user_jaccount_login_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedirectModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/user/jaccount/auth": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Jaccount Auth",
+        "operationId": "jaccount_auth_api_v1_user_jaccount_auth_get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "State",
+              "type": "string"
+            },
+            "name": "state",
+            "in": "query"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Code",
+              "type": "string"
+            },
+            "name": "code",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/user/{uid}": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get User",
+        "operationId": "get_user_api_v1_user__uid__get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Uid",
+              "type": "string"
+            },
+            "name": "uid",
+            "in": "path"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Domain",
+              "type": "string"
+            },
+            "name": "domain",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserBase"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "title": "HTTPValidationError",
+        "type": "object",
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            }
+          }
+        }
+      },
+      "JWT": {
+        "title": "JWT",
+        "required": [
+          "jwt"
+        ],
+        "type": "object",
+        "properties": {
+          "jwt": {
+            "title": "Jwt",
+            "type": "string"
+          }
+        }
+      },
+      "RedirectModel": {
+        "title": "RedirectModel",
+        "required": [
+          "redirect_url"
+        ],
+        "type": "object",
+        "properties": {
+          "redirect_url": {
+            "title": "Redirect Url",
+            "type": "string"
+          }
+        }
+      },
+      "UserBase": {
+        "title": "UserBase",
+        "required": [
+          "scope",
+          "uname",
+          "mail",
+          "register_timestamp",
+          "login_timestamp"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          },
+          "uname": {
+            "title": "Uname",
+            "type": "string"
+          },
+          "mail": {
+            "title": "Mail",
+            "type": "string",
+            "format": "email"
+          },
+          "uname_lower": {
+            "title": "Uname Lower",
+            "type": "string"
+          },
+          "mail_lower": {
+            "title": "Mail Lower",
+            "type": "string"
+          },
+          "gravatar": {
+            "title": "Gravatar",
+            "type": "string"
+          },
+          "student_id": {
+            "title": "Student Id",
+            "type": "string",
+            "default": ""
+          },
+          "real_name": {
+            "title": "Real Name",
+            "type": "string",
+            "default": ""
+          },
+          "register_timestamp": {
+            "title": "Register Timestamp",
+            "type": "string",
+            "format": "date-time"
+          },
+          "login_timestamp": {
+            "title": "Login Timestamp",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ValidationError": {
+        "title": "ValidationError",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "loc": {
+            "title": "Location",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        }
+      },
+      "Version": {
+        "title": "Version",
+        "required": [
+          "version",
+          "git"
+        ],
+        "type": "object",
+        "properties": {
+          "version": {
+            "title": "Version",
+            "type": "string"
+          },
+          "git": {
+            "title": "Git",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}
