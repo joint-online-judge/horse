@@ -33,7 +33,7 @@ jobs:
       run: |
         mkdir -p build
         python3 -m joj.horse.openapi > build/openapi.json
-    - name: Deploy to GitHub Pages
+    - name: Git push openapi.json
       if: success() && github.event_name == 'push' && github.ref == 'refs/heads/master'
       uses: crazy-max/ghaction-github-pages@v2
       with:
