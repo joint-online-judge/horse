@@ -34,10 +34,11 @@ def get_db():
     return db
 
 
-from joj.horse.models import *
+from joj.horse import models
 
 collections: List[Type[MotorAsyncIODocument]] = [
-    User,
+    models.User,
+    models.Domain,
 ]
 
 

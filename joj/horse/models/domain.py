@@ -1,28 +1,24 @@
-from typing import Optional
-
 from pymongo import IndexModel
+from umongo import fields
+from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 
-# from joj.horse.models.user import UserReference
-from joj.horse.odm import Document, Reference
+from joj.horse import models
+from joj.horse.utils.db import instance
 
 
-class Domain(Document):
-    class Mongo:
-        collection = "domains"
+@instance.register
+class Domain(MotorAsyncIODocument):
+    class Meta:
+        collection_name = "domains"
         indexes = [
             IndexModel("url", unique=True),
             IndexModel("owner"),
             IndexModel("name"),
         ]
 
-    url: str
-    name: str
-    # owner: UserReference
+    url = fields.StringField(required=True)
+    name = fields.StringField(required=True)
+    owner = fields.ReferenceField(models.User, required=True)
 
-    gravatar: str = ""
-    bulletin: str = ""
-
-
-class DomainReference(Reference):
-    data: Optional[Domain] = None
-    reference = Domain
+    gravatar = fields.StringField()
+    bulletin = fields.StringField()
