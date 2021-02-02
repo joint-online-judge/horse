@@ -40,5 +40,6 @@ jobs:
         target_branch: openapi
         build_dir: build
         keep_history: true
+        commit_message: Generate openapi.json
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
