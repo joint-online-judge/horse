@@ -1,20 +1,13 @@
-from typing import Optional, Union
-
-from pydantic import BaseModel
-
-from joj.horse import schemas
-from joj.horse.utils.db import PydanticObjectId
+from joj.horse.schemas.base import BaseODMSchema, EmbeddedSchema, embedded_schema
+from joj.horse.schemas.user import UserBase
 
 
-class Domain(BaseModel):
-    class Config:
-        orm_mode = True
-
-    id: Optional[PydanticObjectId]
-
+class Domain(BaseODMSchema):
     url: str
     name: str
-    owner: Union[PydanticObjectId, schemas.User]
+    owner: EmbeddedSchema[UserBase]
 
     gravatar: str = ""
     bulletin: str = ""
+
+    _validate_owner = embedded_schema('owner', UserBase)

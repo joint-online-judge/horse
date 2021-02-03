@@ -2,6 +2,7 @@ from typing import Optional
 
 from fastapi import Depends
 from fastapi_utils.inferring_router import InferringRouter
+from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.models.permission import PermissionType, ScopeType
@@ -23,12 +24,14 @@ async def list_user_domains(auth: Authentication = Depends(Authentication), uid:
 
 
 @router.post("/create")
-async def create_domain(url: str, name: str, auth: Authentication = Depends()):
+async def create_domain(url: str, name: str, auth: Authentication = Depends()) -> schemas.Domain:
     domain = schemas.Domain(
         url=url,
         name=name,
         owner=auth.user.id
     )
-    domain = models.Domain(**domain.dict())
-    print(domain)
+    domain = models.Domain(**domain.to_model())
     await domain.commit()
+    logger.info('domain created: %s', domain)
+    # print(domain.owner)
+    return schemas.Domain.from_orm(domain)
