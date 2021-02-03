@@ -2,7 +2,7 @@ from pymongo import IndexModel
 from umongo import fields
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 
-from joj.horse import models
+from joj.horse.models.user import User
 from joj.horse.utils.db import instance
 
 
@@ -16,9 +16,11 @@ class Domain(MotorAsyncIODocument):
             IndexModel("name"),
         ]
 
+    # id = fields.ObjectIdField(attribute='_id')
+
     url = fields.StringField(required=True)
     name = fields.StringField(required=True)
-    owner = fields.ReferenceField(models.User, required=True)
+    owner = fields.ReferenceField(User, required=True)
 
-    gravatar = fields.StringField()
-    bulletin = fields.StringField()
+    gravatar = fields.StringField(default="")
+    bulletin = fields.StringField(default="")

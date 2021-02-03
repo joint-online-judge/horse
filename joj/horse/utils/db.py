@@ -1,7 +1,6 @@
 from functools import lru_cache
 from typing import List, Type
 
-from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument, MotorAsyncIOInstance
 from uvicorn.config import logger
@@ -9,21 +8,6 @@ from uvicorn.config import logger
 from joj.horse.config import settings
 
 instance = MotorAsyncIOInstance()
-
-
-class PydanticObjectId(str):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v):
-        if isinstance(v, str):
-            v = ObjectId(v)
-        elif not isinstance(v, ObjectId):
-            raise TypeError('ObjectId required')
-        return str(v)
-
 
 @lru_cache()
 def get_db():

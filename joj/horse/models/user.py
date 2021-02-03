@@ -63,6 +63,6 @@ class User(MotorAsyncIODocument):
                 login_ip=ip,
             )
             user = User(**user.dict())
-            if not await user.insert():
+            if not await user.commit():
                 user = None
         return user

@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr, validator
 
-from joj.horse.utils.db import PydanticObjectId
+from joj.horse.schemas.base import PydanticObjectId
 
 UID_RE = re.compile(r'-?\d+')
 UNAME_RE = re.compile(r'[^\s\u3000](.{,254}[^\s\u3000])?')
