@@ -6,6 +6,7 @@ from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.models.permission import PermissionType, ScopeType
+from joj.horse.utils import errors
 from joj.horse.utils.auth import Authentication
 
 router = InferringRouter()
@@ -35,3 +36,14 @@ async def create_domain(url: str, name: str, auth: Authentication = Depends()) -
     logger.info('domain created: %s', domain)
     # print(domain.owner)
     return schemas.Domain.from_orm(domain)
+
+
+@router.get("/{domain}")
+async def get_domain(domain: str, auth: Authentication = Depends()) -> schemas.Domain:
+    print(domain)
+    await auth.init_domain(domain)
+    if auth.domain:
+        print(auth.domain)
+        await auth.domain.owner.fetch()
+        return schemas.Domain.from_orm(auth.domain)
+    raise errors.DomainNotFoundError(domain)

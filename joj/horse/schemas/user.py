@@ -24,9 +24,6 @@ class UserBase(BaseModel):
     mail_lower: str = None
     gravatar: str = None
 
-    student_id: str = ''
-    real_name: str = ''
-
     register_timestamp: datetime
     login_timestamp: datetime
 
@@ -48,6 +45,18 @@ class UserBase(BaseModel):
     def default_gravatar(cls, v, *, values, **kwargs):
         return v or values["mail"].strip().lower()
 
+
+class User(UserBase):
+    salt: str = ''
+    hash: str = ''
+    role: str = 'user'
+
+    student_id: str = ''
+    real_name: str = ''
+
+    register_ip: str = "0.0.0.0"
+    login_ip: str = "0.0.0.0"
+
     @validator("register_timestamp", pre=True, always=True)
     def default_register_timestamp(cls, v, *, values, **kwargs):
         return v or datetime.utcnow()
@@ -55,12 +64,3 @@ class UserBase(BaseModel):
     @validator("login_timestamp", pre=True, always=True)
     def default_login_timestamp(cls, v, *, values, **kwargs):
         return v or datetime.utcnow()
-
-
-class User(UserBase):
-    salt: str = ''
-    hash: str = ''
-    role: str = 'user'
-
-    register_ip: str = "0.0.0.0"
-    login_ip: str = "0.0.0.0"

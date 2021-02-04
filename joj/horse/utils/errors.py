@@ -38,3 +38,9 @@ class UserNotFoundError(NotFoundError):
     def __init__(self, uid: str) -> None:
         message = 'User {} not found.'
         super().__init__(message=message, args=[uid])
+
+
+class DomainNotFoundError(NotFoundError):
+    def __init__(self, domain: str) -> None:
+        message = 'Domain {} not found.'
+        super().__init__(message=message, args=[domain])
