@@ -9,7 +9,7 @@ def main():
     uvicorn.run(
         "joj.horse:app",
         host=settings.host, port=settings.port,
-        debug=settings.debug, reload=settings.debug
+        reload=settings.debug
     )
 
 

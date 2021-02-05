@@ -24,9 +24,6 @@ class UserBase(BaseModel):
     mail_lower: str = None
     gravatar: str = None
 
-    register_timestamp: datetime
-    login_timestamp: datetime
-
     @validator("uname", pre=True)
     def validate_uname(cls, v: str):
         if not UNAME_RE.fullmatch(v):
@@ -57,10 +54,13 @@ class User(UserBase):
     register_ip: str = "0.0.0.0"
     login_ip: str = "0.0.0.0"
 
+    register_timestamp: datetime
+    login_timestamp: datetime
+
     @validator("register_timestamp", pre=True, always=True)
-    def default_register_timestamp(cls, v, *, values, **kwargs):
+    def default_register_timestamp(cls, v):
         return v or datetime.utcnow()
 
     @validator("login_timestamp", pre=True, always=True)
-    def default_login_timestamp(cls, v, *, values, **kwargs):
+    def default_login_timestamp(cls, v):
         return v or datetime.utcnow()

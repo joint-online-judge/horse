@@ -18,12 +18,6 @@ class UnauthorizedError(BaseError):
         super().__init__(status_code=status.HTTP_401_UNAUTHORIZED, message=message, args=args)
 
 
-class InvalidAuthenticationError(UnauthorizedError):
-    def __init__(self) -> None:
-        message = 'Invalid authentication.'
-        super().__init__(message)
-
-
 class ForbiddenError(BaseError):
     def __init__(self, message: str = '', args=None) -> None:
         super().__init__(status_code=status.HTTP_403_FORBIDDEN, message=message, args=args)
@@ -32,6 +26,17 @@ class ForbiddenError(BaseError):
 class NotFoundError(BaseError):
     def __init__(self, message: str = '', args=None) -> None:
         super().__init__(status_code=status.HTTP_404_NOT_FOUND, message=message, args=args)
+
+
+class UnprocessableEntityError(BaseError):
+    def __init__(self, message: str = '', args=None) -> None:
+        super().__init__(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, message=message, args=args)
+
+
+class InvalidAuthenticationError(UnauthorizedError):
+    def __init__(self) -> None:
+        message = 'Invalid authentication.'
+        super().__init__(message)
 
 
 class UserNotFoundError(NotFoundError):
@@ -44,3 +49,9 @@ class DomainNotFoundError(NotFoundError):
     def __init__(self, domain: str) -> None:
         message = 'Domain {} not found.'
         super().__init__(message=message, args=[domain])
+
+
+class InvalidDomainURLError(UnprocessableEntityError):
+    def __init__(self, url: str) -> None:
+        message = 'Invalid domain url {}.'
+        super().__init__(message=message, args=[url])
