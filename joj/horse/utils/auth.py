@@ -56,7 +56,9 @@ def get_config():
         authjwt_secret_key=settings.jwt_secret,
         authjwt_algorithm=settings.jwt_algorithm,
         authjwt_access_token_expires=settings.jwt_expire_seconds,
-        authjwt_cookie_max_age=settings.jwt_expire_seconds
+        authjwt_cookie_max_age=settings.jwt_expire_seconds,
+        authjwt_cookie_secure=not settings.debug,
+        authjwt_cookie_csrf_protect=not settings.debug,
     )
 
 
@@ -160,7 +162,8 @@ class Authentication:
                  jwt_decoded: Optional[JWTToken] = Depends(auth_jwt_decode),
                  user: Optional[User] = Depends(get_current_user),
                  site_role: str = Depends(get_site_role),
-                 site_permission: Optional[SitePermission] = Depends(get_site_permission)):
+                 site_permission: Optional[SitePermission] = Depends(get_site_permission)
+                 ):
         self.jwt: Optional[JWTToken] = jwt_decoded
         self.user: Optional[User] = user
         self.domain: Optional[Domain] = None
