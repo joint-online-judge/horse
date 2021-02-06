@@ -1,27 +1,35 @@
-from datetime import datetime
-
-from pydantic import validator
 from pymongo import ASCENDING, IndexModel
+from umongo import EmbeddedDocument, fields
+from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 
-from joj.horse.models.permission import DomainPermission
-from joj.horse.odm import Document
+from joj.horse.models.domain import Domain
+from joj.horse.utils.db import instance
 
 
-class DomainRole(Document):
-    class Mongo:
-        collection = "domain.roles"
+@instance.register
+class Permission(EmbeddedDocument):
+    pass
+
+
+@instance.register
+class DomainRole(MotorAsyncIODocument):
+    class Meta:
+        collection_name = "domain.roles"
         indexes = [
             IndexModel("domain"),
             IndexModel("role"),
             IndexModel([("domain", ASCENDING), ("role", ASCENDING)], unique=True),
         ]
 
-    permission: DomainPermission = DomainPermission()
+    # permission: DomainPermission = DomainPermission()
 
-    # domain: DomainReference
-    role: str
-    updated_at: datetime
+    domain = fields.ReferenceField(Domain, required=True)
+    role = fields.StringField(required=True)
+    updated_at = fields.DateTimeField(required=True)
 
-    @validator("updated_at", pre=True, always=True)
-    def default_updated_at(cls, v, *, values, **kwargs):
-        return v or datetime.utcnow()
+    # @validator("updated_at", pre=True, always=True)
+    # def default_updated_at(cls, v, *, values, **kwargs):
+    #     return v or datetime.utcnow()
+
+
+DomainRole: MotorAsyncIODocument

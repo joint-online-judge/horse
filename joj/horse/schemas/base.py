@@ -15,7 +15,6 @@ class PydanticObjectId(str):
 
     @classmethod
     def validate(cls, v):
-        print('PydanticObjectId', v)
         if isinstance(v, str):
             v = ObjectId(v)
         elif not isinstance(v, ObjectId):
@@ -66,12 +65,10 @@ EmbeddedSchema = Union[PydanticObjectId, T]
 
 def embedded_schema(field, schema_type):
     def wrapped(v: MotorAsyncIOReference) -> Union[PydanticObjectId, Type[schema_type]]:
-        print(type(v), v)
         if isinstance(v, MotorAsyncIOReference):
             if v.pk is None:
                 raise TypeError('Primary key (_id) not found')
             return v._document and schema_type(**v._document.dump()) or v.pk
-        print('str', v)
         return v
 
     return validator(field, pre=True, allow_reuse=True)(wrapped)
