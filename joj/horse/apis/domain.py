@@ -7,9 +7,10 @@ from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.apis.base import DomainPath
-from joj.horse.models.permission import PermissionType, ScopeType
+from joj.horse.models.permission import DefaultRole, PermissionType, ScopeType
 from joj.horse.utils import errors
 from joj.horse.utils.auth import Authentication
+from joj.horse.utils.db import instance
 
 router = InferringRouter()
 router_name = "domain"
@@ -35,17 +36,34 @@ async def create_domain(
     # we can not use routing path or ObjectId as the url
     if url == "create" or ObjectId.is_valid(url):
         raise errors.InvalidDomainURLError(url)
-
     if auth.user is None:
         raise errors.InvalidAuthenticationError()
-    domain = schemas.Domain(
-        url=url,
-        name=name,
-        owner=auth.user.id
-    )
-    domain = models.Domain(**domain.to_model())
-    await domain.commit()
-    logger.info('domain created: %s', domain)
+
+    # use transaction for multiple operations
+    try:
+        async with instance.session() as session:
+            async with session.start_transaction():
+                domain = schemas.Domain(
+                    url=url,
+                    name=name,
+                    owner=auth.user.id
+                )
+                domain = models.Domain(**domain.to_model())
+                await domain.commit()
+                logger.info('domain created: %s', domain)
+                domain_user = schemas.DomainUser(
+                    domain=domain.id,
+                    user=auth.user.id,
+                    role=DefaultRole.ROOT,
+                )
+                domain_user = models.DomainUser(**domain_user.to_model())
+                await domain_user.commit()
+                logger.info('domain user created: %s', domain_user)
+
+    except Exception as e:
+        logger.error('domain creation failed: %s', url)
+        raise e
+
     return schemas.Domain.from_orm(domain)
 
 

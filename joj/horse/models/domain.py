@@ -7,14 +7,14 @@ from joj.horse.models.user import User
 from joj.horse.utils.db import instance
 
 
-class DocumentMixin:
-    @classmethod
-    async def find_by_id(cls, _id):
-        return await cls.find_one({'_id': ObjectId(_id)})
+# class DocumentMixin:
+#     @classmethod
+#     async def find_by_id(cls, _id):
+#         return await cls.find_one({'_id': ObjectId(_id)})
 
 
 @instance.register
-class Domain(MotorAsyncIODocument, DocumentMixin):
+class Domain(MotorAsyncIODocument):
     class Meta:
         collection_name = "domains"
         indexes = [

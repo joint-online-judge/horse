@@ -9,6 +9,7 @@ from joj.horse.config import settings
 
 instance = MotorAsyncIOInstance()
 
+
 @lru_cache()
 def get_db():
     logger.info("Starting mongodb connection.")
@@ -23,10 +24,13 @@ from joj.horse import models
 collections: List[Type[MotorAsyncIODocument]] = [
     models.User,
     models.Domain,
+    models.DomainRole,
+    models.DomainUser,
 ]
 
 
 async def ensure_indexes():
     for model in collections:
         logger.info("Ensure indexes for \"%s\"." % model.opts.collection_name)
+        logger.info(model.__class__)
         await model.ensure_indexes()

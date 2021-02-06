@@ -55,3 +55,4 @@ class InvalidDomainURLError(UnprocessableEntityError):
     def __init__(self, url: str) -> None:
         message = 'Invalid domain url {}.'
         super().__init__(message=message, args=[url])
+
