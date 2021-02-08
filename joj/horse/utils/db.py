@@ -32,5 +32,4 @@ collections: List[Type[MotorAsyncIODocument]] = [
 async def ensure_indexes():
     for model in collections:
         logger.info("Ensure indexes for \"%s\"." % model.opts.collection_name)
-        logger.info(model.__class__)
         await model.ensure_indexes()
