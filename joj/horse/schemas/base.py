@@ -60,10 +60,10 @@ class BaseODMSchema(BaseModel):
 #         return v._document and T(**v._document.dump()) or v.pk
 
 T = TypeVar('T')
-EmbeddedSchema = Union[PydanticObjectId, T]
+ReferenceSchema = Union[PydanticObjectId, T]
 
 
-def embedded_schema(field, schema_type):
+def reference_schema_validator(field, schema_type):
     def wrapped(v: MotorAsyncIOReference) -> Union[PydanticObjectId, Type[schema_type]]:
         if isinstance(v, MotorAsyncIOReference):
             if v.pk is None:
