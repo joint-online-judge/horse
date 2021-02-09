@@ -2,14 +2,14 @@ from datetime import datetime
 
 from pydantic import validator
 
-from joj.horse.schemas.base import BaseODMSchema, EmbeddedSchema, embedded_schema
+from joj.horse.schemas.base import BaseODMSchema, ReferenceSchema, reference_schema_validator
 from joj.horse.schemas.domain import Domain
 from joj.horse.schemas.user import UserBase
 
 
 class DomainUser(BaseODMSchema):
-    domain: EmbeddedSchema[Domain]
-    user: EmbeddedSchema[UserBase]
+    domain: ReferenceSchema[Domain]
+    user: ReferenceSchema[UserBase]
     role: str
 
     join_at: datetime = None
@@ -18,5 +18,5 @@ class DomainUser(BaseODMSchema):
     def default_join_at(cls, v, *, values, **kwargs):
         return v or datetime.utcnow()
 
-    _validator_domain = embedded_schema('domain', Domain)
-    _validator_user = embedded_schema('user', UserBase)
+    _validator_domain = reference_schema_validator('domain', Domain)
+    _validator_user = reference_schema_validator('user', UserBase)

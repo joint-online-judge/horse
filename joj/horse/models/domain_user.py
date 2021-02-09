@@ -20,4 +20,5 @@ class DomainUser(MotorAsyncIODocument):
     domain = fields.ReferenceField(Domain, required=True)
     user = fields.ReferenceField(User, required=True)
     role = fields.StringField(required=True)
+
     join_at = fields.DateTimeField(required=True)

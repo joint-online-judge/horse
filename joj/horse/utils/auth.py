@@ -11,8 +11,10 @@ from pydantic import BaseModel
 from joj.horse import app
 from joj.horse.config import settings
 from joj.horse.models.domain import Domain
+from joj.horse.models.domain_role import DomainRole
+from joj.horse.models.domain_user import DomainUser
 from joj.horse.models.permission import DEFAULT_DOMAIN_PERMISSION, DEFAULT_SITE_PERMISSION, DefaultRole, \
-    PermissionType, ScopeType, SitePermission
+    DomainPermission, PermissionType, ScopeType, SitePermission
 from joj.horse.models.user import User
 
 jwt_scheme = HTTPBearer(bearerFormat='JWT', auto_error=False)
@@ -83,7 +85,7 @@ def auth_jwt_decode(
 ) -> Optional[JWTToken]:
     auth_jwt.jwt_optional()
     payload = auth_jwt.get_raw_jwt()
-    print(payload)
+    # print(payload)
     if payload:
         try:
             return JWTToken(**payload)
@@ -99,7 +101,7 @@ def auth_jwt_encode(auth_jwt: AuthJWT, user: User, channel: str = '') -> str:
         'channel': channel,
     }
     jwt = auth_jwt.create_access_token(subject=str(user.id), user_claims=user_claims)
-    print(jwt)
+    # print(jwt)
     return jwt
 
 
@@ -127,28 +129,27 @@ def get_site_permission(site_role: str = Depends(get_site_role)):
 
 
 async def get_domain_role(
-        user: Optional[User] = Depends(get_current_user),
-        domain: Optional[str] = None,
-):
-    # if user and domain:
-    #     domain_user = await DomainUser.find_one({'domain': domain, 'user': user.id})
-    #     if domain_user:
-    #         return domain_user.role
+        user: Optional[User] = None,
+        domain: Optional[Domain] = None,
+) -> str:
+    if user and domain:
+        domain_user = await DomainUser.find_one({'domain': domain.id, 'user': user.id})
+        if domain_user:
+            return domain_user.role
     # the default site role is guest
     return DefaultRole.GUEST
 
 
 async def get_domain_permission(
-        domain: Optional[str] = None,
-        domain_role: str = Depends(get_domain_role),
-):
+        domain: Optional[Domain] = None,
+        domain_role: str = DefaultRole.GUEST,
+) -> DomainPermission:
     if domain_role == DefaultRole.ROOT:
         return DEFAULT_DOMAIN_PERMISSION[DefaultRole.ROOT]
-    # if domain:
-    #     _domain_role = await DomainRole.find_one({'domain': domain, 'role': domain_role})
-    # else:
-    #     _domain_role = None
-    _domain_role = None
+    if domain:
+        _domain_role = await DomainRole.find_one({'domain': domain.id, 'role': domain_role})
+    else:
+        _domain_role = None
     if _domain_role:
         return _domain_role.permission
     elif domain_role in DEFAULT_DOMAIN_PERMISSION:
@@ -168,19 +169,20 @@ class Authentication:
         self.user: Optional[User] = user
         self.domain: Optional[Domain] = None
         self.site_role = site_role
-        self.site_permission = site_permission.dict()
+        self.site_permission = site_permission.dump()
         self.domain_role = DefaultRole.GUEST
-        self.domain_permission = DEFAULT_DOMAIN_PERMISSION[DefaultRole.GUEST]
+        self.domain_permission = DEFAULT_DOMAIN_PERMISSION[DefaultRole.GUEST].dump()
 
     async def init_domain(self, domain: str):
         self.domain = await Domain.find_by_url_or_id(domain)
         if self.domain:
-            self.domain_role = await get_domain_role(self.user, self.domain.id)
-            self.domain_permission = await get_domain_permission(self.domain.id, self.domain_role)
+            self.domain_role = await get_domain_role(self.user, self.domain)
+            self.domain_permission = (await get_domain_permission(self.domain, self.domain_role)).dump()
+        # print(self.domain, self.domain_role, self.domain_permission)
 
     def check(self, scope: ScopeType, permission: PermissionType) -> bool:
         def _check(permissions: Optional[dict]):
-            print(permissions)
+            # print(permissions)
             if permissions is None:
                 return False
             return permissions.get(permission, False)
