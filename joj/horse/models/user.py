@@ -62,7 +62,7 @@ class User(MotorAsyncIODocument):
                 login_timestamp=datetime.utcnow(),
                 login_ip=ip,
             )
-            user = User(**user.dict())
+            user = User(**user.to_model())
             if not await user.commit():
                 user = None
         return user

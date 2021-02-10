@@ -1,21 +1,15 @@
 import re
 from datetime import datetime
-from typing import Optional
 
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import EmailStr, validator
 
-from joj.horse.schemas.base import PydanticObjectId
+from joj.horse.schemas.base import BaseODMSchema
 
 UID_RE = re.compile(r'-?\d+')
 UNAME_RE = re.compile(r'[^\s\u3000](.{,254}[^\s\u3000])?')
 
 
-class UserBase(BaseModel):
-    class Config:
-        orm_mode = True
-
-    id: Optional[PydanticObjectId]
-
+class UserBase(BaseODMSchema):
     scope: str
     uname: str
     mail: EmailStr
