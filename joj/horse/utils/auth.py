@@ -30,7 +30,7 @@ class JWTToken(BaseModel):
     # fastapi_jwt_auth claims
     type: str
     fresh: bool
-    csrf: str
+    csrf: Optional[str] = None
     # user claims
     name: str
     scope: str
