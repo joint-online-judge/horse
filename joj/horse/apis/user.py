@@ -28,11 +28,11 @@ async def logout(auth: Authentication = Depends(Authentication), auth_jwt: AuthJ
 
 
 @router.get("/jaccount/login", response_model=RedirectModel)
-async def jaccount_login(response: Response):
+async def jaccount_login(response: Response, url_prefix: str = None):
     client = jaccount.get_client()
     if client is None:
         raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Jaccount not supported")
-    redirect_url = generate_url(router_prefix, router_name, "jaccount", "auth")
+    redirect_url = url_prefix or generate_url(router_prefix, router_name, "jaccount", "auth")
     url, state = client.get_authorize_url(redirect_url)
     response.set_cookie(key='jaccount_state', value=state)
     return {"redirect_url": url}
