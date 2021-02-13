@@ -43,3 +43,13 @@ jobs:
         commit_message: Generate openapi.json
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Git push openapi.json (develop)
+      if: success() && github.event_name == 'push' && github.ref == 'refs/heads/develop'
+      uses: crazy-max/ghaction-github-pages@v2
+      with:
+        target_branch: openapi-develop
+        build_dir: build
+        keep_history: true
+        commit_message: Generate openapi.json (develop)
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
