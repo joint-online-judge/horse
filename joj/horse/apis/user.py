@@ -1,10 +1,11 @@
 import aiohttp
 import jwt
-from fastapi import Depends, HTTPException, Request, Response, status
+from fastapi import Depends, HTTPException, Request, Response, status, Cookie
 from fastapi_jwt_auth import AuthJWT
 from fastapi_utils.inferring_router import InferringRouter
 from starlette.responses import RedirectResponse
 from uvicorn.config import logger
+from typing import Optional
 
 from joj.horse import models, schemas
 from joj.horse.schemas.misc import RedirectModel
@@ -39,11 +40,12 @@ async def jaccount_login(response: Response, url_prefix: str = None):
 
 
 @router.get("/jaccount/auth")
-async def jaccount_auth(request: Request, state: str, code: str, auth_jwt: AuthJWT = Depends(AuthJWT)):
+async def jaccount_auth(request: Request, state: str, code: str, auth_jwt: AuthJWT = Depends(AuthJWT),
+                        jaccount_state: Optional[str] = Cookie(None)):
     client = jaccount.get_client()
     if client is None:
         raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Jaccount not supported")
-    if "jaccount_state" not in request.cookies or request.cookies["jaccount_state"] != state:
+    if jaccount_state is None or jaccount_state != state:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid authentication state")
 
     redirect_url = generate_url(router_prefix, router_name, "jaccount", "auth")
