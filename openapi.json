@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: b5f679d",
+    "description": "Git version: 1bb335e",
     "version": "0.0.0"
   },
   "paths": {
@@ -317,6 +317,15 @@
             },
             "name": "code",
             "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Jaccount State",
+              "type": "string"
+            },
+            "name": "jaccount_state",
+            "in": "cookie"
           }
         ],
         "responses": {
