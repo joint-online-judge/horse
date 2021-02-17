@@ -1,11 +1,10 @@
 import aiohttp
 import jwt
-from fastapi import Depends, HTTPException, Request, Response, status, Cookie
+from fastapi import Cookie, Depends, HTTPException, Query, Request, status
 from fastapi_jwt_auth import AuthJWT
 from fastapi_utils.inferring_router import InferringRouter
-from starlette.responses import RedirectResponse
+from starlette.responses import JSONResponse, RedirectResponse
 from uvicorn.config import logger
-from typing import Optional
 
 from joj.horse import models, schemas
 from joj.horse.schemas.misc import RedirectModel
@@ -20,36 +19,60 @@ router_prefix = "/api/v1"
 
 
 @router.get("/logout", response_model=RedirectModel)
-async def logout(auth: Authentication = Depends(Authentication), auth_jwt: AuthJWT = Depends(AuthJWT)):
-    url = ""
+async def logout(
+        auth: Authentication = Depends(Authentication), auth_jwt: AuthJWT = Depends(AuthJWT),
+        redirect_url: str = Query(generate_url(), description='Set the redirect url after the logout.'),
+        redirect: bool = Query(True, description='If true (html link mode), redirect to a url; '
+                                                 'If false (ajax mode), return the redirect url, '
+                                                 'you also need to unset all cookies manually in ajax mode.')
+):
     if auth.jwt and auth.jwt.channel == "jaccount":
-        url = get_jaccount_logout_url()
-    auth_jwt.unset_access_cookies()
-    return {"redirect_url": url}
+        url = get_jaccount_logout_url(redirect_url=redirect_url)
+    else:
+        url = redirect_url
+
+    if redirect:
+        response = RedirectResponse(url)
+    else:
+        response = JSONResponse({"redirect_url": url})
+    auth_jwt.unset_access_cookies(response=response)
+    return response
 
 
 @router.get("/jaccount/login", response_model=RedirectModel)
-async def jaccount_login(response: Response, url_prefix: str = None):
+async def jaccount_login(
+        redirect_url: str = Query(generate_url(), description='Set the redirect url after the authorization.'),
+        redirect: bool = Query(True, description='If true (html link mode), redirect to jaccount site; '
+                                                 'If false (ajax mode), return the redirect url to the jaccount site, '
+                                                 'you also need to set the cookies returned manually in ajax mode.')
+):
     client = jaccount.get_client()
     if client is None:
         raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Jaccount not supported")
-    redirect_url = url_prefix or generate_url(router_prefix, router_name, "jaccount", "auth")
-    url, state = client.get_authorize_url(redirect_url)
+    jaccount_redirect_url = generate_url(router_prefix, router_name, "jaccount", "auth")
+    url, state = client.get_authorize_url(jaccount_redirect_url)
+
+    if redirect:
+        response = RedirectResponse(url)
+    else:
+        response = JSONResponse({"redirect_url": url})
     response.set_cookie(key='jaccount_state', value=state)
-    return {"redirect_url": url}
+    response.set_cookie(key='redirect_url', value=redirect_url)
+    return response
 
 
 @router.get("/jaccount/auth")
 async def jaccount_auth(request: Request, state: str, code: str, auth_jwt: AuthJWT = Depends(AuthJWT),
-                        jaccount_state: Optional[str] = Cookie(None)):
+                        jaccount_state: str = Cookie(''),
+                        redirect_url: str = Cookie(generate_url())):
     client = jaccount.get_client()
     if client is None:
         raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Jaccount not supported")
-    if jaccount_state is None or jaccount_state != state:
+    if jaccount_state != state:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid authentication state")
 
-    redirect_url = generate_url(router_prefix, router_name, "jaccount", "auth")
-    token_url, headers, body = client.get_token_url(code=code, redirect_url=redirect_url)
+    jaccount_redirect_url = generate_url(router_prefix, router_name, "jaccount", "auth")
+    token_url, headers, body = client.get_token_url(code=code, redirect_url=jaccount_redirect_url)
 
     try:
         async with aiohttp.ClientSession() as http:
@@ -72,21 +95,20 @@ async def jaccount_auth(request: Request, state: str, code: str, auth_jwt: AuthJ
 
     access_jwt = auth_jwt_encode(auth_jwt=auth_jwt, user=user, channel='jaccount')
 
-    redirect_url = generate_url()
     logger.info(user)
     logger.info('jwt=%s', access_jwt)
 
     response = RedirectResponse(redirect_url)
     response.delete_cookie(key='jaccount_state')
+    response.delete_cookie(key='redirect_url')
     auth_jwt.set_access_cookies(access_jwt, response=response)
     return response
 
 
-def get_jaccount_logout_url():
+def get_jaccount_logout_url(redirect_url):
     client = jaccount.get_client()
     if client is None:
         raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Jaccount not supported")
-    redirect_url = generate_url()
     return client.get_logout_url(redirect_url)
 
 
