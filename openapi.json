@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 1bb335e",
+    "description": "Git version: 0208b8e",
     "version": "0.0.0"
   },
   "paths": {
@@ -231,6 +231,32 @@
         ],
         "summary": "Logout",
         "operationId": "logout_api_v1_user_logout_get",
+        "parameters": [
+          {
+            "description": "Set the redirect url after the logout.",
+            "required": false,
+            "schema": {
+              "title": "Redirect Url",
+              "type": "string",
+              "description": "Set the redirect url after the logout.",
+              "default": "http://127.0.0.1:34765/"
+            },
+            "name": "redirect_url",
+            "in": "query"
+          },
+          {
+            "description": "If true (html link mode), redirect to a url; If false (ajax mode), return the redirect url, you also need to unset all cookies manually in ajax mode.",
+            "required": false,
+            "schema": {
+              "title": "Redirect",
+              "type": "boolean",
+              "description": "If true (html link mode), redirect to a url; If false (ajax mode), return the redirect url, you also need to unset all cookies manually in ajax mode.",
+              "default": true
+            },
+            "name": "redirect",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -238,6 +264,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RedirectModel"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -259,12 +295,27 @@
         "operationId": "jaccount_login_api_v1_user_jaccount_login_get",
         "parameters": [
           {
+            "description": "Set the redirect url after the authorization.",
             "required": false,
             "schema": {
-              "title": "Url Prefix",
-              "type": "string"
+              "title": "Redirect Url",
+              "type": "string",
+              "description": "Set the redirect url after the authorization.",
+              "default": "http://127.0.0.1:34765/"
             },
-            "name": "url_prefix",
+            "name": "redirect_url",
+            "in": "query"
+          },
+          {
+            "description": "If true (html link mode), redirect to jaccount site; If false (ajax mode), return the redirect url to the jaccount site, you also need to set the cookies returned manually in ajax mode.",
+            "required": false,
+            "schema": {
+              "title": "Redirect",
+              "type": "boolean",
+              "description": "If true (html link mode), redirect to jaccount site; If false (ajax mode), return the redirect url to the jaccount site, you also need to set the cookies returned manually in ajax mode.",
+              "default": true
+            },
+            "name": "redirect",
             "in": "query"
           }
         ],
@@ -322,9 +373,20 @@
             "required": false,
             "schema": {
               "title": "Jaccount State",
-              "type": "string"
+              "type": "string",
+              "default": ""
             },
             "name": "jaccount_state",
+            "in": "cookie"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Redirect Url",
+              "type": "string",
+              "default": "http://127.0.0.1:34765/"
+            },
+            "name": "redirect_url",
             "in": "cookie"
           }
         ],
