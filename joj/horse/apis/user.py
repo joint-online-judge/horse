@@ -1,5 +1,6 @@
 import aiohttp
 import jwt
+from typing import Union
 from fastapi import Cookie, Depends, HTTPException, Query, Request, status
 from fastapi_jwt_auth import AuthJWT
 from fastapi_utils.inferring_router import InferringRouter
@@ -158,9 +159,14 @@ async def parse_uid(uid: str, auth: Authentication = Depends()) -> models.User:
         raise errors.UserNotFoundError(uid)
 
 
-@router.get("/{uid}")
-async def get_user(user: models.User = Depends(parse_uid)) -> schemas.User:
-    return schemas.User.from_orm(user)
+@router.get("/{uid}", response_model=Union[schemas.User, schemas.UserBase])
+async def get_user(
+    uid: str,
+    user: models.User = Depends(parse_uid),
+) -> Union[schemas.User, schemas.UserBase]:
+    if uid == "me":
+        return schemas.User.from_orm(user)
+    return schemas.UserBase.from_orm(user)
 
 
 # @router.get('/{uid}/domains', response_model=List[DomainUserResponse])
