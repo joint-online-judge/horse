@@ -1,28 +1,27 @@
-from typing import List, Optional
+from umongo import fields
+from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 
-from joj.horse.models.domain import DomainReference
-from joj.horse.models.problem import ProblemReference
-from joj.horse.models.user import UserReference
-from joj.horse.odm import Document, Reference
+from joj.horse.models.domain import Domain
+from joj.horse.models.problem import Problem
+from joj.horse.models.user import User
+from joj.horse.utils.db import instance
 
 
-class ProblemSet(Document):
-    class Mongo:
-        collection = "problem.sets"
+@instance.register
+class ProblemSet(MotorAsyncIODocument):
+    class Meta:
+        collection_name = "problem.sets"
         indexes = []
 
-    domain: DomainReference
-    owner: UserReference
+    domain = fields.ReferenceField(Domain, required=True)
+    owner = fields.ReferenceField(User, required=True)
 
-    title: str
-    content: str = ""
-    hidden: bool = False
-    num_submit: int = 0
-    num_accept: int = 0
+    title = fields.StringField(required=True)
+    content = fields.StringField(default="")
+    hidden = fields.BooleanField(default=False)
+    num_submit = fields.IntegerField(default=0)
+    num_accept = fields.IntegerField(default=0)
 
-    problems: List[ProblemReference] = []
-
-
-class ProblemSetReference(Reference):
-    data: Optional[ProblemSet] = None
-    reference = ProblemSet
+    problems = fields.ListField(
+        fields.ReferenceField(Problem, required=True), default=[]
+    )
