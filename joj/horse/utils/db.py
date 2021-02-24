@@ -26,6 +26,9 @@ collections: List[Type[MotorAsyncIODocument]] = [
     models.Domain,
     models.DomainRole,
     models.DomainUser,
+    models.Record,
+    models.Problem,
+    models.ProblemSet,
 ]
 
 
