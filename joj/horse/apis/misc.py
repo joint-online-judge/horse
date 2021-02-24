@@ -18,4 +18,6 @@ async def version():
 async def jwt(auth: Authentication = Depends()):
     if auth.jwt:
         return JWT(jwt=jwt_token_encode(auth.jwt))
-    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="JWT not found")
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED, detail="JWT not found"
+    )

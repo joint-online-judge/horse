@@ -10,23 +10,21 @@ from joj.horse.config import settings
 
 @lru_cache()
 def init_cache():
-    caches.set_config({
-        'default': {
-            'cache': "aiocache.SimpleMemoryCache",
-            'serializer': {
-                'class': "aiocache.serializers.PickleSerializer"
-            }
-        },
-        'session': {
-            'cache': "aiocache.RedisCache",
-            'endpoint': settings.redis_host,
-            'port': settings.redis_port,
-            'timeout': 1,
-            'serializer': {
-                'class': "aiocache.serializers.PickleSerializer"
-            }
+    caches.set_config(
+        {
+            "default": {
+                "cache": "aiocache.SimpleMemoryCache",
+                "serializer": {"class": "aiocache.serializers.PickleSerializer"},
+            },
+            "session": {
+                "cache": "aiocache.RedisCache",
+                "endpoint": settings.redis_host,
+                "port": settings.redis_port,
+                "timeout": 1,
+                "serializer": {"class": "aiocache.serializers.PickleSerializer"},
+            },
         }
-    })
+    )
 
 
 @lru_cache()

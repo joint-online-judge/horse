@@ -27,24 +27,28 @@ class User(MotorAsyncIODocument, DocumentMixin):
     mail_lower = fields.StringField(required=True)
     gravatar = fields.StringField(required=True)
 
-    student_id = fields.StringField(default='')
-    real_name = fields.StringField(default='')
+    student_id = fields.StringField(default="")
+    real_name = fields.StringField(default="")
 
-    salt = fields.StringField(default='')
-    hash = fields.StringField(default='')
-    role = fields.StringField(default='user')
+    salt = fields.StringField(default="")
+    hash = fields.StringField(default="")
+    role = fields.StringField(default="user")
 
     register_timestamp = fields.DateTimeField(required=True)
-    register_ip = fields.StringField(default='0.0.0.0')
+    register_ip = fields.StringField(default="0.0.0.0")
     login_timestamp = fields.DateTimeField(required=True)
-    login_ip = fields.StringField(default='0.0.0.0')
+    login_ip = fields.StringField(default="0.0.0.0")
 
     @classmethod
-    async def find_by_uname(cls, scope: str, uname: str) -> 'User':
-        return await cls.find_one({'scope': scope, 'uname_lower': uname.strip().lower()})
+    async def find_by_uname(cls, scope: str, uname: str) -> "User":
+        return await cls.find_one(
+            {"scope": scope, "uname_lower": uname.strip().lower()}
+        )
 
     @classmethod
-    async def login_by_jaccount(cls, student_id: str, jaccount_name: str, real_name: str, ip: str) -> 'User':
+    async def login_by_jaccount(
+        cls, student_id: str, jaccount_name: str, real_name: str, ip: str
+    ) -> "User":
         scope = "sjtu"
         user = await cls.find_by_uname(scope=scope, uname=jaccount_name)
         if user:

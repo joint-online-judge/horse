@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     3. Variables loaded from a dotenv (.env) file
     4. The default field values for the Settings model
     """
+
     app_name: str = "JOJ Horse"
 
     host: str = "127.0.0.1"
@@ -32,18 +33,18 @@ class Settings(BaseSettings):
     redis_port: int = 6379
 
     # jwt config
-    jwt_secret: str = 'secret'
-    jwt_algorithm: str = 'HS256'
+    jwt_secret: str = "secret"
+    jwt_algorithm: str = "HS256"
     jwt_expire_seconds: int = 14 * 24 * 60 * 60  # 14 days, in seconds
 
     # oauth config
     oauth_jaccount: bool = False
-    oauth_jaccount_id: str = ''
-    oauth_jaccount_secret: str = ''
+    oauth_jaccount_id: str = ""
+    oauth_jaccount_secret: str = ""
 
     class Config:
-        env_file = '.env'
-        env_file_encoding = 'utf-8'
+        env_file = ".env"
+        env_file_encoding = "utf-8"
 
 
 @lru_cache()

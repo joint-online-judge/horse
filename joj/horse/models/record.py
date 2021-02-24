@@ -51,9 +51,20 @@ class Record(Document):
     class Mongo:
         collection = "records"
         indexes = [
-            IndexModel([("domain", ASCENDING), ("problem", ASCENDING), ("user", ASCENDING), ("submit_at", DESCENDING)]),
-            IndexModel([("problem", ASCENDING), ("user", ASCENDING), ("submit_at", DESCENDING)]),
-            IndexModel([("domain", ASCENDING), ("user", ASCENDING), ("submit_at", DESCENDING)]),
+            IndexModel(
+                [
+                    ("domain", ASCENDING),
+                    ("problem", ASCENDING),
+                    ("user", ASCENDING),
+                    ("submit_at", DESCENDING),
+                ]
+            ),
+            IndexModel(
+                [("problem", ASCENDING), ("user", ASCENDING), ("submit_at", DESCENDING)]
+            ),
+            IndexModel(
+                [("domain", ASCENDING), ("user", ASCENDING), ("submit_at", DESCENDING)]
+            ),
             IndexModel([("user", ASCENDING), ("submit_at", DESCENDING)]),
         ]
 

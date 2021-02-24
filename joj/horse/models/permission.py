@@ -7,7 +7,7 @@ from umongo.embedded_document import EmbeddedDocumentImplementation
 
 from joj.horse.utils.db import instance
 
-BaseModelType = TypeVar('BaseModelType', bound=BaseModel)
+BaseModelType = TypeVar("BaseModelType", bound=BaseModel)
 
 
 class DefaultRole(str, Enum):
@@ -69,6 +69,7 @@ class GeneralPermission(EmbeddedDocumentImplementation):
 #     edit_description: bool = False
 #     unlimited_quota: bool = False
 
+
 @instance.register
 class ProblemPermission(EmbeddedDocumentImplementation):
     create = fields.BoolField(default=False)
@@ -92,6 +93,7 @@ class ProblemPermission(EmbeddedDocumentImplementation):
 #     edit_config_self: bool = True
 #     view_config: bool = False
 #     view_config_self: bool = True
+
 
 @instance.register
 class ProblemSetPermission(EmbeddedDocumentImplementation):
@@ -140,13 +142,16 @@ class RecordPermission(EmbeddedDocumentImplementation):
 #     judge: bool = False
 #     rejudge: bool = False
 
+
 @instance.register
 class DomainPermission(EmbeddedDocumentImplementation):
     """All permissions in a domain"""
 
     general = fields.EmbeddedField(GeneralPermission, default=GeneralPermission())
     problem = fields.EmbeddedField(ProblemPermission, default=ProblemPermission())
-    problem_set = fields.EmbeddedField(ProblemSetPermission, default=ProblemSetPermission())
+    problem_set = fields.EmbeddedField(
+        ProblemSetPermission, default=ProblemSetPermission()
+    )
     record = fields.EmbeddedField(RecordPermission, default=RecordPermission())
 
 
@@ -185,15 +190,20 @@ class DomainSpecificPermission(EmbeddedDocumentImplementation):
 
 @instance.register
 class SitePermission(DomainPermission):
-    user = fields.EmbeddedField(UserSpecificPermission, default=UserSpecificPermission())
-    domain = fields.EmbeddedField(DomainSpecificPermission, default=DomainSpecificPermission())
+    user = fields.EmbeddedField(
+        UserSpecificPermission, default=UserSpecificPermission()
+    )
+    domain = fields.EmbeddedField(
+        DomainSpecificPermission, default=DomainSpecificPermission()
+    )
     # domain: DomainSpecificPermission = DomainSpecificPermission()
     # user: UserSpecificPermission = UserSpecificPermission()
     pass
 
 
-def __get_default_permission(model: Type[EmbeddedDocumentImplementation],
-                             value: Optional[bool]) -> EmbeddedDocumentImplementation:
+def __get_default_permission(
+    model: Type[EmbeddedDocumentImplementation], value: Optional[bool]
+) -> EmbeddedDocumentImplementation:
     obj = model()
     # breakpoint()
     if value is not None:
@@ -211,7 +221,9 @@ def __get_default_domain_permission(value: Optional[bool] = None):
     )
 
 
-def __get_default_site_permission(value1: Optional[bool] = None, value2: Optional[bool] = None):
+def __get_default_site_permission(
+    value1: Optional[bool] = None, value2: Optional[bool] = None
+):
     return SitePermission(
         **__get_default_domain_permission(value1).dump(),
         user=__get_default_permission(UserSpecificPermission, value2),

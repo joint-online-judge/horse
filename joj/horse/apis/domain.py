@@ -18,7 +18,9 @@ router_prefix = "/api/v1"
 
 
 @router.get("/list")
-async def list_user_domains(auth: Authentication = Depends(Authentication), uid: Optional[str] = None):
+async def list_user_domains(
+    auth: Authentication = Depends(Authentication), uid: Optional[str] = None
+):
     """
     List all domains in which {user} has a role.
     Use current login user if {user} is not specified.
@@ -29,9 +31,9 @@ async def list_user_domains(auth: Authentication = Depends(Authentication), uid:
 
 @router.post("/create")
 async def create_domain(
-        url: str = Query(..., description="(unique) url of the domain"),
-        name: str = Query(..., description="displayed name of the domain"),
-        auth: Authentication = Depends()
+    url: str = Query(..., description="(unique) url of the domain"),
+    name: str = Query(..., description="displayed name of the domain"),
+    auth: Authentication = Depends(),
 ) -> schemas.Domain:
     # we can not use routing path or ObjectId as the url
     if url == "create" or ObjectId.is_valid(url):
@@ -43,14 +45,10 @@ async def create_domain(
     try:
         async with instance.session() as session:
             async with session.start_transaction():
-                domain = schemas.Domain(
-                    url=url,
-                    name=name,
-                    owner=auth.user.id
-                )
+                domain = schemas.Domain(url=url, name=name, owner=auth.user.id)
                 domain = models.Domain(**domain.to_model())
                 await domain.commit()
-                logger.info('domain created: %s', domain)
+                logger.info("domain created: %s", domain)
                 domain_user = schemas.DomainUser(
                     domain=domain.id,
                     user=auth.user.id,
@@ -58,17 +56,19 @@ async def create_domain(
                 )
                 domain_user = models.DomainUser(**domain_user.to_model())
                 await domain_user.commit()
-                logger.info('domain user created: %s', domain_user)
+                logger.info("domain user created: %s", domain_user)
 
     except Exception as e:
-        logger.error('domain creation failed: %s', url)
+        logger.error("domain creation failed: %s", url)
         raise e
 
     return schemas.Domain.from_orm(domain)
 
 
 @router.get("/{domain}")
-async def get_domain(domain: str = DomainPath, auth: Authentication = Depends()) -> schemas.Domain:
+async def get_domain(
+    domain: str = DomainPath, auth: Authentication = Depends()
+) -> schemas.Domain:
     await auth.init_domain(domain)
     if auth.domain:
         await auth.domain.owner.fetch()

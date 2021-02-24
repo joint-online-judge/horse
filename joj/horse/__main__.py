@@ -9,8 +9,10 @@ from joj.horse.utils.logger import log_config
 def main():
     uvicorn.run(
         "joj.horse:app",
-        host=settings.host, port=settings.port,
-        reload=settings.debug, log_config=log_config,
+        host=settings.host,
+        port=settings.port,
+        reload=settings.debug,
+        log_config=log_config,
     )
 
 
