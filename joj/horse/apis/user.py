@@ -159,8 +159,8 @@ async def parse_uid(uid: str, auth: Authentication = Depends()) -> models.User:
 
 
 @router.get("/{uid}")
-async def get_user(user: models.User = Depends(parse_uid)) -> schemas.UserBase:
-    return schemas.UserBase.from_orm(user)
+async def get_user(user: models.User = Depends(parse_uid)) -> schemas.User:
+    return schemas.User.from_orm(user)
 
 
 # @router.get('/{uid}/domains', response_model=List[DomainUserResponse])
