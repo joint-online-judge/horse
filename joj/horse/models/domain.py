@@ -25,9 +25,9 @@ class Domain(MotorAsyncIODocument):
     bulletin = fields.StringField(default="")
 
     @classmethod
-    async def find_by_url_or_id(cls, url_or_id: str) -> 'Domain':
+    async def find_by_url_or_id(cls, url_or_id: str) -> "Domain":
         try:
             _id = ObjectId(url_or_id)
-            return await cls.find_one({'_id': ObjectId(_id)})
+            return await cls.find_one({"_id": ObjectId(_id)})
         except:
-            return await cls.find_one({'url': url_or_id})
+            return await cls.find_one({"url": url_or_id})

@@ -9,8 +9,7 @@ from joj.horse.odm import Document, Reference
 class ProblemSet(Document):
     class Mongo:
         collection = "problem.sets"
-        indexes = [
-        ]
+        indexes = []
 
     domain: DomainReference
     owner: UserReference

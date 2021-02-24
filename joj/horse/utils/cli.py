@@ -8,13 +8,13 @@ from joj.horse.config import get_settings
 
 @lru_cache()
 def get_global_options():
-    global_options = [
-        click.argument('args', nargs=-1)
-    ]
+    global_options = [click.argument("args", nargs=-1)]
     _settings = get_settings()
     for key, value in _settings.__fields__.items():
-        opt_name = "--" + key.replace('_', '-')
-        global_options.append(click.option(opt_name, type=value.type_, is_flag=(value.type_ == bool)))
+        opt_name = "--" + key.replace("_", "-")
+        global_options.append(
+            click.option(opt_name, type=value.type_, is_flag=(value.type_ == bool))
+        )
     return global_options
 
 

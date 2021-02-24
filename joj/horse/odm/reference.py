@@ -11,14 +11,14 @@ class Reference(BaseModel):
     data: Optional[Document] = None
     reference: Type[Document] = Document
 
-    @validator('id', allow_reuse=True, pre=True)
+    @validator("id", allow_reuse=True, pre=True)
     def validate_id(cls, v):
         if isinstance(v, str):
             return ObjectId(v)
         elif isinstance(v, ObjectId):
             return v
         else:
-            raise ValueError('error')
+            raise ValueError("error")
 
     async def populate(self):
         self.data = await self.reference.find_by_id(self.id)

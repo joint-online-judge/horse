@@ -10,7 +10,9 @@ from joj.horse.config import settings
 def get_client():
     if not settings.oauth_jaccount:
         return None
-    return oauth_jaccount.JaccountClient(settings.oauth_jaccount_id, settings.oauth_jaccount_secret)
+    return oauth_jaccount.JaccountClient(
+        settings.oauth_jaccount_id, settings.oauth_jaccount_secret
+    )
 
 
 class IDToken(BaseModel):

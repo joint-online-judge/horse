@@ -95,11 +95,11 @@ class Query(Dict[str, Any]):
 
     @classmethod
     def text(
-            cls,
-            search: str,
-            language: str = None,
-            case_sensitive: bool = None,
-            diacritic_sensitive: bool = None,
+        cls,
+        search: str,
+        language: str = None,
+        case_sensitive: bool = None,
+        diacritic_sensitive: bool = None,
     ) -> "Query":
         """Constructs a ``$text`` query using the specified arguments."""
         text: Dict[str, Union[str, bool]] = {"$search": search}
@@ -121,7 +121,7 @@ class Query(Dict[str, Any]):
         return query
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        """ Creates a new query.
+        """Creates a new query.
 
         This constructor accepts the same arguments as the :func:`q` function. See the
         documentation on the :func:`q` function for details.

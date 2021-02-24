@@ -8,8 +8,7 @@ from joj.horse.odm import Document, Reference
 class Problem(Document):
     class Mongo:
         collection = "problems"
-        indexes = [
-        ]
+        indexes = []
 
     domain: DomainReference
     owner: UserReference

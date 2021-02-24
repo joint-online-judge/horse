@@ -13,11 +13,18 @@ from joj.horse.config import settings
 from joj.horse.models.domain import Domain
 from joj.horse.models.domain_role import DomainRole
 from joj.horse.models.domain_user import DomainUser
-from joj.horse.models.permission import DEFAULT_DOMAIN_PERMISSION, DEFAULT_SITE_PERMISSION, DefaultRole, \
-    DomainPermission, PermissionType, ScopeType, SitePermission
+from joj.horse.models.permission import (
+    DEFAULT_DOMAIN_PERMISSION,
+    DEFAULT_SITE_PERMISSION,
+    DefaultRole,
+    DomainPermission,
+    PermissionType,
+    ScopeType,
+    SitePermission,
+)
 from joj.horse.models.user import User
 
-jwt_scheme = HTTPBearer(bearerFormat='JWT', auto_error=False)
+jwt_scheme = HTTPBearer(bearerFormat="JWT", auto_error=False)
 
 
 class JWTToken(BaseModel):
@@ -42,10 +49,10 @@ class Settings(BaseModel):
     authjwt_algorithm: str
     authjwt_access_token_expires: int
     authjwt_cookie_max_age: int
-    authjwt_access_cookie_key: str = 'jwt'
-    authjwt_access_csrf_cookie_key: str = 'csrf'
+    authjwt_access_cookie_key: str = "jwt"
+    authjwt_access_csrf_cookie_key: str = "csrf"
     # Configure application to store and get JWT from cookies
-    authjwt_token_location: set = {'headers', 'cookies'}
+    authjwt_token_location: set = {"headers", "cookies"}
     # Only allow JWT cookies to be sent over https
     authjwt_cookie_secure: bool = False
     # Enable csrf double submit protection. default is True
@@ -67,21 +74,20 @@ def get_config():
 @app.exception_handler(AuthJWTException)
 def authjwt_exception_handler(request: Request, exc: AuthJWTException):
     # noinspection PyUnresolvedReferences
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"detail": exc.message}
-    )
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
 
 
 def jwt_token_encode(token: JWTToken):
-    encoded_jwt = jwt.encode(token.dict(), settings.jwt_secret, algorithm=settings.jwt_algorithm)
+    encoded_jwt = jwt.encode(
+        token.dict(), settings.jwt_secret, algorithm=settings.jwt_algorithm
+    )
     return encoded_jwt
 
 
 def auth_jwt_decode(
-        auth_jwt: AuthJWT = Depends(),
-        scheme: HTTPAuthorizationCredentials = Depends(jwt_scheme)
-        # scheme is only used for authorization in swagger UI
+    auth_jwt: AuthJWT = Depends(),
+    scheme: HTTPAuthorizationCredentials = Depends(jwt_scheme)
+    # scheme is only used for authorization in swagger UI
 ) -> Optional[JWTToken]:
     auth_jwt.jwt_optional()
     payload = auth_jwt.get_raw_jwt()
@@ -90,15 +96,15 @@ def auth_jwt_decode(
         try:
             return JWTToken(**payload)
         except:
-            raise HTTPException(status_code=401, detail='JWT Format Error')
+            raise HTTPException(status_code=401, detail="JWT Format Error")
     return None
 
 
-def auth_jwt_encode(auth_jwt: AuthJWT, user: User, channel: str = '') -> str:
+def auth_jwt_encode(auth_jwt: AuthJWT, user: User, channel: str = "") -> str:
     user_claims = {
-        'name': user.uname_lower,
-        'scope': user.scope,
-        'channel': channel,
+        "name": user.uname_lower,
+        "scope": user.scope,
+        "channel": channel,
     }
     jwt = auth_jwt.create_access_token(subject=str(user.id), user_claims=user_claims)
     # print(jwt)
@@ -129,11 +135,11 @@ def get_site_permission(site_role: str = Depends(get_site_role)):
 
 
 async def get_domain_role(
-        user: Optional[User] = None,
-        domain: Optional[Domain] = None,
+    user: Optional[User] = None,
+    domain: Optional[Domain] = None,
 ) -> str:
     if user and domain:
-        domain_user = await DomainUser.find_one({'domain': domain.id, 'user': user.id})
+        domain_user = await DomainUser.find_one({"domain": domain.id, "user": user.id})
         if domain_user:
             return domain_user.role
     # the default site role is guest
@@ -141,13 +147,15 @@ async def get_domain_role(
 
 
 async def get_domain_permission(
-        domain: Optional[Domain] = None,
-        domain_role: str = DefaultRole.GUEST,
+    domain: Optional[Domain] = None,
+    domain_role: str = DefaultRole.GUEST,
 ) -> DomainPermission:
     if domain_role == DefaultRole.ROOT:
         return DEFAULT_DOMAIN_PERMISSION[DefaultRole.ROOT]
     if domain:
-        _domain_role = await DomainRole.find_one({'domain': domain.id, 'role': domain_role})
+        _domain_role = await DomainRole.find_one(
+            {"domain": domain.id, "role": domain_role}
+        )
     else:
         _domain_role = None
     if _domain_role:
@@ -159,12 +167,13 @@ async def get_domain_permission(
 
 
 class Authentication:
-    def __init__(self,
-                 jwt_decoded: Optional[JWTToken] = Depends(auth_jwt_decode),
-                 user: Optional[User] = Depends(get_current_user),
-                 site_role: str = Depends(get_site_role),
-                 site_permission: Optional[SitePermission] = Depends(get_site_permission)
-                 ):
+    def __init__(
+        self,
+        jwt_decoded: Optional[JWTToken] = Depends(auth_jwt_decode),
+        user: Optional[User] = Depends(get_current_user),
+        site_role: str = Depends(get_site_role),
+        site_permission: Optional[SitePermission] = Depends(get_site_permission),
+    ):
         self.jwt: Optional[JWTToken] = jwt_decoded
         self.user: Optional[User] = user
         self.domain: Optional[Domain] = None
@@ -177,7 +186,9 @@ class Authentication:
         self.domain = await Domain.find_by_url_or_id(domain)
         if self.domain:
             self.domain_role = await get_domain_role(self.user, self.domain)
-            self.domain_permission = (await get_domain_permission(self.domain, self.domain_role)).dump()
+            self.domain_permission = (
+                await get_domain_permission(self.domain, self.domain_role)
+            ).dump()
         # print(self.domain, self.domain_role, self.domain_permission)
 
     def check(self, scope: ScopeType, permission: PermissionType) -> bool:
@@ -191,7 +202,10 @@ class Authentication:
         if self.site_role == DefaultRole.ROOT:
             return True
         # grant domain root with domain permissions
-        if self.domain_role == DefaultRole.ROOT and scope in DEFAULT_DOMAIN_PERMISSION[DefaultRole.ROOT]:
+        if (
+            self.domain_role == DefaultRole.ROOT
+            and scope in DEFAULT_DOMAIN_PERMISSION[DefaultRole.ROOT]
+        ):
             return True
         # grant permission if site permission found
         if self.site_permission and _check(self.site_permission.get(scope, None)):
@@ -204,7 +218,9 @@ class Authentication:
 
     def ensure(self, scope: ScopeType, permission: PermissionType) -> None:
         if not self.check(scope, permission):
-            raise HTTPException(status_code=403, detail="%s %s Permission Denied." % (scope, permission))
+            raise HTTPException(
+                status_code=403, detail="%s %s Permission Denied." % (scope, permission)
+            )
 
     def ensure_or(self, *args) -> None:
         if not args:
@@ -217,8 +233,10 @@ class Authentication:
                     return
             except:
                 pass
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail="%s %s Permission Denied." % (scope, permission))
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="%s %s Permission Denied." % (scope, permission),
+        )
 
     def ensure_and(self, *args) -> None:
         for arg in args:

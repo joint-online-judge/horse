@@ -20,7 +20,7 @@ class PydanticObjectId(ObjectId):
     @classmethod
     def validate(cls, v):
         if not isinstance(v, ObjectId):
-            raise TypeError('ObjectId required')
+            raise TypeError("ObjectId required")
         return str(v)
 
 
@@ -35,19 +35,19 @@ class UserODM(Document):
 
     uname_lower = StringField(required=True)
     mail_lower = StringField(required=True)
-    gravatar = StringField(default='')
+    gravatar = StringField(default="")
 
-    student_id = StringField(default='')
-    real_name = StringField(default='')
+    student_id = StringField(default="")
+    real_name = StringField(default="")
 
-    salt = StringField(default='')
-    hash = StringField(default='')
-    role = StringField(default='user')
+    salt = StringField(default="")
+    hash = StringField(default="")
+    role = StringField(default="user")
 
     register_timestamp = DateTimeField(required=True)
-    register_ip = StringField(default='0.0.0.0')
+    register_ip = StringField(default="0.0.0.0")
     login_timestamp = DateTimeField(required=True)
-    login_ip = StringField(default='0.0.0.0')
+    login_ip = StringField(default="0.0.0.0")
 
 
 class User(BaseModel):
@@ -61,12 +61,12 @@ class User(BaseModel):
     mail_lower: str = None
     gravatar: str = None
 
-    student_id: str = ''
-    real_name: str = ''
+    student_id: str = ""
+    real_name: str = ""
 
-    salt: str = ''
-    hash: str = ''
-    role: str = 'user'
+    salt: str = ""
+    hash: str = ""
+    role: str = "user"
 
     register_timestamp: datetime
     register_ip: str = "0.0.0.0"
@@ -81,7 +81,7 @@ UserODM: Type[MotorAsyncIODocument]
 
 
 async def main():
-    db = motor.motor_asyncio.AsyncIOMotorClient()['horse-production']
+    db = motor.motor_asyncio.AsyncIOMotorClient()["horse-production"]
     instance.set_db(db)
 
     # User.bind_odm(UserODM)
@@ -94,5 +94,5 @@ async def main():
         # print(u.mongo())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())
