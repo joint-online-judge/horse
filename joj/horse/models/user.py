@@ -6,12 +6,13 @@ from pymongo import ASCENDING, IndexModel
 from umongo import fields
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 
+from joj.horse.models.base import DocumentMixin
 from joj.horse.schemas.user import User as UserSchema
 from joj.horse.utils.db import instance
 
 
 @instance.register
-class User(MotorAsyncIODocument):
+class User(MotorAsyncIODocument, DocumentMixin):
     class Meta:
         collection_name = "users"
         indexes = [

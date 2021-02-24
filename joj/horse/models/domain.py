@@ -7,12 +7,6 @@ from joj.horse.models.user import User
 from joj.horse.utils.db import instance
 
 
-# class DocumentMixin:
-#     @classmethod
-#     async def find_by_id(cls, _id):
-#         return await cls.find_one({'_id': ObjectId(_id)})
-
-
 @instance.register
 class Domain(MotorAsyncIODocument):
     class Meta:
@@ -22,8 +16,6 @@ class Domain(MotorAsyncIODocument):
             IndexModel("owner"),
             IndexModel("name"),
         ]
-
-    # id = fields.ObjectIdField(attribute='_id')
 
     url = fields.StringField(required=True)
     name = fields.StringField(required=True)

@@ -18,7 +18,7 @@ class PydanticObjectId(str):
         if isinstance(v, str):
             v = ObjectId(v)
         elif not isinstance(v, ObjectId):
-            raise TypeError('ObjectId required')
+            raise TypeError("ObjectId required")
         return str(v)
 
 
@@ -29,12 +29,14 @@ class BaseODMSchema(BaseModel):
     id: Optional[PydanticObjectId]
 
     def to_model(
-            self,
-            *,
-            include: Union["AbstractSetIntStr", "DictIntStrAny"] = None,
-            exclude: Union["AbstractSetIntStr", "DictIntStrAny"] = None,
+        self,
+        *,
+        include: Union["AbstractSetIntStr", "DictIntStrAny"] = None,
+        exclude: Union["AbstractSetIntStr", "DictIntStrAny"] = None,
     ) -> "DictStrAny":
-        document = self.dict(by_alias=True, include=include, exclude=exclude, exclude_defaults=True)
+        document = self.dict(
+            by_alias=True, include=include, exclude=exclude, exclude_defaults=True
+        )
         if self.id is None:
             document.pop("id", None)
         return document
@@ -59,7 +61,7 @@ class BaseODMSchema(BaseModel):
 #             raise TypeError('Primary key (_id) not found')
 #         return v._document and T(**v._document.dump()) or v.pk
 
-T = TypeVar('T')
+T = TypeVar("T")
 ReferenceSchema = Union[PydanticObjectId, T]
 
 
@@ -67,7 +69,7 @@ def reference_schema_validator(field, schema_type):
     def wrapped(v: MotorAsyncIOReference) -> Union[PydanticObjectId, Type[schema_type]]:
         if isinstance(v, MotorAsyncIOReference):
             if v.pk is None:
-                raise TypeError('Primary key (_id) not found')
+                raise TypeError("Primary key (_id) not found")
             return v._document and schema_type(**v._document.dump()) or v.pk
         return v
 
