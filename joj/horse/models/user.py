@@ -39,6 +39,11 @@ class User(MotorAsyncIODocument):
     login_ip = fields.StringField(default='0.0.0.0')
 
     @classmethod
+    async def find_by_id(cls, uid: str) -> 'User':
+        # FIXME: no uid field in model
+        return await cls.find_one({'uid': uid})
+
+    @classmethod
     async def find_by_uname(cls, scope: str, uname: str) -> 'User':
         return await cls.find_one({'scope': scope, 'uname_lower': uname.strip().lower()})
 
