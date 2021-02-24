@@ -1,15 +1,16 @@
-from datetime import datetime
 from enum import IntEnum
-from typing import List, Optional
 
-from pydantic import BaseModel
 from pymongo import ASCENDING, DESCENDING, IndexModel
 
-from joj.horse.models.domain import DomainReference
-from joj.horse.models.problem import ProblemReference
-from joj.horse.models.problem_set import ProblemSetReference
-from joj.horse.models.user import UserReference
-from joj.horse.odm import Document
+from joj.horse.models.domain import Domain
+from joj.horse.models.problem import Problem
+from joj.horse.models.problem_set import ProblemSet
+from joj.horse.models.user import User
+from joj.horse.utils.db import instance
+
+from umongo import fields, validate
+from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
+from umongo.embedded_document import EmbeddedDocumentImplementation
 
 
 class RecordStatus(IntEnum):
@@ -37,19 +38,23 @@ class RecordCodeType(IntEnum):
     rar = 3
 
 
-class RecordCase(BaseModel):
-    status: RecordStatus
-    score: int = 0
-    time_ms: int = 0
-    memory_kb: int = 0
-    execute_status: int = 0
-    stdout: str = ""
-    stderr: str = ""
+@instance.register
+class RecordCase(EmbeddedDocumentImplementation):
+    status = fields.IntegerField(
+        validate=validate.OneOf([*RecordStatus._value2member_map_])
+    )
+    score = fields.IntegerField(default=0)
+    time_ms = fields.IntegerField(default=0)
+    memory_kb = fields.IntegerField(default=0)
+    execute_status = fields.IntegerField(default=0)
+    stdout = fields.StringField(default="")
+    stderr = fields.StringField(default="")
 
 
-class Record(Document):
-    class Mongo:
-        collection = "records"
+@instance.register
+class Record(MotorAsyncIODocument):
+    class Meta:
+        collection_name = "records"
         indexes = [
             IndexModel(
                 [
@@ -68,23 +73,27 @@ class Record(Document):
             IndexModel([("user", ASCENDING), ("submit_at", DESCENDING)]),
         ]
 
-    status: RecordStatus
-    score: int = 0
-    time_ms: int = 0
-    memory_kb: int = 0
-    domain: DomainReference
-    problem: ProblemReference
-    problem_set: Optional[ProblemSetReference] = None  # modify later
-    problem_data: int  # modify later
-    user: UserReference
-    code_type: RecordCodeType
-    code: str  # modify later
-    judge_category: List[str]
+    status = fields.IntegerField(
+        validate=validate.OneOf([*RecordStatus._value2member_map_])
+    )
+    score = fields.IntegerField(default=0)
+    time_ms = fields.IntegerField(default=0)
+    memory_kb = fields.IntegerField(default=0)
+    domain = fields.ReferenceField(Domain)
+    problem = fields.ReferenceField(Problem)
+    problem_set = fields.ReferenceField(ProblemSet)  # modify later
+    problem_data = fields.IntegerField()  # modify later
+    user = fields.ReferenceField(User)
+    code_type = fields.IntegerField(
+        validate=validate.OneOf([*RecordCodeType._value2member_map_])
+    )
+    code = fields.StringField()  # modify later
+    judge_category = fields.ListField(fields.StringField())
 
-    submit_at: datetime
-    judge_at: datetime
+    submit_at = fields.DateTimeField()
+    judge_at = fields.DateTimeField()
 
-    judge_user: UserReference
+    judge_user = fields.ReferenceField(User)
 
-    compiler_texts: str = ""
-    cases: List[RecordCase] = []
+    compiler_texts = fields.StringField(default="")
+    cases = fields.ListField(fields.EmbeddedField(RecordCase, default=RecordCase()))
