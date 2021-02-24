@@ -5,8 +5,8 @@ from pydantic import EmailStr, validator
 
 from joj.horse.schemas.base import BaseODMSchema
 
-UID_RE = re.compile(r'-?\d+')
-UNAME_RE = re.compile(r'[^\s\u3000](.{,254}[^\s\u3000])?')
+UID_RE = re.compile(r"-?\d+")
+UNAME_RE = re.compile(r"[^\s\u3000](.{,254}[^\s\u3000])?")
 
 
 class UserBase(BaseODMSchema):
@@ -21,7 +21,7 @@ class UserBase(BaseODMSchema):
     @validator("uname", pre=True)
     def validate_uname(cls, v: str):
         if not UNAME_RE.fullmatch(v):
-            raise ValueError('uname')
+            raise ValueError("uname")
         return v
 
     @validator("uname_lower", pre=True, always=True)
@@ -38,12 +38,12 @@ class UserBase(BaseODMSchema):
 
 
 class User(UserBase):
-    salt: str = ''
-    hash: str = ''
-    role: str = 'user'
+    salt: str = ""
+    hash: str = ""
+    role: str = "user"
 
-    student_id: str = ''
-    real_name: str = ''
+    student_id: str = ""
+    real_name: str = ""
 
     register_ip: str = "0.0.0.0"
     login_ip: str = "0.0.0.0"
