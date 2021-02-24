@@ -1,3 +1,4 @@
+from pymongo import IndexModel
 from umongo import fields
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 
@@ -11,7 +12,9 @@ from joj.horse.utils.db import instance
 class Problem(MotorAsyncIODocument, DocumentMixin):
     class Meta:
         collection_name = "problems"
-        indexes = []
+        indexes = [
+            IndexModel("domain"), # TODO: is it appropriate?
+        ]
 
     domain = fields.ReferenceField(Domain, required=True)
     owner = fields.ReferenceField(User, required=True)
