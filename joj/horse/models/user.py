@@ -1,5 +1,4 @@
 from datetime import datetime
-from bson import ObjectId
 
 from pydantic import EmailStr
 from pymongo import ASCENDING, IndexModel
@@ -39,11 +38,6 @@ class User(MotorAsyncIODocument, DocumentMixin):
     register_ip = fields.StringField(default='0.0.0.0')
     login_timestamp = fields.DateTimeField(required=True)
     login_ip = fields.StringField(default='0.0.0.0')
-
-    @classmethod
-    async def find_by_id(cls, uid: str) -> 'User':
-        # TODO： move to mixin
-        return await cls.find_one({'_id': ObjectId(uid)})
 
     @classmethod
     async def find_by_uname(cls, scope: str, uname: str) -> 'User':
