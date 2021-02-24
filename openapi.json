@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: fe2b6e1",
+    "description": "Git version: 7d69dbb",
     "version": "0.0.0"
   },
   "paths": {
@@ -436,7 +436,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserBase"
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
@@ -542,6 +542,93 @@
           "redirect_url": {
             "title": "Redirect Url",
             "type": "string"
+          }
+        }
+      },
+      "User": {
+        "title": "User",
+        "required": [
+          "scope",
+          "uname",
+          "mail",
+          "register_timestamp",
+          "login_timestamp"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          },
+          "uname": {
+            "title": "Uname",
+            "type": "string"
+          },
+          "mail": {
+            "title": "Mail",
+            "type": "string",
+            "format": "email"
+          },
+          "uname_lower": {
+            "title": "Uname Lower",
+            "type": "string"
+          },
+          "mail_lower": {
+            "title": "Mail Lower",
+            "type": "string"
+          },
+          "gravatar": {
+            "title": "Gravatar",
+            "type": "string"
+          },
+          "salt": {
+            "title": "Salt",
+            "type": "string",
+            "default": ""
+          },
+          "hash": {
+            "title": "Hash",
+            "type": "string",
+            "default": ""
+          },
+          "role": {
+            "title": "Role",
+            "type": "string",
+            "default": "user"
+          },
+          "student_id": {
+            "title": "Student Id",
+            "type": "string",
+            "default": ""
+          },
+          "real_name": {
+            "title": "Real Name",
+            "type": "string",
+            "default": ""
+          },
+          "register_ip": {
+            "title": "Register Ip",
+            "type": "string",
+            "default": "0.0.0.0"
+          },
+          "login_ip": {
+            "title": "Login Ip",
+            "type": "string",
+            "default": "0.0.0.0"
+          },
+          "register_timestamp": {
+            "title": "Register Timestamp",
+            "type": "string",
+            "format": "date-time"
+          },
+          "login_timestamp": {
+            "title": "Login Timestamp",
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
