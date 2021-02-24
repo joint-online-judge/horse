@@ -2,6 +2,7 @@ from enum import IntEnum
 
 from pymongo import ASCENDING, DESCENDING, IndexModel
 
+from joj.horse.models.base import DocumentMixin
 from joj.horse.models.domain import Domain
 from joj.horse.models.problem import Problem
 from joj.horse.models.problem_set import ProblemSet
@@ -52,7 +53,7 @@ class RecordCase(EmbeddedDocumentImplementation):
 
 
 @instance.register
-class Record(MotorAsyncIODocument):
+class Record(MotorAsyncIODocument, DocumentMixin):
     class Meta:
         collection_name = "records"
         indexes = [

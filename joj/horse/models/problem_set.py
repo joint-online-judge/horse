@@ -1,6 +1,7 @@
 from umongo import fields
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 
+from joj.horse.models.base import DocumentMixin
 from joj.horse.models.domain import Domain
 from joj.horse.models.problem import Problem
 from joj.horse.models.user import User
@@ -8,7 +9,7 @@ from joj.horse.utils.db import instance
 
 
 @instance.register
-class ProblemSet(MotorAsyncIODocument):
+class ProblemSet(MotorAsyncIODocument, DocumentMixin):
     class Meta:
         collection_name = "problem.sets"
         indexes = []
