@@ -14,7 +14,8 @@ class ProblemSet(MotorAsyncIODocument, DocumentMixin):
     class Meta:
         collection_name = "problem.sets"
         indexes = [
-            IndexModel("domain"), # TODO: is it appropriate?
+            IndexModel("domain"),
+            IndexModel("owner"),
         ]
 
     domain = fields.ReferenceField(Domain, required=True)
