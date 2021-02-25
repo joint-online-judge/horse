@@ -101,11 +101,7 @@ def auth_jwt_decode(
 
 
 def auth_jwt_encode(auth_jwt: AuthJWT, user: User, channel: str = "") -> str:
-    user_claims = {
-        "name": user.uname_lower,
-        "scope": user.scope,
-        "channel": channel,
-    }
+    user_claims = {"name": user.uname_lower, "scope": user.scope, "channel": channel}
     jwt = auth_jwt.create_access_token(subject=str(user.id), user_claims=user_claims)
     # print(jwt)
     return jwt
@@ -135,8 +131,7 @@ def get_site_permission(site_role: str = Depends(get_site_role)):
 
 
 async def get_domain_role(
-    user: Optional[User] = None,
-    domain: Optional[Domain] = None,
+    user: Optional[User] = None, domain: Optional[Domain] = None
 ) -> str:
     if user and domain:
         domain_user = await DomainUser.find_one({"domain": domain.id, "user": user.id})
@@ -147,8 +142,7 @@ async def get_domain_role(
 
 
 async def get_domain_permission(
-    domain: Optional[Domain] = None,
-    domain_role: str = DefaultRole.GUEST,
+    domain: Optional[Domain] = None, domain_role: str = DefaultRole.GUEST
 ) -> DomainPermission:
     if domain_role == DefaultRole.ROOT:
         return DEFAULT_DOMAIN_PERMISSION[DefaultRole.ROOT]
