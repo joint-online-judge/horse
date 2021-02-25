@@ -13,7 +13,8 @@ class Problem(MotorAsyncIODocument, DocumentMixin):
     class Meta:
         collection_name = "problems"
         indexes = [
-            IndexModel("domain"), # TODO: is it appropriate?
+            IndexModel("domain"),
+            IndexModel("owner"),
         ]
 
     domain = fields.ReferenceField(Domain, required=True)
