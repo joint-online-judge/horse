@@ -1,7 +1,6 @@
-from umongo.data_objects import List
-
 from pymongo import IndexModel
 from umongo import fields
+from umongo.data_objects import List
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 
 from joj.horse.models.base import DocumentMixin

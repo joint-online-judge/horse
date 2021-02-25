@@ -2,7 +2,7 @@ import inspect
 import os
 
 from uvicorn.config import LOGGING_CONFIG
-from uvicorn.logging import DefaultFormatter, AccessFormatter, ColourizedFormatter
+from uvicorn.logging import AccessFormatter, ColourizedFormatter, DefaultFormatter
 
 import joj.horse
 

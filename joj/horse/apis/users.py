@@ -1,6 +1,7 @@
+from typing import List, Union
+
 import aiohttp
 import jwt
-from typing import Union, List
 from fastapi import Cookie, Depends, HTTPException, Query, Request, status
 from fastapi_jwt_auth import AuthJWT
 from fastapi_utils.inferring_router import InferringRouter
@@ -11,8 +12,8 @@ from joj.horse import models, schemas
 from joj.horse.schemas.misc import RedirectModel
 from joj.horse.utils.auth import Authentication, auth_jwt_encode
 from joj.horse.utils.oauth import jaccount
-from joj.horse.utils.url import generate_url
 from joj.horse.utils.parser import parse_uid
+from joj.horse.utils.url import generate_url
 
 router = InferringRouter()
 router_name = "users"

@@ -1,4 +1,5 @@
-from typing import Optional, List
+from typing import List, Optional
+
 from fastapi import Depends, Query
 from fastapi_utils.inferring_router import InferringRouter
 from uvicorn.config import logger
@@ -7,7 +8,7 @@ from joj.horse import models, schemas
 from joj.horse.utils import errors
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import instance
-from joj.horse.utils.parser import parse_uid, parse_pid
+from joj.horse.utils.parser import parse_pid, parse_uid
 
 router = InferringRouter()
 router_name = "problems"

@@ -1,9 +1,10 @@
 from typing import Optional
+
 from fastapi import Depends, Query
 
 from joj.horse import models
-from joj.horse.utils.auth import Authentication
 from joj.horse.utils import errors
+from joj.horse.utils.auth import Authentication
 
 
 async def parse_uid(
