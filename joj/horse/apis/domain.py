@@ -50,9 +50,7 @@ async def create_domain(
                 await domain.commit()
                 logger.info("domain created: %s", domain)
                 domain_user = schemas.DomainUser(
-                    domain=domain.id,
-                    user=auth.user.id,
-                    role=DefaultRole.ROOT,
+                    domain=domain.id, user=auth.user.id, role=DefaultRole.ROOT
                 )
                 domain_user = models.DomainUser(**domain_user.to_model())
                 await domain_user.commit()

@@ -29,6 +29,7 @@ Refer to <https://joint-online-judge.github.io/horse/> to prepare your environme
 
 ```bash
 pip3 install -e .
+pre-commit install
 vi .env # configure environment
 python3 -m joj.horse
 # or just press F5 in VS Code

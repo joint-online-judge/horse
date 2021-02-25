@@ -161,8 +161,7 @@ async def parse_uid(uid: str, auth: Authentication = Depends()) -> models.User:
 
 @router.get("/{uid}", response_model=Union[schemas.User, schemas.UserBase])
 async def get_user(
-    uid: str,
-    user: models.User = Depends(parse_uid),
+    uid: str, user: models.User = Depends(parse_uid)
 ) -> Union[schemas.User, schemas.UserBase]:
     if uid == "me":
         return schemas.User.from_orm(user)
