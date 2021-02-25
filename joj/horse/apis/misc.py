@@ -5,7 +5,8 @@ from joj.horse.utils.auth import Authentication, jwt_token_encode
 from joj.horse.utils.version import get_git_version, get_version
 
 router = APIRouter()
-router_name = "misc"
+router_name = ""
+router_tag = "miscellaneous"
 router_prefix = "/api/v1"
 
 

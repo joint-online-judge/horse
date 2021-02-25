@@ -1,31 +1,29 @@
-import aiohttp
-import jwt
 from typing import Optional, List
-from fastapi import Cookie, Depends, HTTPException, Query, Request, status
-from fastapi_jwt_auth import AuthJWT
+from fastapi import Depends, Query
 from fastapi_utils.inferring_router import InferringRouter
-from starlette.responses import JSONResponse, RedirectResponse
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
-from joj.horse.schemas.misc import RedirectModel
 from joj.horse.utils import errors
-from joj.horse.utils.auth import Authentication, auth_jwt_encode
+from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import instance
+from joj.horse.utils.parser import parse_uid, parse_pid
 
 router = InferringRouter()
-router_name = "problem"
+router_name = "problems"
+router_tag = "problem"
 router_prefix = "/api/v1"
 
 
-async def parse_pid(pid: str, auth: Authentication = Depends()) -> models.User:
-    problem = await models.Problem.find_by_id(pid)
-    if problem:
-        return problem
-    raise errors.ProblemNotFoundError(pid)
+@router.get("", response_model=List[schemas.Problem])
+async def list_problems(auth: Authentication = Depends(Authentication)):
+    return [
+        schemas.Problem.from_orm(problem)
+        async for problem in models.Problem.find({"owner": auth.user.id})
+    ]
 
 
-@router.post("/create", response_model=schemas.Problem)
+@router.post("", response_model=schemas.Problem)
 async def create_problem(
     domain: str = Query(..., description="url or the id of the domain"),
     title: str = Query(..., description="title of the problem"),
@@ -36,9 +34,6 @@ async def create_problem(
     ),
     auth: Authentication = Depends(),
 ) -> schemas.Problem:
-    """
-    Create a new problem
-    """
     if auth.user is None:
         raise errors.InvalidAuthenticationError()
 
@@ -66,6 +61,6 @@ async def create_problem(
     return schemas.Problem.from_orm(problem)
 
 
-@router.get("/{pid}", response_model=schemas.Problem)
+@router.get("/{problem}", response_model=schemas.Problem)
 async def get_problem(problem: models.Problem = Depends(parse_pid)) -> schemas.Problem:
     return schemas.Problem.from_orm(problem)

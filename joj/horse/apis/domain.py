@@ -13,11 +13,12 @@ from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import instance
 
 router = InferringRouter()
-router_name = "domain"
+router_name = "domains"
+router_tag = "domain"
 router_prefix = "/api/v1"
 
 
-@router.get("/list", response_model=List[schemas.Domain])
+@router.get("", response_model=List[schemas.Domain])
 async def list_user_domains(
     auth: Authentication = Depends(Authentication), uid: Optional[str] = None
 ):
@@ -29,14 +30,14 @@ async def list_user_domains(
     print("self")
 
 
-@router.post("/create", response_model=schemas.Domain)
+@router.post("", response_model=schemas.Domain)
 async def create_domain(
     url: str = Query(..., description="(unique) url of the domain"),
     name: str = Query(..., description="displayed name of the domain"),
     auth: Authentication = Depends(),
 ) -> schemas.Domain:
-    # we can not use routing path or ObjectId as the url
-    if url == "create" or ObjectId.is_valid(url):
+    # we can not use ObjectId as the url
+    if ObjectId.is_valid(url):
         raise errors.InvalidDomainURLError(url)
     if auth.user is None:
         raise errors.InvalidAuthenticationError()
