@@ -1,3 +1,5 @@
+from umongo.data_objects import List
+
 from pymongo import IndexModel
 from umongo import fields
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
@@ -28,4 +30,4 @@ class Problem(MotorAsyncIODocument, ):
 
     data = fields.IntegerField()  # modify later
     data_version = fields.IntegerField(default=2)
-    languages = fields.ListField(fields.StringField())
+    languages = fields.ListField(fields.StringField(), default=List(str))

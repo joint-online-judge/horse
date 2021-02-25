@@ -25,8 +25,10 @@ async def parse_pid(pid: str, auth: Authentication = Depends()) -> models.User:
     raise errors.ProblemNotFoundError(pid)
 
 
-@router.post("/create")
-async def create_problem(auth: Authentication = Depends()) -> schemas.Problem:
+@router.post("/create", response_model=schemas.Problem)
+async def create_problem(
+    domain: str, title: str, auth: Authentication = Depends()
+) -> schemas.Problem:
     if auth.user is None:
         raise errors.InvalidAuthenticationError()
 
@@ -35,7 +37,9 @@ async def create_problem(auth: Authentication = Depends()) -> schemas.Problem:
         async with instance.session() as session:
             async with session.start_transaction():
                 # TODO: finish
-                problem = schemas.Problem(title="test", owner=auth.user.id)
+                problem = schemas.Problem(
+                    title=title, domain=domain, owner=auth.user.id
+                )
                 problem = models.Problem(**problem.to_model())
                 await problem.commit()
                 logger.info("problem created: %s", problem)
