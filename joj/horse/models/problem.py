@@ -26,5 +26,5 @@ class Problem(MotorAsyncIODocument, DocumentMixin):
     num_accept = fields.IntegerField(default=0)
 
     data = fields.IntegerField()  # modify later
-    num_accept = fields.IntegerField(default=2)
+    data_version = fields.IntegerField(default=2)
     languages = fields.ListField(fields.StringField())
