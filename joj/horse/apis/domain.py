@@ -19,7 +19,7 @@ router_prefix = "/api/v1"
 
 
 @router.get("", response_model=List[schemas.Domain])
-async def list_user_domains(
+async def list_domains(
     auth: Authentication = Depends(Authentication), uid: Optional[str] = None
 ):
     """
