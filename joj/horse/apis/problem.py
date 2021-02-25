@@ -64,3 +64,8 @@ async def create_problem(
 @router.get("/{problem}", response_model=schemas.Problem)
 async def get_problem(problem: models.Problem = Depends(parse_pid)) -> schemas.Problem:
     return schemas.Problem.from_orm(problem)
+
+
+@router.delete("/{problem}", status_code=204)
+async def delete_problem(problem: models.Problem = Depends(parse_pid)):
+    await problem.delete()
