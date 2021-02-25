@@ -1,6 +1,5 @@
 import git
 import pbr.version
-
 from uvicorn.config import logger
 
 

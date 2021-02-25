@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Optional, Type, TypeVar, Union
 
 from bson import ObjectId
 from pydantic import BaseModel, validator

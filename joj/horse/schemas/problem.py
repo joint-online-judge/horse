@@ -1,5 +1,5 @@
-from typing import Optional, List
 from datetime import datetime
+from typing import List, Optional
 
 from pydantic import validator
 
@@ -8,8 +8,8 @@ from joj.horse.schemas.base import (
     ReferenceSchema,
     reference_schema_validator,
 )
-from joj.horse.schemas.user import UserBase
 from joj.horse.schemas.domain import Domain
+from joj.horse.schemas.user import UserBase
 
 
 class Problem(BaseODMSchema):
