@@ -1,6 +1,6 @@
 import aiohttp
 import jwt
-from typing import Union
+from typing import Union, List, Optional
 from fastapi import Cookie, Depends, HTTPException, Query, Request, status
 from fastapi_jwt_auth import AuthJWT
 from fastapi_utils.inferring_router import InferringRouter
@@ -147,7 +147,10 @@ def get_jaccount_logout_url(redirect_url):
     return client.get_logout_url(redirect_url)
 
 
-async def parse_uid(uid: str, auth: Authentication = Depends()) -> models.User:
+async def parse_uid(
+    uid: Optional[str] = Query("me", description="uid or 'me'"),
+    auth: Authentication = Depends(),
+) -> models.User:
     if uid == "me":
         if auth.user:
             return auth.user
@@ -161,16 +164,24 @@ async def parse_uid(uid: str, auth: Authentication = Depends()) -> models.User:
 
 @router.get("/{uid}", response_model=Union[schemas.User, schemas.UserBase])
 async def get_user(
-    uid: str, user: models.User = Depends(parse_uid)
+    user: models.User = Depends(parse_uid), auth: Authentication = Depends()
 ) -> Union[schemas.User, schemas.UserBase]:
-    if uid == "me":
+    if user == auth.user:
         return schemas.User.from_orm(user)
     return schemas.UserBase.from_orm(user)
 
 
-# @router.get('/{uid}/domains', response_model=List[DomainUserResponse])
-# async def get_user_domains(user: User = Depends(parse_uid)):
-#     domains = []
-#     async for domain in DomainUser.find({"user": user.id}):
-#         domains.append(DomainUserResponse(**domain.dict()))
-#     return domains
+@router.get("/{uid}/domains", response_model=List[schemas.Domain])
+async def get_user_domains(user: models.User = Depends(parse_uid)):
+    return [
+        schemas.Domain.from_orm(domain)
+        async for domain in models.Domain.find({"owner": user.id})
+    ]
+
+
+@router.get("/{uid}/problems", response_model=List[schemas.Problem])
+async def get_user_problems(user: models.User = Depends(parse_uid)):
+    return [
+        schemas.Problem.from_orm(problem)
+        async for problem in models.Problem.find({"owner": user.id})
+    ]
