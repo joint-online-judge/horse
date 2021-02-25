@@ -13,10 +13,7 @@ from joj.horse.utils.db import instance
 class ProblemSet(MotorAsyncIODocument, DocumentMixin):
     class Meta:
         collection_name = "problem.sets"
-        indexes = [
-            IndexModel("domain"),
-            IndexModel("owner"),
-        ]
+        indexes = [IndexModel("domain"), IndexModel("owner")]
 
     domain = fields.ReferenceField(Domain, required=True)
     owner = fields.ReferenceField(User, required=True)
