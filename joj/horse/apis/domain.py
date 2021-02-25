@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from bson import ObjectId
 from fastapi import Depends, Query
@@ -17,7 +17,7 @@ router_name = "domain"
 router_prefix = "/api/v1"
 
 
-@router.get("/list")
+@router.get("/list", response_model=List[schemas.Domain])
 async def list_user_domains(
     auth: Authentication = Depends(Authentication), uid: Optional[str] = None
 ):
@@ -29,7 +29,7 @@ async def list_user_domains(
     print("self")
 
 
-@router.post("/create")
+@router.post("/create", response_model=schemas.Domain)
 async def create_domain(
     url: str = Query(..., description="(unique) url of the domain"),
     name: str = Query(..., description="displayed name of the domain"),
@@ -63,7 +63,7 @@ async def create_domain(
     return schemas.Domain.from_orm(domain)
 
 
-@router.get("/{domain}")
+@router.get("/{domain}", response_model=schemas.Domain)
 async def get_domain(
     domain: str = DomainPath, auth: Authentication = Depends()
 ) -> schemas.Domain:
