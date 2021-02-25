@@ -1,6 +1,6 @@
 import aiohttp
 import jwt
-from typing import Union
+from typing import Optional, List
 from fastapi import Cookie, Depends, HTTPException, Query, Request, status
 from fastapi_jwt_auth import AuthJWT
 from fastapi_utils.inferring_router import InferringRouter
@@ -27,8 +27,18 @@ async def parse_pid(pid: str, auth: Authentication = Depends()) -> models.User:
 
 @router.post("/create", response_model=schemas.Problem)
 async def create_problem(
-    domain: str, title: str, auth: Authentication = Depends()
+    domain: str = Query(..., description="url or the id of the domain"),
+    title: str = Query(..., description="title of the problem"),
+    content: Optional[str] = Query("", description="content of the problem"),
+    hidden: Optional[bool] = Query(False, description="whether the problem is hidden"),
+    languages: Optional[List[str]] = Query(
+        [], description="acceptable language of the problem"
+    ),
+    auth: Authentication = Depends(),
 ) -> schemas.Problem:
+    """
+    Create a new problem
+    """
     if auth.user is None:
         raise errors.InvalidAuthenticationError()
 
@@ -36,9 +46,14 @@ async def create_problem(
     try:
         async with instance.session() as session:
             async with session.start_transaction():
-                # TODO: finish
+                domain = await models.Domain.find_by_url_or_id(domain)
                 problem = schemas.Problem(
-                    title=title, domain=domain, owner=auth.user.id
+                    title=title,
+                    content=content,
+                    hidden=hidden,
+                    languages=languages,
+                    domain=domain.id,
+                    owner=auth.user.id,
                 )
                 problem = models.Problem(**problem.to_model())
                 await problem.commit()
