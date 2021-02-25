@@ -1,6 +1,6 @@
 import aiohttp
 import jwt
-from typing import Union, List, Optional
+from typing import Union, List
 from fastapi import Cookie, Depends, HTTPException, Query, Request, status
 from fastapi_jwt_auth import AuthJWT
 from fastapi_utils.inferring_router import InferringRouter
@@ -9,13 +9,14 @@ from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.schemas.misc import RedirectModel
-from joj.horse.utils import errors
 from joj.horse.utils.auth import Authentication, auth_jwt_encode
 from joj.horse.utils.oauth import jaccount
 from joj.horse.utils.url import generate_url
+from joj.horse.utils.parser import parse_uid
 
 router = InferringRouter()
 router_name = "user"
+router_tag = "user"
 router_prefix = "/api/v1"
 
 
@@ -147,41 +148,24 @@ def get_jaccount_logout_url(redirect_url):
     return client.get_logout_url(redirect_url)
 
 
-async def parse_uid(
-    uid: Optional[str] = Query("me", description="uid or 'me'"),
-    auth: Authentication = Depends(),
-) -> models.User:
-    if uid == "me":
-        if auth.user:
-            return auth.user
-        raise errors.InvalidAuthenticationError()
-    else:
-        user = await models.User.find_by_id(uid)
-        if user:
-            return user
-        raise errors.UserNotFoundError(uid)
-
-
-@router.get("/{uid}", response_model=Union[schemas.User, schemas.UserBase])
+@router.get("", response_model=schemas.User)
 async def get_user(
     user: models.User = Depends(parse_uid), auth: Authentication = Depends()
-) -> Union[schemas.User, schemas.UserBase]:
-    if user == auth.user:
-        return schemas.User.from_orm(user)
-    return schemas.UserBase.from_orm(user)
+) -> schemas.User:
+    return schemas.User.from_orm(user)
 
 
-@router.get("/{uid}/domains", response_model=List[schemas.Domain])
-async def get_user_domains(user: models.User = Depends(parse_uid)):
+@router.get("/domains", response_model=List[schemas.Domain])
+async def get_user_domains(auth: Authentication = Depends()):
     return [
         schemas.Domain.from_orm(domain)
-        async for domain in models.Domain.find({"owner": user.id})
+        async for domain in models.Domain.find({"owner": auth.user.id})
     ]
 
 
-@router.get("/{uid}/problems", response_model=List[schemas.Problem])
-async def get_user_problems(user: models.User = Depends(parse_uid)):
+@router.get("/problems", response_model=List[schemas.Problem])
+async def get_user_problems(auth: Authentication = Depends()):
     return [
         schemas.Problem.from_orm(problem)
-        async for problem in models.Problem.find({"owner": user.id})
+        async for problem in models.Problem.find({"owner": auth.user.id})
     ]
