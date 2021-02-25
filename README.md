@@ -23,6 +23,8 @@ disable=
 
 ## Installation
 
+Refer to <https://joint-online-judge.github.io/horse/> to prepare your environment.
+
 (setup venv)
 
 ```bash
