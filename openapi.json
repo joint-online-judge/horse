@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 172d4ab",
+    "description": "Git version: 9e9cd33",
     "version": "0.0.0"
   },
   "paths": {
@@ -1089,15 +1089,18 @@
           },
           "uname_lower": {
             "title": "Uname Lower",
-            "type": "string"
+            "type": "string",
+            "default": ""
           },
           "mail_lower": {
             "title": "Mail Lower",
-            "type": "string"
+            "type": "string",
+            "default": ""
           },
           "gravatar": {
             "title": "Gravatar",
-            "type": "string"
+            "type": "string",
+            "default": ""
           },
           "salt": {
             "title": "Salt",
@@ -1174,15 +1177,18 @@
           },
           "uname_lower": {
             "title": "Uname Lower",
-            "type": "string"
+            "type": "string",
+            "default": ""
           },
           "mail_lower": {
             "title": "Mail Lower",
-            "type": "string"
+            "type": "string",
+            "default": ""
           },
           "gravatar": {
             "title": "Gravatar",
-            "type": "string"
+            "type": "string",
+            "default": ""
           }
         }
       },
