@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 9e9cd33",
+    "description": "Git version: 054e13b",
     "version": "0.0.0"
   },
   "paths": {
@@ -820,7 +820,7 @@
                   "title": "Response Get User Domains Api V1 Users  Uid  Domains Get",
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Domain"
+                    "$ref": "#/components/schemas/DomainUser"
                   }
                 }
               }
@@ -939,6 +939,53 @@
             "title": "Bulletin",
             "type": "string",
             "default": ""
+          }
+        }
+      },
+      "DomainUser": {
+        "title": "DomainUser",
+        "required": [
+          "domain",
+          "user",
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "domain": {
+            "title": "Domain",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/Domain"
+              }
+            ]
+          },
+          "user": {
+            "title": "User",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/UserBase"
+              }
+            ]
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "join_at": {
+            "title": "Join At",
+            "type": "string",
+            "format": "date-time",
+            "default": "2021-02-26T15:38:59.492434"
           }
         }
       },
