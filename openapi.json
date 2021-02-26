@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 054e13b",
+    "description": "Git version: afb0b99",
     "version": "0.0.0"
   },
   "paths": {
@@ -985,7 +985,7 @@
             "title": "Join At",
             "type": "string",
             "format": "date-time",
-            "default": "2021-02-26T15:38:59.492434"
+            "default": "2021-02-26T19:16:23.840294"
           }
         }
       },
