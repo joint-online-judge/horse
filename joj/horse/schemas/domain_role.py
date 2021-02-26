@@ -1,7 +1,8 @@
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Callable, Dict
 
 from pydantic import validator
+from pydantic.typing import AnyCallable
 
 from joj.horse.models.permission import DomainPermission
 from joj.horse.schemas.base import (
@@ -27,4 +28,6 @@ class DomainRole(BaseODMSchema):
     def default_updated_at(cls, v, *, values, **kwargs):
         return v or datetime.utcnow()
 
-    _validator_domain = reference_schema_validator("domain", Domain)
+    _validator_domain: Callable[
+        [AnyCallable], classmethod
+    ] = reference_schema_validator("domain", Domain)

@@ -1,6 +1,8 @@
 from datetime import datetime
+from typing import Callable
 
 from pydantic import validator
+from pydantic.typing import AnyCallable
 
 from joj.horse.schemas.base import (
     BaseODMSchema,
@@ -22,5 +24,9 @@ class DomainUser(BaseODMSchema):
     def default_join_at(cls, v, *, values, **kwargs):
         return v or datetime.utcnow()
 
-    _validator_domain = reference_schema_validator("domain", Domain)
-    _validator_user = reference_schema_validator("user", UserBase)
+    _validator_domain: Callable[
+        [AnyCallable], classmethod
+    ] = reference_schema_validator("domain", Domain)
+    _validator_user: Callable[[AnyCallable], classmethod] = reference_schema_validator(
+        "user", UserBase
+    )

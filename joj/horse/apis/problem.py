@@ -28,11 +28,9 @@ async def list_problems(auth: Authentication = Depends(Authentication)):
 async def create_problem(
     domain: str = Query(..., description="url or the id of the domain"),
     title: str = Query(..., description="title of the problem"),
-    content: Optional[str] = Query("", description="content of the problem"),
-    hidden: Optional[bool] = Query(False, description="whether the problem is hidden"),
-    languages: Optional[List[str]] = Query(
-        [], description="acceptable language of the problem"
-    ),
+    content: str = Query("", description="content of the problem"),
+    hidden: bool = Query(False, description="whether the problem is hidden"),
+    languages: List[str] = Query([], description="acceptable language of the problem"),
     auth: Authentication = Depends(),
 ) -> schemas.Problem:
     if auth.user is None:
