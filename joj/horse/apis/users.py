@@ -1,19 +1,11 @@
 from typing import List, Union
 
-import aiohttp
-import jwt
-from fastapi import Cookie, Depends, HTTPException, Query, Request, status
-from fastapi_jwt_auth import AuthJWT
+from fastapi import Depends
 from fastapi_utils.inferring_router import InferringRouter
-from starlette.responses import JSONResponse, RedirectResponse
-from uvicorn.config import logger
 
 from joj.horse import models, schemas
-from joj.horse.schemas.misc import RedirectModel
-from joj.horse.utils.auth import Authentication, auth_jwt_encode
-from joj.horse.utils.oauth import jaccount
+from joj.horse.utils.auth import Authentication
 from joj.horse.utils.parser import parse_uid
-from joj.horse.utils.url import generate_url
 
 router = InferringRouter()
 router_name = "users"
@@ -30,11 +22,24 @@ async def get_user(
     return schemas.UserBase.from_orm(user)
 
 
-@router.get("/{uid}/domains", response_model=List[schemas.Domain])
+@router.get("/{uid}/domains", response_model=List[schemas.DomainUser])
 async def get_user_domains(user: models.User = Depends(parse_uid)):
+    # TODO: this pipeline may be useful in many places, consider changing it to a function
+    pipeline = [
+        {"$match": {"user": user.id}},
+        {
+            "$lookup": {
+                "from": "domains",
+                "localField": "domain",
+                "foreignField": "_id",
+                "as": "domain",
+            }
+        },
+        {"$addFields": {"domain": {"$arrayElemAt": ["$domain", 0]}}},
+    ]
     return [
-        schemas.Domain.from_orm(domain)
-        async for domain in models.Domain.find({"owner": user.id})
+        schemas.DomainUser.from_orm(models.DomainUser.build_from_mongo(domain_user))
+        async for domain_user in models.DomainUser.aggregate(pipeline)
     ]
 
 

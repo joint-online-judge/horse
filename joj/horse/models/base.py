@@ -9,3 +9,7 @@ class DocumentMixin:
         if not ObjectId.is_valid(_id):
             raise UnprocessableEntityError("Invalid ObjectId")
         return await cls.find_one({"_id": ObjectId(_id)})
+
+    @classmethod
+    def aggregate(cls, pipeline, **kwargs):
+        return cls.collection.aggregate(pipeline, **kwargs)

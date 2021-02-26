@@ -70,6 +70,9 @@ def reference_schema_validator(field, schema_type):
         if isinstance(v, MotorAsyncIOReference):
             if v.pk is None:
                 raise TypeError("Primary key (_id) not found")
+            if isinstance(v.pk, dict):
+                _doc = v.document_cls.build_from_mongo(v.pk)
+                return schema_type.from_orm(_doc)
             return v._document and schema_type(**v._document.dump()) or v.pk
         return v
 
