@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 71dc35b",
+    "description": "Git version: 172d4ab",
     "version": "0.0.0"
   },
   "paths": {
@@ -22,14 +22,61 @@
         }
       }
     },
-    "/api/v1/domain/list": {
+    "/api/v1/version": {
+      "get": {
+        "tags": [
+          "miscellaneous"
+        ],
+        "summary": "Version",
+        "operationId": "version_api_v1_version_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Version"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jwt": {
+      "get": {
+        "tags": [
+          "miscellaneous"
+        ],
+        "summary": "Jwt",
+        "operationId": "jwt_api_v1_jwt_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JWT"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains": {
       "get": {
         "tags": [
           "domain"
         ],
-        "summary": "List User Domains",
+        "summary": "List Domains",
         "description": "List all domains in which {user} has a role.\nUse current login user if {user} is not specified.",
-        "operationId": "list_user_domains_api_v1_domain_list_get",
+        "operationId": "list_domains_api_v1_domains_get",
         "parameters": [
           {
             "required": false,
@@ -47,7 +94,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Response List User Domains Api V1 Domain List Get",
+                  "title": "Response List Domains Api V1 Domains Get",
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/Domain"
@@ -72,15 +119,13 @@
             "HTTPBearer": []
           }
         ]
-      }
-    },
-    "/api/v1/domain/create": {
+      },
       "post": {
         "tags": [
           "domain"
         ],
         "summary": "Create Domain",
-        "operationId": "create_domain_api_v1_domain_create_post",
+        "operationId": "create_domain_api_v1_domains_post",
         "parameters": [
           {
             "description": "(unique) url of the domain",
@@ -134,13 +179,13 @@
         ]
       }
     },
-    "/api/v1/domain/{domain}": {
+    "/api/v1/domains/{domain}": {
       "get": {
         "tags": [
           "domain"
         ],
         "summary": "Get Domain",
-        "operationId": "get_domain_api_v1_domain__domain__get",
+        "operationId": "get_domain_api_v1_domains__domain__get",
         "parameters": [
           {
             "description": "url or ObjectId of the domain",
@@ -183,41 +228,206 @@
         ]
       }
     },
-    "/api/v1/misc/version": {
+    "/api/v1/problems": {
       "get": {
         "tags": [
-          "misc"
+          "problem"
         ],
-        "summary": "Version",
-        "operationId": "version_api_v1_misc_version_get",
+        "summary": "List Problems",
+        "operationId": "list_problems_api_v1_problems_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Version"
+                  "title": "Response List Problems Api V1 Problems Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Problem"
+                  }
                 }
               }
             }
           }
-        }
-      }
-    },
-    "/api/v1/misc/jwt": {
-      "get": {
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
         "tags": [
-          "misc"
+          "problem"
         ],
-        "summary": "Jwt",
-        "operationId": "jwt_api_v1_misc_jwt_get",
+        "summary": "Create Problem",
+        "operationId": "create_problem_api_v1_problems_post",
+        "parameters": [
+          {
+            "description": "url or the id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or the id of the domain"
+            },
+            "name": "domain",
+            "in": "query"
+          },
+          {
+            "description": "title of the problem",
+            "required": true,
+            "schema": {
+              "title": "Title",
+              "type": "string",
+              "description": "title of the problem"
+            },
+            "name": "title",
+            "in": "query"
+          },
+          {
+            "description": "content of the problem",
+            "required": false,
+            "schema": {
+              "title": "Content",
+              "type": "string",
+              "description": "content of the problem",
+              "default": ""
+            },
+            "name": "content",
+            "in": "query"
+          },
+          {
+            "description": "whether the problem is hidden",
+            "required": false,
+            "schema": {
+              "title": "Hidden",
+              "type": "boolean",
+              "description": "whether the problem is hidden",
+              "default": false
+            },
+            "name": "hidden",
+            "in": "query"
+          },
+          {
+            "description": "acceptable language of the problem",
+            "required": false,
+            "schema": {
+              "title": "Languages",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "acceptable language of the problem",
+              "default": []
+            },
+            "name": "languages",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JWT"
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/problems/{problem}": {
+      "get": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "Get Problem",
+        "operationId": "get_problem_api_v1_problems__problem__get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "Delete Problem",
+        "operationId": "delete_problem_api_v1_problems__problem__delete",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -418,13 +628,123 @@
         }
       }
     },
-    "/api/v1/user/{uid}": {
+    "/api/v1/user": {
       "get": {
         "tags": [
           "user"
         ],
         "summary": "Get User",
-        "operationId": "get_user_api_v1_user__uid__get",
+        "operationId": "get_user_api_v1_user_get",
+        "parameters": [
+          {
+            "description": "uid or 'me'",
+            "required": false,
+            "schema": {
+              "title": "Uid",
+              "type": "string",
+              "description": "uid or 'me'",
+              "default": "me"
+            },
+            "name": "uid",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/user/domains": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get User Domains",
+        "operationId": "get_user_domains_api_v1_user_domains_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Get User Domains Api V1 User Domains Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Domain"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/user/problems": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get User Problems",
+        "operationId": "get_user_problems_api_v1_user_problems_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Get User Problems Api V1 User Problems Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Problem"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/users/{uid}": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get User",
+        "operationId": "get_user_api_v1_users__uid__get",
         "parameters": [
           {
             "required": true,
@@ -442,7 +762,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Response Get User Api V1 User  Uid  Get",
+                  "title": "Response Get User Api V1 Users  Uid  Get",
                   "anyOf": [
                     {
                       "$ref": "#/components/schemas/User"
@@ -473,13 +793,13 @@
         ]
       }
     },
-    "/api/v1/user/{uid}/domains": {
+    "/api/v1/users/{uid}/domains": {
       "get": {
         "tags": [
           "user"
         ],
         "summary": "Get User Domains",
-        "operationId": "get_user_domains_api_v1_user__uid__domains_get",
+        "operationId": "get_user_domains_api_v1_users__uid__domains_get",
         "parameters": [
           {
             "required": true,
@@ -497,7 +817,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Response Get User Domains Api V1 User  Uid  Domains Get",
+                  "title": "Response Get User Domains Api V1 Users  Uid  Domains Get",
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/Domain"
@@ -524,13 +844,13 @@
         ]
       }
     },
-    "/api/v1/user/{uid}/problems": {
+    "/api/v1/users/{uid}/problems": {
       "get": {
         "tags": [
           "user"
         ],
         "summary": "Get User Problems",
-        "operationId": "get_user_problems_api_v1_user__uid__problems_get",
+        "operationId": "get_user_problems_api_v1_users__uid__problems_get",
         "parameters": [
           {
             "required": true,
@@ -548,158 +868,11 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Response Get User Problems Api V1 User  Uid  Problems Get",
+                  "title": "Response Get User Problems Api V1 Users  Uid  Problems Get",
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/Problem"
                   }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/problem/create": {
-      "post": {
-        "tags": [
-          "problem"
-        ],
-        "summary": "Create Problem",
-        "description": "Create a new problem",
-        "operationId": "create_problem_api_v1_problem_create_post",
-        "parameters": [
-          {
-            "description": "url or the id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or the id of the domain"
-            },
-            "name": "domain",
-            "in": "query"
-          },
-          {
-            "description": "title of the problem",
-            "required": true,
-            "schema": {
-              "title": "Title",
-              "type": "string",
-              "description": "title of the problem"
-            },
-            "name": "title",
-            "in": "query"
-          },
-          {
-            "description": "content of the problem",
-            "required": false,
-            "schema": {
-              "title": "Content",
-              "type": "string",
-              "description": "content of the problem",
-              "default": ""
-            },
-            "name": "content",
-            "in": "query"
-          },
-          {
-            "description": "whether the problem is hidden",
-            "required": false,
-            "schema": {
-              "title": "Hidden",
-              "type": "boolean",
-              "description": "whether the problem is hidden",
-              "default": false
-            },
-            "name": "hidden",
-            "in": "query"
-          },
-          {
-            "description": "acceptable language of the problem",
-            "required": false,
-            "schema": {
-              "title": "Languages",
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "description": "acceptable language of the problem",
-              "default": []
-            },
-            "name": "languages",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/problem/{pid}": {
-      "get": {
-        "tags": [
-          "problem"
-        ],
-        "summary": "Get Problem",
-        "operationId": "get_problem_api_v1_problem__pid__get",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "Pid",
-              "type": "string"
-            },
-            "name": "pid",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
                 }
               }
             }
