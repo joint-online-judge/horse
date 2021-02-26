@@ -1,5 +1,3 @@
-from umongo.data_objects import List
-
 from pymongo import IndexModel
 from umongo import fields
 from umongo.data_objects import List
@@ -12,7 +10,7 @@ from joj.horse.utils.db import instance
 
 
 @instance.register
-class Problem(MotorAsyncIODocument, ):
+class Problem(DocumentMixin, MotorAsyncIODocument):
     class Meta:
         collection_name = "problems"
         indexes = [IndexModel("domain"), IndexModel("owner")]
