@@ -23,7 +23,7 @@ async def parse_uid(
 
 
 async def parse_pid(problem: str, auth: Authentication = Depends()) -> models.User:
-    problem = await models.Problem.find_by_id(problem)
-    if problem and problem.owner == auth.user:
-        return problem
-    raise errors.ProblemNotFoundError(problem)
+    problem_model = await models.Problem.find_by_id(problem)
+    if problem_model and problem_model.owner == auth.user:
+        return problem_model
+    raise errors.ProblemNotFoundError(problem_model)

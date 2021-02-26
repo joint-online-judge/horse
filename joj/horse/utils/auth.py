@@ -125,14 +125,14 @@ def get_site_role(user: Optional[User] = Depends(get_current_user)):
 
 def get_site_permission(site_role: str = Depends(get_site_role)):
     if site_role in DEFAULT_SITE_PERMISSION:
-        return DEFAULT_SITE_PERMISSION[site_role]
+        return DEFAULT_SITE_PERMISSION[DefaultRole(site_role)]
     else:
         return DEFAULT_SITE_PERMISSION[DefaultRole.GUEST]
 
 
 async def get_domain_role(
     user: Optional[User] = None, domain: Optional[Domain] = None
-) -> str:
+) -> DefaultRole:
     if user and domain:
         domain_user = await DomainUser.find_one({"domain": domain.id, "user": user.id})
         if domain_user:
@@ -155,7 +155,7 @@ async def get_domain_permission(
     if _domain_role:
         return _domain_role.permission
     elif domain_role in DEFAULT_DOMAIN_PERMISSION:
-        return DEFAULT_DOMAIN_PERMISSION[domain_role]
+        return DEFAULT_DOMAIN_PERMISSION[DefaultRole(domain_role)]
     else:
         return DEFAULT_DOMAIN_PERMISSION[DefaultRole.GUEST]
 
@@ -166,7 +166,7 @@ class Authentication:
         jwt_decoded: Optional[JWTToken] = Depends(auth_jwt_decode),
         user: Optional[User] = Depends(get_current_user),
         site_role: str = Depends(get_site_role),
-        site_permission: Optional[SitePermission] = Depends(get_site_permission),
+        site_permission: SitePermission = Depends(get_site_permission),
     ):
         self.jwt: Optional[JWTToken] = jwt_decoded
         self.user: Optional[User] = user
@@ -213,7 +213,8 @@ class Authentication:
     def ensure(self, scope: ScopeType, permission: PermissionType) -> None:
         if not self.check(scope, permission):
             raise HTTPException(
-                status_code=403, detail="%s %s Permission Denied." % (scope, permission)
+                status_code=403,
+                detail="{} {} Permission Denied.".format(scope, permission),
             )
 
     def ensure_or(self, *args) -> None:
@@ -229,7 +230,7 @@ class Authentication:
                 pass
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="%s %s Permission Denied." % (scope, permission),
+            detail="{} {} Permission Denied.".format(scope, permission),
         )
 
     def ensure_and(self, *args) -> None:

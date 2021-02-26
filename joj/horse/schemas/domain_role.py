@@ -15,9 +15,9 @@ from joj.horse.schemas.domain import Domain
 class DomainRole(BaseODMSchema):
     domain: ReferenceSchema[Domain]
     role: str
-    permission: Dict[str, Any] = None
+    permission: Dict[str, Any] = {}
 
-    updated_at: datetime = None
+    updated_at: datetime = datetime.utcnow()
 
     @validator("permission", pre=True, always=True)
     def default_permission(cls, v, *, values, **kwargs):

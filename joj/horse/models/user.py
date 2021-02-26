@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import EmailStr
 from pymongo import ASCENDING, IndexModel
@@ -48,7 +49,7 @@ class User(DocumentMixin, MotorAsyncIODocument):
     @classmethod
     async def login_by_jaccount(
         cls, student_id: str, jaccount_name: str, real_name: str, ip: str
-    ) -> "User":
+    ) -> Optional["User"]:
         scope = "sjtu"
         user = await cls.find_by_uname(scope=scope, uname=jaccount_name)
         if user:
@@ -56,7 +57,7 @@ class User(DocumentMixin, MotorAsyncIODocument):
             user.login_ip = ip
             await user.commit()
         else:
-            user = UserSchema(
+            user_schema = UserSchema(
                 scope=scope,
                 uname=jaccount_name,
                 mail=EmailStr(jaccount_name + "@sjtu.edu.cn"),
@@ -67,7 +68,7 @@ class User(DocumentMixin, MotorAsyncIODocument):
                 login_timestamp=datetime.utcnow(),
                 login_ip=ip,
             )
-            user = User(**user.to_model())
+            user = User(**user_schema.to_model())
             if not await user.commit():
-                user = None
+                return None
         return user

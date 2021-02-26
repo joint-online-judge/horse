@@ -14,9 +14,9 @@ class UserBase(BaseODMSchema):
     uname: str
     mail: EmailStr
 
-    uname_lower: str = None
-    mail_lower: str = None
-    gravatar: str = None
+    uname_lower: str = ""
+    mail_lower: str = ""
+    gravatar: str = ""
 
     @validator("uname", pre=True)
     def validate_uname(cls, v: str):
