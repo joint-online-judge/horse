@@ -1,7 +1,7 @@
 from enum import IntEnum
 
 from pymongo import ASCENDING, DESCENDING, IndexModel
-from umongo import fields, validate
+from umongo import fields
 from umongo.embedded_document import EmbeddedDocumentImplementation
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 
@@ -40,9 +40,7 @@ class RecordCodeType(IntEnum):
 
 @instance.register
 class RecordCase(EmbeddedDocumentImplementation):
-    status = fields.IntegerField(
-        validate=validate.OneOf([*RecordStatus._value2member_map_])
-    )
+    status = fields.IntegerField()
     score = fields.IntegerField(default=0)
     time_ms = fields.IntegerField(default=0)
     memory_kb = fields.IntegerField(default=0)
@@ -73,9 +71,7 @@ class Record(DocumentMixin, MotorAsyncIODocument):
             IndexModel([("user", ASCENDING), ("submit_at", DESCENDING)]),
         ]
 
-    status = fields.IntegerField(
-        validate=validate.OneOf([*RecordStatus._value2member_map_])
-    )
+    status = fields.IntegerField()
     score = fields.IntegerField(default=0)
     time_ms = fields.IntegerField(default=0)
     memory_kb = fields.IntegerField(default=0)
@@ -84,9 +80,7 @@ class Record(DocumentMixin, MotorAsyncIODocument):
     problem_set = fields.ReferenceField(ProblemSet)  # modify later
     problem_data = fields.IntegerField()  # modify later
     user = fields.ReferenceField(User)
-    code_type = fields.IntegerField(
-        validate=validate.OneOf([*RecordCodeType._value2member_map_])
-    )
+    code_type = fields.IntegerField()
     code = fields.StringField()  # modify later
     judge_category = fields.ListField(fields.StringField())
 

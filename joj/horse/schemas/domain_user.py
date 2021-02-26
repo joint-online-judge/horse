@@ -16,7 +16,7 @@ class DomainUser(BaseODMSchema):
     user: ReferenceSchema[UserBase]
     role: str
 
-    join_at: datetime = None
+    join_at: datetime = datetime.utcnow()
 
     @validator("join_at", pre=True, always=True)
     def default_join_at(cls, v, *, values, **kwargs):

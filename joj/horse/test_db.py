@@ -6,7 +6,7 @@ import motor.motor_asyncio
 from bson import ObjectId
 from pydantic import BaseModel, EmailStr
 from umongo import Document
-from umongo.fields import *
+from umongo.fields import DateTimeField, EmailField, StringField
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument, MotorAsyncIOInstance
 
 instance = MotorAsyncIOInstance()
@@ -57,9 +57,9 @@ class User(BaseModel):
     uname: str
     mail: EmailStr
 
-    uname_lower: str = None
-    mail_lower: str = None
-    gravatar: str = None
+    uname_lower: str = ""
+    mail_lower: str = ""
+    gravatar: str = ""
 
     student_id: str = ""
     real_name: str = ""
@@ -77,7 +77,7 @@ class User(BaseModel):
         orm_mode = True
 
 
-UserODM: Type[MotorAsyncIODocument]
+# UserODM: Type[MotorAsyncIODocument]
 
 
 async def main():
