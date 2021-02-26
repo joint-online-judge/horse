@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Dict, Optional, Set
 
 import jwt
 from fastapi import Depends, HTTPException, Request, status
@@ -52,7 +52,7 @@ class Settings(BaseModel):
     authjwt_access_cookie_key: str = "jwt"
     authjwt_access_csrf_cookie_key: str = "csrf"
     # Configure application to store and get JWT from cookies
-    authjwt_token_location: set = {"headers", "cookies"}
+    authjwt_token_location: Set[str] = {"headers", "cookies"}
     # Only allow JWT cookies to be sent over https
     authjwt_cookie_secure: bool = False
     # Enable csrf double submit protection. default is True
@@ -186,7 +186,7 @@ class Authentication:
         # print(self.domain, self.domain_role, self.domain_permission)
 
     def check(self, scope: ScopeType, permission: PermissionType) -> bool:
-        def _check(permissions: Optional[dict]):
+        def _check(permissions: Optional[Dict[str, Any]]):
             # print(permissions)
             if permissions is None:
                 return False
