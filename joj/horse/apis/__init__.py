@@ -1,5 +1,5 @@
 from joj.horse import app
-from joj.horse.apis import domain, misc, user
+from joj.horse.apis import domain, misc, user, problem
 
 
 def include_router(module):
@@ -13,3 +13,4 @@ def include_router(module):
 include_router(domain)
 include_router(misc)
 include_router(user)
+include_router(problem)
