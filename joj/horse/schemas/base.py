@@ -66,7 +66,9 @@ ReferenceSchema = Union[PydanticObjectId, T]
 
 
 def reference_schema_validator(field, schema_type):
-    def wrapped(v: MotorAsyncIOReference) -> Union[PydanticObjectId, Type[schema_type]]:
+    def wrapped(
+        v: MotorAsyncIOReference
+    ) -> Union[PydanticObjectId, Type[BaseODMSchema]]:
         if isinstance(v, MotorAsyncIOReference):
             if v.pk is None:
                 raise TypeError("Primary key (_id) not found")

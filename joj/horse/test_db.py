@@ -89,7 +89,7 @@ async def main():
     print(UserODM.find)
 
     async for user in UserODM.find():
-        user: UserODM
+        # user: UserODM
         await user.commit()
         # print(u.mongo())
 
