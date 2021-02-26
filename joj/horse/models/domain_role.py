@@ -9,7 +9,7 @@ from joj.horse.utils.db import instance
 
 
 @instance.register
-class DomainRole(MotorAsyncIODocument, DocumentMixin):
+class DomainRole(DocumentMixin, MotorAsyncIODocument):
     class Meta:
         collection_name = "domain.roles"
         indexes = [

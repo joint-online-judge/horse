@@ -11,7 +11,7 @@ from joj.horse.utils.db import instance
 
 
 @instance.register
-class User(MotorAsyncIODocument, DocumentMixin):
+class User(DocumentMixin, MotorAsyncIODocument):
     class Meta:
         collection_name = "users"
         indexes = [

@@ -53,7 +53,7 @@ class RecordCase(EmbeddedDocumentImplementation):
 
 
 @instance.register
-class Record(MotorAsyncIODocument, DocumentMixin):
+class Record(DocumentMixin, MotorAsyncIODocument):
     class Meta:
         collection_name = "records"
         indexes = [
