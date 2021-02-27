@@ -63,7 +63,6 @@ async def create_problem_set(
     except Exception as e:
         logger.error("problem set creation failed: %s", title)
         raise e
-    # FIXME: failed to validate problems
     return schemas.ProblemSet.from_orm(problem_set)
 
 
