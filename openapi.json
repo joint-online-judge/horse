@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: ac969eb",
+    "description": "Git version: c721863",
     "version": "0.0.0"
   },
   "paths": {
@@ -441,6 +441,60 @@
       }
     },
     "/api/v1/problems/{problem_set}/{problem}": {
+      "put": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "Add Problem To Problem Set",
+        "operationId": "add_problem_to_problem_set_api_v1_problems__problem_set___problem__put",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem Set",
+              "type": "string"
+            },
+            "name": "problem_set",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemSet"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
       "post": {
         "tags": [
           "problem"
