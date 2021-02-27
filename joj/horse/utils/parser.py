@@ -40,7 +40,7 @@ async def parse_problem(
 async def parse_problem_set(
     problem_set: str, auth: Authentication = Depends()
 ) -> models.ProblemSet:
-    problem_set_model = await models.Problem.find_by_id(problem_set)
+    problem_set_model = await models.ProblemSet.find_by_id(problem_set)
     if problem_set_model and problem_set_model.owner == auth.user:
         return problem_set_model
     raise ProblemSetNotFoundError(problem_set)

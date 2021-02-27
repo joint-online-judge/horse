@@ -33,5 +33,5 @@ class ProblemSet(BaseODMSchema):
     _validate_problem: Callable[
         [AnyCallable], classmethod
     ] = reference_schema_validator(
-        "problems", List[Problem]
+        "problems", List[Problem], each_item=True
     )  # FIXME: validate problems
