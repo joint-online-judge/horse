@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: ec204c4",
+    "description": "Git version: 0dcead1",
     "version": "0.0.0"
   },
   "paths": {
@@ -415,6 +415,91 @@
               "type": "string"
             },
             "name": "problem",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/problem_sets/{problem_set}": {
+      "get": {
+        "tags": [
+          "problem set"
+        ],
+        "summary": "Get Problem Set",
+        "operationId": "get_problem_set_api_v1_problem_sets__problem_set__get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem Set",
+              "type": "string"
+            },
+            "name": "problem_set",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemSet"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "problem set"
+        ],
+        "summary": "Delete Problem Set",
+        "operationId": "delete_problem_set_api_v1_problem_sets__problem_set__delete",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem Set",
+              "type": "string"
+            },
+            "name": "problem_set",
             "in": "path"
           }
         ],
@@ -1069,8 +1154,7 @@
           "join_at": {
             "title": "Join At",
             "type": "string",
-            "format": "date-time",
-            "default": "2021-02-27T08:04:47.382671"
+            "format": "date-time"
           }
         }
       },
