@@ -8,7 +8,7 @@ from joj.horse import models, schemas
 from joj.horse.utils import errors
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import instance
-from joj.horse.utils.parser import parse_record
+from joj.horse.utils.parser import parse_record, parse_uid_or_none
 
 router = InferringRouter()
 router_name = "records"
@@ -18,11 +18,14 @@ router_prefix = "/api/v1"
 
 @router.get("", response_model=List[schemas.Record])
 async def list_records(
-    auth: Authentication = Depends(Authentication),
+    user: models.User = Depends(parse_uid_or_none), auth: Authentication = Depends()
 ) -> List[schemas.Record]:
+    owner_filter = None
+    if user:
+        owner_filter = {"owner": auth.user.id}
     return [
         schemas.Record.from_orm(record)
-        async for record in models.Record.find({"owner": auth.user.id})
+        async for record in models.Record.find(owner_filter)
     ]
 
 

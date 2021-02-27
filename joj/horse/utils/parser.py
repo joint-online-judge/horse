@@ -28,6 +28,13 @@ async def parse_uid(
         raise UserNotFoundError(uid)
 
 
+async def parse_uid_or_none(
+    uid: Optional[str] = Query("", description="uid or 'me' or empty"),
+    auth: Authentication = Depends(),
+) -> Optional[models.User]:
+    return await parse_uid(uid, auth) if uid else None
+
+
 async def parse_problem(
     problem: str, auth: Authentication = Depends()
 ) -> models.Problem:
