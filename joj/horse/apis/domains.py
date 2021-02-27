@@ -8,9 +8,13 @@ from uvicorn.config import logger
 from joj.horse import models, schemas
 from joj.horse.apis.base import DomainPath
 from joj.horse.models.permission import DefaultRole, PermissionType, ScopeType
-from joj.horse.utils import errors
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import instance
+from joj.horse.utils.errors import (
+    DomainNotFoundError,
+    InvalidAuthenticationError,
+    InvalidDomainURLError,
+)
 
 router = InferringRouter()
 router_name = "domains"
@@ -38,9 +42,9 @@ async def create_domain(
 ) -> schemas.Domain:
     # we can not use ObjectId as the url
     if ObjectId.is_valid(url):
-        raise errors.InvalidDomainURLError(url)
+        raise InvalidDomainURLError(url)
     if auth.user is None:
-        raise errors.InvalidAuthenticationError()
+        raise InvalidAuthenticationError()
 
     # use transaction for multiple operations
     try:
@@ -72,4 +76,4 @@ async def get_domain(
     if auth.domain:
         await auth.domain.owner.fetch()
         return schemas.Domain.from_orm(auth.domain)
-    raise errors.DomainNotFoundError(domain)
+    raise DomainNotFoundError(domain)

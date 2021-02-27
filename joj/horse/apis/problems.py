@@ -5,9 +5,9 @@ from fastapi_utils.inferring_router import InferringRouter
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
-from joj.horse.utils import errors
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import instance
+from joj.horse.utils.errors import InvalidAuthenticationError
 from joj.horse.utils.parser import parse_problem, parse_uid
 
 router = InferringRouter()
@@ -34,7 +34,7 @@ async def create_problem(
     auth: Authentication = Depends(),
 ) -> schemas.Problem:
     if auth.user is None:
-        raise errors.InvalidAuthenticationError()
+        raise InvalidAuthenticationError()
 
     # use transaction for multiple operations
     try:
@@ -70,3 +70,10 @@ async def get_problem(
 @router.delete("/{problem}", status_code=204)
 async def delete_problem(problem: models.Problem = Depends(parse_problem)):
     await problem.delete()
+
+
+@router.post("/{problem}/submit", response_model=schemas.Record)
+async def submit_problem(
+    problem: models.Problem = Depends(parse_problem)
+) -> schemas.Problem:
+    return schemas.Problem.from_orm(problem)
