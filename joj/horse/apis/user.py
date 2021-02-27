@@ -152,7 +152,7 @@ def get_jaccount_logout_url(redirect_url):
 @router.get("", response_model=schemas.User)
 async def get_user(
     user: models.User = Depends(parse_uid), auth: Authentication = Depends()
-) -> schemas.User:
+):
     return schemas.User.from_orm(user)
 
 

@@ -16,7 +16,7 @@ router_prefix = "/api/v1"
 @router.get("/{uid}", response_model=Union[schemas.User, schemas.UserBase])
 async def get_user(
     user: models.User = Depends(parse_uid), auth: Authentication = Depends()
-) -> Union[schemas.User, schemas.UserBase]:
+):
     if user == auth.user:
         return schemas.User.from_orm(user)
     return schemas.UserBase.from_orm(user)
