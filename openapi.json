@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 96d41a3",
+    "description": "Git version: 36a9812",
     "version": "0.0.0"
   },
   "paths": {
@@ -440,14 +440,23 @@
         ]
       }
     },
-    "/api/v1/problems/{problem}/submit": {
+    "/api/v1/problems/{problem_set}/{problem}/submit": {
       "post": {
         "tags": [
           "problem"
         ],
         "summary": "Submit Problem",
-        "operationId": "submit_problem_api_v1_problems__problem__submit_post",
+        "operationId": "submit_problem_api_v1_problems__problem_set___problem__submit_post",
         "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem Set",
+              "type": "string"
+            },
+            "name": "problem_set",
+            "in": "path"
+          },
           {
             "required": true,
             "schema": {
@@ -456,6 +465,14 @@
             },
             "name": "problem",
             "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/RecordCodeType"
+            },
+            "name": "code_type",
+            "in": "query"
           }
         ],
         "responses": {
@@ -465,6 +482,133 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Record"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/problem_sets": {
+      "get": {
+        "tags": [
+          "problem set"
+        ],
+        "summary": "List Problem Sets",
+        "operationId": "list_problem_sets_api_v1_problem_sets_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response List Problem Sets Api V1 Problem Sets Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProblemSet"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "problem set"
+        ],
+        "summary": "Create Problem Set",
+        "operationId": "create_problem_set_api_v1_problem_sets_post",
+        "parameters": [
+          {
+            "description": "url or the id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or the id of the domain"
+            },
+            "name": "domain",
+            "in": "query"
+          },
+          {
+            "description": "title of the problem set",
+            "required": true,
+            "schema": {
+              "title": "Title",
+              "type": "string",
+              "description": "title of the problem set"
+            },
+            "name": "title",
+            "in": "query"
+          },
+          {
+            "description": "content of the problem set",
+            "required": false,
+            "schema": {
+              "title": "Content",
+              "type": "string",
+              "description": "content of the problem set",
+              "default": ""
+            },
+            "name": "content",
+            "in": "query"
+          },
+          {
+            "description": "whether the problem set is hidden",
+            "required": false,
+            "schema": {
+              "title": "Hidden",
+              "type": "boolean",
+              "description": "whether the problem set is hidden",
+              "default": false
+            },
+            "name": "hidden",
+            "in": "query"
+          },
+          {
+            "description": "problems belonging to the problem set",
+            "required": false,
+            "schema": {
+              "title": "Problems",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "problems belonging to the problem set",
+              "default": []
+            },
+            "name": "problems",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemSet"
                 }
               }
             }
@@ -560,6 +704,36 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/records": {
+      "get": {
+        "tags": [
+          "record"
+        ],
+        "summary": "List Records",
+        "operationId": "list_records_api_v1_records_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response List Records Api V1 Records Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Record"
+                  }
                 }
               }
             }
@@ -1391,7 +1565,6 @@
           "domain",
           "problem",
           "problem_set",
-          "problem_data",
           "user",
           "code_type",
           "code",
@@ -1461,7 +1634,8 @@
           },
           "problem_data": {
             "title": "Problem Data",
-            "type": "integer"
+            "type": "integer",
+            "default": 0
           },
           "user": {
             "title": "User",
