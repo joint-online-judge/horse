@@ -25,13 +25,15 @@ router_prefix = "/api/v1"
 @router.get("", response_model=List[schemas.Domain])
 async def list_domains(
     auth: Authentication = Depends(Authentication), uid: Optional[str] = None
-):
+) -> List[schemas.Domain]:
     """
     List all domains in which {user} has a role.
     Use current login user if {user} is not specified.
     """
+    # TODO: finish this part
     auth.ensure(ScopeType.GENERAL, PermissionType.UNKNOWN)
     print("self")
+    return []
 
 
 @router.post("", response_model=schemas.Domain)
@@ -39,7 +41,7 @@ async def create_domain(
     url: str = Query(..., description="(unique) url of the domain"),
     name: str = Query(..., description="displayed name of the domain"),
     auth: Authentication = Depends(),
-):
+) -> schemas.Domain:
     # we can not use ObjectId as the url
     if ObjectId.is_valid(url):
         raise InvalidDomainURLError(url)
@@ -69,7 +71,9 @@ async def create_domain(
 
 
 @router.get("/{domain}", response_model=schemas.Domain)
-async def get_domain(domain: str = DomainPath, auth: Authentication = Depends()):
+async def get_domain(
+    domain: str = DomainPath, auth: Authentication = Depends()
+) -> schemas.Domain:
     await auth.init_domain(domain)
     if auth.domain:
         await auth.domain.owner.fetch()

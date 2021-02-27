@@ -17,7 +17,9 @@ router_prefix = "/api/v1"
 
 
 @router.get("", response_model=List[schemas.Record])
-async def list_records(auth: Authentication = Depends(Authentication)):
+async def list_records(
+    auth: Authentication = Depends(Authentication),
+) -> List[schemas.Record]:
     return [
         schemas.Record.from_orm(record)
         async for record in models.Record.find({"owner": auth.user.id})
@@ -25,10 +27,10 @@ async def list_records(auth: Authentication = Depends(Authentication)):
 
 
 @router.get("/{record}", response_model=schemas.Record)
-async def get_record(record: models.Record = Depends(parse_record)):
+async def get_record(record: models.Record = Depends(parse_record)) -> schemas.Record:
     return schemas.Record.from_orm(record)
 
 
 @router.delete("/{record}", status_code=204)
-async def delete_record(record: models.Record = Depends(parse_record)):
+async def delete_record(record: models.Record = Depends(parse_record)) -> None:
     await record.delete()

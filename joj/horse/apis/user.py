@@ -34,7 +34,7 @@ async def logout(
         "If false (ajax mode), return the redirect url, "
         "you also need to unset all cookies manually in ajax mode.",
     ),
-):
+) -> RedirectModel:
     if auth.jwt and auth.jwt.channel == "jaccount":
         url = get_jaccount_logout_url(redirect_url=redirect_url)
     else:
@@ -59,7 +59,7 @@ async def jaccount_login(
         "If false (ajax mode), return the redirect url to the jaccount site, "
         "you also need to set the cookies returned manually in ajax mode.",
     ),
-):
+) -> RedirectModel:
     client = jaccount.get_client()
     if client is None:
         raise HTTPException(
@@ -77,7 +77,7 @@ async def jaccount_login(
     return response
 
 
-@router.get("/jaccount/auth")
+@router.get("/jaccount/auth", response_model=RedirectResponse)
 async def jaccount_auth(
     request: Request,
     state: str,
@@ -85,7 +85,7 @@ async def jaccount_auth(
     auth_jwt: AuthJWT = Depends(AuthJWT),
     jaccount_state: str = Cookie(""),
     redirect_url: str = Cookie(generate_url()),
-):
+) -> RedirectResponse:
     client = jaccount.get_client()
     if client is None:
         raise HTTPException(
@@ -140,7 +140,7 @@ async def jaccount_auth(
     return response
 
 
-def get_jaccount_logout_url(redirect_url):
+def get_jaccount_logout_url(redirect_url) -> str:
     client = jaccount.get_client()
     if client is None:
         raise HTTPException(
@@ -152,12 +152,12 @@ def get_jaccount_logout_url(redirect_url):
 @router.get("", response_model=schemas.User)
 async def get_user(
     user: models.User = Depends(parse_uid), auth: Authentication = Depends()
-):
+) -> schemas.User:
     return schemas.User.from_orm(user)
 
 
 @router.get("/domains", response_model=List[schemas.Domain])
-async def get_user_domains(auth: Authentication = Depends()):
+async def get_user_domains(auth: Authentication = Depends()) -> List[schemas.Domain]:
     return [
         schemas.Domain.from_orm(domain)
         async for domain in models.Domain.find({"owner": auth.user.id})
@@ -165,7 +165,7 @@ async def get_user_domains(auth: Authentication = Depends()):
 
 
 @router.get("/problems", response_model=List[schemas.Problem])
-async def get_user_problems(auth: Authentication = Depends()):
+async def get_user_problems(auth: Authentication = Depends()) -> List[schemas.Problem]:
     return [
         schemas.Problem.from_orm(problem)
         async for problem in models.Problem.find({"owner": auth.user.id})

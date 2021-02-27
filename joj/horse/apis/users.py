@@ -16,14 +16,16 @@ router_prefix = "/api/v1"
 @router.get("/{uid}", response_model=Union[schemas.User, schemas.UserBase])
 async def get_user(
     user: models.User = Depends(parse_uid), auth: Authentication = Depends()
-):
+) -> Union[schemas.User, schemas.UserBase]:
     if user == auth.user:
         return schemas.User.from_orm(user)
     return schemas.UserBase.from_orm(user)
 
 
 @router.get("/{uid}/domains", response_model=List[schemas.DomainUser])
-async def get_user_domains(user: models.User = Depends(parse_uid)):
+async def get_user_domains(
+    user: models.User = Depends(parse_uid),
+) -> List[schemas.DomainUser]:
     # TODO: this pipeline may be useful in many places, consider changing it to a function
     pipeline = [
         {"$match": {"user": user.id}},
@@ -44,7 +46,9 @@ async def get_user_domains(user: models.User = Depends(parse_uid)):
 
 
 @router.get("/{uid}/problems", response_model=List[schemas.Problem])
-async def get_user_problems(user: models.User = Depends(parse_uid)):
+async def get_user_problems(
+    user: models.User = Depends(parse_uid),
+) -> List[schemas.Problem]:
     return [
         schemas.Problem.from_orm(problem)
         async for problem in models.Problem.find({"owner": user.id})
