@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: c095162",
+    "description": "Git version: fe7d8d1",
     "version": "0.0.0"
   },
   "paths": {
@@ -209,6 +209,46 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "Delete Domain",
+        "operationId": "delete_domain_api_v1_domains__domain__delete",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
           },
           "422": {
             "description": "Validation Error",
@@ -499,8 +539,8 @@
         "tags": [
           "problem"
         ],
-        "summary": "Submit Problem",
-        "operationId": "submit_problem_api_v1_problems__problem_set___problem__post",
+        "summary": "Submit Solution To Problem",
+        "operationId": "submit_solution_to_problem_api_v1_problems__problem_set___problem__post",
         "parameters": [
           {
             "required": true,
@@ -539,6 +579,53 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "Delete Problem From Problem Set",
+        "operationId": "delete_problem_from_problem_set_api_v1_problems__problem_set___problem__delete",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem Set",
+              "type": "string"
+            },
+            "name": "problem_set",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
           },
           "422": {
             "description": "Validation Error",
