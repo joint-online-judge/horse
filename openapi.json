@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 36a9812",
+    "description": "Git version: 9f0bd6e",
     "version": "0.0.0"
   },
   "paths": {
@@ -440,13 +440,13 @@
         ]
       }
     },
-    "/api/v1/problems/{problem_set}/{problem}/submit": {
+    "/api/v1/problems/{problem_set}/{problem}": {
       "post": {
         "tags": [
           "problem"
         ],
         "summary": "Submit Problem",
-        "operationId": "submit_problem_api_v1_problems__problem_set___problem__submit_post",
+        "operationId": "submit_problem_api_v1_problems__problem_set___problem__post",
         "parameters": [
           {
             "required": true,
