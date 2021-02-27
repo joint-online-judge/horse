@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: c721863",
+    "description": "Git version: c095162",
     "version": "0.0.0"
   },
   "paths": {
@@ -777,6 +777,20 @@
         ],
         "summary": "List Records",
         "operationId": "list_records_api_v1_records_get",
+        "parameters": [
+          {
+            "description": "uid or 'me' or empty",
+            "required": false,
+            "schema": {
+              "title": "Uid",
+              "type": "string",
+              "description": "uid or 'me' or empty",
+              "default": ""
+            },
+            "name": "uid",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -788,6 +802,16 @@
                   "items": {
                     "$ref": "#/components/schemas/Record"
                   }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -828,44 +852,6 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "record"
-        ],
-        "summary": "Delete Record",
-        "operationId": "delete_record_api_v1_records__record__delete",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "Record",
-              "type": "string"
-            },
-            "name": "record",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Successful Response"
           },
           "422": {
             "description": "Validation Error",
