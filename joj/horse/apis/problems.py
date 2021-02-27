@@ -71,7 +71,7 @@ async def delete_problem(problem: models.Problem = Depends(parse_problem)):
     await problem.delete()
 
 
-@router.post("/{problem_set}/{problem}/submit", response_model=schemas.Record)
+@router.post("/{problem_set}/{problem}", response_model=schemas.Record)
 async def submit_problem(
     code_type: schemas.RecordCodeType,
     problem_set: models.ProblemSet = Depends(parse_problem_set),
