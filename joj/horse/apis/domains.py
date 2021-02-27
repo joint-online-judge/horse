@@ -1,8 +1,10 @@
+from http import HTTPStatus
 from typing import List, Optional
 
 from bson import ObjectId
 from fastapi import Depends, Query
 from fastapi_utils.inferring_router import InferringRouter
+from starlette.responses import Response
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
@@ -79,3 +81,10 @@ async def get_domain(
         await auth.domain.owner.fetch()
         return schemas.Domain.from_orm(auth.domain)
     raise DomainNotFoundError(domain)
+
+
+@router.delete("/{domain}", status_code=HTTPStatus.NO_CONTENT)
+async def delete_domain(domain: str = DomainPath, auth: Authentication = Depends()):
+    # TODO: finish this part
+    # await domain.delete()
+    return Response(status_code=HTTPStatus.NO_CONTENT.value)

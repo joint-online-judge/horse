@@ -32,4 +32,4 @@ class ProblemSet(BaseODMSchema):
     )
     _validate_problem: Callable[
         [AnyCallable], classmethod
-    ] = reference_schema_validator("problems", List[Problem], each_item=True)
+    ] = reference_schema_validator("problems", Problem, each_item=True)
