@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: dd58849",
+    "description": "Git version: ec204c4",
     "version": "0.0.0"
   },
   "paths": {
@@ -415,6 +415,91 @@
               "type": "string"
             },
             "name": "problem",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/records/{record}": {
+      "get": {
+        "tags": [
+          "record"
+        ],
+        "summary": "Get Record",
+        "operationId": "get_record_api_v1_records__record__get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Record",
+              "type": "string"
+            },
+            "name": "record",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Record"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "record"
+        ],
+        "summary": "Delete Record",
+        "operationId": "delete_record_api_v1_records__record__delete",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Record",
+              "type": "string"
+            },
+            "name": "record",
             "in": "path"
           }
         ],
@@ -985,7 +1070,7 @@
             "title": "Join At",
             "type": "string",
             "format": "date-time",
-            "default": "2021-02-27T05:04:56.267667"
+            "default": "2021-02-27T08:04:47.382671"
           }
         }
       },
@@ -1092,6 +1177,220 @@
             "default": []
           }
         }
+      },
+      "ProblemSet": {
+        "title": "ProblemSet",
+        "required": [
+          "domain",
+          "owner",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "domain": {
+            "title": "Domain",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/Domain"
+              }
+            ]
+          },
+          "owner": {
+            "title": "Owner",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/UserBase"
+              }
+            ]
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string",
+            "default": ""
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "default": false
+          },
+          "num_submit": {
+            "title": "Num Submit",
+            "type": "integer",
+            "default": 0
+          },
+          "num_accept": {
+            "title": "Num Accept",
+            "type": "integer",
+            "default": 0
+          },
+          "problems": {
+            "title": "Problems",
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              ]
+            },
+            "default": []
+          }
+        }
+      },
+      "Record": {
+        "title": "Record",
+        "required": [
+          "domain",
+          "problem",
+          "problem_set",
+          "problem_data",
+          "user",
+          "code_type",
+          "code",
+          "judge_category"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RecordStatus"
+              }
+            ],
+            "default": 0
+          },
+          "score": {
+            "title": "Score",
+            "type": "integer",
+            "default": 0
+          },
+          "time_ms": {
+            "title": "Time Ms",
+            "type": "integer",
+            "default": 0
+          },
+          "memory_kb": {
+            "title": "Memory Kb",
+            "type": "integer",
+            "default": 0
+          },
+          "domain": {
+            "title": "Domain",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/Domain"
+              }
+            ]
+          },
+          "problem": {
+            "title": "Problem",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/Problem"
+              }
+            ]
+          },
+          "problem_set": {
+            "title": "Problem Set",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/ProblemSet"
+              }
+            ]
+          },
+          "problem_data": {
+            "title": "Problem Data",
+            "type": "integer"
+          },
+          "user": {
+            "title": "User",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/UserBase"
+              }
+            ]
+          },
+          "code_type": {
+            "$ref": "#/components/schemas/RecordCodeType"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "judge_category": {
+            "title": "Judge Category",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "RecordCodeType": {
+        "title": "RecordCodeType",
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "description": "An enumeration."
+      },
+      "RecordStatus": {
+        "title": "RecordStatus",
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          20,
+          21,
+          22,
+          30
+        ],
+        "type": "integer",
+        "description": "An enumeration."
       },
       "RedirectModel": {
         "title": "RedirectModel",
