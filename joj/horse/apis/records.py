@@ -16,8 +16,16 @@ router_tag = "record"
 router_prefix = "/api/v1"
 
 
+@router.get("", response_model=List[schemas.Record])
+async def list_records(auth: Authentication = Depends(Authentication)):
+    return [
+        schemas.Record.from_orm(record)
+        async for record in models.Record.find({"owner": auth.user.id})
+    ]
+
+
 @router.get("/{record}", response_model=schemas.Record)
-async def get_record(record: models.Record = Depends(parse_record)) -> schemas.Record:
+async def get_record(record: models.Record = Depends(parse_record)):
     return schemas.Record.from_orm(record)
 
 

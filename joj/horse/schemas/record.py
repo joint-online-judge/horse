@@ -48,7 +48,7 @@ class Record(BaseODMSchema):
     domain: ReferenceSchema[Domain]
     problem: ReferenceSchema[Problem]
     problem_set: ReferenceSchema[ProblemSet]
-    problem_data: int
+    problem_data: int = 0
     user: ReferenceSchema[UserBase]
     code_type: RecordCodeType
     code: str

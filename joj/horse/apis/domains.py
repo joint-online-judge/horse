@@ -39,7 +39,7 @@ async def create_domain(
     url: str = Query(..., description="(unique) url of the domain"),
     name: str = Query(..., description="displayed name of the domain"),
     auth: Authentication = Depends(),
-) -> schemas.Domain:
+):
     # we can not use ObjectId as the url
     if ObjectId.is_valid(url):
         raise InvalidDomainURLError(url)
@@ -69,9 +69,7 @@ async def create_domain(
 
 
 @router.get("/{domain}", response_model=schemas.Domain)
-async def get_domain(
-    domain: str = DomainPath, auth: Authentication = Depends()
-) -> schemas.Domain:
+async def get_domain(domain: str = DomainPath, auth: Authentication = Depends()):
     await auth.init_domain(domain)
     if auth.domain:
         await auth.domain.owner.fetch()
