@@ -11,12 +11,12 @@ router_prefix = "/api/v1"
 
 
 @router.get("/version", response_model=Version)
-async def version():
+async def version() -> Version:
     return Version(version=get_version(), git=get_git_version())
 
 
 @router.get("/jwt", response_model=JWT)
-async def jwt(auth: Authentication = Depends()):
+async def jwt(auth: Authentication = Depends()) -> JWT:
     if auth.jwt:
         return JWT(jwt=jwt_token_encode(auth.jwt))
     raise HTTPException(

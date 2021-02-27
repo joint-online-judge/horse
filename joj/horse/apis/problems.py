@@ -18,7 +18,9 @@ router_prefix = "/api/v1"
 
 
 @router.get("", response_model=List[schemas.Problem])
-async def list_problems(auth: Authentication = Depends(Authentication)):
+async def list_problems(
+    auth: Authentication = Depends(Authentication),
+) -> List[schemas.Problem]:
     return [
         schemas.Problem.from_orm(problem)
         async for problem in models.Problem.find({"owner": auth.user.id})
@@ -33,7 +35,7 @@ async def create_problem(
     hidden: bool = Query(False, description="whether the problem is hidden"),
     languages: List[str] = Query([], description="acceptable language of the problem"),
     auth: Authentication = Depends(),
-):
+) -> schemas.Problem:
     if auth.user is None:
         raise InvalidAuthenticationError()
 
@@ -62,12 +64,14 @@ async def create_problem(
 
 
 @router.get("/{problem}", response_model=schemas.Problem)
-async def get_problem(problem: models.Problem = Depends(parse_problem),):
+async def get_problem(
+    problem: models.Problem = Depends(parse_problem),
+) -> schemas.Problem:
     return schemas.Problem.from_orm(problem)
 
 
 @router.delete("/{problem}", status_code=204)
-async def delete_problem(problem: models.Problem = Depends(parse_problem)):
+async def delete_problem(problem: models.Problem = Depends(parse_problem)) -> None:
     await problem.delete()
 
 
@@ -77,7 +81,7 @@ async def submit_problem(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
     problem: models.Problem = Depends(parse_problem),
     auth: Authentication = Depends(),
-):
+) -> schemas.Record:
     try:
         record = schemas.Record(
             domain=problem.domain,
@@ -97,3 +101,14 @@ async def submit_problem(
         raise e
 
     return schemas.Record.from_orm(record)
+
+
+@router.put("/{problem_set}/{problem}", response_model=schemas.ProblemSet)
+async def add_problem_to_problem_set(
+    problem_set: models.ProblemSet = Depends(parse_problem_set),
+    problem: models.Problem = Depends(parse_problem),
+    auth: Authentication = Depends(),
+) -> schemas.ProblemSet:
+    problem_set.problems.append(problem)
+    problem_set.commit()
+    return schemas.ProblemSet.from_orm(problem_set)
