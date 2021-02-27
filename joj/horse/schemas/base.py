@@ -65,9 +65,9 @@ T = TypeVar("T")
 ReferenceSchema = Union[PydanticObjectId, T]
 
 
-def reference_schema_validator(field, schema_type):
+def reference_schema_validator(field, schema_type, each_item=False):
     def wrapped(
-        v: MotorAsyncIOReference
+        v: MotorAsyncIOReference,
     ) -> Union[PydanticObjectId, Type[BaseODMSchema]]:
         if isinstance(v, MotorAsyncIOReference):
             if v.pk is None:
@@ -78,4 +78,4 @@ def reference_schema_validator(field, schema_type):
             return v._document and schema_type(**v._document.dump()) or v.pk
         return v
 
-    return validator(field, pre=True, allow_reuse=True)(wrapped)
+    return validator(field, pre=True, allow_reuse=True, each_item=each_item)(wrapped)
