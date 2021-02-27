@@ -31,6 +31,6 @@ async def get_record(record: models.Record = Depends(parse_record)) -> schemas.R
     return schemas.Record.from_orm(record)
 
 
-@router.delete("/{record}", status_code=204)
-async def delete_record(record: models.Record = Depends(parse_record)):
-    await record.delete()
+# @router.delete("/{record}", status_code=204)
+# async def delete_record(record: models.Record = Depends(parse_record)):
+#     await record.delete()
