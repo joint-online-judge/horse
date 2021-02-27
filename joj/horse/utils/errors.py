@@ -68,6 +68,18 @@ class InvalidDomainURLError(UnprocessableEntityError):
 
 
 class ProblemNotFoundError(NotFoundError):
-    def __init__(self, pid: str) -> None:
+    def __init__(self, problem: str) -> None:
         message = "Problem {} not found."
-        super().__init__(message=message, args=[pid])
+        super().__init__(message=message, args=[problem])
+
+
+class ProblemSetNotFoundError(NotFoundError):
+    def __init__(self, problem_set: str) -> None:
+        message = "Problem set {} not found."
+        super().__init__(message=message, args=[problem_set])
+
+
+class RecordNotFoundError(NotFoundError):
+    def __init__(self, record: str) -> None:
+        message = "Record {} not found."
+        super().__init__(message=message, args=[record])

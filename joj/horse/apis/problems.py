@@ -8,7 +8,7 @@ from joj.horse import models, schemas
 from joj.horse.utils import errors
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import instance
-from joj.horse.utils.parser import parse_pid, parse_uid
+from joj.horse.utils.parser import parse_problem, parse_uid
 
 router = InferringRouter()
 router_name = "problems"
@@ -61,10 +61,12 @@ async def create_problem(
 
 
 @router.get("/{problem}", response_model=schemas.Problem)
-async def get_problem(problem: models.Problem = Depends(parse_pid)) -> schemas.Problem:
+async def get_problem(
+    problem: models.Problem = Depends(parse_problem)
+) -> schemas.Problem:
     return schemas.Problem.from_orm(problem)
 
 
 @router.delete("/{problem}", status_code=204)
-async def delete_problem(problem: models.Problem = Depends(parse_pid)):
+async def delete_problem(problem: models.Problem = Depends(parse_problem)):
     await problem.delete()
