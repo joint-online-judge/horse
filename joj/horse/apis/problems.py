@@ -1,14 +1,20 @@
+from http import HTTPStatus
 from typing import List, Optional
 
 from fastapi import Depends, Query
 from fastapi_utils.inferring_router import InferringRouter
+from starlette.responses import Response
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.schemas import user
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import instance
-from joj.horse.utils.errors import InvalidAuthenticationError
+from joj.horse.utils.errors import (
+    DeleteProblemBadRequestError,
+    InvalidAuthenticationError,
+    ProblemNotFoundError,
+)
 from joj.horse.utils.parser import parse_problem, parse_problem_set, parse_uid
 
 router = InferringRouter()
@@ -70,13 +76,18 @@ async def get_problem(
     return schemas.Problem.from_orm(problem)
 
 
-@router.delete("/{problem}", status_code=204)
+@router.delete("/{problem}", status_code=HTTPStatus.NO_CONTENT)
 async def delete_problem(problem: models.Problem = Depends(parse_problem)):
+    # TODO: optimize
+    async for problem_set in models.ProblemSet.find():
+        if problem in problem_set:
+            raise DeleteProblemBadRequestError
     await problem.delete()
+    return Response(status_code=HTTPStatus.NO_CONTENT.value)
 
 
 @router.post("/{problem_set}/{problem}", response_model=schemas.Record)
-async def submit_problem(
+async def submit_solution_to_problem(
     code_type: schemas.RecordCodeType,
     problem_set: models.ProblemSet = Depends(parse_problem_set),
     problem: models.Problem = Depends(parse_problem),
@@ -103,12 +114,26 @@ async def submit_problem(
     return schemas.Record.from_orm(record)
 
 
+@router.delete("/{problem_set}/{problem}", status_code=HTTPStatus.NO_CONTENT)
+async def delete_problem_from_problem_set(
+    problem_set: models.ProblemSet = Depends(parse_problem_set),
+    problem: models.Problem = Depends(parse_problem),
+    auth: Authentication = Depends(),
+):
+    if problem not in problem_set.problems:
+        raise ProblemNotFoundError(problem.id)
+    problem_set.problems.remove(problem)
+    await problem_set.commit()
+    return Response(status_code=HTTPStatus.NO_CONTENT.value)
+
+
 @router.put("/{problem_set}/{problem}", response_model=schemas.ProblemSet)
 async def add_problem_to_problem_set(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
     problem: models.Problem = Depends(parse_problem),
     auth: Authentication = Depends(),
 ) -> schemas.ProblemSet:
-    problem_set.problems.append(problem)
-    problem_set.commit()
+    if problem not in problem_set.problems:
+        problem_set.problems.append(problem)
+        await problem_set.commit()
     return schemas.ProblemSet.from_orm(problem_set)

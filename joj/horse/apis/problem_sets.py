@@ -1,7 +1,9 @@
+from http import HTTPStatus
 from typing import List, Optional
 
 from fastapi import Depends, Query
 from fastapi_utils.inferring_router import InferringRouter
+from starlette.responses import Response
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
@@ -75,8 +77,9 @@ async def get_problem_set(
     return schemas.ProblemSet.from_orm(problem_set)
 
 
-@router.delete("/{problem_set}", status_code=204)
+@router.delete("/{problem_set}", status_code=HTTPStatus.NO_CONTENT)
 async def delete_problem_set(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
 ):
     await problem_set.delete()
+    return Response(status_code=HTTPStatus.NO_CONTENT.value)

@@ -83,3 +83,9 @@ class RecordNotFoundError(NotFoundError):
     def __init__(self, record: str) -> None:
         message = "Record {} not found."
         super().__init__(message=message, args=[record])
+
+
+class DeleteProblemBadRequestError(BadRequestError):
+    def __init__(self, problem_set: str) -> None:
+        message = "Problem {} fdelete bad request."
+        super().__init__(message=message, args=[problem_set])
