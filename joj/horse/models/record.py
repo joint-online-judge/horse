@@ -13,31 +13,6 @@ from joj.horse.models.user import User
 from joj.horse.utils.db import instance
 
 
-class RecordStatus(IntEnum):
-    waiting = 0
-    accepted = 1
-    wrong_answer = 2
-    time_limit_exceeded = 3
-    memory_limit_exceeded = 4
-    output_limit_exceeded = 5
-    runtime_error = 6
-    compile_error = 7
-    system_error = 8
-    canceled = 9
-    etc = 10
-    judging = 20
-    compiling = 21
-    fetched = 22
-    ignored = 30
-
-
-class RecordCodeType(IntEnum):
-    text = 0
-    tar = 1
-    zip = 2
-    rar = 3
-
-
 @instance.register
 class RecordCase(EmbeddedDocumentImplementation):
     status = fields.IntegerField()
