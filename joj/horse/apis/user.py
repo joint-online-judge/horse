@@ -34,7 +34,7 @@ async def logout(
         "If false (ajax mode), return the redirect url, "
         "you also need to unset all cookies manually in ajax mode.",
     ),
-) -> RedirectModel:
+):
     if auth.jwt and auth.jwt.channel == "jaccount":
         url = get_jaccount_logout_url(redirect_url=redirect_url)
     else:
@@ -77,7 +77,7 @@ async def jaccount_login(
     return response
 
 
-@router.get("/jaccount/auth", response_model=RedirectResponse)
+@router.get("/jaccount/auth")
 async def jaccount_auth(
     request: Request,
     state: str,
@@ -85,7 +85,7 @@ async def jaccount_auth(
     auth_jwt: AuthJWT = Depends(AuthJWT),
     jaccount_state: str = Cookie(""),
     redirect_url: str = Cookie(generate_url()),
-) -> RedirectResponse:
+):
     client = jaccount.get_client()
     if client is None:
         raise HTTPException(
