@@ -46,14 +46,14 @@ class Record(DocumentMixin, MotorAsyncIODocument):
             IndexModel([("user", ASCENDING), ("submit_at", DESCENDING)]),
         ]
 
-    status = fields.IntegerField()
+    status = fields.IntegerField(default=0)
     score = fields.IntegerField(default=0)
     time_ms = fields.IntegerField(default=0)
     memory_kb = fields.IntegerField(default=0)
     domain = fields.ReferenceField(Domain)
     problem = fields.ReferenceField(Problem)
     problem_set = fields.ReferenceField(ProblemSet)  # modify later
-    problem_data = fields.IntegerField()  # modify later
+    problem_data = fields.IntegerField(default=0)  # modify later
     user = fields.ReferenceField(User)
     code_type = fields.IntegerField()
     code = fields.StringField()  # modify later

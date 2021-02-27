@@ -78,23 +78,22 @@ async def submit_problem(
     problem: models.Problem = Depends(parse_problem),
     auth: Authentication = Depends(),
 ):
-    # use transaction for multiple operations
     try:
-        async with instance.session() as session:
-            async with session.start_transaction():
-                record = schemas.Record(
-                    domain=problem.domain,
-                    problem=problem,
-                    problem_set=problem_set,
-                    user=auth.user,
-                    code_type=code_type,
-                    code="",  # TODO: complete unspecified arguments
-                    judge_category=[],
-                )
-                record = models.Record(**record.to_model())
-                await record.commit()
-                logger.info("problem submitted with record: %s", record.id)
+        record = schemas.Record(
+            domain=problem.domain,
+            problem=problem.id,
+            problem_set=problem_set.id,
+            user=auth.user.id,
+            code_type=code_type,
+            code="",  # TODO: complete unspecified arguments
+            judge_category=[],
+        )
+        record = models.Record(**record.to_model())
+        await record.commit()
+        logger.info("problem submitted with record: %s", record.id)
 
     except Exception as e:
         logger.error("problem submission failed: %s", problem.id)
         raise e
+
+    return schemas.Record.from_orm(record)
