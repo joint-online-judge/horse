@@ -78,5 +78,5 @@ async def get_problem_set(
 @router.delete("/{problem_set}", status_code=204)
 async def delete_problem_set(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
-) -> None:
+):
     await problem_set.delete()
