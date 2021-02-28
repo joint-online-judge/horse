@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 279f2c7",
+    "description": "Git version: f8e21af",
     "version": "0.0.0"
   },
   "paths": {
@@ -1390,15 +1390,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Response Get User Api V1 Users  Uid  Get",
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/User"
-                    },
-                    {
-                      "$ref": "#/components/schemas/UserBase"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/UserBase"
                 }
               }
             }
