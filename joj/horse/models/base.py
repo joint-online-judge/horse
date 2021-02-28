@@ -1,3 +1,5 @@
+from typing import Type
+
 from bson import ObjectId
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 

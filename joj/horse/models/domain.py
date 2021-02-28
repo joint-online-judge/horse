@@ -6,6 +6,7 @@ from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 from joj.horse.models.base import DocumentMixin
 from joj.horse.models.user import User
 from joj.horse.utils.db import instance
+from joj.horse.utils.errors import DomainNotFoundError
 
 
 @instance.register
@@ -29,6 +30,9 @@ class Domain(DocumentMixin, MotorAsyncIODocument):
     async def find_by_url_or_id(cls, url_or_id: str) -> "Domain":
         try:
             _id = ObjectId(url_or_id)
-            return await cls.find_one({"_id": _id})
+            res = await cls.find_one({"_id": _id})
         except:
-            return await cls.find_one({"url": url_or_id})
+            res = await cls.find_one({"url": url_or_id})
+            if res is None:
+                raise DomainNotFoundError(url_or_id)
+        return res

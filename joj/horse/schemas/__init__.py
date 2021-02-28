@@ -1,6 +1,8 @@
 from joj.horse.schemas.domain import Domain as Domain
 from joj.horse.schemas.domain_user import DomainUser as DomainUser
+from joj.horse.schemas.problem import EditProblem as EditProblem
 from joj.horse.schemas.problem import Problem as Problem
+from joj.horse.schemas.problem_set import EditProblemSet as EditProblemSet
 from joj.horse.schemas.problem_set import ProblemSet as ProblemSet
 from joj.horse.schemas.record import Record as Record
 from joj.horse.schemas.record import RecordCodeType as RecordCodeType
