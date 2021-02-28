@@ -65,7 +65,6 @@ async def create_problem(
     except Exception as e:
         logger.error("problem creation failed: %s", title)
         raise e
-
     return schemas.Problem.from_orm(problem)
 
 

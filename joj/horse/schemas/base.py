@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar, Union
 
 from bson import ObjectId
 from pydantic import BaseModel, validator
@@ -6,6 +6,8 @@ from umongo.frameworks.motor_asyncio import MotorAsyncIOReference
 
 if TYPE_CHECKING:
     from pydantic.typing import AbstractSetIntStr, DictIntStrAny, DictStrAny
+
+    Model = TypeVar("Model", bound="BaseModel")
 
 
 class PydanticObjectId(str):
@@ -40,6 +42,12 @@ class BaseODMSchema(BaseModel):
         if self.id is None:
             document.pop("id", None)
         return document
+
+    @classmethod
+    def from_orm(cls: Type["Model"], obj: Any, unfetch_all=True) -> "Model":
+        if unfetch_all:
+            obj.unfetch_all()
+        return super(BaseODMSchema, cls).from_orm(obj)  # type: ignore
 
 
 # class EmbeddedDocument(Generic[T]):

@@ -1,7 +1,8 @@
 from typing import Type
 
 from bson import ObjectId
-from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
+from umongo.document import DocumentImplementation
+from umongo.frameworks.motor_asyncio import MotorAsyncIODocument, MotorAsyncIOReference
 
 from joj.horse.utils.errors import UnprocessableEntityError
 
@@ -16,3 +17,8 @@ class DocumentMixin:
     @classmethod
     def aggregate(cls: MotorAsyncIODocument, pipeline, **kwargs):
         return cls.collection.aggregate(pipeline, **kwargs)
+
+    def unfetch_all(self: MotorAsyncIODocument):
+        for field in self._data.values():
+            if isinstance(field, MotorAsyncIOReference):
+                field._document = None
