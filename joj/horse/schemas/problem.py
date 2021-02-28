@@ -1,7 +1,9 @@
 from datetime import datetime
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Type
 
-from pydantic import validator
+from pydantic import ConstrainedStr, validator
+from pydantic.main import BaseModel
+from pydantic.types import constr
 from pydantic.typing import AnyCallable
 
 from joj.horse.schemas.base import (
@@ -11,6 +13,16 @@ from joj.horse.schemas.base import (
 )
 from joj.horse.schemas.domain import Domain
 from joj.horse.schemas.user import UserBase
+
+
+# TODO: validate the title is non-empty
+class EditProblem(BaseModel):
+    title: Optional[str]
+    content: Optional[str]
+    hidden: Optional[bool]
+    data: Optional[int]
+    data_version: Optional[int]
+    languages: Optional[List[str]]
 
 
 class Problem(BaseODMSchema):
