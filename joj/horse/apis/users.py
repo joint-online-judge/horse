@@ -38,7 +38,9 @@ async def get_user_domains(
         {"$addFields": {"domain": {"$arrayElemAt": ["$domain", 0]}}},
     ]
     return [
-        schemas.DomainUser.from_orm(models.DomainUser.build_from_mongo(domain_user))
+        schemas.DomainUser.from_orm(
+            models.DomainUser.build_from_mongo(domain_user), unfetch_all=False
+        )
         async for domain_user in models.DomainUser.aggregate(pipeline)
     ]
 
