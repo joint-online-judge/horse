@@ -51,6 +51,7 @@ async def create_domain(
         raise InvalidAuthenticationError()
 
     # use transaction for multiple operations
+    # TODO: ensure uniqueness of domain name 
     try:
         async with instance.session() as session:
             async with session.start_transaction():
