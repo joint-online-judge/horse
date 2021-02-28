@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: fe7d8d1",
+    "description": "Git version: 279f2c7",
     "version": "0.0.0"
   },
   "paths": {
@@ -478,6 +478,61 @@
             "HTTPBearer": []
           }
         ]
+      },
+      "patch": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "Update Problem",
+        "operationId": "update_problem_api_v1_problems__problem__patch",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditProblem"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/problems/{problem_set}/{problem}": {
@@ -838,6 +893,61 @@
         "responses": {
           "204": {
             "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "problem set"
+        ],
+        "summary": "Update Problem Set",
+        "operationId": "update_problem_set_api_v1_problem_sets__problem_set__patch",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem Set",
+              "type": "string"
+            },
+            "name": "problem_set",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditProblemSet"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemSet"
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -1503,6 +1613,57 @@
             "title": "Join At",
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "EditProblem": {
+        "title": "EditProblem",
+        "type": "object",
+        "properties": {
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string"
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean"
+          },
+          "data": {
+            "title": "Data",
+            "type": "integer"
+          },
+          "data_version": {
+            "title": "Data Version",
+            "type": "integer"
+          },
+          "languages": {
+            "title": "Languages",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "EditProblemSet": {
+        "title": "EditProblemSet",
+        "type": "object",
+        "properties": {
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string"
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean"
           }
         }
       },
