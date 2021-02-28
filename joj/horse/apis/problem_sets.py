@@ -9,7 +9,7 @@ from uvicorn.config import logger
 from joj.horse import models, schemas
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import instance
-from joj.horse.utils.errors import InvalidAuthenticationError
+from joj.horse.utils.errors import InvalidAuthenticationError, ProblemNotFoundError
 from joj.horse.utils.parser import parse_problem_set
 
 router = InferringRouter()
@@ -50,7 +50,12 @@ async def create_problem_set(
                 problems_models = [
                     await models.Problem.find_by_id(problem) for problem in problems
                 ]
-                problems_models = [problem.id for problem in problems_models]
+                for i, (problem_id, problem_model) in enumerate(
+                    zip(problems, problems_models)
+                ):
+                    if problem_model is None:
+                        raise ProblemNotFoundError(problem_id)
+                    problems_models[i] = problem_model.id
                 logger.info("problems_models: %s", problems_models)
                 problem_set = schemas.ProblemSet(
                     title=title,
