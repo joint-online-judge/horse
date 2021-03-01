@@ -1,8 +1,8 @@
 from typing import Type
 
 from bson import ObjectId
-from umongo.document import DocumentImplementation
-from umongo.frameworks.motor_asyncio import MotorAsyncIODocument, MotorAsyncIOReference
+from umongo.data_objects import Dict, List, Reference
+from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 
 from joj.horse.utils.errors import UnprocessableEntityError
 
@@ -20,5 +20,15 @@ class DocumentMixin:
 
     def unfetch_all(self: MotorAsyncIODocument):
         for field in self._data.values():
-            if isinstance(field, MotorAsyncIOReference):
+            if isinstance(field, Reference):
                 field._document = None
+            if isinstance(field, List):
+                for item in field:
+                    if isinstance(item, Reference):
+                        item._document = None
+            if isinstance(field, Dict):
+                for key, value in field:
+                    if isinstance(key, Reference):
+                        key._document = None
+                    if isinstance(value, Reference):
+                        value._document = None
