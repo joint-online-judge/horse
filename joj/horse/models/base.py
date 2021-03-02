@@ -8,6 +8,8 @@ from joj.horse.utils.errors import UnprocessableEntityError
 
 
 class DocumentMixin:
+    __slots__ = ()
+
     @classmethod
     async def find_by_id(cls: MotorAsyncIODocument, _id):
         if not ObjectId.is_valid(_id):
