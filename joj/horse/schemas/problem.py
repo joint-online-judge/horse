@@ -12,6 +12,7 @@ from joj.horse.schemas.base import (
     reference_schema_validator,
 )
 from joj.horse.schemas.domain import Domain
+from joj.horse.schemas.problem_group import ProblemGroup
 from joj.horse.schemas.user import UserBase
 
 
@@ -28,6 +29,7 @@ class EditProblem(BaseModel):
 class Problem(BaseODMSchema):
     domain: ReferenceSchema[Domain]
     owner: ReferenceSchema[UserBase]
+    problem_group: ReferenceSchema[ProblemGroup]
 
     title: str
     content: str = ""
@@ -45,3 +47,6 @@ class Problem(BaseODMSchema):
     _validate_owner: Callable[[AnyCallable], classmethod] = reference_schema_validator(
         "owner", UserBase
     )
+    _validate_problem_group: Callable[
+        [AnyCallable], classmethod
+    ] = reference_schema_validator("owner", ProblemGroup)

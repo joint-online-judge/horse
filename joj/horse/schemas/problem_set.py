@@ -1,8 +1,6 @@
 from typing import Callable, List, Optional
 
-from pydantic import ConstrainedStr
 from pydantic.main import BaseModel
-from pydantic.types import constr
 from pydantic.typing import AnyCallable
 
 from joj.horse.schemas.base import (

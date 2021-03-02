@@ -7,7 +7,6 @@ from starlette.responses import Response
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
-from joj.horse.schemas import user
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import instance
 from joj.horse.utils.errors import (
@@ -57,6 +56,7 @@ async def create_problem(
                     languages=languages,
                     domain=domain.id,
                     owner=auth.user.id,
+                    problem_group=auth.user.id,  # FIXME: this one only for mypy
                 )
                 problem = models.Problem(**problem.to_model())
                 await problem.commit()
