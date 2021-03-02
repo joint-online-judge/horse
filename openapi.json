@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 82589de",
+    "description": "Git version: e60acee",
     "version": "0.0.0"
   },
   "paths": {
@@ -1614,6 +1614,7 @@
         "properties": {
           "title": {
             "title": "Title",
+            "minLength": 1,
             "type": "string"
           },
           "content": {
@@ -1647,6 +1648,7 @@
         "properties": {
           "title": {
             "title": "Title",
+            "minLength": 1,
             "type": "string"
           },
           "content": {
@@ -1734,6 +1736,7 @@
           },
           "title": {
             "title": "Title",
+            "minLength": 1,
             "type": "string"
           },
           "content": {
@@ -1822,6 +1825,7 @@
           },
           "title": {
             "title": "Title",
+            "minLength": 1,
             "type": "string"
           },
           "content": {
