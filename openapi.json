@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: e60acee",
+    "description": "Git version: 05d2275",
     "version": "0.0.0"
   },
   "paths": {
@@ -314,58 +314,18 @@
             },
             "name": "domain",
             "in": "query"
-          },
-          {
-            "description": "title of the problem",
-            "required": true,
-            "schema": {
-              "title": "Title",
-              "type": "string",
-              "description": "title of the problem"
-            },
-            "name": "title",
-            "in": "query"
-          },
-          {
-            "description": "content of the problem",
-            "required": false,
-            "schema": {
-              "title": "Content",
-              "type": "string",
-              "description": "content of the problem",
-              "default": ""
-            },
-            "name": "content",
-            "in": "query"
-          },
-          {
-            "description": "whether the problem is hidden",
-            "required": false,
-            "schema": {
-              "title": "Hidden",
-              "type": "boolean",
-              "description": "whether the problem is hidden",
-              "default": false
-            },
-            "name": "hidden",
-            "in": "query"
-          },
-          {
-            "description": "acceptable language of the problem",
-            "required": false,
-            "schema": {
-              "title": "Languages",
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "description": "acceptable language of the problem",
-              "default": []
-            },
-            "name": "languages",
-            "in": "query"
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Problem"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -506,6 +466,76 @@
           },
           "required": true
         },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/problems/{problem}/clone": {
+      "post": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "Clone Problem",
+        "operationId": "clone_problem_api_v1_problems__problem__clone_post",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string"
+            },
+            "name": "problem",
+            "in": "path"
+          },
+          {
+            "description": "url or the id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or the id of the domain"
+            },
+            "name": "domain",
+            "in": "query"
+          },
+          {
+            "description": "create new problem group or use the original one",
+            "required": false,
+            "schema": {
+              "title": "New Group",
+              "type": "boolean",
+              "description": "create new problem group or use the original one",
+              "default": false
+            },
+            "name": "new_group",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -967,6 +997,82 @@
         ]
       }
     },
+    "/api/v1/problem_groups": {
+      "get": {
+        "tags": [
+          "problem group"
+        ],
+        "summary": "List Problem Groups",
+        "operationId": "list_problem_groups_api_v1_problem_groups_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response List Problem Groups Api V1 Problem Groups Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProblemGroup"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/problem_groups/{problem_group}": {
+      "get": {
+        "tags": [
+          "problem group"
+        ],
+        "summary": "Get Problems In Problem Group",
+        "operationId": "get_problems_in_problem_group_api_v1_problem_groups__problem_group__get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem Group",
+              "type": "string"
+            },
+            "name": "problem_group",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Get Problems In Problem Group Api V1 Problem Groups  Problem Group  Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Problem"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/records": {
       "get": {
         "tags": [
@@ -1263,20 +1369,6 @@
         ],
         "summary": "Get User",
         "operationId": "get_user_api_v1_user_get",
-        "parameters": [
-          {
-            "description": "uid or 'me'",
-            "required": false,
-            "schema": {
-              "title": "Uid",
-              "type": "string",
-              "description": "uid or 'me'",
-              "default": "me"
-            },
-            "name": "uid",
-            "in": "query"
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1284,16 +1376,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/User"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -1692,7 +1774,7 @@
         "required": [
           "domain",
           "owner",
-          "problem_group",
+          "group",
           "title"
         ],
         "type": "object",
@@ -1723,8 +1805,8 @@
               }
             ]
           },
-          "problem_group": {
-            "title": "Problem Group",
+          "group": {
+            "title": "Group",
             "anyOf": [
               {
                 "type": "string"
@@ -1785,6 +1867,17 @@
           "id": {
             "title": "Id",
             "type": "string"
+          },
+          "moss_results": {
+            "title": "Moss Results",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2083,
+              "format": "uri"
+            },
+            "default": []
           }
         }
       },
