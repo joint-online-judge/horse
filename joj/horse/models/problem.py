@@ -14,11 +14,15 @@ from joj.horse.utils.db import instance
 class Problem(DocumentMixin, MotorAsyncIODocument):
     class Meta:
         collection_name = "problems"
-        indexes = [IndexModel("domain"), IndexModel("owner")]
+        indexes = [
+            IndexModel("domain"),
+            IndexModel("owner"),
+            IndexModel("group", sparse=True),
+        ]
 
     domain = fields.ReferenceField(Domain, required=True)
     owner = fields.ReferenceField(User, required=True)
-    problem_group = fields.ReferenceField(ProblemGroup, required=True)
+    group = fields.ReferenceField(ProblemGroup, required=True)
 
     title = fields.StringField(required=True)
     content = fields.StringField(default="")
