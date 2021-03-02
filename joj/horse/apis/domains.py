@@ -4,6 +4,7 @@ from typing import List, Optional
 from bson import ObjectId
 from fastapi import Depends, Query
 from fastapi_utils.inferring_router import InferringRouter
+from marshmallow.exceptions import ValidationError
 from starlette.responses import Response
 from uvicorn.config import logger
 
@@ -51,7 +52,6 @@ async def create_domain(
         raise InvalidAuthenticationError()
 
     # use transaction for multiple operations
-    # TODO: ensure uniqueness of domain name
     try:
         async with instance.session() as session:
             async with session.start_transaction():
@@ -65,7 +65,8 @@ async def create_domain(
                 domain_user = models.DomainUser(**domain_user.to_model())
                 await domain_user.commit()
                 logger.info("domain user created: %s", domain_user)
-
+    except ValidationError:
+        raise InvalidDomainURLError(url)  # non-unique domain url
     except Exception as e:
         logger.error("domain creation failed: %s", url)
         raise e
