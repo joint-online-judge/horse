@@ -1,13 +1,18 @@
 from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar, Union
 
 from bson import ObjectId
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, ConstrainedStr, validator
 from umongo.frameworks.motor_asyncio import MotorAsyncIOReference
 
 if TYPE_CHECKING:
     from pydantic.typing import AbstractSetIntStr, DictIntStrAny, DictStrAny
 
     Model = TypeVar("Model", bound="BaseModel")
+
+
+class NoneEmptyStr(ConstrainedStr):
+    strip_whitespace = True
+    min_length = 1
 
 
 class PydanticObjectId(str):
