@@ -1,7 +1,10 @@
 import asyncio
+from http import HTTPStatus
 
-from fastapi import FastAPI
-from starlette.responses import RedirectResponse
+from fastapi import FastAPI, Request
+from fastapi.encoders import jsonable_encoder
+from pydantic.error_wrappers import ValidationError
+from starlette.responses import JSONResponse, RedirectResponse
 from tenacity import RetryError
 from uvicorn.config import logger
 
@@ -39,6 +42,14 @@ async def startup_event():
 async def redirect_to_docs():
     redirect_url = generate_url("/api/v1")
     return RedirectResponse(redirect_url)
+
+
+@app.exception_handler(ValidationError)
+async def validation_exception_handler(request: Request, exc: ValidationError):
+    return JSONResponse(
+        content=jsonable_encoder({"detail": exc.errors()}),
+        status_code=HTTPStatus.UNPROCESSABLE_ENTITY.value,
+    )
 
 
 import joj.horse.apis

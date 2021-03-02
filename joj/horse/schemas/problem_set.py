@@ -5,6 +5,7 @@ from pydantic.typing import AnyCallable
 
 from joj.horse.schemas.base import (
     BaseODMSchema,
+    NoneEmptyStr,
     ReferenceSchema,
     reference_schema_validator,
 )
@@ -13,9 +14,8 @@ from joj.horse.schemas.problem import Problem
 from joj.horse.schemas.user import UserBase
 
 
-# TODO: validate the title is non-empty
 class EditProblemSet(BaseModel):
-    title: Optional[str]
+    title: Optional[NoneEmptyStr]
     content: Optional[str]
     hidden: Optional[bool]
 
@@ -24,7 +24,7 @@ class ProblemSet(BaseODMSchema):
     domain: ReferenceSchema[Domain]
     owner: ReferenceSchema[UserBase]
 
-    title: str
+    title: NoneEmptyStr
     content: str = ""
     hidden: bool = False
     num_submit: int = 0

@@ -1,13 +1,12 @@
 from datetime import datetime
 from typing import Callable, List, Optional, Type
 
-from pydantic import ConstrainedStr, validator
 from pydantic.main import BaseModel
-from pydantic.types import constr
 from pydantic.typing import AnyCallable
 
 from joj.horse.schemas.base import (
     BaseODMSchema,
+    NoneEmptyStr,
     ReferenceSchema,
     reference_schema_validator,
 )
@@ -16,9 +15,8 @@ from joj.horse.schemas.problem_group import ProblemGroup
 from joj.horse.schemas.user import UserBase
 
 
-# TODO: validate the title is non-empty
 class EditProblem(BaseModel):
-    title: Optional[str]
+    title: Optional[NoneEmptyStr]
     content: Optional[str]
     hidden: Optional[bool]
     data: Optional[int]
@@ -31,7 +29,7 @@ class Problem(BaseODMSchema):
     owner: ReferenceSchema[UserBase]
     problem_group: ReferenceSchema[ProblemGroup]
 
-    title: str
+    title: NoneEmptyStr
     content: str = ""
     hidden: bool = False
     num_submit: int = 0
