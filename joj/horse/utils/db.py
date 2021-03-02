@@ -29,6 +29,7 @@ collections: List[Type[MotorAsyncIODocument]] = [
     models.Record,
     models.Problem,
     models.ProblemSet,
+    models.ProblemGroup,
 ]
 
 
