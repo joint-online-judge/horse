@@ -27,7 +27,7 @@ class EditProblem(BaseModel):
 class Problem(BaseODMSchema):
     domain: ReferenceSchema[Domain]
     owner: ReferenceSchema[UserBase]
-    problem_group: ReferenceSchema[ProblemGroup]
+    group: ReferenceSchema[ProblemGroup]
 
     title: NoneEmptyStr
     content: str = ""
@@ -45,6 +45,6 @@ class Problem(BaseODMSchema):
     _validate_owner: Callable[[AnyCallable], classmethod] = reference_schema_validator(
         "owner", UserBase
     )
-    _validate_problem_group: Callable[
-        [AnyCallable], classmethod
-    ] = reference_schema_validator("owner", ProblemGroup)
+    _validate_group: Callable[[AnyCallable], classmethod] = reference_schema_validator(
+        "group", ProblemGroup
+    )

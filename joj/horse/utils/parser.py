@@ -6,6 +6,7 @@ from joj.horse import models
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.errors import (
     InvalidAuthenticationError,
+    ProblemGroupNotFoundError,
     ProblemNotFoundError,
     ProblemSetNotFoundError,
     RecordNotFoundError,
@@ -51,6 +52,13 @@ async def parse_problem_set(
     if problem_set_model and problem_set_model.owner == auth.user:
         return problem_set_model
     raise ProblemSetNotFoundError(problem_set)
+
+
+async def parse_problem_group(problem_group: str) -> models.ProblemSet:
+    problem_group_model = await models.ProblemGroup.find_by_id(problem_group)
+    if problem_group_model:
+        return problem_group_model
+    raise ProblemGroupNotFoundError(problem_group_model)
 
 
 async def parse_record(record: str, auth: Authentication = Depends()) -> models.Record:
