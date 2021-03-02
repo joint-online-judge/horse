@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import List, Optional
+from typing import List
 
 from fastapi import Depends, Query
 from fastapi_utils.inferring_router import InferringRouter
@@ -34,11 +34,12 @@ async def list_problems(
 
 @router.post("", response_model=schemas.Problem)
 async def create_problem(
+    problem: schemas.Problem,
     domain: str = Query(..., description="url or the id of the domain"),
-    title: str = Query(..., description="title of the problem"),
-    content: str = Query("", description="content of the problem"),
-    hidden: bool = Query(False, description="whether the problem is hidden"),
-    languages: List[str] = Query([], description="acceptable language of the problem"),
+    # title: str = Query(..., description="title of the problem"),
+    # content: str = Query("", description="content of the problem"),
+    # hidden: bool = Query(False, description="whether the problem is hidden"),
+    # languages: List[str] = Query([], description="acceptable language of the problem"),
     auth: Authentication = Depends(),
 ) -> schemas.Problem:
     if auth.user is None:
@@ -48,24 +49,27 @@ async def create_problem(
     try:
         async with instance.session() as session:
             async with session.start_transaction():
+                problem_group = schemas.ProblemGroup()
+                problem_group = models.ProblemGroup(**problem_group.to_model())
+                await problem_group.commit()
                 domain = await models.Domain.find_by_url_or_id(domain)
-                problem = schemas.Problem(
-                    title=title,
-                    content=content,
-                    hidden=hidden,
-                    languages=languages,
+                new_problem = schemas.Problem(
+                    title=problem.title,
+                    content=problem.content,
+                    hidden=problem.hidden,
+                    languages=problem.languages,
                     domain=domain.id,
                     owner=auth.user.id,
-                    problem_group=auth.user.id,  # FIXME: this one only for mypy
+                    group=problem_group.id,
                 )
-                problem = models.Problem(**problem.to_model())
-                await problem.commit()
-                logger.info("problem created: %s", problem)
+                new_problem = models.Problem(**new_problem.to_model())
+                await new_problem.commit()
+                logger.info("problem created: %s", new_problem)
 
     except Exception as e:
-        logger.error("problem creation failed: %s", title)
+        logger.error("problem creation failed: %s", problem.title)
         raise e
-    return schemas.Problem.from_orm(problem)
+    return schemas.Problem.from_orm(new_problem)
 
 
 @router.get("/{problem}", response_model=schemas.Problem)
@@ -103,6 +107,45 @@ async def update_problem(
         problem.languages = edit_problem.languages
     await problem.commit()
     return schemas.Problem.from_orm(problem)
+
+
+@router.post("/{problem}/clone", response_model=schemas.Problem)
+async def clone_problem(
+    problem: models.Problem = Depends(parse_problem),
+    domain: str = Query(..., description="url or the id of the domain"),
+    new_group: bool = Query(
+        False, description="create new problem group or use the original one"
+    ),
+    auth: Authentication = Depends(),
+) -> schemas.Problem:
+    # use transaction for multiple operations
+    try:
+        async with instance.session() as session:
+            async with session.start_transaction():
+                domain = await models.Domain.find_by_url_or_id(domain)
+                if new_group:
+                    problem_group = schemas.ProblemGroup()
+                    problem_group = models.ProblemGroup(**problem_group.to_model())
+                    await problem_group.commit()
+                else:
+                    problem_group = await problem.group.fetch()
+                new_problem = schemas.Problem(
+                    title=problem.title,
+                    content=problem.content,
+                    hidden=problem.hidden,
+                    languages=problem.languages,
+                    domain=domain.id,
+                    owner=auth.user.id,
+                    group=problem_group.id,  # type: ignore
+                )
+                new_problem = models.Problem(**new_problem.to_model())
+                await new_problem.commit()
+                logger.info("problem created: %s", new_problem)
+
+    except Exception as e:
+        logger.error("problem clone failed: %s", problem.title)
+        raise e
+    return schemas.Problem.from_orm(new_problem)
 
 
 @router.post("/{problem_set}/{problem}", response_model=schemas.Record)

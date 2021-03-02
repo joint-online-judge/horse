@@ -150,10 +150,8 @@ def get_jaccount_logout_url(redirect_url) -> str:
 
 
 @router.get("", response_model=schemas.User)
-async def get_user(
-    user: models.User = Depends(parse_uid), auth: Authentication = Depends()
-) -> schemas.User:
-    return schemas.User.from_orm(user)
+async def get_user(auth: Authentication = Depends()) -> schemas.User:
+    return schemas.User.from_orm(auth.user)
 
 
 @router.get("/domains", response_model=List[schemas.Domain])

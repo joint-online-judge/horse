@@ -79,6 +79,12 @@ class ProblemSetNotFoundError(NotFoundError):
         super().__init__(message=message, args=[problem_set])
 
 
+class ProblemGroupNotFoundError(NotFoundError):
+    def __init__(self, problem_group: str) -> None:
+        message = "Problem group {} not found."
+        super().__init__(message=message, args=[problem_group])
+
+
 class RecordNotFoundError(NotFoundError):
     def __init__(self, record: str) -> None:
         message = "Record {} not found."
