@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 4bc896d",
+    "description": "Git version: 569bcff",
     "version": "0.0.0"
   },
   "paths": {
@@ -1690,6 +1690,7 @@
         "required": [
           "domain",
           "owner",
+          "problem_group",
           "title"
         ],
         "type": "object",
@@ -1717,6 +1718,17 @@
               },
               {
                 "$ref": "#/components/schemas/UserBase"
+              }
+            ]
+          },
+          "problem_group": {
+            "title": "Problem Group",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/ProblemGroup"
               }
             ]
           },
@@ -1760,6 +1772,16 @@
               "type": "string"
             },
             "default": []
+          }
+        }
+      },
+      "ProblemGroup": {
+        "title": "ProblemGroup",
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
           }
         }
       },
