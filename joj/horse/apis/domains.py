@@ -34,18 +34,17 @@ async def list_domains(
     Use current login user if {user} is not specified.
     """
     # TODO: finish this part
-    # auth.ensure(ScopeType.GENERAL, PermissionType.UNKNOWN)
-    # print("self")
-    return [
-        schemas.Domain.from_orm(domain)
-        async for domain in models.Domain.find({"owner": auth.user.id})
-    ]
+    auth.ensure(ScopeType.GENERAL, PermissionType.UNKNOWN)
+    print("self")
+    return []
 
 
 @router.post("", response_model=schemas.Domain)
 async def create_domain(
     url: str = Query(..., description="(unique) url of the domain"),
     name: str = Query(..., description="displayed name of the domain"),
+    bulletin: str = Query("", description="bulletin of the domain"),
+    gravatar: str = Query("", description="gravatar url of the domain"),
     auth: Authentication = Depends(),
 ) -> schemas.Domain:
     # we can not use ObjectId as the url
@@ -58,7 +57,13 @@ async def create_domain(
     try:
         async with instance.session() as session:
             async with session.start_transaction():
-                domain = schemas.Domain(url=url, name=name, owner=auth.user.id)
+                domain = schemas.Domain(
+                    url=url,
+                    name=name,
+                    bulletin=bulletin,
+                    gravatar=gravatar,
+                    owner=auth.user.id,
+                )
                 domain = models.Domain(**domain.to_model())
                 await domain.commit()
                 logger.info("domain created: %s", domain)
@@ -93,3 +98,16 @@ async def delete_domain(domain: str = DomainPath, auth: Authentication = Depends
     # TODO: finish this part
     # await domain.delete()
     return Response(status_code=HTTPStatus.NO_CONTENT.value)
+
+
+@router.patch("/{domain}", response_model=schemas.Domain)
+async def update_domain(
+    edit_doamin: schemas.EditDomain, domain: str = DomainPath
+) -> schemas.Domain:
+    domain_model = await models.Domain.find_by_url_or_id(domain)
+    if edit_doamin.gravatar is not None:
+        domain_model.gravatar = edit_doamin.gravatar
+    if edit_doamin.bulletin is not None:
+        domain_model.bulletin = edit_doamin.bulletin
+    await domain_model.commit()
+    return schemas.Domain.from_orm(domain_model)

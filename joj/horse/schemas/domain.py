@@ -1,13 +1,20 @@
-from typing import Callable
+from typing import Callable, Optional
 
+from pydantic.main import BaseModel
 from pydantic.typing import AnyCallable
 
 from joj.horse.schemas.base import (
     BaseODMSchema,
+    NoneEmptyStr,
     ReferenceSchema,
     reference_schema_validator,
 )
 from joj.horse.schemas.user import UserBase
+
+
+class EditDomain(BaseModel):
+    gravatar: Optional[str]
+    bulletin: Optional[str]
 
 
 class Domain(BaseODMSchema):
