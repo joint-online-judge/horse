@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: b9eefce",
+    "description": "Git version: 5272e65",
     "version": "0.0.0"
   },
   "paths": {
@@ -148,6 +148,30 @@
             },
             "name": "name",
             "in": "query"
+          },
+          {
+            "description": "bulletin of the domain",
+            "required": false,
+            "schema": {
+              "title": "Bulletin",
+              "type": "string",
+              "description": "bulletin of the domain",
+              "default": ""
+            },
+            "name": "bulletin",
+            "in": "query"
+          },
+          {
+            "description": "gravatar url of the domain",
+            "required": false,
+            "schema": {
+              "title": "Gravatar",
+              "type": "string",
+              "description": "gravatar url of the domain",
+              "default": ""
+            },
+            "name": "gravatar",
+            "in": "query"
           }
         ],
         "responses": {
@@ -266,6 +290,58 @@
             "HTTPBearer": []
           }
         ]
+      },
+      "patch": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "Update Domain",
+        "operationId": "update_domain_api_v1_domains__domain__patch",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditDomain"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Domain"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/problems": {
@@ -654,6 +730,16 @@
             "in": "query"
           }
         ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_submit_solution_to_problem_api_v1_problems__problem_set___problem__post"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1174,6 +1260,51 @@
         ]
       }
     },
+    "/api/v1/records/{record}/code": {
+      "get": {
+        "tags": [
+          "record"
+        ],
+        "summary": "Get Record Code",
+        "operationId": "get_record_code_api_v1_records__record__code_get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Record",
+              "type": "string"
+            },
+            "name": "record",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/user/logout": {
       "get": {
         "tags": [
@@ -1600,6 +1731,20 @@
   },
   "components": {
     "schemas": {
+      "Body_submit_solution_to_problem_api_v1_problems__problem_set___problem__post": {
+        "title": "Body_submit_solution_to_problem_api_v1_problems__problem_set___problem__post",
+        "required": [
+          "file"
+        ],
+        "type": "object",
+        "properties": {
+          "file": {
+            "title": "File",
+            "type": "string",
+            "format": "binary"
+          }
+        }
+      },
       "Domain": {
         "title": "Domain",
         "required": [
@@ -1687,6 +1832,20 @@
             "title": "Join At",
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "EditDomain": {
+        "title": "EditDomain",
+        "type": "object",
+        "properties": {
+          "gravatar": {
+            "title": "Gravatar",
+            "type": "string"
+          },
+          "bulletin": {
+            "title": "Bulletin",
+            "type": "string"
           }
         }
       },
