@@ -52,11 +52,11 @@ class Record(DocumentMixin, MotorAsyncIODocument):
     memory_kb = fields.IntegerField(default=0)
     domain = fields.ReferenceField(Domain)
     problem = fields.ReferenceField(Problem)
-    problem_set = fields.ReferenceField(ProblemSet)  # modify later
+    problem_set = fields.ReferenceField(ProblemSet)
     problem_data = fields.IntegerField(default=0)  # modify later
     user = fields.ReferenceField(User)
     code_type = fields.IntegerField()
-    code = fields.StringField()  # modify later
+    code = fields.ObjectIdField()
     judge_category = fields.ListField(fields.StringField())
 
     submit_at = fields.DateTimeField()

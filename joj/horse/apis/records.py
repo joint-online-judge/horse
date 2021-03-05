@@ -1,13 +1,16 @@
+import io
 from typing import List, Optional
 
 from fastapi import Depends, Query
+from fastapi.responses import StreamingResponse
 from fastapi_utils.inferring_router import InferringRouter
+from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.utils import errors
 from joj.horse.utils.auth import Authentication
-from joj.horse.utils.db import instance
+from joj.horse.utils.db import get_db, instance
 from joj.horse.utils.parser import parse_record, parse_uid_or_none
 
 router = InferringRouter()
@@ -32,3 +35,18 @@ async def list_records(
 @router.get("/{record}", response_model=schemas.Record)
 async def get_record(record: models.Record = Depends(parse_record)) -> schemas.Record:
     return schemas.Record.from_orm(record)
+
+
+@router.get("/{record}/code")
+async def get_record_code(record: models.Record = Depends(parse_record)):
+    mime_types = [
+        "text/plain",
+        "application/x-tar",
+        "application/zip",
+        "application/vnd.rar",
+    ]
+    gfs = AsyncIOMotorGridFSBucket(get_db())
+    grid_out = await gfs.open_download_stream(record.code)
+    return StreamingResponse(
+        io.BytesIO(await grid_out.read()), media_type=mime_types[record.code_type]
+    )
