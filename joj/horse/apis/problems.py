@@ -1,14 +1,15 @@
 from http import HTTPStatus
 from typing import List
 
-from fastapi import Depends, Query
+from fastapi import Depends, File, Query, UploadFile
 from fastapi_utils.inferring_router import InferringRouter
+from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 from starlette.responses import Response
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.utils.auth import Authentication
-from joj.horse.utils.db import instance
+from joj.horse.utils.db import get_db, instance
 from joj.horse.utils.errors import (
     DeleteProblemBadRequestError,
     InvalidAuthenticationError,
@@ -151,18 +152,25 @@ async def clone_problem(
 @router.post("/{problem_set}/{problem}", response_model=schemas.Record)
 async def submit_solution_to_problem(
     code_type: schemas.RecordCodeType,
+    file: UploadFile = File(...),
     problem_set: models.ProblemSet = Depends(parse_problem_set),
     problem: models.Problem = Depends(parse_problem),
     auth: Authentication = Depends(),
 ) -> schemas.Record:
     try:
+        gfs = AsyncIOMotorGridFSBucket(get_db())
+        file_id = await gfs.upload_from_stream(
+            filename=file.filename,
+            source=await file.read(),
+            metadata={"contentType": file.content_type, "compressed": True},
+        )
         record = schemas.Record(
             domain=problem.domain,
             problem=problem.id,
             problem_set=problem_set.id,
             user=auth.user.id,
             code_type=code_type,
-            code="",  # TODO: complete unspecified arguments
+            code=file_id,
             judge_category=[],
         )
         record = models.Record(**record.to_model())

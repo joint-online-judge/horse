@@ -6,6 +6,7 @@ from pydantic.typing import AnyCallable
 
 from joj.horse.schemas.base import (
     BaseODMSchema,
+    PydanticObjectId,
     ReferenceSchema,
     reference_schema_validator,
 )
@@ -51,7 +52,7 @@ class Record(BaseODMSchema):
     problem_data: int = 0
     user: ReferenceSchema[UserBase]
     code_type: RecordCodeType
-    code: str
+    code: PydanticObjectId
     judge_category: List[str]
 
     _validate_domain: Callable[[AnyCallable], classmethod] = reference_schema_validator(
