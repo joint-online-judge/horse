@@ -11,7 +11,7 @@ from uvicorn.config import logger
 from joj.horse import models, schemas
 from joj.horse.apis.base import DomainPath
 from joj.horse.models.permission import DefaultRole, PermissionType, ScopeType
-from joj.horse.utils.auth import Authentication
+from joj.horse.utils.auth import Authentication, DomainAuthentication
 from joj.horse.utils.db import instance
 from joj.horse.utils.errors import (
     DomainNotFoundError,
@@ -83,14 +83,9 @@ async def create_domain(
 
 
 @router.get("/{domain}", response_model=schemas.Domain)
-async def get_domain(
-    domain: str = DomainPath, auth: Authentication = Depends()
-) -> schemas.Domain:
-    await auth.init_domain(domain)
-    if auth.domain:
-        await auth.domain.owner.fetch()
-        return schemas.Domain.from_orm(auth.domain)
-    raise DomainNotFoundError(domain)
+async def get_domain(auth: DomainAuthentication = Depends()) -> schemas.Domain:
+    await auth.domain.owner.fetch()
+    return schemas.Domain.from_orm(auth.domain)
 
 
 @router.delete("/{domain}", status_code=HTTPStatus.NO_CONTENT)

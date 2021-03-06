@@ -1,3 +1,4 @@
+import abc
 from typing import Any, Dict, Optional, Set
 
 import jwt
@@ -130,10 +131,15 @@ def get_site_permission(site_role: str = Depends(get_site_role)):
         return DEFAULT_SITE_PERMISSION[DefaultRole.GUEST]
 
 
+async def get_domain(domain: str) -> Domain:
+    return await Domain.find_by_url_or_id(domain)
+
+
 async def get_domain_role(
-    user: Optional[User] = None, domain: Optional[Domain] = None
-) -> DefaultRole:
-    if user and domain:
+    user: Optional[User] = Depends(get_current_user),
+    domain: Domain = Depends(get_domain),
+) -> str:
+    if user:
         domain_user = await DomainUser.find_one({"domain": domain.id, "user": user.id})
         if domain_user:
             return domain_user.role
@@ -142,7 +148,7 @@ async def get_domain_role(
 
 
 async def get_domain_permission(
-    domain: Optional[Domain] = None, domain_role: str = DefaultRole.GUEST
+    domain: Domain = Depends(get_domain), domain_role: str = Depends(get_domain_role)
 ) -> DomainPermission:
     if domain_role == DefaultRole.ROOT:
         return DEFAULT_DOMAIN_PERMISSION[DefaultRole.ROOT]
@@ -160,30 +166,25 @@ async def get_domain_permission(
         return DEFAULT_DOMAIN_PERMISSION[DefaultRole.GUEST]
 
 
-class Authentication:
+class BaseAuthentication(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
     def __init__(
         self,
-        jwt_decoded: Optional[JWTToken] = Depends(auth_jwt_decode),
-        user: Optional[User] = Depends(get_current_user),
-        site_role: str = Depends(get_site_role),
-        site_permission: SitePermission = Depends(get_site_permission),
+        jwt_decoded: Optional[JWTToken],
+        user: Optional[User],
+        site_role: str,
+        site_permission: SitePermission,
+        domain: Optional[Domain],
+        domain_role: str,
+        domain_permission: DomainPermission,
     ):
-        self.jwt: Optional[JWTToken] = jwt_decoded
-        self.user: Optional[User] = user
-        self.domain: Optional[Domain] = None
+        self.jwt = jwt_decoded
+        self.user = user
         self.site_role = site_role
         self.site_permission = site_permission.dump()
-        self.domain_role = DefaultRole.GUEST
-        self.domain_permission = DEFAULT_DOMAIN_PERMISSION[DefaultRole.GUEST].dump()
-
-    async def init_domain(self, domain: str):
-        self.domain = await Domain.find_by_url_or_id(domain)
-        if self.domain:
-            self.domain_role = await get_domain_role(self.user, self.domain)
-            self.domain_permission = (
-                await get_domain_permission(self.domain, self.domain_role)
-            ).dump()
-        # print(self.domain, self.domain_role, self.domain_permission)
+        self.domain = domain
+        self.domain_role = domain_role
+        self.domain_permission = domain_permission.dump()
 
     def check(self, scope: ScopeType, permission: PermissionType) -> bool:
         def _check(permissions: Optional[Dict[str, Any]]):
@@ -236,3 +237,44 @@ class Authentication:
     def ensure_and(self, *args) -> None:
         for arg in args:
             self.ensure(*arg)
+
+
+class Authentication(BaseAuthentication):
+    def __init__(
+        self,
+        jwt_decoded: Optional[JWTToken] = Depends(auth_jwt_decode),
+        user: Optional[User] = Depends(get_current_user),
+        site_role: str = Depends(get_site_role),
+        site_permission: SitePermission = Depends(get_site_permission),
+    ):
+        super().__init__(
+            jwt_decoded,
+            user,
+            site_role,
+            site_permission,
+            domain=None,
+            domain_role=DefaultRole.GUEST,
+            domain_permission=DEFAULT_DOMAIN_PERMISSION[DefaultRole.GUEST],
+        )
+
+
+class DomainAuthentication(BaseAuthentication):
+    def __init__(
+        self,
+        jwt_decoded: Optional[JWTToken] = Depends(auth_jwt_decode),
+        user: Optional[User] = Depends(get_current_user),
+        site_role: str = Depends(get_site_role),
+        site_permission: SitePermission = Depends(get_site_permission),
+        domain: Domain = Depends(get_domain),
+        domain_role: DefaultRole = Depends(get_domain_role),
+        domain_permission: DomainPermission = Depends(get_domain_permission),
+    ):
+        super().__init__(
+            jwt_decoded,
+            user,
+            site_role,
+            site_permission,
+            domain,
+            domain_role,
+            domain_permission,
+        )
