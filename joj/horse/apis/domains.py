@@ -34,12 +34,9 @@ async def list_domains(
     Use current login user if {user} is not specified.
     """
     # TODO: finish this part
-    # auth.ensure(ScopeType.GENERAL, PermissionType.UNKNOWN)
-    # print("self")
-    return [
-        schemas.Domain.from_orm(domain)
-        async for domain in models.Domain.find({"owner": auth.user.id})
-    ]
+    auth.ensure(ScopeType.GENERAL, PermissionType.UNKNOWN)
+    print("self")
+    return []
 
 
 @router.post("", response_model=schemas.Domain)
