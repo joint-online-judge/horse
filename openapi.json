@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 4254b81",
+    "description": "Git version: eab015a",
     "version": "0.0.0"
   },
   "paths": {
@@ -723,21 +723,13 @@
             },
             "name": "problem",
             "in": "path"
-          },
-          {
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/RecordCodeType"
-            },
-            "name": "code_type",
-            "in": "query"
           }
         ],
         "requestBody": {
           "content": {
             "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/Body_submit_solution_to_problem_api_v1_problems__problem_set___problem__post"
+                "$ref": "#/components/schemas/CodeFile"
               }
             }
           },
@@ -1739,13 +1731,17 @@
   },
   "components": {
     "schemas": {
-      "Body_submit_solution_to_problem_api_v1_problems__problem_set___problem__post": {
-        "title": "Body_submit_solution_to_problem_api_v1_problems__problem_set___problem__post",
+      "CodeFile": {
+        "title": "CodeFile",
         "required": [
+          "code_type",
           "file"
         ],
         "type": "object",
         "properties": {
+          "code_type": {
+            "$ref": "#/components/schemas/RecordCodeType"
+          },
           "file": {
             "title": "File",
             "type": "string",
