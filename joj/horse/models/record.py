@@ -1,5 +1,3 @@
-from enum import IntEnum
-
 from pymongo import ASCENDING, DESCENDING, IndexModel
 from umongo import fields
 from umongo.embedded_document import EmbeddedDocumentImplementation
