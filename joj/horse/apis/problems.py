@@ -1,7 +1,7 @@
 from http import HTTPStatus
-from typing import List
+from typing import Callable, List
 
-from fastapi import Depends, File, Query, UploadFile
+from fastapi import Body, Depends, File, Query, UploadFile
 from fastapi_utils.inferring_router import InferringRouter
 from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 from starlette.responses import Response
@@ -151,7 +151,7 @@ async def clone_problem(
 
 @router.post("/{problem_set}/{problem}", response_model=schemas.Record)
 async def submit_solution_to_problem(
-    code_type: schemas.RecordCodeType,
+    code_type: schemas.RecordCodeType = Body(...),
     file: UploadFile = File(...),
     problem_set: models.ProblemSet = Depends(parse_problem_set),
     problem: models.Problem = Depends(parse_problem),
