@@ -13,7 +13,7 @@ jobs:
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
-        python-version: 3.9.2
+        python-version: 3.9
     - name: Cache environment
       uses: actions/cache@v2
       id: cache
@@ -21,7 +21,7 @@ jobs:
         path: ${{ env.pythonLocation }}
         key: ${{ runner.os }}-${{ env.pythonLocation }}${{ secrets.CACHE_VERSION }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
-          ${{ runner.os }}-pip-${{ secrets.CACHE_VERSION }}-3.9.2
+          ${{ runner.os }}-${{ env.pythonLocation }}${{ secrets.CACHE_VERSION }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/requirements.txt') }}
     - name: Install dependencies
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
