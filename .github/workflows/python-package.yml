@@ -19,9 +19,9 @@ jobs:
       id: cache
       with:
         path: ${{ env.pythonLocation }}
-        key: ${{ runner.os }}-${{ env.pythonLocation }}${{ secrets.CACHE_VERSION }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/requirements.txt') }}
+        key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ secrets.CACHE_VERSION }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
-          ${{ runner.os }}-${{ env.pythonLocation }}${{ secrets.CACHE_VERSION }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/requirements.txt') }}
+          ${{ runner.os }}-${{ env.pythonLocation }}
     - name: Install dependencies
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
