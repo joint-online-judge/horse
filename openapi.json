@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 5272e65",
+    "description": "Git version: 4c30ef7",
     "version": "0.0.0"
   },
   "paths": {
@@ -212,12 +212,10 @@
         "operationId": "get_domain_api_v1_domains__domain__get",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
-              "type": "string",
-              "description": "url or ObjectId of the domain"
+              "type": "string"
             },
             "name": "domain",
             "in": "path"
