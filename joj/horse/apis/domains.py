@@ -100,7 +100,9 @@ async def delete_domain(domain: str = DomainPath, auth: Authentication = Depends
 
 @router.patch("/{domain}", response_model=schemas.Domain)
 async def update_domain(
-    edit_doamin: schemas.EditDomain, domain: str = DomainPath
+    edit_doamin: schemas.EditDomain,
+    domain: str = DomainPath,
+    auth: Authentication = Depends(Authentication),
 ) -> schemas.Domain:
     domain_model = await models.Domain.find_by_url_or_id(domain)
     if edit_doamin.gravatar is not None:
