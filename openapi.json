@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: e6d513c",
+    "description": "Git version: 2f2e00f",
     "version": "0.0.0"
   },
   "paths": {
@@ -22,14 +22,61 @@
         }
       }
     },
-    "/api/v1/domain/list": {
+    "/api/v1/version": {
+      "get": {
+        "tags": [
+          "miscellaneous"
+        ],
+        "summary": "Version",
+        "operationId": "version_api_v1_version_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Version"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jwt": {
+      "get": {
+        "tags": [
+          "miscellaneous"
+        ],
+        "summary": "Jwt",
+        "operationId": "jwt_api_v1_jwt_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JWT"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains": {
       "get": {
         "tags": [
           "domain"
         ],
-        "summary": "List User Domains",
+        "summary": "List Domains",
         "description": "List all domains in which {user} has a role.\nUse current login user if {user} is not specified.",
-        "operationId": "list_user_domains_api_v1_domain_list_get",
+        "operationId": "list_domains_api_v1_domains_get",
         "parameters": [
           {
             "required": false,
@@ -39,14 +86,91 @@
             },
             "name": "uid",
             "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response List Domains Api V1 Domains Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Domain"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "Create Domain",
+        "operationId": "create_domain_api_v1_domains_post",
+        "parameters": [
+          {
+            "description": "(unique) url of the domain",
+            "required": true,
+            "schema": {
+              "title": "Url",
+              "type": "string",
+              "description": "(unique) url of the domain"
+            },
+            "name": "url",
+            "in": "query"
           },
           {
+            "description": "displayed name of the domain",
+            "required": true,
+            "schema": {
+              "title": "Name",
+              "type": "string",
+              "description": "displayed name of the domain"
+            },
+            "name": "name",
+            "in": "query"
+          },
+          {
+            "description": "bulletin of the domain",
             "required": false,
             "schema": {
-              "title": "Domain",
-              "type": "string"
+              "title": "Bulletin",
+              "type": "string",
+              "description": "bulletin of the domain",
+              "default": ""
             },
-            "name": "domain",
+            "name": "bulletin",
+            "in": "query"
+          },
+          {
+            "description": "gravatar url of the domain",
+            "required": false,
+            "schema": {
+              "title": "Gravatar",
+              "type": "string",
+              "description": "gravatar url of the domain",
+              "default": ""
+            },
+            "name": "gravatar",
             "in": "query"
           }
         ],
@@ -55,7 +179,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Domain"
+                }
               }
             }
           },
@@ -77,42 +203,415 @@
         ]
       }
     },
-    "/api/v1/misc/version": {
+    "/api/v1/domains/{domain}": {
       "get": {
         "tags": [
-          "misc"
+          "domain"
         ],
-        "summary": "Version",
-        "operationId": "version_api_v1_misc_version_get",
+        "summary": "Get Domain",
+        "operationId": "get_domain_api_v1_domains__domain__get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string"
+            },
+            "name": "domain",
+            "in": "path"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Version"
+                  "$ref": "#/components/schemas/Domain"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
           }
-        }
-      }
-    },
-    "/api/v1/misc/jwt": {
-      "get": {
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "delete": {
         "tags": [
-          "misc"
+          "domain"
         ],
-        "summary": "Jwt",
-        "operationId": "jwt_api_v1_misc_jwt_get",
+        "summary": "Delete Domain",
+        "operationId": "delete_domain_api_v1_domains__domain__delete",
         "parameters": [
           {
-            "required": false,
+            "description": "url or ObjectId of the domain",
+            "required": true,
             "schema": {
               "title": "Domain",
-              "type": "string"
+              "type": "string",
+              "description": "url or ObjectId of the domain"
             },
             "name": "domain",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "Update Domain",
+        "operationId": "update_domain_api_v1_domains__domain__patch",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditDomain"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Domain"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/problems": {
+      "get": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "List Problems",
+        "operationId": "list_problems_api_v1_problems_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response List Problems Api V1 Problems Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Problem"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "Create Problem",
+        "operationId": "create_problem_api_v1_problems_post",
+        "parameters": [
+          {
+            "description": "url or the id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or the id of the domain"
+            },
+            "name": "domain",
+            "in": "query"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Problem"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/problems/{problem}": {
+      "get": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "Get Problem",
+        "operationId": "get_problem_api_v1_problems__problem__get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "Delete Problem",
+        "operationId": "delete_problem_api_v1_problems__problem__delete",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "Update Problem",
+        "operationId": "update_problem_api_v1_problems__problem__patch",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditProblem"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/problems/{problem}/clone": {
+      "post": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "Clone Problem",
+        "operationId": "clone_problem_api_v1_problems__problem__clone_post",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string"
+            },
+            "name": "problem",
+            "in": "path"
+          },
+          {
+            "description": "url or the id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or the id of the domain"
+            },
+            "name": "domain",
+            "in": "query"
+          },
+          {
+            "description": "create new problem group or use the original one",
+            "required": false,
+            "schema": {
+              "title": "New Group",
+              "type": "boolean",
+              "description": "create new problem group or use the original one",
+              "default": false
+            },
+            "name": "new_group",
             "in": "query"
           }
         ],
@@ -122,8 +621,677 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JWT"
+                  "$ref": "#/components/schemas/Problem"
                 }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/problems/{problem_set}/{problem}": {
+      "put": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "Add Problem To Problem Set",
+        "operationId": "add_problem_to_problem_set_api_v1_problems__problem_set___problem__put",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem Set",
+              "type": "string"
+            },
+            "name": "problem_set",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemSet"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "Submit Solution To Problem",
+        "operationId": "submit_solution_to_problem_api_v1_problems__problem_set___problem__post",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem Set",
+              "type": "string"
+            },
+            "name": "problem_set",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string"
+            },
+            "name": "problem",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/RecordCodeType"
+            },
+            "name": "code_type",
+            "in": "query"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_submit_solution_to_problem_api_v1_problems__problem_set___problem__post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Record"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "Delete Problem From Problem Set",
+        "operationId": "delete_problem_from_problem_set_api_v1_problems__problem_set___problem__delete",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem Set",
+              "type": "string"
+            },
+            "name": "problem_set",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/problem_sets": {
+      "get": {
+        "tags": [
+          "problem set"
+        ],
+        "summary": "List Problem Sets",
+        "operationId": "list_problem_sets_api_v1_problem_sets_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response List Problem Sets Api V1 Problem Sets Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProblemSet"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "problem set"
+        ],
+        "summary": "Create Problem Set",
+        "operationId": "create_problem_set_api_v1_problem_sets_post",
+        "parameters": [
+          {
+            "description": "url or the id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or the id of the domain"
+            },
+            "name": "domain",
+            "in": "query"
+          },
+          {
+            "description": "title of the problem set",
+            "required": true,
+            "schema": {
+              "title": "Title",
+              "type": "string",
+              "description": "title of the problem set"
+            },
+            "name": "title",
+            "in": "query"
+          },
+          {
+            "description": "content of the problem set",
+            "required": false,
+            "schema": {
+              "title": "Content",
+              "type": "string",
+              "description": "content of the problem set",
+              "default": ""
+            },
+            "name": "content",
+            "in": "query"
+          },
+          {
+            "description": "whether the problem set is hidden",
+            "required": false,
+            "schema": {
+              "title": "Hidden",
+              "type": "boolean",
+              "description": "whether the problem set is hidden",
+              "default": false
+            },
+            "name": "hidden",
+            "in": "query"
+          },
+          {
+            "description": "problems belonging to the problem set",
+            "required": false,
+            "schema": {
+              "title": "Problems",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "problems belonging to the problem set",
+              "default": []
+            },
+            "name": "problems",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemSet"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/problem_sets/{problem_set}": {
+      "get": {
+        "tags": [
+          "problem set"
+        ],
+        "summary": "Get Problem Set",
+        "operationId": "get_problem_set_api_v1_problem_sets__problem_set__get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem Set",
+              "type": "string"
+            },
+            "name": "problem_set",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemSet"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "problem set"
+        ],
+        "summary": "Delete Problem Set",
+        "operationId": "delete_problem_set_api_v1_problem_sets__problem_set__delete",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem Set",
+              "type": "string"
+            },
+            "name": "problem_set",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "problem set"
+        ],
+        "summary": "Update Problem Set",
+        "operationId": "update_problem_set_api_v1_problem_sets__problem_set__patch",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem Set",
+              "type": "string"
+            },
+            "name": "problem_set",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditProblemSet"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemSet"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/problem_groups": {
+      "get": {
+        "tags": [
+          "problem group"
+        ],
+        "summary": "List Problem Groups",
+        "operationId": "list_problem_groups_api_v1_problem_groups_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response List Problem Groups Api V1 Problem Groups Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProblemGroup"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/problem_groups/{problem_group}": {
+      "get": {
+        "tags": [
+          "problem group"
+        ],
+        "summary": "Get Problems In Problem Group",
+        "operationId": "get_problems_in_problem_group_api_v1_problem_groups__problem_group__get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem Group",
+              "type": "string"
+            },
+            "name": "problem_group",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Get Problems In Problem Group Api V1 Problem Groups  Problem Group  Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Problem"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/records": {
+      "get": {
+        "tags": [
+          "record"
+        ],
+        "summary": "List Records",
+        "operationId": "list_records_api_v1_records_get",
+        "parameters": [
+          {
+            "description": "uid or 'me' or empty",
+            "required": false,
+            "schema": {
+              "title": "Uid",
+              "type": "string",
+              "description": "uid or 'me' or empty",
+              "default": ""
+            },
+            "name": "uid",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response List Records Api V1 Records Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Record"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/records/{record}": {
+      "get": {
+        "tags": [
+          "record"
+        ],
+        "summary": "Get Record",
+        "operationId": "get_record_api_v1_records__record__get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Record",
+              "type": "string"
+            },
+            "name": "record",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Record"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/records/{record}/code": {
+      "get": {
+        "tags": [
+          "record"
+        ],
+        "summary": "Get Record Code",
+        "operationId": "get_record_code_api_v1_records__record__code_get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Record",
+              "type": "string"
+            },
+            "name": "record",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           },
@@ -154,12 +1322,27 @@
         "operationId": "logout_api_v1_user_logout_get",
         "parameters": [
           {
+            "description": "Set the redirect url after the logout.",
             "required": false,
             "schema": {
-              "title": "Domain",
-              "type": "string"
+              "title": "Redirect Url",
+              "type": "string",
+              "description": "Set the redirect url after the logout.",
+              "default": "http://127.0.0.1:34765/"
             },
-            "name": "domain",
+            "name": "redirect_url",
+            "in": "query"
+          },
+          {
+            "description": "If true (html link mode), redirect to a url; If false (ajax mode), return the redirect url, you also need to unset all cookies manually in ajax mode.",
+            "required": false,
+            "schema": {
+              "title": "Redirect",
+              "type": "boolean",
+              "description": "If true (html link mode), redirect to a url; If false (ajax mode), return the redirect url, you also need to unset all cookies manually in ajax mode.",
+              "default": true
+            },
+            "name": "redirect",
             "in": "query"
           }
         ],
@@ -199,6 +1382,32 @@
         ],
         "summary": "Jaccount Login",
         "operationId": "jaccount_login_api_v1_user_jaccount_login_get",
+        "parameters": [
+          {
+            "description": "Set the redirect url after the authorization.",
+            "required": false,
+            "schema": {
+              "title": "Redirect Url",
+              "type": "string",
+              "description": "Set the redirect url after the authorization.",
+              "default": "http://127.0.0.1:34765/"
+            },
+            "name": "redirect_url",
+            "in": "query"
+          },
+          {
+            "description": "If true (html link mode), redirect to jaccount site; If false (ajax mode), return the redirect url to the jaccount site, you also need to set the cookies returned manually in ajax mode.",
+            "required": false,
+            "schema": {
+              "title": "Redirect",
+              "type": "boolean",
+              "description": "If true (html link mode), redirect to jaccount site; If false (ajax mode), return the redirect url to the jaccount site, you also need to set the cookies returned manually in ajax mode.",
+              "default": true
+            },
+            "name": "redirect",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -206,6 +1415,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RedirectModel"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -238,6 +1457,26 @@
             },
             "name": "code",
             "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Jaccount State",
+              "type": "string",
+              "default": ""
+            },
+            "name": "jaccount_state",
+            "in": "cookie"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Redirect Url",
+              "type": "string",
+              "default": "http://127.0.0.1:34765/"
+            },
+            "name": "redirect_url",
+            "in": "cookie"
           }
         ],
         "responses": {
@@ -262,13 +1501,99 @@
         }
       }
     },
-    "/api/v1/user/{uid}": {
+    "/api/v1/user": {
       "get": {
         "tags": [
           "user"
         ],
         "summary": "Get User",
-        "operationId": "get_user_api_v1_user__uid__get",
+        "operationId": "get_user_api_v1_user_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/user/domains": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get User Domains",
+        "operationId": "get_user_domains_api_v1_user_domains_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Get User Domains Api V1 User Domains Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Domain"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/user/problems": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get User Problems",
+        "operationId": "get_user_problems_api_v1_user_problems_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Get User Problems Api V1 User Problems Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Problem"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/users/{uid}": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get User",
+        "operationId": "get_user_api_v1_users__uid__get",
         "parameters": [
           {
             "required": true,
@@ -278,15 +1603,6 @@
             },
             "name": "uid",
             "in": "path"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Domain",
-              "type": "string"
-            },
-            "name": "domain",
-            "in": "query"
           }
         ],
         "responses": {
@@ -317,10 +1633,283 @@
           }
         ]
       }
+    },
+    "/api/v1/users/{uid}/domains": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get User Domains",
+        "operationId": "get_user_domains_api_v1_users__uid__domains_get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Uid",
+              "type": "string"
+            },
+            "name": "uid",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Get User Domains Api V1 Users  Uid  Domains Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DomainUser"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/users/{uid}/problems": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get User Problems",
+        "operationId": "get_user_problems_api_v1_users__uid__problems_get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Uid",
+              "type": "string"
+            },
+            "name": "uid",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Get User Problems Api V1 Users  Uid  Problems Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Problem"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
     }
   },
   "components": {
     "schemas": {
+      "Body_submit_solution_to_problem_api_v1_problems__problem_set___problem__post": {
+        "title": "Body_submit_solution_to_problem_api_v1_problems__problem_set___problem__post",
+        "required": [
+          "file"
+        ],
+        "type": "object",
+        "properties": {
+          "file": {
+            "title": "File",
+            "type": "string",
+            "format": "binary"
+          }
+        }
+      },
+      "Domain": {
+        "title": "Domain",
+        "required": [
+          "url",
+          "name",
+          "owner"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "owner": {
+            "title": "Owner",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/UserBase"
+              }
+            ]
+          },
+          "gravatar": {
+            "title": "Gravatar",
+            "type": "string",
+            "default": ""
+          },
+          "bulletin": {
+            "title": "Bulletin",
+            "type": "string",
+            "default": ""
+          }
+        }
+      },
+      "DomainUser": {
+        "title": "DomainUser",
+        "required": [
+          "domain",
+          "user",
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "domain": {
+            "title": "Domain",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/Domain"
+              }
+            ]
+          },
+          "user": {
+            "title": "User",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/UserBase"
+              }
+            ]
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "join_at": {
+            "title": "Join At",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "EditDomain": {
+        "title": "EditDomain",
+        "type": "object",
+        "properties": {
+          "gravatar": {
+            "title": "Gravatar",
+            "type": "string"
+          },
+          "bulletin": {
+            "title": "Bulletin",
+            "type": "string"
+          }
+        }
+      },
+      "EditProblem": {
+        "title": "EditProblem",
+        "type": "object",
+        "properties": {
+          "title": {
+            "title": "Title",
+            "minLength": 1,
+            "type": "string"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string"
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean"
+          },
+          "data": {
+            "title": "Data",
+            "type": "integer"
+          },
+          "data_version": {
+            "title": "Data Version",
+            "type": "integer"
+          },
+          "languages": {
+            "title": "Languages",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "EditProblemSet": {
+        "title": "EditProblemSet",
+        "type": "object",
+        "properties": {
+          "title": {
+            "title": "Title",
+            "minLength": 1,
+            "type": "string"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string"
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean"
+          }
+        }
+      },
       "HTTPValidationError": {
         "title": "HTTPValidationError",
         "type": "object",
@@ -347,6 +1936,333 @@
           }
         }
       },
+      "Problem": {
+        "title": "Problem",
+        "required": [
+          "domain",
+          "owner",
+          "group",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "domain": {
+            "title": "Domain",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/Domain"
+              }
+            ]
+          },
+          "owner": {
+            "title": "Owner",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/UserBase"
+              }
+            ]
+          },
+          "group": {
+            "title": "Group",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/ProblemGroup"
+              }
+            ]
+          },
+          "title": {
+            "title": "Title",
+            "minLength": 1,
+            "type": "string"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string",
+            "default": ""
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "default": false
+          },
+          "num_submit": {
+            "title": "Num Submit",
+            "type": "integer",
+            "default": 0
+          },
+          "num_accept": {
+            "title": "Num Accept",
+            "type": "integer",
+            "default": 0
+          },
+          "data": {
+            "title": "Data",
+            "type": "integer"
+          },
+          "data_version": {
+            "title": "Data Version",
+            "type": "integer",
+            "default": 2
+          },
+          "languages": {
+            "title": "Languages",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          }
+        }
+      },
+      "ProblemGroup": {
+        "title": "ProblemGroup",
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "moss_results": {
+            "title": "Moss Results",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2083,
+              "format": "uri"
+            },
+            "default": []
+          }
+        }
+      },
+      "ProblemSet": {
+        "title": "ProblemSet",
+        "required": [
+          "domain",
+          "owner",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "domain": {
+            "title": "Domain",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/Domain"
+              }
+            ]
+          },
+          "owner": {
+            "title": "Owner",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/UserBase"
+              }
+            ]
+          },
+          "title": {
+            "title": "Title",
+            "minLength": 1,
+            "type": "string"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string",
+            "default": ""
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "default": false
+          },
+          "num_submit": {
+            "title": "Num Submit",
+            "type": "integer",
+            "default": 0
+          },
+          "num_accept": {
+            "title": "Num Accept",
+            "type": "integer",
+            "default": 0
+          },
+          "problems": {
+            "title": "Problems",
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              ]
+            },
+            "default": []
+          }
+        }
+      },
+      "Record": {
+        "title": "Record",
+        "required": [
+          "domain",
+          "problem",
+          "problem_set",
+          "user",
+          "code_type",
+          "code",
+          "judge_category"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RecordStatus"
+              }
+            ],
+            "default": 0
+          },
+          "score": {
+            "title": "Score",
+            "type": "integer",
+            "default": 0
+          },
+          "time_ms": {
+            "title": "Time Ms",
+            "type": "integer",
+            "default": 0
+          },
+          "memory_kb": {
+            "title": "Memory Kb",
+            "type": "integer",
+            "default": 0
+          },
+          "domain": {
+            "title": "Domain",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/Domain"
+              }
+            ]
+          },
+          "problem": {
+            "title": "Problem",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/Problem"
+              }
+            ]
+          },
+          "problem_set": {
+            "title": "Problem Set",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/ProblemSet"
+              }
+            ]
+          },
+          "problem_data": {
+            "title": "Problem Data",
+            "type": "integer",
+            "default": 0
+          },
+          "user": {
+            "title": "User",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/UserBase"
+              }
+            ]
+          },
+          "code_type": {
+            "$ref": "#/components/schemas/RecordCodeType"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "judge_category": {
+            "title": "Judge Category",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "RecordCodeType": {
+        "title": "RecordCodeType",
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "description": "An enumeration."
+      },
+      "RecordStatus": {
+        "title": "RecordStatus",
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          20,
+          21,
+          22,
+          30
+        ],
+        "type": "integer",
+        "description": "An enumeration."
+      },
       "RedirectModel": {
         "title": "RedirectModel",
         "required": [
@@ -360,8 +2276,8 @@
           }
         }
       },
-      "UserBase": {
-        "title": "UserBase",
+      "User": {
+        "title": "User",
         "required": [
           "scope",
           "uname",
@@ -390,15 +2306,33 @@
           },
           "uname_lower": {
             "title": "Uname Lower",
-            "type": "string"
+            "type": "string",
+            "default": ""
           },
           "mail_lower": {
             "title": "Mail Lower",
-            "type": "string"
+            "type": "string",
+            "default": ""
           },
           "gravatar": {
             "title": "Gravatar",
-            "type": "string"
+            "type": "string",
+            "default": ""
+          },
+          "salt": {
+            "title": "Salt",
+            "type": "string",
+            "default": ""
+          },
+          "hash": {
+            "title": "Hash",
+            "type": "string",
+            "default": ""
+          },
+          "role": {
+            "title": "Role",
+            "type": "string",
+            "default": "user"
           },
           "student_id": {
             "title": "Student Id",
@@ -410,6 +2344,16 @@
             "type": "string",
             "default": ""
           },
+          "register_ip": {
+            "title": "Register Ip",
+            "type": "string",
+            "default": "0.0.0.0"
+          },
+          "login_ip": {
+            "title": "Login Ip",
+            "type": "string",
+            "default": "0.0.0.0"
+          },
           "register_timestamp": {
             "title": "Register Timestamp",
             "type": "string",
@@ -419,6 +2363,49 @@
             "title": "Login Timestamp",
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "UserBase": {
+        "title": "UserBase",
+        "required": [
+          "scope",
+          "uname",
+          "mail"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          },
+          "uname": {
+            "title": "Uname",
+            "type": "string"
+          },
+          "mail": {
+            "title": "Mail",
+            "type": "string",
+            "format": "email"
+          },
+          "uname_lower": {
+            "title": "Uname Lower",
+            "type": "string",
+            "default": ""
+          },
+          "mail_lower": {
+            "title": "Mail Lower",
+            "type": "string",
+            "default": ""
+          },
+          "gravatar": {
+            "title": "Gravatar",
+            "type": "string",
+            "default": ""
           }
         }
       },
