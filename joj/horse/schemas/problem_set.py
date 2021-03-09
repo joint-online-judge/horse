@@ -18,6 +18,7 @@ class EditProblemSet(BaseModel):
     title: Optional[NoneEmptyStr]
     content: Optional[str]
     hidden: Optional[bool]
+    labels: Optional[List[str]]
 
 
 class ProblemSet(BaseODMSchema):
@@ -27,6 +28,7 @@ class ProblemSet(BaseODMSchema):
     title: NoneEmptyStr
     content: str = ""
     hidden: bool = False
+    labels: List[str] = []
     num_submit: int = 0
     num_accept: int = 0
 
