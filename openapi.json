@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: eab015a",
+    "description": "Git version: f2b0354",
     "version": "0.0.0"
   },
   "paths": {
@@ -325,6 +325,59 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Domain"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/labels": {
+      "get": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "List Labels In Domain",
+        "operationId": "list_labels_in_domain_api_v1_domains__domain__labels_get",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response List Labels In Domain Api V1 Domains  Domain  Labels Get",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 }
               }
             }
@@ -818,6 +871,21 @@
         ],
         "summary": "List Problem Sets",
         "operationId": "list_problem_sets_api_v1_problem_sets_get",
+        "parameters": [
+          {
+            "required": false,
+            "schema": {
+              "title": "Required Labels",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": []
+            },
+            "name": "required_labels",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -829,6 +897,16 @@
                   "items": {
                     "$ref": "#/components/schemas/ProblemSet"
                   }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -1903,6 +1981,13 @@
           "hidden": {
             "title": "Hidden",
             "type": "boolean"
+          },
+          "labels": {
+            "title": "Labels",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -2093,6 +2178,14 @@
             "title": "Hidden",
             "type": "boolean",
             "default": false
+          },
+          "labels": {
+            "title": "Labels",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
           },
           "num_submit": {
             "title": "Num Submit",
