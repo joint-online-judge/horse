@@ -111,3 +111,16 @@ async def update_domain(
         domain_model.bulletin = edit_doamin.bulletin
     await domain_model.commit()
     return schemas.Domain.from_orm(domain_model)
+
+
+@router.get("/{domain}/labels", response_model=List[str])
+async def list_labels_in_domain(
+    domain: str = DomainPath, auth: Authentication = Depends(Authentication)
+) -> List[str]:
+    domain_model = await models.Domain.find_by_url_or_id(domain)
+    labels = [
+        label
+        async for problem_set in models.ProblemSet.find({"domain": domain_model.id})
+        for label in schemas.ProblemSet.from_orm(problem_set).labels
+    ]
+    return labels

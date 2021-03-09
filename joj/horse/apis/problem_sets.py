@@ -20,11 +20,13 @@ router_prefix = "/api/v1"
 
 @router.get("", response_model=List[schemas.ProblemSet])
 async def list_problem_sets(
+    required_labels: List[str] = Query([]),
     auth: Authentication = Depends(Authentication),
 ) -> List[schemas.ProblemSet]:
     return [
         schemas.ProblemSet.from_orm(problem_set)
         async for problem_set in models.ProblemSet.find({"owner": auth.user.id})
+        if all(label in problem_set.labels for label in required_labels)
     ]
 
 
@@ -58,7 +60,7 @@ async def create_problem_set(
                     problems_models[i] = problem_model.id
                 logger.info("problems_models: %s", problems_models)
                 problem_set = schemas.ProblemSet(
-                    title=title,
+                    title=title,  # type: ignore
                     content=content,
                     hidden=hidden,
                     domain=domain.id,
@@ -101,5 +103,7 @@ async def update_problem_set(
         problem_set.content = edit_problem_set.content
     if edit_problem_set.hidden is not None:
         problem_set.hidden = edit_problem_set.hidden
+    if edit_problem_set.labels is not None:
+        problem_set.labels = edit_problem_set.labels
     await problem_set.commit()
     return schemas.ProblemSet.from_orm(problem_set)
