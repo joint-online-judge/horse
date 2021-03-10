@@ -1,10 +1,11 @@
 from typing import Optional
 
-from fastapi import Depends, Query
+from fastapi import Depends, Path, Query
 
 from joj.horse import models
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.errors import (
+    DomainNotFoundError,
     InvalidAuthenticationError,
     ProblemGroupNotFoundError,
     ProblemNotFoundError,
@@ -65,3 +66,13 @@ async def parse_record(record: str, auth: Authentication = Depends()) -> models.
     if record_model and record_model.user == auth.user:
         return record_model
     raise RecordNotFoundError(record)
+
+
+async def parse_domain(
+    domain: str = Path(..., description="url or ObjectId of the domain"),
+    auth: Authentication = Depends(),
+) -> models.Domain:
+    domain_model = await models.Domain.find_by_url_or_id(domain)
+    if domain_model and domain_model.owner == auth.user:
+        return domain_model
+    raise DomainNotFoundError(domain)
