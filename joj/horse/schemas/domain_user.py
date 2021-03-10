@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 
 from pydantic import validator
 from pydantic.typing import AnyCallable
@@ -21,7 +21,7 @@ class DomainUser(BaseODMSchema):
     join_at: Optional[datetime] = None
 
     @validator("join_at", pre=True, always=True)
-    def default_join_at(cls, v, *, values, **kwargs):
+    def default_join_at(cls, v: datetime, *, values: Any, **kwargs: Any) -> datetime:
         return v or datetime.utcnow()
 
     _validator_domain: Callable[

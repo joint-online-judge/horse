@@ -1,5 +1,5 @@
 import abc
-from typing import Any, Dict, Optional, Set
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import jwt
 from fastapi import Depends, HTTPException, Request, status
@@ -61,7 +61,7 @@ class Settings(BaseModel):
 
 
 @AuthJWT.load_config
-def get_config():
+def get_config() -> Settings:
     return Settings(
         authjwt_secret_key=settings.jwt_secret,
         authjwt_algorithm=settings.jwt_algorithm,
@@ -73,12 +73,12 @@ def get_config():
 
 
 @app.exception_handler(AuthJWTException)
-def authjwt_exception_handler(request: Request, exc: AuthJWTException):
+def authjwt_exception_handler(request: Request, exc: AuthJWTException) -> JSONResponse:
     # noinspection PyUnresolvedReferences
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
 
 
-def jwt_token_encode(token: JWTToken):
+def jwt_token_encode(token: JWTToken) -> bytes:
     encoded_jwt = jwt.encode(
         token.dict(), settings.jwt_secret, algorithm=settings.jwt_algorithm
     )
@@ -109,7 +109,9 @@ def auth_jwt_encode(auth_jwt: AuthJWT, user: User, channel: str = "") -> str:
 
 
 # noinspection PyBroadException
-async def get_current_user(jwt_decoded=Depends(auth_jwt_decode)) -> Optional[User]:
+async def get_current_user(
+    jwt_decoded: JWTToken = Depends(auth_jwt_decode),
+) -> Optional[User]:
     try:
         user = await User.find_by_uname(scope=jwt_decoded.scope, uname=jwt_decoded.name)
         return user
@@ -117,14 +119,14 @@ async def get_current_user(jwt_decoded=Depends(auth_jwt_decode)) -> Optional[Use
         return None
 
 
-def get_site_role(user: Optional[User] = Depends(get_current_user)):
+def get_site_role(user: Optional[User] = Depends(get_current_user)) -> str:
     if user:
         return user.role
     # the default site role is guest
     return DefaultRole.GUEST
 
 
-def get_site_permission(site_role: str = Depends(get_site_role)):
+def get_site_permission(site_role: str = Depends(get_site_role)) -> SitePermission:
     if site_role in DEFAULT_SITE_PERMISSION:
         return DEFAULT_SITE_PERMISSION[DefaultRole(site_role)]
     else:
@@ -187,7 +189,7 @@ class BaseAuthentication(metaclass=abc.ABCMeta):
         self.domain_permission = domain_permission.dump()
 
     def check(self, scope: ScopeType, permission: PermissionType) -> bool:
-        def _check(permissions: Optional[Dict[str, Any]]):
+        def _check(permissions: Optional[Dict[str, Any]]) -> bool:
             # print(permissions)
             if permissions is None:
                 return False
@@ -218,7 +220,7 @@ class BaseAuthentication(metaclass=abc.ABCMeta):
                 detail="{} {} Permission Denied.".format(scope, permission),
             )
 
-    def ensure_or(self, *args) -> None:
+    def ensure_or(self, *args: Any) -> None:
         if not args:
             return
         scope, permission = (ScopeType.UNKNOWN, PermissionType.UNKNOWN)
@@ -234,7 +236,8 @@ class BaseAuthentication(metaclass=abc.ABCMeta):
             detail="{} {} Permission Denied.".format(scope, permission),
         )
 
-    def ensure_and(self, *args) -> None:
+    # TODO: better annotations
+    def ensure_and(self, *args: Any) -> None:
         for arg in args:
             self.ensure(*arg)
 

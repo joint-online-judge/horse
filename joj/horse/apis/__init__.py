@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Any, Callable
 
 from fastapi import FastAPI
 
@@ -16,7 +16,7 @@ from joj.horse.apis import (
 from joj.horse.apis.problems import submit_solution_to_problem
 
 
-def include_router(module):
+def include_router(module: Any) -> None:
     app.include_router(
         module.router,
         prefix=module.router_prefix

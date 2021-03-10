@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import List, Type
+from typing import Any, List, Type
 
 from motor.motor_asyncio import AsyncIOMotorClient
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument, MotorAsyncIOInstance
@@ -11,7 +11,7 @@ instance = MotorAsyncIOInstance()
 
 
 @lru_cache()
-def get_db():
+def get_db() -> Any:
     logger.info("Starting mongodb connection.")
     client = AsyncIOMotorClient(settings.db_host, settings.db_port)
     db = client.get_database(settings.db_name)
@@ -33,7 +33,7 @@ collections: List[Type[MotorAsyncIODocument]] = [
 ]
 
 
-async def ensure_indexes():
+async def ensure_indexes() -> None:
     for model in collections:
         logger.info('Ensure indexes for "%s".' % model.opts.collection_name)
         await model.ensure_indexes()

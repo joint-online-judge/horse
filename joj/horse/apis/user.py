@@ -2,9 +2,8 @@ from typing import List, Union
 
 import aiohttp
 import jwt
-from fastapi import Cookie, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Query, Request, status
 from fastapi_jwt_auth import AuthJWT
-from fastapi_utils.inferring_router import InferringRouter
 from starlette.responses import JSONResponse, RedirectResponse
 from uvicorn.config import logger
 
@@ -15,7 +14,7 @@ from joj.horse.utils.oauth import jaccount
 from joj.horse.utils.parser import parse_uid
 from joj.horse.utils.url import generate_url
 
-router = InferringRouter()
+router = APIRouter()
 router_name = "user"
 router_tag = "user"
 router_prefix = "/api/v1"
@@ -34,7 +33,7 @@ async def logout(
         "If false (ajax mode), return the redirect url, "
         "you also need to unset all cookies manually in ajax mode.",
     ),
-):
+) -> RedirectModel:
     if auth.jwt and auth.jwt.channel == "jaccount":
         url = get_jaccount_logout_url(redirect_url=redirect_url)
     else:
@@ -85,7 +84,7 @@ async def jaccount_auth(
     auth_jwt: AuthJWT = Depends(AuthJWT),
     jaccount_state: str = Cookie(""),
     redirect_url: str = Cookie(generate_url()),
-):
+) -> RedirectResponse:
     client = jaccount.get_client()
     if client is None:
         raise HTTPException(
@@ -140,7 +139,7 @@ async def jaccount_auth(
     return response
 
 
-def get_jaccount_logout_url(redirect_url) -> str:
+def get_jaccount_logout_url(redirect_url: str) -> str:
     client = jaccount.get_client()
     if client is None:
         raise HTTPException(

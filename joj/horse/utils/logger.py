@@ -1,5 +1,6 @@
 import inspect
 import os
+from typing import Any
 
 from uvicorn.config import LOGGING_CONFIG
 from uvicorn.logging import AccessFormatter, ColourizedFormatter, DefaultFormatter
@@ -7,9 +8,9 @@ from uvicorn.logging import AccessFormatter, ColourizedFormatter, DefaultFormatt
 import joj.horse
 
 
-def colourize(record, msg):
-    def color_level(level_name, level_no):
-        def default(level_name):
+def colourize(record: Any, msg: str) -> str:
+    def color_level(level_name: str, level_no: int) -> str:
+        def default(level_name: str) -> str:
             return str(level_name)
 
         func = ColourizedFormatter.level_name_colors.get(level_no, default)
@@ -22,7 +23,7 @@ def colourize(record, msg):
 class PathTruncatingFormatter(DefaultFormatter):
     MODULE_DIR = os.path.dirname(inspect.getfile(joj.horse))
 
-    def format(self, record):
+    def format(self, record: Any) -> str:
         if "pathname" in record.__dict__ and "lineno" in record.__dict__:
             relative_path = os.path.relpath(
                 record.pathname, PathTruncatingFormatter.MODULE_DIR
@@ -36,7 +37,7 @@ class PathTruncatingFormatter(DefaultFormatter):
 
 
 class MyColourizedFormatter(AccessFormatter):
-    def format(self, record):
+    def format(self, record: Any) -> str:
         msg = super(MyColourizedFormatter, self).format(record)
         return colourize(record, msg) if self.use_colors else msg
 

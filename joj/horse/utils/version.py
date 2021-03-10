@@ -3,11 +3,11 @@ import pbr.version
 from uvicorn.config import logger
 
 
-def get_version():
+def get_version() -> str:
     return str(pbr.version.VersionInfo("joj.horse"))
 
 
-def get_git_version():
+def get_git_version() -> str:
     try:
         return git.Repo(__file__, search_parent_directories=True).git.describe(
             always=True, tags=True

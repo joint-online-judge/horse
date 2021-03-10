@@ -1,5 +1,6 @@
 import re
 from datetime import datetime
+from typing import Any, Dict
 
 from pydantic import EmailStr, validator
 
@@ -19,21 +20,25 @@ class UserBase(BaseODMSchema):
     gravatar: str = ""
 
     @validator("uname", pre=True)
-    def validate_uname(cls, v: str):
+    def validate_uname(cls, v: str) -> str:
         if not UNAME_RE.fullmatch(v):
             raise ValueError("uname")
         return v
 
     @validator("uname_lower", pre=True, always=True)
-    def default_uname_lower(cls, v, *, values, **kwargs):
+    def default_uname_lower(
+        cls, v: str, *, values: Dict[str, str], **kwargs: Any
+    ) -> str:
         return v or values["uname"].strip().lower()
 
     @validator("mail_lower", pre=True, always=True)
-    def default_mail_lower(cls, v, *, values, **kwargs):
+    def default_mail_lower(
+        cls, v: str, *, values: Dict[str, str], **kwargs: Any
+    ) -> str:
         return v or values["mail"].strip().lower()
 
     @validator("gravatar", pre=True, always=True)
-    def default_gravatar(cls, v, *, values, **kwargs):
+    def default_gravatar(cls, v: str, *, values: Dict[str, str], **kwargs: Any) -> str:
         return v or values["mail"].strip().lower()
 
 
@@ -52,9 +57,9 @@ class User(UserBase):
     login_timestamp: datetime
 
     @validator("register_timestamp", pre=True, always=True)
-    def default_register_timestamp(cls, v):
+    def default_register_timestamp(cls, v: datetime) -> datetime:
         return v or datetime.utcnow()
 
     @validator("login_timestamp", pre=True, always=True)
-    def default_login_timestamp(cls, v):
+    def default_login_timestamp(cls, v: datetime) -> datetime:
         return v or datetime.utcnow()

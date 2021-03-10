@@ -1,8 +1,20 @@
-from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Generator,
+    Optional,
+    Type,
+    TypeVar,
+    Union,
+)
 
 from bson import ObjectId
 from pydantic import BaseModel, ConstrainedStr, validator
+from pydantic.typing import AnyCallable
 from umongo.frameworks.motor_asyncio import MotorAsyncIOReference
+
+from joj.horse.models.base import DocumentMixin
 
 if TYPE_CHECKING:
     from pydantic.typing import AbstractSetIntStr, DictIntStrAny, DictStrAny
@@ -17,11 +29,13 @@ class NoneEmptyStr(ConstrainedStr):
 
 class PydanticObjectId(str):
     @classmethod
-    def __get_validators__(cls):
+    def __get_validators__(
+        cls,
+    ) -> Generator[Callable[[Union[str, Any]], str], None, None]:
         yield cls.validate
 
     @classmethod
-    def validate(cls, v):
+    def validate(cls, v: Union[str, ObjectId]) -> str:
         if isinstance(v, str):
             v = ObjectId(v)
         elif not isinstance(v, ObjectId):
@@ -49,7 +63,9 @@ class BaseODMSchema(BaseModel):
         return document
 
     @classmethod
-    def from_orm(cls: Type["Model"], obj: Any, unfetch_all=True) -> "Model":
+    def from_orm(
+        cls: Type["Model"], obj: DocumentMixin, unfetch_all: bool = True
+    ) -> "Model":
         if unfetch_all:
             obj.unfetch_all()
         return super(BaseODMSchema, cls).from_orm(obj)  # type: ignore
@@ -78,7 +94,9 @@ T = TypeVar("T")
 ReferenceSchema = Union[PydanticObjectId, T]
 
 
-def reference_schema_validator(field, schema_type, each_item=False):
+def reference_schema_validator(
+    field: str, schema_type: Any, each_item: bool = False
+) -> Any:
     def wrapped(
         v: MotorAsyncIOReference,
     ) -> Union[PydanticObjectId, Type[BaseODMSchema]]:

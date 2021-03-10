@@ -1,8 +1,7 @@
 from http import HTTPStatus
 from typing import List
 
-from fastapi import Depends, Query
-from fastapi_utils.inferring_router import InferringRouter
+from fastapi import APIRouter, Depends, Query
 from starlette.responses import Response
 from uvicorn.config import logger
 
@@ -21,7 +20,7 @@ from joj.horse.utils.parser import (
     parse_uid,
 )
 
-router = InferringRouter()
+router = APIRouter()
 router_name = "problem_groups"
 router_tag = "problem group"
 router_prefix = "/api/v1"

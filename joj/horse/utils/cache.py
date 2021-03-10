@@ -9,7 +9,7 @@ from joj.horse.config import settings
 
 
 @lru_cache()
-def init_cache():
+def init_cache() -> None:
     caches.set_config(
         {
             "default": {
@@ -34,7 +34,7 @@ def get_cache(name: str) -> BaseCache:
 
 
 @retry(stop=stop_after_attempt(2), wait=wait_fixed(1))
-async def test_cache():
+async def test_cache() -> None:
     attempt_number = test_cache.retry.statistics["attempt_number"]
     if attempt_number == 1:
         logger.info("Starting redis cache connection.")

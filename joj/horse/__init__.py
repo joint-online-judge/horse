@@ -25,7 +25,7 @@ app = FastAPI(
 
 
 @app.on_event("startup")
-async def startup_event():
+async def startup_event() -> None:
     try:
         logger.info("Using %s." % asyncio.get_running_loop().__module__)
         await test_cache()
@@ -39,13 +39,15 @@ async def startup_event():
 
 # we temporarily redirect "/" to "/api/v1" for debugging
 @app.get("/")
-async def redirect_to_docs():
+async def redirect_to_docs() -> RedirectResponse:
     redirect_url = generate_url("/api/v1")
     return RedirectResponse(redirect_url)
 
 
 @app.exception_handler(ValidationError)
-async def validation_exception_handler(request: Request, exc: ValidationError):
+async def validation_exception_handler(
+    request: Request, exc: ValidationError
+) -> JSONResponse:
     return JSONResponse(
         content=jsonable_encoder({"detail": exc.errors()}),
         status_code=HTTPStatus.UNPROCESSABLE_ENTITY.value,

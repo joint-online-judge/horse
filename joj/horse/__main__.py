@@ -6,7 +6,7 @@ from joj.horse.utils.logger import log_config
 
 
 @cli_command()
-def main():
+def main() -> None:
     uvicorn.run(
         "joj.horse:app",
         host=settings.host,

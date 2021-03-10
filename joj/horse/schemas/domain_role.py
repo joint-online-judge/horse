@@ -21,11 +21,13 @@ class DomainRole(BaseODMSchema):
     updated_at: datetime = datetime.utcnow()
 
     @validator("permission", pre=True, always=True)
-    def default_permission(cls, v, *, values, **kwargs):
+    def default_permission(
+        cls, v: Any, *, values: Any, **kwargs: Any
+    ) -> Dict[str, Any]:
         return v or DomainPermission().dump()
 
     @validator("updated_at", pre=True, always=True)
-    def default_updated_at(cls, v, *, values, **kwargs):
+    def default_updated_at(cls, v: datetime, *, values: Any, **kwargs: Any) -> datetime:
         return v or datetime.utcnow()
 
     _validator_domain: Callable[
