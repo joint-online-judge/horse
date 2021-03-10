@@ -7,7 +7,7 @@ from joj.horse.config import settings
 
 
 @lru_cache()
-def get_client():
+def get_client() -> oauth_jaccount.JaccountClient:
     if not settings.oauth_jaccount:
         return None
     return oauth_jaccount.JaccountClient(

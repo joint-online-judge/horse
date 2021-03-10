@@ -1,11 +1,9 @@
 from http import HTTPStatus
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from bson import ObjectId
-from fastapi import Depends, Query
-from fastapi_utils.inferring_router import InferringRouter
+from fastapi import APIRouter, Depends, Query, Response
 from marshmallow.exceptions import ValidationError
-from starlette.responses import Response
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
@@ -13,13 +11,9 @@ from joj.horse.apis.base import DomainPath
 from joj.horse.models.permission import DefaultRole, PermissionType, ScopeType
 from joj.horse.utils.auth import Authentication, DomainAuthentication
 from joj.horse.utils.db import instance
-from joj.horse.utils.errors import (
-    DomainNotFoundError,
-    InvalidAuthenticationError,
-    InvalidDomainURLError,
-)
+from joj.horse.utils.errors import InvalidAuthenticationError, InvalidDomainURLError
 
-router = InferringRouter()
+router = APIRouter()
 router_name = "domains"
 router_tag = "domain"
 router_prefix = "/api/v1"
@@ -91,11 +85,13 @@ async def get_domain(auth: DomainAuthentication = Depends()) -> schemas.Domain:
     return schemas.Domain.from_orm(auth.domain)
 
 
-@router.delete("/{domain}", status_code=HTTPStatus.NO_CONTENT)
-async def delete_domain(domain: str = DomainPath, auth: Authentication = Depends()):
+@router.delete("/{domain}", status_code=HTTPStatus.NO_CONTENT, response_class=Response)
+async def delete_domain(
+    domain: str = DomainPath, auth: Authentication = Depends()
+) -> None:
     # TODO: finish this part
-    # await domain.delete()
-    return Response(status_code=HTTPStatus.NO_CONTENT.value)
+    domain_model = await models.Domain.find_by_url_or_id(domain)
+    await domain_model.delete()
 
 
 @router.patch("/{domain}", response_model=schemas.Domain)

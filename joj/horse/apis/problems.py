@@ -1,10 +1,8 @@
 from http import HTTPStatus
-from typing import Callable, List
+from typing import Callable, List, NoReturn
 
-from fastapi import Body, Depends, File, Query, UploadFile
-from fastapi_utils.inferring_router import InferringRouter
+from fastapi import APIRouter, Body, Depends, File, Query, Response, UploadFile
 from motor.motor_asyncio import AsyncIOMotorGridFSBucket
-from starlette.responses import Response
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
@@ -17,7 +15,7 @@ from joj.horse.utils.errors import (
 )
 from joj.horse.utils.parser import parse_problem, parse_problem_set, parse_uid
 
-router = InferringRouter()
+router = APIRouter()
 router_name = "problems"
 router_tag = "problem"
 router_prefix = "/api/v1"
@@ -80,14 +78,13 @@ async def get_problem(
     return schemas.Problem.from_orm(problem)
 
 
-@router.delete("/{problem}", status_code=HTTPStatus.NO_CONTENT)
-async def delete_problem(problem: models.Problem = Depends(parse_problem)):
+@router.delete("/{problem}", status_code=HTTPStatus.NO_CONTENT, response_class=Response)
+async def delete_problem(problem: models.Problem = Depends(parse_problem)) -> None:
     # TODO: optimize
     async for problem_set in models.ProblemSet.find():
         if problem in problem_set:
             raise DeleteProblemBadRequestError
     await problem.delete()
-    return Response(status_code=HTTPStatus.NO_CONTENT.value)
 
 
 @router.patch("/{problem}", response_model=schemas.Problem)
@@ -184,17 +181,20 @@ async def submit_solution_to_problem(
     return schemas.Record.from_orm(record)
 
 
-@router.delete("/{problem_set}/{problem}", status_code=HTTPStatus.NO_CONTENT)
+@router.delete(
+    "/{problem_set}/{problem}",
+    status_code=HTTPStatus.NO_CONTENT,
+    response_class=Response,
+)
 async def delete_problem_from_problem_set(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
     problem: models.Problem = Depends(parse_problem),
     auth: Authentication = Depends(),
-):
+) -> None:
     if problem not in problem_set.problems:
         raise ProblemNotFoundError(problem.id)
     problem_set.problems.remove(problem)
     await problem_set.commit()
-    return Response(status_code=HTTPStatus.NO_CONTENT.value)
 
 
 @router.put("/{problem_set}/{problem}", response_model=schemas.ProblemSet)

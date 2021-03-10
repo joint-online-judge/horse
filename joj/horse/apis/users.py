@@ -1,13 +1,12 @@
 from typing import List, Union
 
-from fastapi import Depends
-from fastapi_utils.inferring_router import InferringRouter
+from fastapi import APIRouter, Depends
 
 from joj.horse import models, schemas
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.parser import parse_uid
 
-router = InferringRouter()
+router = APIRouter()
 router_name = "users"
 router_tag = "user"
 router_prefix = "/api/v1"

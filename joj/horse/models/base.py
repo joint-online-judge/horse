@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Any, Type
 
 from bson import ObjectId
 from umongo.data_objects import Dict, List, Reference
@@ -11,16 +11,16 @@ class DocumentMixin:
     __slots__ = ()
 
     @classmethod
-    async def find_by_id(cls: MotorAsyncIODocument, _id):
+    async def find_by_id(cls: MotorAsyncIODocument, _id: str) -> Any:
         if not ObjectId.is_valid(_id):
             raise UnprocessableEntityError("Invalid ObjectId")
         return await cls.find_one({"_id": ObjectId(_id)})
 
     @classmethod
-    def aggregate(cls: MotorAsyncIODocument, pipeline, **kwargs):
+    def aggregate(cls: MotorAsyncIODocument, pipeline: Any, **kwargs: Any) -> Any:
         return cls.collection.aggregate(pipeline, **kwargs)
 
-    def unfetch_all(self: MotorAsyncIODocument):
+    def unfetch_all(self: MotorAsyncIODocument) -> None:
         for field in self._data.values():
             if isinstance(field, Reference):
                 field._document = None

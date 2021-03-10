@@ -1,9 +1,7 @@
 from http import HTTPStatus
 from typing import List, Optional
 
-from fastapi import Depends, Query
-from fastapi_utils.inferring_router import InferringRouter
-from starlette.responses import Response
+from fastapi import APIRouter, Depends, Query, Response
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
@@ -12,7 +10,7 @@ from joj.horse.utils.db import instance
 from joj.horse.utils.errors import InvalidAuthenticationError, ProblemNotFoundError
 from joj.horse.utils.parser import parse_problem_set
 
-router = InferringRouter()
+router = APIRouter()
 router_name = "problem_sets"
 router_tag = "problem set"
 router_prefix = "/api/v1"
@@ -84,12 +82,13 @@ async def get_problem_set(
     return schemas.ProblemSet.from_orm(problem_set)
 
 
-@router.delete("/{problem_set}", status_code=HTTPStatus.NO_CONTENT)
+@router.delete(
+    "/{problem_set}", status_code=HTTPStatus.NO_CONTENT, response_class=Response
+)
 async def delete_problem_set(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
-):
+) -> None:
     await problem_set.delete()
-    return Response(status_code=HTTPStatus.NO_CONTENT.value)
 
 
 @router.patch("/{problem_set}", response_model=schemas.ProblemSet)

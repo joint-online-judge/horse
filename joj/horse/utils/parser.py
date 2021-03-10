@@ -15,8 +15,7 @@ from joj.horse.utils.errors import (
 
 
 async def parse_uid(
-    uid: Optional[str] = Query("me", description="uid or 'me'"),
-    auth: Authentication = Depends(),
+    uid: str = Query("me", description="uid or 'me'"), auth: Authentication = Depends()
 ) -> models.User:
     if uid == "me":
         if auth.user:

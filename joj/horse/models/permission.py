@@ -212,7 +212,7 @@ def __get_default_permission(
     return obj
 
 
-def __get_default_domain_permission(value: Optional[bool] = None):
+def __get_default_domain_permission(value: Optional[bool] = None) -> DomainPermission:
     return DomainPermission(
         general=__get_default_permission(GeneralPermission, value),
         problem=__get_default_permission(ProblemPermission, value),
@@ -223,7 +223,7 @@ def __get_default_domain_permission(value: Optional[bool] = None):
 
 def __get_default_site_permission(
     value1: Optional[bool] = None, value2: Optional[bool] = None
-):
+) -> SitePermission:
     return SitePermission(
         **__get_default_domain_permission(value1).dump(),
         user=__get_default_permission(UserSpecificPermission, value2),

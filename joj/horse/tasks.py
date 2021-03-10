@@ -14,7 +14,7 @@ celery_app.conf.update(
 
 
 @celery_app.task(name="joj.horse.compile")
-def compile_task_end(result) -> None:
+def compile_task_end(result: str) -> None:
     print(result)
 
 
