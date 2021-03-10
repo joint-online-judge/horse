@@ -7,11 +7,11 @@ from marshmallow.exceptions import ValidationError
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
-from joj.horse.apis.base import DomainPath
 from joj.horse.models.permission import DefaultRole, PermissionType, ScopeType
 from joj.horse.utils.auth import Authentication, DomainAuthentication
 from joj.horse.utils.db import instance
 from joj.horse.utils.errors import InvalidAuthenticationError, InvalidDomainURLError
+from joj.horse.utils.parser import parse_domain
 
 router = APIRouter()
 router_name = "domains"
@@ -21,7 +21,7 @@ router_prefix = "/api/v1"
 
 @router.get("", response_model=List[schemas.Domain])
 async def list_domains(
-    auth: Authentication = Depends(Authentication), uid: Optional[str] = None
+    auth: Authentication = Depends(Authentication),
 ) -> List[schemas.Domain]:
     """
     List all domains in which {user} has a role.
@@ -87,33 +87,31 @@ async def get_domain(auth: DomainAuthentication = Depends()) -> schemas.Domain:
 
 @router.delete("/{domain}", status_code=HTTPStatus.NO_CONTENT, response_class=Response)
 async def delete_domain(
-    domain: str = DomainPath, auth: Authentication = Depends()
+    domain: models.Domain = Depends(parse_domain), auth: Authentication = Depends()
 ) -> None:
     # TODO: finish this part
-    domain_model = await models.Domain.find_by_url_or_id(domain)
-    await domain_model.delete()
+    await domain.delete()
 
 
 @router.patch("/{domain}", response_model=schemas.Domain)
 async def update_domain(
     edit_doamin: schemas.EditDomain,
-    domain: str = DomainPath,
+    domain: models.Domain = Depends(parse_domain),
     auth: Authentication = Depends(Authentication),
 ) -> schemas.Domain:
-    domain_model = await models.Domain.find_by_url_or_id(domain)
-    domain_model.update_from_schema(edit_doamin)
-    await domain_model.commit()
-    return schemas.Domain.from_orm(domain_model)
+    domain.update_from_schema(edit_doamin)
+    await domain.commit()
+    return schemas.Domain.from_orm(domain)
 
 
 @router.get("/{domain}/labels", response_model=List[str])
 async def list_labels_in_domain(
-    domain: str = DomainPath, auth: Authentication = Depends(Authentication)
+    domain: models.Domain = Depends(parse_domain),
+    auth: Authentication = Depends(Authentication),
 ) -> List[str]:
-    domain_model = await models.Domain.find_by_url_or_id(domain)
     labels = [
         label
-        async for problem_set in models.ProblemSet.find({"domain": domain_model.id})
+        async for problem_set in models.ProblemSet.find({"domain": domain.id})
         for label in schemas.ProblemSet.from_orm(problem_set).labels
     ]
     return labels
