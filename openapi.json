@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 38f9480",
+    "description": "Git version: 911bffc",
     "version": "0.0.0"
   },
   "paths": {
@@ -77,17 +77,6 @@
         "summary": "List Domains",
         "description": "List all domains in which {user} has a role.\nUse current login user if {user} is not specified.",
         "operationId": "list_domains_api_v1_domains_get",
-        "parameters": [
-          {
-            "required": false,
-            "schema": {
-              "title": "Uid",
-              "type": "string"
-            },
-            "name": "uid",
-            "in": "query"
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -99,16 +88,6 @@
                   "items": {
                     "$ref": "#/components/schemas/Domain"
                   }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
