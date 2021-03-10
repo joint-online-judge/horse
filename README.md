@@ -9,18 +9,6 @@ The new generation of JOJ Backend. "Horse" is related to speed, an excellent fea
 + rabbitmq
 + redis
 
-## Misc
-
-`pylint` is used as default linter. For your ease, you may need to add the following to `~/.pylintrc`(especially for VSCode users).
-
-```;
-[MASTER]
-init-hook='import sys; sys.path.append("YOUR_PATH_TO_HORSE")
-extension-pkg-whitelist=pydantic
-disable=
-    C0114, # missing-module-docstring
-```
-
 ## Installation
 
 Refer to <https://joint-online-judge.github.io/horse/> to prepare your environment.
