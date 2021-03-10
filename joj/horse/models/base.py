@@ -1,6 +1,7 @@
 from typing import Any, Type
 
 from bson import ObjectId
+from pydantic.main import BaseModel
 from umongo.data_objects import Dict, List, Reference
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 
@@ -34,3 +35,6 @@ class DocumentMixin:
                         key._document = None
                     if isinstance(value, Reference):
                         value._document = None
+
+    def update_from_schema(self: MotorAsyncIODocument, schema: BaseModel) -> None:
+        self.update({k: v for k, v in schema.__dict__.items() if v is not None})

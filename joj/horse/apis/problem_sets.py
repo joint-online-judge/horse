@@ -96,13 +96,6 @@ async def update_problem_set(
     edit_problem_set: schemas.EditProblemSet,
     problem_set: models.ProblemSet = Depends(parse_problem_set),
 ) -> schemas.ProblemSet:
-    if edit_problem_set.title is not None:
-        problem_set.title = edit_problem_set.title
-    if edit_problem_set.content is not None:
-        problem_set.content = edit_problem_set.content
-    if edit_problem_set.hidden is not None:
-        problem_set.hidden = edit_problem_set.hidden
-    if edit_problem_set.labels is not None:
-        problem_set.labels = edit_problem_set.labels
+    problem_set.update_from_schema(edit_problem_set)
     await problem_set.commit()
     return schemas.ProblemSet.from_orm(problem_set)

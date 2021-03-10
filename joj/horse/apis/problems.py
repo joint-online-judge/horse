@@ -91,18 +91,7 @@ async def delete_problem(problem: models.Problem = Depends(parse_problem)) -> No
 async def update_problem(
     edit_problem: schemas.EditProblem, problem: models.Problem = Depends(parse_problem)
 ) -> schemas.Problem:
-    if edit_problem.title is not None:
-        problem.title = edit_problem.title
-    if edit_problem.content is not None:
-        problem.content = edit_problem.content
-    if edit_problem.hidden is not None:
-        problem.hidden = edit_problem.hidden
-    if edit_problem.data is not None:
-        problem.data = edit_problem.data
-    if edit_problem.data_version is not None:
-        problem.data_version = edit_problem.data_version
-    if edit_problem.languages is not None:
-        problem.languages = edit_problem.languages
+    problem.update_from_schema(edit_problem)
     await problem.commit()
     return schemas.Problem.from_orm(problem)
 

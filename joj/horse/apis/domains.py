@@ -101,10 +101,7 @@ async def update_domain(
     auth: Authentication = Depends(Authentication),
 ) -> schemas.Domain:
     domain_model = await models.Domain.find_by_url_or_id(domain)
-    if edit_doamin.gravatar is not None:
-        domain_model.gravatar = edit_doamin.gravatar
-    if edit_doamin.bulletin is not None:
-        domain_model.bulletin = edit_doamin.bulletin
+    domain_model.update_from_schema(edit_doamin)
     await domain_model.commit()
     return schemas.Domain.from_orm(domain_model)
 
