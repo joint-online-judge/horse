@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: f2b0354",
+    "description": "Git version: a33a577",
     "version": "0.0.0"
   },
   "paths": {
