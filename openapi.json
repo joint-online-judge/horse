@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 2b3e136",
+    "description": "Git version: d899695",
     "version": "0.0.0"
   },
   "paths": {
@@ -1921,6 +1921,10 @@
         "title": "EditDomain",
         "type": "object",
         "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
           "gravatar": {
             "title": "Gravatar",
             "type": "string"
