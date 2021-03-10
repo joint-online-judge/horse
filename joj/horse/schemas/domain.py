@@ -5,7 +5,6 @@ from pydantic.typing import AnyCallable
 
 from joj.horse.schemas.base import (
     BaseODMSchema,
-    NoneEmptyStr,
     ReferenceSchema,
     reference_schema_validator,
 )
@@ -13,6 +12,7 @@ from joj.horse.schemas.user import UserBase
 
 
 class EditDomain(BaseModel):
+    name: Optional[str]
     gravatar: Optional[str]
     bulletin: Optional[str]
 
