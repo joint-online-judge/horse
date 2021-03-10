@@ -3,6 +3,7 @@ aiohttp>=3.7.3
 celery>=4.4
 click>=7
 fastapi-jwt-auth
+fastapi-utils
 fastapi-versioning
 fastapi[all]>=0.63.0
 gitpython>=3.1.7
