@@ -1,5 +1,4 @@
-import abc
-from typing import Any, Dict, Optional, Set
+from typing import Any, Callable, Dict, Optional, Set
 
 import jwt
 from fastapi import Depends, HTTPException, Request, status
@@ -168,25 +167,23 @@ async def get_domain_permission(
         return DEFAULT_DOMAIN_PERMISSION[DefaultRole.GUEST]
 
 
-class BaseAuthentication(metaclass=abc.ABCMeta):
-    @abc.abstractmethod
+class Authentication:
     def __init__(
         self,
-        jwt_decoded: Optional[JWTToken],
-        user: Optional[User],
-        site_role: str,
-        site_permission: SitePermission,
-        domain: Optional[Domain],
-        domain_role: str,
-        domain_permission: DomainPermission,
+        jwt_decoded: Optional[JWTToken] = Depends(auth_jwt_decode),
+        user: Optional[User] = Depends(get_current_user),
+        site_role: str = Depends(get_site_role),
+        site_permission: SitePermission = Depends(get_site_permission),
     ):
-        self.jwt = jwt_decoded
-        self.user = user
-        self.site_role = site_role
-        self.site_permission = site_permission.dump()
-        self.domain = domain
-        self.domain_role = domain_role
-        self.domain_permission = domain_permission.dump()
+        self.jwt: Optional[JWTToken] = jwt_decoded
+        self.user: Optional[User] = user
+        self.site_role: str = site_role
+        self.site_permission: SitePermission = site_permission.dump()
+        self.domain: Optional[Domain] = None
+        self.domain_role: str = DefaultRole.GUEST
+        self.domain_permission: DomainPermission = DEFAULT_DOMAIN_PERMISSION[
+            DefaultRole.GUEST
+        ].dump()
 
     def check(self, scope: ScopeType, permission: PermissionType) -> bool:
         def _check(permissions: Optional[Dict[str, Any]]) -> bool:
@@ -242,42 +239,46 @@ class BaseAuthentication(metaclass=abc.ABCMeta):
             self.ensure(*arg)
 
 
-class Authentication(BaseAuthentication):
+class DomainAuthentication:
     def __init__(
         self,
-        jwt_decoded: Optional[JWTToken] = Depends(auth_jwt_decode),
-        user: Optional[User] = Depends(get_current_user),
-        site_role: str = Depends(get_site_role),
-        site_permission: SitePermission = Depends(get_site_permission),
-    ):
-        super().__init__(
-            jwt_decoded,
-            user,
-            site_role,
-            site_permission,
-            domain=None,
-            domain_role=DefaultRole.GUEST,
-            domain_permission=DEFAULT_DOMAIN_PERMISSION[DefaultRole.GUEST],
-        )
-
-
-class DomainAuthentication(BaseAuthentication):
-    def __init__(
-        self,
-        jwt_decoded: Optional[JWTToken] = Depends(auth_jwt_decode),
-        user: Optional[User] = Depends(get_current_user),
-        site_role: str = Depends(get_site_role),
-        site_permission: SitePermission = Depends(get_site_permission),
+        auth: Authentication = Depends(Authentication),
         domain: Domain = Depends(get_domain),
         domain_role: DefaultRole = Depends(get_domain_role),
         domain_permission: DomainPermission = Depends(get_domain_permission),
     ):
-        super().__init__(
-            jwt_decoded,
-            user,
-            site_role,
-            site_permission,
-            domain,
-            domain_role,
-            domain_permission,
-        )
+        self.auth = auth
+        self.auth.domain = domain
+        self.auth.domain_role = domain_role
+        self.auth.domain_permission = domain_permission
+
+
+class PermissionChecker:
+    def __init__(self, scope: ScopeType, permission: PermissionType):
+        self.scope = scope
+        self.permission = permission
+
+
+class UserPermissionChecker(PermissionChecker):
+    def __call__(self, auth: Authentication = Depends(Authentication)) -> None:
+        auth.ensure(scope=self.scope, permission=self.permission)
+
+
+class DomainPermissionChecker(PermissionChecker):
+    def __call__(
+        self, domain_auth: DomainAuthentication = Depends(DomainAuthentication)
+    ) -> None:
+        domain_auth.auth.ensure(scope=self.scope, permission=self.permission)
+
+
+def check_permission(
+    scope: ScopeType, permission: PermissionType
+) -> Optional[Callable[..., Any]]:
+    if scope in (
+        ScopeType.GENERAL,
+        ScopeType.PROBLEM,
+        ScopeType.PROBLEM_SET,
+        ScopeType.RECORD,
+    ):
+        return DomainPermissionChecker(scope, permission)
+    return UserPermissionChecker(scope, permission)
