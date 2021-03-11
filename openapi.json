@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 92772e1",
+    "description": "Git version: 133d97b",
     "version": "0.0.0"
   },
   "paths": {
@@ -124,21 +124,21 @@
         ]
       }
     },
-    "/api/v1/admin/users/{uname_lower}": {
+    "/api/v1/admin/users/{uid}": {
       "delete": {
         "tags": [
           "admin"
         ],
         "summary": "Delete User",
-        "operationId": "delete_user_api_v1_admin_users__uname_lower__delete",
+        "operationId": "delete_user_api_v1_admin_users__uid__delete",
         "parameters": [
           {
             "required": true,
             "schema": {
-              "title": "Uname Lower",
+              "title": "Uid",
               "type": "string"
             },
-            "name": "uname_lower",
+            "name": "uid",
             "in": "path"
           }
         ],
@@ -509,6 +509,159 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/members": {
+      "get": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "List Members In Domain",
+        "operationId": "list_members_in_domain_api_v1_domains__domain__members_get",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response List Members In Domain Api V1 Domains  Domain  Members Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserBase"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/members/{uid}": {
+      "post": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "Add Member To Domain",
+        "operationId": "add_member_to_domain_api_v1_domains__domain__members__uid__post",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Uid",
+              "type": "string"
+            },
+            "name": "uid",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "Remove Member From Domain",
+        "operationId": "remove_member_from_domain_api_v1_domains__domain__members__uid__delete",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Uid",
+              "type": "string"
+            },
+            "name": "uid",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
           },
           "422": {
             "description": "Validation Error",
@@ -2088,7 +2241,7 @@
             "title": "Updated At",
             "type": "string",
             "format": "date-time",
-            "default": "2021-03-11T09:18:43.517337"
+            "default": "2021-03-11T10:35:53.223747"
           }
         }
       },
