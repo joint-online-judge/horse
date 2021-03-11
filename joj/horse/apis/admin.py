@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import List, Union
+from typing import List
 
 from fastapi import APIRouter, Depends
 

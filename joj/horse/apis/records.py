@@ -1,5 +1,5 @@
 import io
-from typing import List, Optional
+from typing import List
 
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
