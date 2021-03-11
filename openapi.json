@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 2a82ad8",
+    "description": "Git version: 4715e2c",
     "version": "0.0.0"
   },
   "paths": {
@@ -769,24 +769,11 @@
         ],
         "summary": "Create Problem",
         "operationId": "create_problem_api_v1_problems_post",
-        "parameters": [
-          {
-            "description": "url or the id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or the id of the domain"
-            },
-            "name": "domain",
-            "in": "query"
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Problem"
+                "$ref": "#/components/schemas/CreateProblem"
               }
             }
           },
@@ -2161,6 +2148,50 @@
           }
         }
       },
+      "CreateProblem": {
+        "title": "CreateProblem",
+        "required": [
+          "domain",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "domain": {
+            "title": "Domain",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/Domain"
+              }
+            ]
+          },
+          "title": {
+            "title": "Title",
+            "minLength": 1,
+            "type": "string"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string",
+            "default": ""
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "default": false
+          },
+          "languages": {
+            "title": "Languages",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          }
+        }
+      },
       "Domain": {
         "title": "Domain",
         "required": [
@@ -2241,7 +2272,7 @@
             "title": "Updated At",
             "type": "string",
             "format": "date-time",
-            "default": "2021-03-11T18:11:44.532273"
+            "default": "2021-03-11T18:42:37.298685"
           }
         }
       },
@@ -2399,9 +2430,9 @@
         "title": "Problem",
         "required": [
           "domain",
+          "title",
           "owner",
-          "group",
-          "title"
+          "group"
         ],
         "type": "object",
         "properties": {
@@ -2419,6 +2450,29 @@
                 "$ref": "#/components/schemas/Domain"
               }
             ]
+          },
+          "title": {
+            "title": "Title",
+            "minLength": 1,
+            "type": "string"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string",
+            "default": ""
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "default": false
+          },
+          "languages": {
+            "title": "Languages",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
           },
           "owner": {
             "title": "Owner",
@@ -2442,21 +2496,6 @@
               }
             ]
           },
-          "title": {
-            "title": "Title",
-            "minLength": 1,
-            "type": "string"
-          },
-          "content": {
-            "title": "Content",
-            "type": "string",
-            "default": ""
-          },
-          "hidden": {
-            "title": "Hidden",
-            "type": "boolean",
-            "default": false
-          },
           "num_submit": {
             "title": "Num Submit",
             "type": "integer",
@@ -2475,14 +2514,6 @@
             "title": "Data Version",
             "type": "integer",
             "default": 2
-          },
-          "languages": {
-            "title": "Languages",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "default": []
           }
         }
       },
@@ -2603,7 +2634,8 @@
           "code",
           "judge_category",
           "submit_at",
-          "judge_at"
+          "judge_at",
+          "judge_user"
         ],
         "type": "object",
         "properties": {
@@ -2706,6 +2738,17 @@
             "title": "Judge At",
             "type": "string",
             "format": "date-time"
+          },
+          "judge_user": {
+            "title": "Judge User",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/UserBase"
+              }
+            ]
           },
           "compiler_texts": {
             "title": "Compiler Texts",
