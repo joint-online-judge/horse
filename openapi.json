@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 911bffc",
+    "description": "Git version: 92772e1",
     "version": "0.0.0"
   },
   "paths": {
@@ -20,6 +20,208 @@
             }
           }
         }
+      }
+    },
+    "/api/v1/admin/users": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "List Users",
+        "operationId": "list_users_api_v1_admin_users_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response List Users Api V1 Admin Users Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Create User",
+        "operationId": "create_user_api_v1_admin_users_post",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Student Id",
+              "type": "string"
+            },
+            "name": "student_id",
+            "in": "query"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Jaccount Name",
+              "type": "string"
+            },
+            "name": "jaccount_name",
+            "in": "query"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Real Name",
+              "type": "string"
+            },
+            "name": "real_name",
+            "in": "query"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Ip",
+              "type": "string"
+            },
+            "name": "ip",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/users/{uname_lower}": {
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Delete User",
+        "operationId": "delete_user_api_v1_admin_users__uname_lower__delete",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Uname Lower",
+              "type": "string"
+            },
+            "name": "uname_lower",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/domain_users": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "List Domain Users",
+        "operationId": "list_domain_users_api_v1_admin_domain_users_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response List Domain Users Api V1 Admin Domain Users Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DomainUser"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/domain_roles": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "List Domain Roles",
+        "operationId": "list_domain_roles_api_v1_admin_domain_roles_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response List Domain Roles Api V1 Admin Domain Roles Get",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DomainRole"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/version": {
@@ -1847,6 +2049,46 @@
             "title": "Bulletin",
             "type": "string",
             "default": ""
+          }
+        }
+      },
+      "DomainRole": {
+        "title": "DomainRole",
+        "required": [
+          "domain",
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "domain": {
+            "title": "Domain",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/Domain"
+              }
+            ]
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "permission": {
+            "title": "Permission",
+            "type": "object",
+            "default": {}
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string",
+            "format": "date-time",
+            "default": "2021-03-11T09:18:43.517337"
           }
         }
       },
