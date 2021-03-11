@@ -82,9 +82,7 @@ async def get_problem_set(
     return schemas.ProblemSet.from_orm(problem_set)
 
 
-@router.delete(
-    "/{problem_set}", status_code=HTTPStatus.NO_CONTENT, response_class=Response
-)
+@router.delete("/{problem_set}", status_code=HTTPStatus.NO_CONTENT)
 async def delete_problem_set(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
 ) -> None:

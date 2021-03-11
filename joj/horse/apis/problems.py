@@ -78,7 +78,7 @@ async def get_problem(
     return schemas.Problem.from_orm(problem)
 
 
-@router.delete("/{problem}", status_code=HTTPStatus.NO_CONTENT, response_class=Response)
+@router.delete("/{problem}", status_code=HTTPStatus.NO_CONTENT)
 async def delete_problem(problem: models.Problem = Depends(parse_problem)) -> None:
     # TODO: optimize
     async for problem_set in models.ProblemSet.find():
