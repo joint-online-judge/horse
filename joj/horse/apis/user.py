@@ -156,8 +156,8 @@ async def get_user(auth: Authentication = Depends()) -> schemas.User:
 @router.get("/domains", response_model=List[schemas.Domain])
 async def get_user_domains(auth: Authentication = Depends()) -> List[schemas.Domain]:
     return [
-        schemas.Domain.from_orm(domain)
-        async for domain in models.Domain.find({"owner": auth.user.id})
+        await domain_user.domain.fetch()
+        async for domain_user in models.DomainUser.find({"user": auth.user.id})
     ]
 
 
