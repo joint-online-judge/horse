@@ -1,7 +1,9 @@
+from datetime import datetime
 from enum import IntEnum
 from typing import Callable, List
 
 from pydantic import validator
+from pydantic.main import BaseModel
 from pydantic.typing import AnyCallable
 
 from joj.horse.schemas.base import (
@@ -13,7 +15,7 @@ from joj.horse.schemas.base import (
 from joj.horse.schemas.domain import Domain
 from joj.horse.schemas.problem import Problem
 from joj.horse.schemas.problem_set import ProblemSet
-from joj.horse.schemas.user import UserBase
+from joj.horse.schemas.user import User, UserBase
 
 
 class RecordStatus(IntEnum):
@@ -41,6 +43,16 @@ class RecordCodeType(IntEnum):
     rar = 3
 
 
+class RecordCase(BaseModel):
+    status: RecordStatus = RecordStatus.waiting
+    score: int = 0
+    time_ms: int = 0
+    memory_kb: int = 0
+    execute_status: int = 0
+    stdout: str = ""
+    stderr: str = ""
+
+
 class Record(BaseODMSchema):
     status: RecordStatus = RecordStatus.waiting
     score: int = 0
@@ -54,6 +66,14 @@ class Record(BaseODMSchema):
     code_type: RecordCodeType
     code: PydanticObjectId
     judge_category: List[str]
+
+    submit_at: datetime
+    judge_at: datetime
+
+    # judge_user: ReferenceSchema[UserBase] # FIXME: how to create a schema for it?
+
+    compiler_texts: str = ""
+    # cases: List[RecordCase] = [] # FIXME: how to create a schema for it?
 
     _validate_domain: Callable[[AnyCallable], classmethod] = reference_schema_validator(
         "domain", Domain

@@ -1,3 +1,4 @@
+from datetime import datetime
 from http import HTTPStatus
 from typing import List
 
@@ -158,6 +159,9 @@ async def submit_solution_to_problem(
             code_type=code_type,
             code=file_id,
             judge_category=[],
+            submit_at=datetime.utcnow(),
+            judge_at=datetime.utcnow(),  # TODO: modify later
+            # judge_user=auth.user.id,  # TODO: modify later
         )
         record = models.Record(**record.to_model())
         await record.commit()
