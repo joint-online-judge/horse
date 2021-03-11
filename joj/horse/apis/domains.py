@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, List, Optional
+from typing import List
 
 from bson import ObjectId
 from fastapi import APIRouter, Depends, Query, Response

@@ -1,5 +1,5 @@
 from enum import IntEnum
-from typing import Callable, List, Optional
+from typing import Callable, List
 
 from pydantic import validator
 from pydantic.typing import AnyCallable

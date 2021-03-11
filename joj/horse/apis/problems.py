@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Callable, List, NoReturn
+from typing import List
 
 from fastapi import APIRouter, Body, Depends, File, Query, Response, UploadFile
 from motor.motor_asyncio import AsyncIOMotorGridFSBucket

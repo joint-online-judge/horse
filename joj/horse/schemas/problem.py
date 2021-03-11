@@ -1,5 +1,4 @@
-from datetime import datetime
-from typing import Callable, List, Optional, Type
+from typing import Callable, List, Optional
 
 from pydantic.main import BaseModel
 from pydantic.typing import AnyCallable

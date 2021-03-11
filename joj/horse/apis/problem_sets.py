@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import List, Optional
+from typing import List
 
 from fastapi import APIRouter, Depends, Query, Response
 from uvicorn.config import logger
