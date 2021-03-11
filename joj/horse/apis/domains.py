@@ -9,7 +9,7 @@ from uvicorn.config import logger
 from joj.horse import models, schemas
 from joj.horse.models.permission import DefaultRole, PermissionType, ScopeType
 from joj.horse.schemas.user import UserBase
-from joj.horse.utils.auth import Authentication, DomainAuthentication
+from joj.horse.utils.auth import Authentication, DomainAuthentication, check_permission
 from joj.horse.utils.db import instance
 from joj.horse.utils.errors import InvalidAuthenticationError, InvalidDomainURLError
 from joj.horse.utils.parser import parse_domain, parse_uid
@@ -37,7 +37,11 @@ async def list_domains(
     ]
 
 
-@router.post("", response_model=schemas.Domain)
+@router.post(
+    "",
+    response_model=schemas.Domain,
+    dependencies=[Depends(check_permission(ScopeType.DOMAIN, PermissionType.CREATE))],
+)
 async def create_domain(
     url: str = Query(..., description="(unique) url of the domain"),
     name: str = Query(..., description="displayed name of the domain"),
@@ -81,9 +85,9 @@ async def create_domain(
 
 
 @router.get("/{domain}", response_model=schemas.Domain)
-async def get_domain(auth: DomainAuthentication = Depends()) -> schemas.Domain:
-    await auth.domain.owner.fetch()
-    return schemas.Domain.from_orm(auth.domain)
+async def get_domain(domain_auth: DomainAuthentication = Depends()) -> schemas.Domain:
+    await domain_auth.auth.domain.owner.fetch()
+    return schemas.Domain.from_orm(domain_auth.auth.domain)
 
 
 @router.delete("/{domain}", status_code=HTTPStatus.NO_CONTENT)
