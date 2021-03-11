@@ -41,14 +41,14 @@ async def create_user(
     return schemas.User.from_orm(user)
 
 
-@router.delete("/users/{uname_lower}", status_code=HTTPStatus.NO_CONTENT)
+@router.delete("/users/{uid}", status_code=HTTPStatus.NO_CONTENT)
 async def delete_user(
-    uname_lower: str, auth: Authentication = Depends(Authentication)
+    user: models.User = Depends(parse_uid),
+    auth: Authentication = Depends(Authentication),
 ) -> None:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
-    user = await models.User.find_one({"uname_lower": uname_lower})
-    user.delete()
+    await user.delete()
 
 
 @router.get("/domain_users", response_model=List[schemas.DomainUser])
