@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 133d97b",
+    "description": "Git version: 2a82ad8",
     "version": "0.0.0"
   },
   "paths": {
@@ -2241,7 +2241,7 @@
             "title": "Updated At",
             "type": "string",
             "format": "date-time",
-            "default": "2021-03-11T10:35:53.223747"
+            "default": "2021-03-11T18:11:44.532273"
           }
         }
       },
@@ -2601,7 +2601,9 @@
           "user",
           "code_type",
           "code",
-          "judge_category"
+          "judge_category",
+          "submit_at",
+          "judge_at"
         ],
         "type": "object",
         "properties": {
@@ -2694,6 +2696,21 @@
             "items": {
               "type": "string"
             }
+          },
+          "submit_at": {
+            "title": "Submit At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "judge_at": {
+            "title": "Judge At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "compiler_texts": {
+            "title": "Compiler Texts",
+            "type": "string",
+            "default": ""
           }
         }
       },
