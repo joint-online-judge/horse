@@ -4,6 +4,7 @@ from fastapi import FastAPI
 
 from joj.horse import app
 from joj.horse.apis import (
+    admin,
     domains,
     misc,
     problem_groups,
@@ -25,6 +26,7 @@ def include_router(module: Any) -> None:
     )
 
 
+include_router(admin)
 include_router(misc)
 include_router(domains)
 include_router(problems)

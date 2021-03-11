@@ -85,7 +85,7 @@ async def get_domain(auth: DomainAuthentication = Depends()) -> schemas.Domain:
     return schemas.Domain.from_orm(auth.domain)
 
 
-@router.delete("/{domain}", status_code=HTTPStatus.NO_CONTENT, response_class=Response)
+@router.delete("/{domain}", status_code=HTTPStatus.NO_CONTENT)
 async def delete_domain(
     domain: models.Domain = Depends(parse_domain), auth: Authentication = Depends()
 ) -> None:
