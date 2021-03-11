@@ -23,20 +23,23 @@ class EditProblem(BaseModel):
     languages: Optional[List[str]]
 
 
-class Problem(BaseODMSchema):
+class CreateProblem(BaseModel):
     domain: ReferenceSchema[Domain]
-    owner: ReferenceSchema[UserBase]
-    group: ReferenceSchema[ProblemGroup]
-
     title: NoneEmptyStr
     content: str = ""
     hidden: bool = False
+    languages: List[str] = []
+
+
+class Problem(CreateProblem, BaseODMSchema):
+    owner: ReferenceSchema[UserBase]
+    group: ReferenceSchema[ProblemGroup]
+
     num_submit: int = 0
     num_accept: int = 0
 
     data: Optional[int] = None  # modify later
     data_version: int = 2
-    languages: List[str] = []
 
     _validate_domain: Callable[[AnyCallable], classmethod] = reference_schema_validator(
         "domain", Domain
