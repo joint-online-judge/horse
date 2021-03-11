@@ -34,8 +34,7 @@ async def list_problems(
 
 @router.post("", response_model=schemas.Problem)
 async def create_problem(
-    problem: schemas.Problem,
-    domain: str = Query(..., description="url or the id of the domain"),
+    problem: schemas.CreateProblem,
     # title: str = Query(..., description="title of the problem"),
     # content: str = Query("", description="content of the problem"),
     # hidden: bool = Query(False, description="whether the problem is hidden"),
@@ -52,7 +51,7 @@ async def create_problem(
                 problem_group = schemas.ProblemGroup()
                 problem_group = models.ProblemGroup(**problem_group.to_model())
                 await problem_group.commit()
-                domain = await models.Domain.find_by_url_or_id(domain)
+                domain = await models.Domain.find_by_id(problem.domain.__str__())
                 new_problem = schemas.Problem(
                     title=problem.title,
                     content=problem.content,
@@ -161,7 +160,7 @@ async def submit_solution_to_problem(
             judge_category=[],
             submit_at=datetime.utcnow(),
             judge_at=datetime.utcnow(),  # TODO: modify later
-            # judge_user=auth.user.id,  # TODO: modify later
+            judge_user=auth.user.id,  # TODO: modify later
         )
         record = models.Record(**record.to_model())
         await record.commit()

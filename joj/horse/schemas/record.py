@@ -70,7 +70,7 @@ class Record(BaseODMSchema):
     submit_at: datetime
     judge_at: datetime
 
-    # judge_user: ReferenceSchema[UserBase] # FIXME: how to create a schema for it?
+    judge_user: ReferenceSchema[UserBase]  # FIXME: how to create a schema for it?
 
     compiler_texts: str = ""
     # cases: List[RecordCase] = [] # FIXME: how to create a schema for it?
