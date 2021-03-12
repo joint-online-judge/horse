@@ -2,16 +2,20 @@ from http import HTTPStatus
 from typing import List
 
 from bson import ObjectId
-from fastapi import APIRouter, Depends, Query, Response
+from fastapi import APIRouter, Depends, Query, Response, Body
 from marshmallow.exceptions import ValidationError
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.models.permission import DefaultRole, PermissionType, ScopeType
 from joj.horse.schemas.user import UserBase
-from joj.horse.utils.auth import Authentication, DomainAuthentication, check_permission
+from joj.horse.utils.auth import Authentication, DomainAuthentication, ensure_permission
 from joj.horse.utils.db import instance
-from joj.horse.utils.errors import InvalidAuthenticationError, InvalidDomainURLError
+from joj.horse.utils.errors import (
+    InvalidAuthenticationError,
+    InvalidDomainURLError,
+    APINotImplementedError,
+)
 from joj.horse.utils.parser import parse_domain, parse_uid
 
 router = APIRouter()
@@ -40,18 +44,15 @@ async def list_domains(
 @router.post(
     "",
     response_model=schemas.Domain,
-    dependencies=[Depends(check_permission(ScopeType.DOMAIN, PermissionType.CREATE))],
+    dependencies=[Depends(ensure_permission(ScopeType.DOMAIN, PermissionType.CREATE))],
 )
 async def create_domain(
-    url: str = Query(..., description="(unique) url of the domain"),
-    name: str = Query(..., description="displayed name of the domain"),
-    bulletin: str = Query("", description="bulletin of the domain"),
-    gravatar: str = Query("", description="gravatar url of the domain"),
+    domain: schemas.DomainCreate,
     auth: Authentication = Depends(),
 ) -> schemas.Domain:
     # we can not use ObjectId as the url
-    if ObjectId.is_valid(url):
-        raise InvalidDomainURLError(url)
+    if ObjectId.is_valid(domain.url):
+        raise InvalidDomainURLError(domain.url)
     if auth.user is None:
         raise InvalidAuthenticationError()
 
@@ -60,10 +61,7 @@ async def create_domain(
         async with instance.session() as session:
             async with session.start_transaction():
                 domain = schemas.Domain(
-                    url=url,
-                    name=name,
-                    bulletin=bulletin,
-                    gravatar=gravatar,
+                    **domain.dict(),
                     owner=auth.user.id,
                 )
                 domain = models.Domain(**domain.to_model())
@@ -75,36 +73,52 @@ async def create_domain(
                 domain_user = models.DomainUser(**domain_user.to_model())
                 await domain_user.commit()
                 logger.info("domain user created: %s", domain_user)
+                # TODO: create domain roles here
     except ValidationError:
-        raise InvalidDomainURLError(url)  # non-unique domain url
+        raise InvalidDomainURLError(domain.url)  # non-unique domain url
     except Exception as e:
-        logger.error("domain creation failed: %s", url)
+        logger.error("domain creation failed: %s", domain.url)
         raise e
 
     return schemas.Domain.from_orm(domain)
 
 
-@router.get("/{domain}", response_model=schemas.Domain)
+@router.get(
+    "/{domain}",
+    response_model=schemas.Domain,
+    dependencies=[
+        Depends(ensure_permission(ScopeType.USER, PermissionType.VIEW_HIDDEN)),
+        Depends(ensure_permission(ScopeType.USER, PermissionType.VIEW)),
+    ],
+)
 async def get_domain(domain_auth: DomainAuthentication = Depends()) -> schemas.Domain:
     await domain_auth.auth.domain.owner.fetch()
     return schemas.Domain.from_orm(domain_auth.auth.domain)
 
 
-@router.delete("/{domain}", status_code=HTTPStatus.NO_CONTENT)
+@router.delete(
+    "/{domain}",
+    status_code=HTTPStatus.NO_CONTENT,
+    dependencies=[Depends(ensure_permission(ScopeType.DOMAIN, PermissionType.DELETE))],
+    deprecated=True,
+)
 async def delete_domain(
-    domain: models.Domain = Depends(parse_domain), auth: Authentication = Depends()
+    domain: models.Domain = Depends(parse_domain),
 ) -> None:
     # TODO: finish this part
-    await domain.delete()
+    # tc-imba: delete domain have many side effects, and is not urgent,
+    #          marked it deprecated and implement it later
+    raise APINotImplementedError()
+    # await domain.delete()
 
 
 @router.patch("/{domain}", response_model=schemas.Domain)
 async def update_domain(
-    edit_doamin: schemas.EditDomain,
+    edit_domain: schemas.DomainEdit,
     domain: models.Domain = Depends(parse_domain),
     auth: Authentication = Depends(Authentication),
 ) -> schemas.Domain:
-    domain.update_from_schema(edit_doamin)
+    domain.update_from_schema(edit_domain)
     await domain.commit()
     return schemas.Domain.from_orm(domain)
 

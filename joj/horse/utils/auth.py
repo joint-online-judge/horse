@@ -254,31 +254,57 @@ class DomainAuthentication:
 
 
 class PermissionChecker:
-    def __init__(self, scope: ScopeType, permission: PermissionType):
+    def __init__(self, type: str, scope: ScopeType, permission: PermissionType):
+        self.type = type
         self.scope = scope
         self.permission = permission
 
+    def ensure(self, auth: Authentication):
+        auth.ensure(scope=self.scope, permission=self.permission)
+
+    def allow(self, request: Request, auth: Authentication):
+        try:
+            request.state.allowed
+        except:
+            if auth.check(self.scope, self.permission):
+                request.state.allowed = True
+
 
 class UserPermissionChecker(PermissionChecker):
-    def __call__(self, auth: Authentication = Depends(Authentication)) -> None:
-        auth.ensure(scope=self.scope, permission=self.permission)
+    def __call__(
+        self, request: Request, auth: Authentication = Depends(Authentication)
+    ) -> None:
+        print(self.scope, self.permission)
+        self.ensure(auth)
 
 
 class DomainPermissionChecker(PermissionChecker):
     def __call__(
         self, domain_auth: DomainAuthentication = Depends(DomainAuthentication)
     ) -> None:
-        domain_auth.auth.ensure(scope=self.scope, permission=self.permission)
+        self.ensure(domain_auth.auth)
 
 
-def check_permission(
-    scope: ScopeType, permission: PermissionType
-) -> Optional[Callable[..., Any]]:
-    if scope in (
+def is_domain_permission(scope: ScopeType):
+    return scope in (
         ScopeType.GENERAL,
         ScopeType.PROBLEM,
         ScopeType.PROBLEM_SET,
         ScopeType.RECORD,
-    ):
+    )
+
+
+def ensure_permission(
+    scope: ScopeType, permission: PermissionType
+) -> Optional[Callable[..., Any]]:
+    if is_domain_permission(scope):
+        return DomainPermissionChecker(scope, permission)
+    return UserPermissionChecker(scope, permission)
+
+
+def allow_permission(
+    scope: ScopeType, permission: PermissionType
+) -> Optional[Callable[..., Any]]:
+    if is_domain_permission(scope):
         return DomainPermissionChecker(scope, permission)
     return UserPermissionChecker(scope, permission)
