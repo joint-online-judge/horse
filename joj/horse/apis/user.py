@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 import aiohttp
 import jwt
@@ -13,6 +13,7 @@ from joj.horse.utils.auth import Authentication, auth_jwt_encode
 from joj.horse.utils.oauth import jaccount
 from joj.horse.utils.parser import parse_uid
 from joj.horse.utils.url import generate_url
+from joj.horse.utils.errors import APINotImplementedError
 
 router = APIRouter()
 router_name = "user"
@@ -33,7 +34,7 @@ async def logout(
         "If false (ajax mode), return the redirect url, "
         "you also need to unset all cookies manually in ajax mode.",
     ),
-) -> RedirectModel:
+) -> Union[RedirectResponse, JSONResponse]:
     if auth.jwt and auth.jwt.channel == "jaccount":
         url = get_jaccount_logout_url(redirect_url=redirect_url)
     else:
@@ -58,12 +59,11 @@ async def jaccount_login(
         "If false (ajax mode), return the redirect url to the jaccount site, "
         "you also need to set the cookies returned manually in ajax mode.",
     ),
-) -> RedirectModel:
+) -> Union[RedirectResponse, JSONResponse]:
     client = jaccount.get_client()
     if client is None:
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Jaccount not supported"
-        )
+        raise APINotImplementedError(message="Jaccount not supported")
+
     jaccount_redirect_url = generate_url(router_prefix, router_name, "jaccount", "auth")
     url, state = client.get_authorize_url(jaccount_redirect_url)
 
@@ -87,9 +87,8 @@ async def jaccount_auth(
 ) -> RedirectResponse:
     client = jaccount.get_client()
     if client is None:
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Jaccount not supported"
-        )
+        raise APINotImplementedError(message="Jaccount not supported")
+
     if jaccount_state != state:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -142,9 +141,8 @@ async def jaccount_auth(
 def get_jaccount_logout_url(redirect_url: str) -> str:
     client = jaccount.get_client()
     if client is None:
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Jaccount not supported"
-        )
+        raise APINotImplementedError(message="Jaccount not supported")
+
     return client.get_logout_url(redirect_url)
 
 

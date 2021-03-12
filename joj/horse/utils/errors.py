@@ -45,6 +45,13 @@ class UnprocessableEntityError(BaseError):
         )
 
 
+class APINotImplementedError(BaseError):
+    def __init__(self, message: str = "", args: Any = None) -> None:
+        super().__init__(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED, message=message, args=args
+        )
+
+
 class InvalidAuthenticationError(UnauthorizedError):
     def __init__(self) -> None:
         message = "Invalid authentication."

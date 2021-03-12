@@ -1,5 +1,6 @@
 from joj.horse.schemas.domain import Domain as Domain
-from joj.horse.schemas.domain import EditDomain as EditDomain
+from joj.horse.schemas.domain import DomainEdit as DomainEdit
+from joj.horse.schemas.domain import DomainCreate as DomainCreate
 from joj.horse.schemas.domain_role import DomainRole as DomainRole
 from joj.horse.schemas.domain_user import DomainUser as DomainUser
 from joj.horse.schemas.problem import CreateProblem as CreateProblem

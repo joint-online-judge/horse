@@ -49,6 +49,7 @@ class PermissionType(str, Enum):
     DETAIL = "detail"
     CODE = "code"
     REJUDGE = "rejudge"
+    DELETE = "delete"
 
     UNKNOWN = "unknown"
 
@@ -174,6 +175,7 @@ class UserSpecificPermission(EmbeddedDocumentImplementation):
 class DomainSpecificPermission(EmbeddedDocumentImplementation):
     create = fields.BoolField(default=False)
     edit = fields.BoolField(default=False)
+    delete = fields.BoolField(default=False)
     view_hidden = fields.BoolField(default=False)
 
 
