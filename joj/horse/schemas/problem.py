@@ -24,7 +24,7 @@ class EditProblem(BaseModel):
 
 
 class CreateProblem(BaseModel):
-    domain: ReferenceSchema[Domain]
+    domain: str
     title: NoneEmptyStr
     content: str = ""
     hidden: bool = False
@@ -32,6 +32,7 @@ class CreateProblem(BaseModel):
 
 
 class Problem(CreateProblem, BaseODMSchema):
+    domain: ReferenceSchema[Domain]  # type: ignore
     owner: ReferenceSchema[UserBase]
     group: ReferenceSchema[ProblemGroup]
 

@@ -14,7 +14,12 @@ from joj.horse.utils.errors import (
     InvalidAuthenticationError,
     ProblemNotFoundError,
 )
-from joj.horse.utils.parser import parse_problem, parse_problem_set, parse_uid
+from joj.horse.utils.parser import (
+    parse_domain,
+    parse_problem,
+    parse_problem_set,
+    parse_uid,
+)
 
 router = APIRouter()
 router_name = "problems"
@@ -43,6 +48,7 @@ async def create_problem(
 ) -> schemas.Problem:
     if auth.user is None:
         raise InvalidAuthenticationError()
+    domain = await models.Domain.find_by_url_or_id(problem.domain)
 
     # use transaction for multiple operations
     try:
@@ -51,7 +57,7 @@ async def create_problem(
                 problem_group = schemas.ProblemGroup()
                 problem_group = models.ProblemGroup(**problem_group.to_model())
                 await problem_group.commit()
-                domain = await models.Domain.find_by_id(problem.domain.__str__())
+                # domain = await models.Domain.find_by_id(problem.domain.__str__())
                 new_problem = schemas.Problem(
                     title=problem.title,
                     content=problem.content,
