@@ -254,15 +254,15 @@ class DomainAuthentication:
 
 
 class PermissionChecker:
-    def __init__(self, type: str, scope: ScopeType, permission: PermissionType):
-        self.type = type
+    def __init__(self, scope: ScopeType, permission: PermissionType):
+        # self.type = type
         self.scope = scope
         self.permission = permission
 
-    def ensure(self, auth: Authentication):
+    def ensure(self, auth: Authentication) -> None:
         auth.ensure(scope=self.scope, permission=self.permission)
 
-    def allow(self, request: Request, auth: Authentication):
+    def allow(self, request: Request, auth: Authentication) -> None:
         try:
             request.state.allowed
         except:
@@ -285,7 +285,7 @@ class DomainPermissionChecker(PermissionChecker):
         self.ensure(domain_auth.auth)
 
 
-def is_domain_permission(scope: ScopeType):
+def is_domain_permission(scope: ScopeType) -> bool:
     return scope in (
         ScopeType.GENERAL,
         ScopeType.PROBLEM,
