@@ -2,7 +2,7 @@ from http import HTTPStatus
 from typing import List
 
 from bson import ObjectId
-from fastapi import APIRouter, Depends, Query, Response, Body
+from fastapi import APIRouter, Body, Depends, Query, Response
 from marshmallow.exceptions import ValidationError
 from uvicorn.config import logger
 
@@ -12,9 +12,9 @@ from joj.horse.schemas.user import UserBase
 from joj.horse.utils.auth import Authentication, DomainAuthentication, ensure_permission
 from joj.horse.utils.db import instance
 from joj.horse.utils.errors import (
+    APINotImplementedError,
     InvalidAuthenticationError,
     InvalidDomainURLError,
-    APINotImplementedError,
 )
 from joj.horse.utils.parser import parse_domain, parse_uid
 
@@ -47,8 +47,7 @@ async def list_domains(
     dependencies=[Depends(ensure_permission(ScopeType.DOMAIN, PermissionType.CREATE))],
 )
 async def create_domain(
-    domain: schemas.DomainCreate,
-    auth: Authentication = Depends(),
+    domain: schemas.DomainCreate, auth: Authentication = Depends()
 ) -> schemas.Domain:
     # we can not use ObjectId as the url
     if ObjectId.is_valid(domain.url):
@@ -60,10 +59,7 @@ async def create_domain(
     try:
         async with instance.session() as session:
             async with session.start_transaction():
-                domain = schemas.Domain(
-                    **domain.dict(),
-                    owner=auth.user.id,
-                )
+                domain = schemas.Domain(**domain.dict(), owner=auth.user.id)
                 domain = models.Domain(**domain.to_model())
                 await domain.commit()
                 logger.info("domain created: %s", domain)
@@ -102,9 +98,7 @@ async def get_domain(domain_auth: DomainAuthentication = Depends()) -> schemas.D
     dependencies=[Depends(ensure_permission(ScopeType.DOMAIN, PermissionType.DELETE))],
     deprecated=True,
 )
-async def delete_domain(
-    domain: models.Domain = Depends(parse_domain),
-) -> None:
+async def delete_domain(domain: models.Domain = Depends(parse_domain),) -> None:
     # TODO: finish this part
     # tc-imba: delete domain have many side effects, and is not urgent,
     #          marked it deprecated and implement it later

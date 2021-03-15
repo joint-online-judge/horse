@@ -1,8 +1,8 @@
 from typing import Callable, Optional
 
+from pydantic import Field
 from pydantic.main import BaseModel
 from pydantic.typing import AnyCallable
-from pydantic import Field
 
 from joj.horse.schemas.base import (
     BaseODMSchema,

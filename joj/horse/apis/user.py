@@ -10,10 +10,10 @@ from uvicorn.config import logger
 from joj.horse import models, schemas
 from joj.horse.schemas.misc import RedirectModel
 from joj.horse.utils.auth import Authentication, auth_jwt_encode
+from joj.horse.utils.errors import APINotImplementedError
 from joj.horse.utils.oauth import jaccount
 from joj.horse.utils.parser import parse_uid
 from joj.horse.utils.url import generate_url
-from joj.horse.utils.errors import APINotImplementedError
 
 router = APIRouter()
 router_name = "user"

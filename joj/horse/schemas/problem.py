@@ -1,5 +1,6 @@
 from typing import Callable, List, Optional
 
+from pydantic import Field
 from pydantic.main import BaseModel
 from pydantic.typing import AnyCallable
 
@@ -14,7 +15,7 @@ from joj.horse.schemas.problem_group import ProblemGroup
 from joj.horse.schemas.user import UserBase
 
 
-class EditProblem(BaseModel):
+class ProblemEdit(BaseModel):
     title: Optional[NoneEmptyStr]
     content: Optional[str]
     hidden: Optional[bool]
@@ -23,15 +24,15 @@ class EditProblem(BaseModel):
     languages: Optional[List[str]]
 
 
-class CreateProblem(BaseModel):
-    domain: str
-    title: NoneEmptyStr
-    content: str = ""
-    hidden: bool = False
-    languages: List[str] = []
+class ProblemCreate(BaseModel):
+    domain: str = Field(..., description="url or the id of the domain")
+    title: NoneEmptyStr = Field(..., description="title of the problem")
+    content: str = Field("", description="content of the problem")
+    hidden: bool = Field(False, description="whether the problem is hidden")
+    languages: List[str] = Field([], description="acceptable language of the problem")
 
 
-class Problem(CreateProblem, BaseODMSchema):
+class Problem(ProblemCreate, BaseODMSchema):
     domain: ReferenceSchema[Domain]  # type: ignore
     owner: ReferenceSchema[UserBase]
     group: ReferenceSchema[ProblemGroup]

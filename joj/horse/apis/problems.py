@@ -39,12 +39,7 @@ async def list_problems(
 
 @router.post("", response_model=schemas.Problem)
 async def create_problem(
-    problem: schemas.CreateProblem,
-    # title: str = Query(..., description="title of the problem"),
-    # content: str = Query("", description="content of the problem"),
-    # hidden: bool = Query(False, description="whether the problem is hidden"),
-    # languages: List[str] = Query([], description="acceptable language of the problem"),
-    auth: Authentication = Depends(),
+    problem: schemas.ProblemCreate, auth: Authentication = Depends()
 ) -> schemas.Problem:
     if auth.user is None:
         raise InvalidAuthenticationError()
@@ -95,7 +90,7 @@ async def delete_problem(problem: models.Problem = Depends(parse_problem)) -> No
 
 @router.patch("/{problem}", response_model=schemas.Problem)
 async def update_problem(
-    edit_problem: schemas.EditProblem, problem: models.Problem = Depends(parse_problem)
+    edit_problem: schemas.ProblemEdit, problem: models.Problem = Depends(parse_problem)
 ) -> schemas.Problem:
     problem.update_from_schema(edit_problem)
     await problem.commit()

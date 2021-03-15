@@ -30,14 +30,7 @@ async def list_problem_sets(
 
 @router.post("", response_model=schemas.ProblemSet)
 async def create_problem_set(
-    domain: str = Query(..., description="url or the id of the domain"),
-    title: str = Query(..., description="title of the problem set"),
-    content: str = Query("", description="content of the problem set"),
-    hidden: bool = Query(False, description="whether the problem set is hidden"),
-    problems: List[str] = Query(
-        [], description="problems belonging to the problem set"
-    ),
-    auth: Authentication = Depends(),
+    problem_set: schemas.ProblemSetCreate, auth: Authentication = Depends()
 ) -> schemas.ProblemSet:
     if auth.user is None:
         raise InvalidAuthenticationError()
@@ -46,21 +39,22 @@ async def create_problem_set(
     try:
         async with instance.session() as session:
             async with session.start_transaction():
-                domain = await models.Domain.find_by_url_or_id(domain)
+                domain = await models.Domain.find_by_url_or_id(problem_set.domain)
                 problems_models = [
-                    await models.Problem.find_by_id(problem) for problem in problems
+                    await models.Problem.find_by_id(problem)
+                    for problem in problem_set.problems
                 ]
                 for i, (problem_id, problem_model) in enumerate(
-                    zip(problems, problems_models)
+                    zip(problem_set.problems, problems_models)
                 ):
                     if problem_model is None:
                         raise ProblemNotFoundError(problem_id)
                     problems_models[i] = problem_model.id
                 logger.info("problems_models: %s", problems_models)
                 problem_set = schemas.ProblemSet(
-                    title=title,  # type: ignore
-                    content=content,
-                    hidden=hidden,
+                    title=problem_set.title,
+                    content=problem_set.content,
+                    hidden=problem_set.hidden,
                     domain=domain.id,
                     owner=auth.user.id,
                     problems=problems_models,
@@ -70,7 +64,7 @@ async def create_problem_set(
                 logger.info("problem set created: %s", problem_set)
 
     except Exception as e:
-        logger.error("problem set creation failed: %s", title)
+        logger.error("problem set creation failed: %s", problem_set.title)
         raise e
     return schemas.ProblemSet.from_orm(problem_set)
 
@@ -91,7 +85,7 @@ async def delete_problem_set(
 
 @router.patch("/{problem_set}", response_model=schemas.ProblemSet)
 async def update_problem_set(
-    edit_problem_set: schemas.EditProblemSet,
+    edit_problem_set: schemas.ProblemSetEdit,
     problem_set: models.ProblemSet = Depends(parse_problem_set),
 ) -> schemas.ProblemSet:
     problem_set.update_from_schema(edit_problem_set)
