@@ -27,6 +27,8 @@ class Settings(BaseSettings):
     db_host: str = "localhost"
     db_port: int = 27017
     db_name: str = "horse-production"
+    db_username: str = ""
+    db_password: str = ""
 
     # redis config
     redis_host: str = "localhost"

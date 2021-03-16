@@ -13,7 +13,12 @@ instance = MotorAsyncIOInstance()
 @lru_cache()
 def get_db() -> Any:
     logger.info("Starting mongodb connection.")
-    client = AsyncIOMotorClient(settings.db_host, settings.db_port)
+    client = AsyncIOMotorClient(
+        host=settings.db_host,
+        port=settings.db_port,
+        username=settings.db_username,
+        password=settings.db_password,
+    )
     db = client.get_database(settings.db_name)
     instance.set_db(db)
     return db
