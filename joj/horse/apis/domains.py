@@ -95,6 +95,7 @@ async def get_domain(domain_auth: DomainAuthentication = Depends()) -> schemas.D
 @router.delete(
     "/{domain}",
     status_code=HTTPStatus.NO_CONTENT,
+    response_class=Response,
     dependencies=[Depends(ensure_permission(ScopeType.DOMAIN, PermissionType.DELETE))],
     deprecated=True,
 )
