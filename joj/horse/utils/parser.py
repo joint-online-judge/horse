@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import Depends, Path, Query
 
 from joj.horse import models
-from joj.horse.utils.auth import Authentication
+from joj.horse.utils.auth import Authentication, DomainAuthentication
 from joj.horse.utils.errors import (
     DomainNotFoundError,
     InvalidAuthenticationError,
@@ -70,9 +70,14 @@ async def parse_record(record: str, auth: Authentication = Depends()) -> models.
 
 async def parse_domain(
     domain: str = Path(..., description="url or ObjectId of the domain"),
-    auth: Authentication = Depends(),
 ) -> models.Domain:
     domain_model = await models.Domain.find_by_url_or_id(domain)
-    if domain_model and domain_model.owner == auth.user:
+    if domain_model:  # and domain_model.owner == auth.user:
         return domain_model
     raise DomainNotFoundError(domain)
+
+
+def parse_domain_from_auth(
+    domain_auth: DomainAuthentication = Depends(DomainAuthentication),
+) -> models.Domain:
+    return domain_auth.auth.domain

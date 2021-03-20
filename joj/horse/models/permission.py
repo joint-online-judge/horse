@@ -19,14 +19,15 @@ class DefaultRole(str, Enum):
 
 
 class ScopeType(str, Enum):
-    GENERAL = "general"
-    PROBLEM = "problem"
-    PROBLEM_SET = "problem_set"
-    RECORD = "record"
-    UNKNOWN = "unknown"
+    DOMAIN_GENERAL = "general"
+    DOMAIN_PROBLEM = "problem"
+    DOMAIN_PROBLEM_SET = "problem_set"
+    DOMAIN_RECORD = "record"
 
-    DOMAIN = "domain"
-    USER = "user"
+    SITE_DOMAIN = "domain"
+    SITE_USER = "user"
+
+    UNKNOWN = "unknown"
 
 
 class PermissionType(str, Enum):
@@ -37,9 +38,7 @@ class PermissionType(str, Enum):
     VIEW_CONFIG_SELF = "view_config_self"
 
     EDIT_PERMISSION = "edit_permission"
-    EDIT_DESCRIPTION = "edit_description"
-    EDIT_CONFIG = "edit_config"
-    EDIT_CONFIG_SELF = "edit_config_self"
+    EDIT = "edit"
 
     CREATE = "create"
     SUBMIT = "submit"
@@ -59,7 +58,7 @@ class GeneralPermission(EmbeddedDocumentImplementation):
     view = fields.BoolField(default=True)
     edit_permission = fields.BoolField(default=False)
     view_mod_badge = fields.BoolField(default=True)  # what's this?
-    edit_description = fields.BoolField(default=False)
+    edit = fields.BoolField(default=False)
     unlimited_quota = fields.BoolField(default=False)
 
 
@@ -67,7 +66,7 @@ class GeneralPermission(EmbeddedDocumentImplementation):
 #     view: bool = True
 #     edit_permission: bool = False
 #     view_mod_badge: bool = True  # what's this?
-#     edit_description: bool = False
+#     edit: bool = False
 #     unlimited_quota: bool = False
 
 
@@ -78,10 +77,8 @@ class ProblemPermission(EmbeddedDocumentImplementation):
     view_hidden = fields.BoolField(default=False)
     submit = fields.BoolField(default=True)
 
-    edit_config = fields.BoolField(default=False)
-    edit_config_self = fields.BoolField(default=True)
+    edit = fields.BoolField(default=False)
     view_config = fields.BoolField(default=False)
-    view_config_self = fields.BoolField(default=True)
 
 
 # class ProblemPermission(BaseModel):
@@ -90,8 +87,8 @@ class ProblemPermission(EmbeddedDocumentImplementation):
 #     view_hidden: bool = False
 #     submit: bool = True
 #
-#     edit_config: bool = False
-#     edit_config_self: bool = True
+#     edit: bool = False
+#     edit_self: bool = True
 #     view_config: bool = False
 #     view_config_self: bool = True
 
@@ -106,10 +103,8 @@ class ProblemSetPermission(EmbeddedDocumentImplementation):
     scoreboard = fields.BoolField(default=False)
     manage = fields.BoolField(default=False)
 
-    edit_config = fields.BoolField(default=False)
-    edit_config_self = fields.BoolField(default=True)
+    edit = fields.BoolField(default=False)
     view_config = fields.BoolField(default=False)
-    view_config_self = fields.BoolField(default=True)
 
 
 # class ProblemSetPermission(BaseModel):
@@ -121,8 +116,8 @@ class ProblemSetPermission(EmbeddedDocumentImplementation):
 #     scoreboard: bool = False
 #     manage: bool = False
 #
-#     edit_config: bool = False
-#     edit_config_self: bool = True
+#     edit: bool = False
+#     edit_self: bool = True
 #     view_config: bool = False
 #     view_config_self: bool = True
 

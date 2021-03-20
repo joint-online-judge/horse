@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 
 from joj.horse import models, schemas
 from joj.horse.utils.auth import Authentication
+from joj.horse.utils.db import generate_join_pipeline
 from joj.horse.utils.parser import parse_uid
 
 router = APIRouter()
@@ -23,19 +24,7 @@ async def get_user(
 async def get_user_domains(
     user: models.User = Depends(parse_uid),
 ) -> List[schemas.DomainUser]:
-    # TODO: this pipeline may be useful in many places, consider changing it to a function
-    pipeline = [
-        {"$match": {"user": user.id}},
-        {
-            "$lookup": {
-                "from": "domains",
-                "localField": "domain",
-                "foreignField": "_id",
-                "as": "domain",
-            }
-        },
-        {"$addFields": {"domain": {"$arrayElemAt": ["$domain", 0]}}},
-    ]
+    pipeline = generate_join_pipeline(field="domain", condition={"user": user.id})
     return [
         schemas.DomainUser.from_orm(
             models.DomainUser.build_from_mongo(domain_user), unfetch_all=False
