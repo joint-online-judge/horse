@@ -167,6 +167,15 @@ async def get_domain_permission(
         return DEFAULT_DOMAIN_PERMISSION[DefaultRole.GUEST]
 
 
+def is_domain_permission(scope: ScopeType) -> bool:
+    return scope in (
+        ScopeType.DOMAIN_GENERAL,
+        ScopeType.DOMAIN_PROBLEM,
+        ScopeType.DOMAIN_PROBLEM_SET,
+        ScopeType.DOMAIN_RECORD,
+    )
+
+
 class Authentication:
     def __init__(
         self,
@@ -196,10 +205,7 @@ class Authentication:
         if self.site_role == DefaultRole.ROOT:
             return True
         # grant domain root with domain permissions
-        if (
-            self.domain_role == DefaultRole.ROOT
-            and scope in DEFAULT_DOMAIN_PERMISSION[DefaultRole.ROOT]
-        ):
+        if self.domain_role == DefaultRole.ROOT and is_domain_permission(scope):
             return True
         # grant permission if site permission found
         if self.site_permission and _check(self.site_permission.get(scope, None)):
@@ -283,15 +289,6 @@ class DomainPermissionChecker(PermissionChecker):
         self, domain_auth: DomainAuthentication = Depends(DomainAuthentication)
     ) -> None:
         self.ensure(domain_auth.auth)
-
-
-def is_domain_permission(scope: ScopeType) -> bool:
-    return scope in (
-        ScopeType.GENERAL,
-        ScopeType.PROBLEM,
-        ScopeType.PROBLEM_SET,
-        ScopeType.RECORD,
-    )
 
 
 def ensure_permission(

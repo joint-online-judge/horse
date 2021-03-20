@@ -10,13 +10,13 @@ from joj.horse import models, schemas
 from joj.horse.models.permission import DefaultRole, PermissionType, ScopeType
 from joj.horse.schemas.user import UserBase
 from joj.horse.utils.auth import Authentication, DomainAuthentication, ensure_permission
-from joj.horse.utils.db import instance
+from joj.horse.utils.db import generate_join_pipeline, instance
 from joj.horse.utils.errors import (
     APINotImplementedError,
     InvalidAuthenticationError,
     InvalidDomainURLError,
 )
-from joj.horse.utils.parser import parse_domain, parse_uid
+from joj.horse.utils.parser import parse_domain, parse_domain_from_auth, parse_uid
 
 router = APIRouter()
 router_name = "domains"
@@ -44,7 +44,9 @@ async def list_domains(
 @router.post(
     "",
     response_model=schemas.Domain,
-    dependencies=[Depends(ensure_permission(ScopeType.DOMAIN, PermissionType.CREATE))],
+    dependencies=[
+        Depends(ensure_permission(ScopeType.SITE_DOMAIN, PermissionType.CREATE))
+    ],
 )
 async def create_domain(
     domain: schemas.DomainCreate, auth: Authentication = Depends()
@@ -83,23 +85,29 @@ async def create_domain(
     "/{domain}",
     response_model=schemas.Domain,
     dependencies=[
-        Depends(ensure_permission(ScopeType.USER, PermissionType.VIEW_HIDDEN)),
-        Depends(ensure_permission(ScopeType.USER, PermissionType.VIEW)),
+        # Depends(ensure_permission(ScopeType.SITE_USER, PermissionType.VIEW_HIDDEN)),
+        Depends(ensure_permission(ScopeType.DOMAIN_GENERAL, PermissionType.VIEW))
     ],
 )
-async def get_domain(domain_auth: DomainAuthentication = Depends()) -> schemas.Domain:
-    await domain_auth.auth.domain.owner.fetch()
-    return schemas.Domain.from_orm(domain_auth.auth.domain)
+async def get_domain(
+    domain: models.Domain = Depends(parse_domain_from_auth),
+) -> schemas.Domain:
+    await domain.owner.fetch()
+    return schemas.Domain.from_orm(domain, unfetch_all=False)
 
 
 @router.delete(
     "/{domain}",
     status_code=HTTPStatus.NO_CONTENT,
     response_class=Response,
-    dependencies=[Depends(ensure_permission(ScopeType.DOMAIN, PermissionType.DELETE))],
+    dependencies=[
+        Depends(ensure_permission(ScopeType.SITE_DOMAIN, PermissionType.DELETE))
+    ],
     deprecated=True,
 )
-async def delete_domain(domain: models.Domain = Depends(parse_domain),) -> None:
+async def delete_domain(
+    domain: models.Domain = Depends(parse_domain_from_auth),
+) -> None:
     # TODO: finish this part
     # tc-imba: delete domain have many side effects, and is not urgent,
     #          marked it deprecated and implement it later
@@ -107,25 +115,33 @@ async def delete_domain(domain: models.Domain = Depends(parse_domain),) -> None:
     # await domain.delete()
 
 
-@router.patch("/{domain}", response_model=schemas.Domain)
+@router.patch(
+    "/{domain}",
+    response_model=schemas.Domain,
+    dependencies=[
+        Depends(ensure_permission(ScopeType.DOMAIN_GENERAL, PermissionType.EDIT))
+    ],
+)
 async def update_domain(
-    edit_domain: schemas.DomainEdit,
-    domain: models.Domain = Depends(parse_domain),
-    auth: Authentication = Depends(Authentication),
+    domain_edit: schemas.DomainEdit,
+    domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> schemas.Domain:
-    domain.update_from_schema(edit_domain)
+    domain.update_from_schema(domain_edit)
     await domain.commit()
     return schemas.Domain.from_orm(domain)
 
 
-@router.get("/{domain}/members", response_model=List[schemas.UserBase])
+@router.get("/{domain}/members", response_model=List[schemas.DomainUser])
 async def list_members_in_domain(
     domain: models.Domain = Depends(parse_domain),
-    auth: Authentication = Depends(Authentication),
-) -> List[schemas.UserBase]:
+    auth: DomainAuthentication = Depends(DomainAuthentication),
+) -> List[schemas.DomainUser]:
+    pipeline = generate_join_pipeline(field="user", condition={"domain": domain.id})
     return [
-        await domain_user.user.fetch()
-        async for domain_user in models.DomainUser.find({"domain": domain.id})
+        schemas.DomainUser.from_orm(
+            models.DomainUser.build_from_mongo(domain_user), unfetch_all=False
+        )
+        async for domain_user in models.DomainUser.aggregate(pipeline)
     ]
 
 

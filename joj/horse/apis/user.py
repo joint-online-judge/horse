@@ -10,6 +10,7 @@ from uvicorn.config import logger
 from joj.horse import models, schemas
 from joj.horse.schemas.misc import RedirectModel
 from joj.horse.utils.auth import Authentication, auth_jwt_encode
+from joj.horse.utils.db import generate_join_pipeline
 from joj.horse.utils.errors import APINotImplementedError
 from joj.horse.utils.oauth import jaccount
 from joj.horse.utils.parser import parse_uid
@@ -151,11 +152,16 @@ async def get_user(auth: Authentication = Depends()) -> schemas.User:
     return schemas.User.from_orm(auth.user)
 
 
-@router.get("/domains", response_model=List[schemas.Domain])
-async def get_user_domains(auth: Authentication = Depends()) -> List[schemas.Domain]:
+@router.get("/domains", response_model=List[schemas.DomainUser])
+async def get_user_domains(
+    auth: Authentication = Depends()
+) -> List[schemas.DomainUser]:
+    pipeline = generate_join_pipeline(field="domain", condition={"user": auth.user.id})
     return [
-        await domain_user.domain.fetch()
-        async for domain_user in models.DomainUser.find({"user": auth.user.id})
+        schemas.DomainUser.from_orm(
+            models.DomainUser.build_from_mongo(domain_user), unfetch_all=False
+        )
+        async for domain_user in models.DomainUser.aggregate(pipeline)
     ]
 
 
