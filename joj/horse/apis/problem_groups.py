@@ -27,7 +27,7 @@ router_prefix = "/api/v1"
 
 @router.get("", response_model=List[schemas.ProblemGroup])
 async def list_problem_groups(
-    auth: Authentication = Depends(Authentication),
+    auth: Authentication = Depends(),
 ) -> List[schemas.ProblemGroup]:
     return [
         schemas.ProblemGroup.from_orm(problem)
@@ -38,7 +38,7 @@ async def list_problem_groups(
 @router.get("/{problem_group}", response_model=List[schemas.Problem])
 async def get_problems_in_problem_group(
     problem_group: models.ProblemGroup = Depends(parse_problem_group),
-    auth: Authentication = Depends(Authentication),
+    auth: Authentication = Depends(),
 ) -> List[schemas.Problem]:
     return [
         schemas.Problem.from_orm(problem)

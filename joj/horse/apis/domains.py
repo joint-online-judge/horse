@@ -25,9 +25,7 @@ router_prefix = "/api/v1"
 
 
 @router.get("", response_model=List[schemas.Domain])
-async def list_domains(
-    auth: Authentication = Depends(Authentication),
-) -> List[schemas.Domain]:
+async def list_domains(auth: Authentication = Depends(),) -> List[schemas.Domain]:
     """
     List all domains in which {user} has a role.
     Use current login user if {user} is not specified.
@@ -149,7 +147,7 @@ async def list_members_in_domain(
 async def add_member_to_domain(
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_uid),
-    auth: Authentication = Depends(Authentication),
+    auth: Authentication = Depends(),
 ) -> None:
     domain_user = schemas.DomainUser(
         domain=domain.id, user=user.id, role=DefaultRole.USER
@@ -162,7 +160,7 @@ async def add_member_to_domain(
 async def remove_member_from_domain(
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_uid),
-    auth: Authentication = Depends(Authentication),
+    auth: Authentication = Depends(),
 ) -> None:
     domain_user = await models.DomainUser.find_one(
         {"domain": domain.id, "user": user.id}
@@ -173,8 +171,7 @@ async def remove_member_from_domain(
 
 @router.get("/{domain}/labels", response_model=List[str])
 async def list_labels_in_domain(
-    domain: models.Domain = Depends(parse_domain),
-    auth: Authentication = Depends(Authentication),
+    domain: models.Domain = Depends(parse_domain), auth: Authentication = Depends()
 ) -> List[str]:
     # TODO: aggregate
     return [

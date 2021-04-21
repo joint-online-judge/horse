@@ -18,8 +18,7 @@ router_prefix = "/api/v1"
 
 @router.get("", response_model=List[schemas.ProblemSet])
 async def list_problem_sets(
-    required_labels: List[str] = Query([]),
-    auth: Authentication = Depends(Authentication),
+    required_labels: List[str] = Query([]), auth: Authentication = Depends()
 ) -> List[schemas.ProblemSet]:
     return [
         schemas.ProblemSet.from_orm(problem_set)

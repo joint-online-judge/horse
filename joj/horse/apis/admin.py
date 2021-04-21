@@ -16,9 +16,7 @@ router_prefix = "/api/v1"
 
 
 @router.get("/users", response_model=List[schemas.User])
-async def list_users(
-    auth: Authentication = Depends(Authentication),
-) -> List[schemas.User]:
+async def list_users(auth: Authentication = Depends(),) -> List[schemas.User]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
     return [schemas.User.from_orm(user) async for user in models.User.find()]
@@ -30,7 +28,7 @@ async def create_user(
     jaccount_name: str,
     real_name: str,
     ip: str,
-    auth: Authentication = Depends(Authentication),
+    auth: Authentication = Depends(),
 ) -> schemas.User:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
@@ -43,8 +41,7 @@ async def create_user(
 
 @router.delete("/users/{uid}", status_code=HTTPStatus.NO_CONTENT)
 async def delete_user(
-    user: models.User = Depends(parse_uid),
-    auth: Authentication = Depends(Authentication),
+    user: models.User = Depends(parse_uid), auth: Authentication = Depends()
 ) -> None:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
@@ -53,7 +50,7 @@ async def delete_user(
 
 @router.get("/domain_users", response_model=List[schemas.DomainUser])
 async def list_domain_users(
-    auth: Authentication = Depends(Authentication),
+    auth: Authentication = Depends(),
 ) -> List[schemas.DomainUser]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
@@ -65,7 +62,7 @@ async def list_domain_users(
 
 @router.get("/domain_roles", response_model=List[schemas.DomainRole])
 async def list_domain_roles(
-    auth: Authentication = Depends(Authentication),
+    auth: Authentication = Depends(),
 ) -> List[schemas.DomainRole]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
