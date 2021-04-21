@@ -24,8 +24,8 @@ router_prefix = "/api/v1"
 
 @router.get("/logout", response_model=RedirectModel)
 async def logout(
-    auth: Authentication = Depends(Authentication),
-    auth_jwt: AuthJWT = Depends(AuthJWT),
+    auth: Authentication = Depends(),
+    auth_jwt: AuthJWT = Depends(),
     redirect_url: str = Query(
         generate_url(), description="Set the redirect url after the logout."
     ),
@@ -82,7 +82,7 @@ async def jaccount_auth(
     request: Request,
     state: str,
     code: str,
-    auth_jwt: AuthJWT = Depends(AuthJWT),
+    auth_jwt: AuthJWT = Depends(),
     jaccount_state: str = Cookie(""),
     redirect_url: str = Cookie(generate_url()),
 ) -> RedirectResponse:

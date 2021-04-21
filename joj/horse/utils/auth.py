@@ -248,7 +248,7 @@ class Authentication:
 class DomainAuthentication:
     def __init__(
         self,
-        auth: Authentication = Depends(Authentication),
+        auth: Authentication = Depends(),
         domain: Domain = Depends(get_domain),
         domain_role: DefaultRole = Depends(get_domain_role),
         domain_permission: DomainPermission = Depends(get_domain_permission),
@@ -277,9 +277,7 @@ class PermissionChecker:
 
 
 class UserPermissionChecker(PermissionChecker):
-    def __call__(
-        self, request: Request, auth: Authentication = Depends(Authentication)
-    ) -> None:
+    def __call__(self, request: Request, auth: Authentication = Depends()) -> None:
         print(self.scope, self.permission)
         self.ensure(auth)
 

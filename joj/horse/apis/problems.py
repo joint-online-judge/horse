@@ -28,9 +28,7 @@ router_prefix = "/api/v1"
 
 
 @router.get("", response_model=List[schemas.Problem])
-async def list_problems(
-    auth: Authentication = Depends(Authentication),
-) -> List[schemas.Problem]:
+async def list_problems(auth: Authentication = Depends(),) -> List[schemas.Problem]:
     return [
         schemas.Problem.from_orm(problem)
         async for problem in models.Problem.find({"owner": auth.user.id})
