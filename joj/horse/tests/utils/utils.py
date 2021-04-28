@@ -1,5 +1,6 @@
 import random
 import string
+from typing import Any
 
 from joj.horse.models.user import User
 
@@ -22,3 +23,9 @@ async def create_test_user() -> User:
     )
     assert user is not None
     return user
+
+
+def get_base_url(module: Any) -> str:
+    return module.router_prefix + (
+        "/" + module.router_name if module.router_name else ""
+    )
