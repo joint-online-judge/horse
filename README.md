@@ -22,10 +22,16 @@ source env/Scripts/activate
 
 ```bash
 pip3 install -e . --use-feature=2020-resolver
-pre-commit install
 vi .env # configure environment
-python3 -m joj.horse
-# or just press F5 in VS Code
+python3 -m joj.horse # or just press F5 in VS Code
+```
+
+### For developers
+
+```bash
+pip3 install -r requirements-dev.txt
+pre-commit install
+pytest -svv
 ```
 
 Check <http://127.0.0.1:34765/api/v1> for api documentation.

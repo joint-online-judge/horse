@@ -10,7 +10,6 @@ gitpython>=3.1.7
 motor>=2.1.0
 oauth-jaccount
 pbr>=5.5.1
-pre-commit>=2.10.1
 pydantic[dotenv]>=1.7.3
 pyjwt<2.0.0
 pymongo>=3.11.2
