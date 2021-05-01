@@ -19,9 +19,9 @@ jobs:
       id: cache
       with:
         path: ${{ env.pythonLocation }}
-        key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ secrets.CACHE_VERSION }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/requirements.txt') }}
+        key: new-${{ runner.os }}-${{ env.pythonLocation }}-${{ secrets.CACHE_VERSION }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
-          ${{ runner.os }}-${{ env.pythonLocation }}
+          new-${{ runner.os }}-${{ env.pythonLocation }}
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
