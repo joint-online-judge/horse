@@ -35,5 +35,3 @@ jobs:
         redis-version: 6
     - name: Test
       run: pytest -svv
-    - name: Upload coverage
-      uses: codecov/codecov-action@v1
