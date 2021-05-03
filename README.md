@@ -23,7 +23,7 @@ source env/Scripts/activate
 ```
 
 ```bash
-pip3 install -e . --use-feature=2020-resolver
+pip3 install -e .
 vi .env # configure environment
 python3 -m joj.horse # or just press F5 in VS Code
 ```
