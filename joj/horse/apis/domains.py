@@ -144,12 +144,18 @@ async def list_members_in_domain(
     ]
 
 
-@router.post("/{domain}/members/{uid}", status_code=HTTPStatus.NO_CONTENT)
+@router.post(
+    "/{domain}/members/{uid}",
+    status_code=HTTPStatus.NO_CONTENT,
+    response_class=Response,
+)
 async def add_member_to_domain(
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_uid),
     auth: Authentication = Depends(),
 ) -> None:
+    if await models.DomainUser.find_one({"domain": domain.id, "user": user.id}):
+        return
     domain_user = schemas.DomainUser(
         domain=domain.id, user=user.id, role=DefaultRole.USER
     )
@@ -157,7 +163,11 @@ async def add_member_to_domain(
     await domain_user.commit()
 
 
-@router.delete("/{domain}/members/{uid}", status_code=HTTPStatus.NO_CONTENT)
+@router.delete(
+    "/{domain}/members/{uid}",
+    status_code=HTTPStatus.NO_CONTENT,
+    response_class=Response,
+)
 async def remove_member_from_domain(
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_uid),
