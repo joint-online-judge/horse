@@ -4,7 +4,6 @@ import jwt
 from fastapi.testclient import TestClient
 
 from joj.horse.apis.misc import router_prefix
-from joj.horse.models.user import User
 from joj.horse.utils.version import get_git_version, get_version
 
 
@@ -17,14 +16,14 @@ def test_version(client: TestClient) -> None:
 
 
 def test_jwt(
-    client: TestClient, test_user_token_headers: Dict[str, str], test_user: User
+    client: TestClient, global_test_user_token_headers: Dict[str, str]
 ) -> None:
-    r = client.get(f"{router_prefix}/jwt", headers=test_user_token_headers)
+    r = client.get(f"{router_prefix}/jwt", headers=global_test_user_token_headers)
     res = r.json()
     assert r.status_code == 200
     res_jwt_dict = jwt.decode(res["jwt"], verify=False)
     header_jwt_dict = jwt.decode(
-        test_user_token_headers["Authorization"][7:], verify=False
+        global_test_user_token_headers["Authorization"][7:], verify=False
     )
     assert res_jwt_dict["sub"] == header_jwt_dict["sub"]
     assert res_jwt_dict["type"] == header_jwt_dict["type"]

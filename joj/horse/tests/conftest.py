@@ -17,6 +17,21 @@ def client() -> Generator[TestClient, Any, Any]:
         yield c
 
 
+@pytest.fixture(scope="session")
+def global_test_user() -> User:
+    loop = asyncio.get_event_loop()
+    user = loop.run_until_complete(create_test_user())
+    return user
+
+
+@pytest.fixture(scope="session")
+def global_test_user_token_headers(global_test_user: User) -> Dict[str, str]:
+    access_jwt = auth_jwt_encode(
+        auth_jwt=AuthJWT(), user=global_test_user, channel="jaccount"
+    )
+    return {"Authorization": f"Bearer {access_jwt}"}
+
+
 @pytest.fixture(scope="module")
 def test_user() -> User:
     loop = asyncio.get_event_loop()
