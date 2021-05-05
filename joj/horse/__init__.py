@@ -3,6 +3,7 @@ from http import HTTPStatus
 
 from fastapi import FastAPI, Request
 from fastapi.encoders import jsonable_encoder
+from marshmallow.exceptions import ValidationError as MValidationError
 from pydantic.error_wrappers import ValidationError
 from starlette.responses import JSONResponse, RedirectResponse
 from tenacity import RetryError
@@ -50,6 +51,16 @@ async def validation_exception_handler(
 ) -> JSONResponse:
     return JSONResponse(
         content=jsonable_encoder({"detail": exc.errors()}),
+        status_code=HTTPStatus.UNPROCESSABLE_ENTITY.value,
+    )
+
+
+@app.exception_handler(MValidationError)
+async def marshmallow_validation_exception_handler(
+    request: Request, exc: MValidationError
+) -> JSONResponse:
+    return JSONResponse(
+        content=jsonable_encoder({"detail": exc.messages}),
         status_code=HTTPStatus.UNPROCESSABLE_ENTITY.value,
     )
 

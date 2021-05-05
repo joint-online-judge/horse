@@ -1,5 +1,6 @@
 from typing import Dict
 
+from bson import ObjectId
 from fastapi.encoders import jsonable_encoder
 from fastapi.testclient import TestClient
 
@@ -84,9 +85,99 @@ def test_update_domain(
     )
     assert r.status_code == 200
     res = r.json()
-    assert res["id"]
+    assert ObjectId.is_valid(res["id"])
     assert res["url"] == domain.url
     assert res["name"] == domain_edit.name
     assert res["bulletin"] == domain_edit.bulletin
     assert res["gravatar"] == domain_edit.gravatar
     assert res["owner"] == str(test_user.id)
+
+
+def test_add_member_to_domain(
+    client: TestClient,
+    test_user_token_headers: Dict[str, str],
+    test_user: User,
+    global_test_user: User,
+) -> None:
+    # add duplicate member
+    r = client.post(
+        f"{base_domain_url}/{domain.url}/members/{test_user.id}",
+        headers=test_user_token_headers,
+    )
+    assert r.status_code == 204
+    assert not r.content
+    # add new member
+    r = client.post(
+        f"{base_domain_url}/{domain.url}/members/{global_test_user.id}",
+        headers=test_user_token_headers,
+    )
+    assert r.status_code == 204
+    assert not r.content
+    # add new duplicate member
+    r = client.post(
+        f"{base_domain_url}/{domain.url}/members/{global_test_user.id}",
+        headers=test_user_token_headers,
+    )
+    assert r.status_code == 204
+    assert not r.content
+
+
+def test_list_members_in_domain(
+    client: TestClient,
+    test_user_token_headers: Dict[str, str],
+    test_user: User,
+    global_test_user: User,
+) -> None:
+    r = client.get(
+        f"{base_domain_url}/{domain.url}/members", headers=test_user_token_headers
+    )
+    assert r.status_code == 200
+    res = r.json()
+    assert len(res) == 2
+    for item in res:
+        assert item["domain"] == NEW_DOMAIN["id"]
+        assert item["join_at"]
+        if item["user"]["id"] == str(test_user.id):
+            assert item["role"] == "root"
+        elif item["user"]["id"] == str(global_test_user.id):
+            assert item["role"] == "user"
+        else:
+            assert False, f"Unknown user id: {item['user']['id']}"
+
+
+def test_remove_member_from_domain(
+    client: TestClient,
+    test_user_token_headers: Dict[str, str],
+    test_user: User,
+    global_test_user: User,
+) -> None:
+    r = client.delete(
+        f"{base_domain_url}/{domain.url}/members/{global_test_user.id}",
+        headers=test_user_token_headers,
+    )
+    assert r.status_code == 204
+    assert not r.content
+    # TODO: what about the last user / creator of the domain is deleted?
+    r = client.get(
+        f"{base_domain_url}/{domain.url}/members", headers=test_user_token_headers
+    )
+    assert r.status_code == 200
+    res = r.json()
+    assert len(res) == 1
+    res = res[0]
+    assert res["user"]["id"] == str(test_user.id)
+
+
+def test_list_labels_in_domain(
+    client: TestClient,
+    test_user_token_headers: Dict[str, str],
+    test_user: User,
+    global_test_user: User,
+) -> None:
+    # TODO: add real tag in problems
+    r = client.get(
+        f"{base_domain_url}/{domain.url}/labels", headers=test_user_token_headers
+    )
+    assert r.status_code == 200
+    res = r.json()
+    assert len(res) == 0
