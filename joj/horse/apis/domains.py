@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from http import HTTPStatus
 from typing import List
 
@@ -13,6 +14,7 @@ from joj.horse.utils.auth import Authentication, DomainAuthentication, ensure_pe
 from joj.horse.utils.db import generate_join_pipeline, instance
 from joj.horse.utils.errors import (
     APINotImplementedError,
+    DomainInvitationBadRequestError,
     InvalidAuthenticationError,
     InvalidDomainURLError,
     UserAlreadyInDomainBadRequestError,
@@ -159,6 +161,28 @@ async def add_member_to_domain(
         raise UserAlreadyInDomainBadRequestError(user.id, domain.id)
     domain_user = schemas.DomainUser(
         domain=domain.id, user=user.id, role=DefaultRole.USER
+    )
+    domain_user = models.DomainUser(**domain_user.to_model())
+    await domain_user.commit()
+
+
+@router.get(
+    "/{domain}/members/join", status_code=HTTPStatus.NO_CONTENT, response_class=Response
+)
+async def member_join_in_domain(
+    invitation_code: str = Query(...),
+    domain: models.Domain = Depends(parse_domain),
+    auth: Authentication = Depends(),
+) -> None:
+    if await models.DomainUser.find_one({"domain": domain.id, "user": auth.user.id}):
+        raise UserAlreadyInDomainBadRequestError(auth.user.id, domain.id)
+    if (
+        invitation_code != domain.invitation_code
+        or datetime.now() > domain.invitation_expire_at
+    ):
+        raise DomainInvitationBadRequestError(domain.id)
+    domain_user = schemas.DomainUser(
+        domain=domain.id, user=auth.user.id, role=DefaultRole.USER
     )
     domain_user = models.DomainUser(**domain_user.to_model())
     await domain_user.commit()

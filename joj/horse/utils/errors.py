@@ -110,3 +110,9 @@ class UserAlreadyInDomainBadRequestError(BadRequestError):
     def __init__(self, user_id: str, domain_id: str) -> None:
         message = "User {} already in domain {} bad request."
         super().__init__(message=message, args=[user_id, domain_id])
+
+
+class DomainInvitationBadRequestError(BadRequestError):
+    def __init__(self, domain_id: str) -> None:
+        message = "Domain {} invitation invalid bad request."
+        super().__init__(message=message, args=[domain_id])

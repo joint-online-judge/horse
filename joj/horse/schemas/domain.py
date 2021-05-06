@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Callable, Optional
 
 from pydantic import Field
@@ -16,6 +17,8 @@ class DomainEdit(BaseModel):
     name: Optional[str]
     gravatar: Optional[str]
     bulletin: Optional[str]
+    invitation_code: Optional[str]
+    invitation_expire_at: Optional[datetime]
 
 
 class DomainCreate(BaseModel):

@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Dict
 
 from bson import ObjectId
@@ -24,6 +25,8 @@ domain_edit = schemas.DomainEdit(
     name=random_lower_string(),
     bulletin=random_lower_string(),
     gravatar=random_lower_string(),
+    invitation_code=random_lower_string(),
+    invitation_expire_at=datetime(3000, 1, 1),
 )
 update_data = jsonable_encoder(domain_edit)
 NEW_DOMAIN = {}
@@ -168,6 +171,37 @@ def test_remove_member_from_domain(
     assert len(res) == 1
     res = res[0]
     assert res["user"]["id"] == str(test_user.id)
+
+
+def test_member_join_in_domain(
+    client: TestClient,
+    test_user_token_headers: Dict[str, str],
+    global_test_user_token_headers: Dict[str, str],
+    test_user: User,
+    global_test_user: User,
+) -> None:
+    r = client.get(
+        f"{base_domain_url}/{domain.url}/members/join",
+        params={"invitation_code": domain_edit.invitation_code},
+        headers=global_test_user_token_headers,
+    )
+    assert r.status_code == 204
+    assert not r.content
+    r = client.get(
+        f"{base_domain_url}/{domain.url}/members", headers=test_user_token_headers
+    )
+    assert r.status_code == 200
+    res = r.json()
+    assert len(res) == 2
+    for item in res:
+        assert item["domain"] == NEW_DOMAIN["id"]
+        assert item["join_at"]
+        if item["user"]["id"] == str(test_user.id):
+            assert item["role"] == "root"
+        elif item["user"]["id"] == str(global_test_user.id):
+            assert item["role"] == "user"
+        else:
+            assert False, f"Unknown user id: {item['user']['id']}"
 
 
 def test_list_labels_in_domain(
