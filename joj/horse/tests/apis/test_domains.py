@@ -78,6 +78,23 @@ def test_get_domain(
     assert res == NEW_DOMAIN
 
 
+def test_member_join_in_domain_expired(
+    client: TestClient,
+    test_user_token_headers: Dict[str, str],
+    global_test_user_token_headers: Dict[str, str],
+    test_user: User,
+    global_test_user: User,
+) -> None:
+    r = client.get(
+        f"{base_domain_url}/{domain.url}/members/join",
+        params={"invitation_code": domain_edit.invitation_code},
+        headers=global_test_user_token_headers,
+    )
+    assert r.status_code == 400
+    res = r.json()
+    assert res["detail"]
+
+
 def test_update_domain(
     client: TestClient, test_user_token_headers: Dict[str, str], test_user: User
 ) -> None:
@@ -180,6 +197,22 @@ def test_member_join_in_domain(
     test_user: User,
     global_test_user: User,
 ) -> None:
+    # wrong invitation code
+    r = client.get(
+        f"{base_domain_url}/{domain.url}/members/join",
+        params={"invitation_code": "wrong"},
+        headers=global_test_user_token_headers,
+    )
+    assert r.status_code == 400
+    res = r.json()
+    assert res["detail"]
+    r = client.get(
+        f"{base_domain_url}/{domain.url}/members", headers=test_user_token_headers
+    )
+    assert r.status_code == 200
+    res = r.json()
+    assert len(res) == 1
+    # right invitation code
     r = client.get(
         f"{base_domain_url}/{domain.url}/members/join",
         params={"invitation_code": domain_edit.invitation_code},
