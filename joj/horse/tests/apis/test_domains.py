@@ -104,8 +104,9 @@ def test_add_member_to_domain(
         f"{base_domain_url}/{domain.url}/members/{test_user.id}",
         headers=test_user_token_headers,
     )
-    assert r.status_code == 204
-    assert not r.content
+    assert r.status_code == 400
+    res = r.json()
+    assert res["detail"]
     # add new member
     r = client.post(
         f"{base_domain_url}/{domain.url}/members/{global_test_user.id}",
@@ -118,8 +119,9 @@ def test_add_member_to_domain(
         f"{base_domain_url}/{domain.url}/members/{global_test_user.id}",
         headers=test_user_token_headers,
     )
-    assert r.status_code == 204
-    assert not r.content
+    assert r.status_code == 400
+    res = r.json()
+    assert res["detail"]
 
 
 def test_list_members_in_domain(

@@ -102,5 +102,11 @@ class RecordNotFoundError(NotFoundError):
 
 class DeleteProblemBadRequestError(BadRequestError):
     def __init__(self, problem_set: str) -> None:
-        message = "Problem {} fdelete bad request."
+        message = "Problem {} delete bad request."
         super().__init__(message=message, args=[problem_set])
+
+
+class UserAlreadyInDomainBadRequestError(BadRequestError):
+    def __init__(self, user_id: str, domain_id: str) -> None:
+        message = "User {} already in domain {} bad request."
+        super().__init__(message=message, args=[user_id, domain_id])
