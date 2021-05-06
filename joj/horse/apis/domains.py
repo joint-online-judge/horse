@@ -15,6 +15,7 @@ from joj.horse.utils.errors import (
     APINotImplementedError,
     InvalidAuthenticationError,
     InvalidDomainURLError,
+    UserAlreadyInDomainBadRequestError,
 )
 from joj.horse.utils.parser import parse_domain, parse_domain_from_auth, parse_uid
 
@@ -155,7 +156,7 @@ async def add_member_to_domain(
     auth: Authentication = Depends(),
 ) -> None:
     if await models.DomainUser.find_one({"domain": domain.id, "user": user.id}):
-        return
+        raise UserAlreadyInDomainBadRequestError(user.id, domain.id)
     domain_user = schemas.DomainUser(
         domain=domain.id, user=user.id, role=DefaultRole.USER
     )
