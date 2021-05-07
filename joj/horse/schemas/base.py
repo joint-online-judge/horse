@@ -123,7 +123,7 @@ BT = TypeVar("BT", bound=BaseModel)
 def get_standard_response_model(cls: Type[BaseModel]) -> Type[BaseModel]:
     name = cls.__name__
     return create_model(
-        f"StandardResponse[{name}]", code=(ErrorEnum, ...), data=(Optional[cls], None)
+        f"{name}Resp", code=(ErrorEnum, ...), data=(Optional[cls], None)
     )
 
 
