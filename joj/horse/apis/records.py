@@ -1,15 +1,14 @@
 import io
-from typing import List
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from motor.motor_asyncio import AsyncIOMotorGridFSBucket
-from uvicorn.config import logger
 
 from joj.horse import models, schemas
-from joj.horse.utils import errors
+from joj.horse.schemas.base import StandardResponse
+from joj.horse.schemas.record import ListRecords
 from joj.horse.utils.auth import Authentication
-from joj.horse.utils.db import get_db, instance
+from joj.horse.utils.db import get_db
 from joj.horse.utils.parser import parse_record, parse_uid_or_none
 
 router = APIRouter()
@@ -18,22 +17,28 @@ router_tag = "record"
 router_prefix = "/api/v1"
 
 
-@router.get("", response_model=List[schemas.Record])
+@router.get("", response_model=StandardResponse[ListRecords])
 async def list_records(
     user: models.User = Depends(parse_uid_or_none), auth: Authentication = Depends()
-) -> List[schemas.Record]:
+) -> StandardResponse[ListRecords]:
     owner_filter = None
     if user:
         owner_filter = {"owner": auth.user.id}
-    return [
-        schemas.Record.from_orm(record)
-        async for record in models.Record.find(owner_filter)
-    ]
+    return StandardResponse(
+        ListRecords(
+            rows=[
+                schemas.Record.from_orm(record)
+                async for record in models.Record.find(owner_filter)
+            ]
+        )
+    )
 
 
-@router.get("/{record}", response_model=schemas.Record)
-async def get_record(record: models.Record = Depends(parse_record)) -> schemas.Record:
-    return schemas.Record.from_orm(record)
+@router.get("/{record}", response_model=StandardResponse[schemas.Record])
+async def get_record(
+    record: models.Record = Depends(parse_record),
+) -> StandardResponse[schemas.Record]:
+    return StandardResponse(schemas.Record.from_orm(record))
 
 
 @router.get("/{record}/code")
