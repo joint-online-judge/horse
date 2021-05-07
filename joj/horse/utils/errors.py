@@ -1,25 +1,25 @@
-from enum import IntEnum, auto
+from enum import Enum, IntEnum, auto
 from typing import Any
 
 from fastapi import HTTPException, status
 
 
-class ErrorEnum(IntEnum):
-    Success = 0
-    Error = 10000
-    APINotImplementedError = auto()
-    InvalidAuthenticationError = auto()
-    UserNotFoundError = auto()
-    DomainNotFoundError = auto()
-    DomainUrlNotUniqueError = auto()
-    InvalidDomainURLError = auto()
-    ProblemNotFoundError = auto()
-    ProblemSetNotFoundError = auto()
-    ProblemGroupNotFoundError = auto()
-    RecordNotFoundError = auto()
-    DeleteProblemBadRequestError = auto()
-    UserAlreadyInDomainBadRequestError = auto()
-    DomainInvitationBadRequestError = auto()
+class ErrorEnum(str, Enum):
+    Success = "Success"
+    Error = "Error"
+    APINotImplementedError = "APINotImplementedError"
+    InvalidAuthenticationError = "InvalidAuthenticationError"
+    UserNotFoundError = "UserNotFoundError"
+    DomainNotFoundError = "DomainNotFoundError"
+    DomainUrlNotUniqueError = "DomainUrlNotUniqueError"
+    InvalidDomainURLError = "InvalidDomainURLError"
+    ProblemNotFoundError = "ProblemNotFoundError"
+    ProblemSetNotFoundError = "ProblemSetNotFoundError"
+    ProblemGroupNotFoundError = "ProblemGroupNotFoundError"
+    RecordNotFoundError = "RecordNotFoundError"
+    DeleteProblemBadRequestError = "DeleteProblemBadRequestError"
+    UserAlreadyInDomainBadRequestError = "UserAlreadyInDomainBadRequestError"
+    DomainInvitationBadRequestError = "DomainInvitationBadRequestError"
 
 
 class BizError(Exception):
