@@ -87,3 +87,7 @@ class Record(BaseODMSchema):
     _validate_problem_set: Callable[
         [AnyCallable], classmethod
     ] = reference_schema_validator("problem_set", ProblemSet)
+
+
+class ListRecords(BaseModel):
+    rows: List[Record]
