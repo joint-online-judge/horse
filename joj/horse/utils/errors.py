@@ -1,6 +1,12 @@
+from enum import IntEnum
 from typing import Any
 
 from fastapi import HTTPException, status
+
+
+class CodeEnum(IntEnum):
+    success = 0
+    error = 100000
 
 
 class BaseError(HTTPException):

@@ -3,6 +3,7 @@ from http import HTTPStatus
 
 from fastapi import FastAPI, Request
 from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import HTTPException
 from marshmallow.exceptions import ValidationError as MValidationError
 from pydantic.error_wrappers import ValidationError
 from starlette.responses import JSONResponse, RedirectResponse
@@ -12,6 +13,7 @@ from uvicorn.config import logger
 from joj.horse.config import settings
 from joj.horse.utils.cache import test_cache
 from joj.horse.utils.db import ensure_indexes, get_db
+from joj.horse.utils.errors import CodeEnum, UnprocessableEntityError
 from joj.horse.utils.url import generate_url
 from joj.horse.utils.version import get_git_version, get_version
 
@@ -63,6 +65,14 @@ async def marshmallow_validation_exception_handler(
         content=jsonable_encoder({"detail": exc.messages}),
         status_code=HTTPStatus.UNPROCESSABLE_ENTITY.value,
     )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+    response = JSONResponse(
+        jsonable_encoder({"code": CodeEnum.error, "data": exc.detail}), status_code=400
+    )
+    return response
 
 
 import joj.horse.apis
