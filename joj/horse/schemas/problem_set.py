@@ -50,3 +50,7 @@ class ProblemSet(ProblemSetCreate, BaseODMSchema):
     _validate_problem: Callable[
         [AnyCallable], classmethod
     ] = reference_schema_validator("problems", Problem, each_item=True)
+
+
+class ListProblemSets(BaseModel):
+    rows: List[ProblemSet]

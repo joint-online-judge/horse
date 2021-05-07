@@ -1,38 +1,44 @@
-from http import HTTPStatus
 from typing import List
 
-from fastapi import APIRouter, Depends, Query, Response
+from fastapi import Depends, Query
+from fastapi_utils.inferring_router import InferringRouter
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
+from joj.horse.schemas import Empty, StandardResponse
+from joj.horse.schemas.problem_set import ListProblemSets
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import instance
-from joj.horse.utils.errors import InvalidAuthenticationError, ProblemNotFoundError
+from joj.horse.utils.errors import BizError, ErrorEnum
 from joj.horse.utils.parser import parse_problem_set
 
-router = APIRouter()
+router = InferringRouter()
 router_name = "problem_sets"
 router_tag = "problem set"
 router_prefix = "/api/v1"
 
 
-@router.get("", response_model=List[schemas.ProblemSet])
+@router.get("")
 async def list_problem_sets(
     required_labels: List[str] = Query([]), auth: Authentication = Depends()
-) -> List[schemas.ProblemSet]:
-    return [
-        schemas.ProblemSet.from_orm(problem_set)
-        async for problem_set in models.ProblemSet.find({"owner": auth.user.id})
-        if all(label in problem_set.labels for label in required_labels)
-    ]
+) -> StandardResponse[ListProblemSets]:
+    return StandardResponse(
+        ListProblemSets(
+            rows=[
+                schemas.ProblemSet.from_orm(problem_set)
+                async for problem_set in models.ProblemSet.find({"owner": auth.user.id})
+                if all(label in problem_set.labels for label in required_labels)
+            ]
+        )
+    )
 
 
-@router.post("", response_model=schemas.ProblemSet)
+@router.post("")
 async def create_problem_set(
     problem_set: schemas.ProblemSetCreate, auth: Authentication = Depends()
-) -> schemas.ProblemSet:
+) -> StandardResponse[schemas.ProblemSet]:
     if auth.user is None:
-        raise InvalidAuthenticationError()
+        raise BizError(ErrorEnum.InvalidAuthenticationError)
 
     # use transaction for multiple operations
     try:
@@ -47,7 +53,7 @@ async def create_problem_set(
                     zip(problem_set.problems, problems_models)
                 ):
                     if problem_model is None:
-                        raise ProblemNotFoundError(problem_id)
+                        raise BizError(ErrorEnum.ProblemNotFoundError)
                     problems_models[i] = problem_model.id
                 logger.info("problems_models: %s", problems_models)
                 problem_set = schemas.ProblemSet(
@@ -65,30 +71,29 @@ async def create_problem_set(
     except Exception as e:
         logger.error("problem set creation failed: %s", problem_set.title)
         raise e
-    return schemas.ProblemSet.from_orm(problem_set)
+    return StandardResponse(schemas.ProblemSet.from_orm(problem_set))
 
 
-@router.get("/{problem_set}", response_model=schemas.ProblemSet)
+@router.get("/{problem_set}")
 async def get_problem_set(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
-) -> schemas.ProblemSet:
-    return schemas.ProblemSet.from_orm(problem_set)
+) -> StandardResponse[schemas.ProblemSet]:
+    return StandardResponse(schemas.ProblemSet.from_orm(problem_set))
 
 
-@router.delete(
-    "/{problem_set}", status_code=HTTPStatus.NO_CONTENT, response_class=Response
-)
+@router.delete("/{problem_set}")
 async def delete_problem_set(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
-) -> None:
+) -> StandardResponse[Empty]:
     await problem_set.delete()
+    return StandardResponse()
 
 
-@router.patch("/{problem_set}", response_model=schemas.ProblemSet)
+@router.patch("/{problem_set}")
 async def update_problem_set(
     edit_problem_set: schemas.ProblemSetEdit,
     problem_set: models.ProblemSet = Depends(parse_problem_set),
-) -> schemas.ProblemSet:
+) -> StandardResponse[schemas.ProblemSet]:
     problem_set.update_from_schema(edit_problem_set)
     await problem_set.commit()
-    return schemas.ProblemSet.from_orm(problem_set)
+    return StandardResponse(schemas.ProblemSet.from_orm(problem_set))
