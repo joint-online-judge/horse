@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Callable, Optional
+from typing import Callable, List, Optional
 
 from pydantic import Field
 from pydantic.main import BaseModel
@@ -34,3 +34,11 @@ class Domain(DomainCreate, BaseODMSchema):
     _validate_owner: Callable[[AnyCallable], classmethod] = reference_schema_validator(
         "owner", UserBase
     )
+
+
+class ListDomains(BaseModel):
+    rows: List[Domain]
+
+
+class ListDomainLabels(BaseModel):
+    rows: List[str]

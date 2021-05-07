@@ -6,16 +6,22 @@ from bson import ObjectId
 from fastapi import Body, Depends, Query, Response
 from fastapi_utils.inferring_router import InferringRouter
 from marshmallow.exceptions import ValidationError
+from pydantic.errors import EnumError
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.models.permission import DefaultRole, PermissionType, ScopeType
 from joj.horse.schemas import StandardResponse
+from joj.horse.schemas.base import Empty
+from joj.horse.schemas.domain import ListDomainLabels, ListDomains
+from joj.horse.schemas.domain_user import ListDomainMembers
 from joj.horse.utils.auth import Authentication, DomainAuthentication, ensure_permission
 from joj.horse.utils.db import generate_join_pipeline, instance
 from joj.horse.utils.errors import (
     APINotImplementedError,
+    BizError,
     DomainInvitationBadRequestError,
+    ErrorEnum,
     InvalidAuthenticationError,
     InvalidDomainURLError,
     UserAlreadyInDomainBadRequestError,
@@ -31,7 +37,7 @@ router_prefix = "/api/v1"
 @router.get("")
 async def list_domains(
     auth: Authentication = Depends(),
-) -> StandardResponse[List[schemas.Domain]]:
+) -> StandardResponse[ListDomains]:
     """
     List all domains in which {user} has a role.
     Use current login user if {user} is not specified.
@@ -40,10 +46,12 @@ async def list_domains(
     # auth.ensure(ScopeType.GENERAL, PermissionType.UNKNOWN)
     # print("self")
     return StandardResponse(
-        [
-            schemas.Domain.from_orm(domain)
-            async for domain in models.Domain.find({"owner": auth.user.id})
-        ]
+        ListDomains(
+            rows=[
+                schemas.Domain.from_orm(domain)
+                async for domain in models.Domain.find({"owner": auth.user.id})
+            ]
+        )
     )
 
 
@@ -59,9 +67,9 @@ async def create_domain(
 ) -> StandardResponse[schemas.Domain]:
     # we can not use ObjectId as the url
     if ObjectId.is_valid(domain.url):
-        raise InvalidDomainURLError(domain.url)
+        raise BizError(ErrorEnum.InvalidDomainURLError)
     if auth.user is None:
-        raise InvalidAuthenticationError()
+        raise BizError(ErrorEnum.InvalidAuthenticationError)
 
     # use transaction for multiple operations
     try:
@@ -79,7 +87,7 @@ async def create_domain(
                 logger.info("domain user created: %s", domain_user)
                 # TODO: create domain roles here
     except ValidationError:
-        raise InvalidDomainURLError(domain.url)  # non-unique domain url
+        raise BizError(ErrorEnum.DomainUrlNotUniqueError)  # non-unique domain url
     except Exception as e:
         logger.error("domain creation failed: %s", domain.url)
         raise e
@@ -114,7 +122,7 @@ async def delete_domain(
     # TODO: finish this part
     # tc-imba: delete domain have many side effects, and is not urgent,
     #          marked it deprecated and implement it later
-    raise APINotImplementedError()
+    raise BizError(ErrorEnum.APINotImplementedError)
     # await domain.delete()
 
 
@@ -137,15 +145,17 @@ async def update_domain(
 async def list_members_in_domain(
     domain: models.Domain = Depends(parse_domain),
     auth: DomainAuthentication = Depends(DomainAuthentication),
-) -> StandardResponse[List[schemas.DomainUser]]:
+) -> StandardResponse[ListDomainMembers]:
     pipeline = generate_join_pipeline(field="user", condition={"domain": domain.id})
     return StandardResponse(
-        [
-            schemas.DomainUser.from_orm(
-                models.DomainUser.build_from_mongo(domain_user), unfetch_all=False
-            )
-            async for domain_user in models.DomainUser.aggregate(pipeline)
-        ]
+        ListDomainMembers(
+            rows=[
+                schemas.DomainUser.from_orm(
+                    models.DomainUser.build_from_mongo(domain_user), unfetch_all=False
+                )
+                async for domain_user in models.DomainUser.aggregate(pipeline)
+            ]
+        )
     )
 
 
@@ -154,15 +164,15 @@ async def add_member_to_domain(
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_uid),
     auth: Authentication = Depends(),
-) -> StandardResponse[None]:
+) -> StandardResponse[Empty]:
     if await models.DomainUser.find_one({"domain": domain.id, "user": user.id}):
-        raise UserAlreadyInDomainBadRequestError(user.id, domain.id)
+        raise BizError(ErrorEnum.UserAlreadyInDomainBadRequestError)
     domain_user = schemas.DomainUser(
         domain=domain.id, user=user.id, role=DefaultRole.USER
     )
     domain_user = models.DomainUser(**domain_user.to_model())
     await domain_user.commit()
-    return StandardResponse(None)
+    return StandardResponse()
 
 
 @router.get("/{domain}/members/join")
@@ -170,20 +180,20 @@ async def member_join_in_domain(
     invitation_code: str = Query(...),
     domain: models.Domain = Depends(parse_domain),
     auth: Authentication = Depends(),
-) -> StandardResponse[None]:
+) -> StandardResponse[Empty]:
     if await models.DomainUser.find_one({"domain": domain.id, "user": auth.user.id}):
-        raise UserAlreadyInDomainBadRequestError(auth.user.id, domain.id)
+        raise BizError(ErrorEnum.UserAlreadyInDomainBadRequestError)
     if (
         invitation_code != domain.invitation_code
         or datetime.now() > domain.invitation_expire_at
     ):
-        raise DomainInvitationBadRequestError(domain.id)
+        raise BizError(ErrorEnum.DomainInvitationBadRequestError)
     domain_user = schemas.DomainUser(
         domain=domain.id, user=auth.user.id, role=DefaultRole.USER
     )
     domain_user = models.DomainUser(**domain_user.to_model())
     await domain_user.commit()
-    return StandardResponse(None)
+    return StandardResponse()
 
 
 @router.delete("/{domain}/members/{uid}")
@@ -191,24 +201,26 @@ async def remove_member_from_domain(
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_uid),
     auth: Authentication = Depends(),
-) -> StandardResponse[None]:
+) -> StandardResponse[Empty]:
     domain_user = await models.DomainUser.find_one(
         {"domain": domain.id, "user": user.id}
     )
     if domain_user:
         await domain_user.delete()
-    return StandardResponse(None)
+    return StandardResponse()
 
 
 @router.get("/{domain}/labels")
 async def list_labels_in_domain(
     domain: models.Domain = Depends(parse_domain), auth: Authentication = Depends()
-) -> StandardResponse[List[str]]:
+) -> StandardResponse[ListDomainLabels]:
     # TODO: aggregate
     return StandardResponse(
-        [
-            label
-            async for problem_set in models.ProblemSet.find({"domain": domain.id})
-            for label in schemas.ProblemSet.from_orm(problem_set).labels
-        ]
+        ListDomainLabels(
+            rows=[
+                label
+                async for problem_set in models.ProblemSet.find({"domain": domain.id})
+                for label in schemas.ProblemSet.from_orm(problem_set).labels
+            ]
+        )
     )
