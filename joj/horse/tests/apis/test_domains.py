@@ -51,16 +51,6 @@ def test_create_domain(
     assert res["owner"] == str(test_user.id)
 
 
-def test_list_user_domains(
-    client: TestClient, test_user_token_headers: Dict[str, str], test_user: User
-) -> None:
-    r = client.get(f"{base_user_url}/domains", headers=test_user_token_headers)
-    assert r.status_code == 200
-    res = r.json()
-    assert res[0]["domain"] == NEW_DOMAIN
-    assert res[0]["user"] == str(test_user.id)
-
-
 def test_list_domains(
     client: TestClient, test_user_token_headers: Dict[str, str], test_user: User
 ) -> None:

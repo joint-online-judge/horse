@@ -8,7 +8,10 @@ from starlette.responses import JSONResponse, RedirectResponse
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
+from joj.horse.schemas import StandardResponse
+from joj.horse.schemas.domain import ListDomains
 from joj.horse.schemas.misc import RedirectModel
+from joj.horse.schemas.problem import ListProblems
 from joj.horse.utils.auth import Authentication, auth_jwt_encode
 from joj.horse.utils.db import generate_join_pipeline
 from joj.horse.utils.errors import APINotImplementedError
@@ -147,27 +150,38 @@ def get_jaccount_logout_url(redirect_url: str) -> str:
     return client.get_logout_url(redirect_url)
 
 
-@router.get("", response_model=schemas.User)
-async def get_user(auth: Authentication = Depends()) -> schemas.User:
-    return schemas.User.from_orm(auth.user)
+@router.get("", response_model=StandardResponse[schemas.User])
+async def get_user(auth: Authentication = Depends()) -> StandardResponse[schemas.User]:
+    return StandardResponse(schemas.User.from_orm(auth.user))
 
 
-@router.get("/domains", response_model=List[schemas.DomainUser])
-async def get_user_domains(
-    auth: Authentication = Depends()
-) -> List[schemas.DomainUser]:
-    pipeline = generate_join_pipeline(field="domain", condition={"user": auth.user.id})
-    return [
-        schemas.DomainUser.from_orm(
-            models.DomainUser.build_from_mongo(domain_user), unfetch_all=False
+# FIXME: what is it
+# @router.get("/domains", response_model=StandardResponse[ListDomains])
+# async def get_user_domains(
+#     auth: Authentication = Depends(),
+# ) -> StandardResponse[ListDomains]:
+#     pipeline = generate_join_pipeline(field="domain", condition={"user": auth.user.id})
+#     return StandardResponse(
+#         ListDomains(
+#             rows=[
+#                 schemas.DomainUser.from_orm(
+#                     models.DomainUser.build_from_mongo(domain_user), unfetch_all=False
+#                 )
+#                 async for domain_user in models.DomainUser.aggregate(pipeline)
+#             ]
+#         )
+#     )
+
+
+@router.get("/problems", response_model=StandardResponse[ListProblems])
+async def get_user_problems(
+    auth: Authentication = Depends(),
+) -> StandardResponse[ListProblems]:
+    return StandardResponse(
+        ListProblems(
+            rows=[
+                schemas.Problem.from_orm(problem)
+                async for problem in models.Problem.find({"owner": auth.user.id})
+            ]
         )
-        async for domain_user in models.DomainUser.aggregate(pipeline)
-    ]
-
-
-@router.get("/problems", response_model=List[schemas.Problem])
-async def get_user_problems(auth: Authentication = Depends()) -> List[schemas.Problem]:
-    return [
-        schemas.Problem.from_orm(problem)
-        async for problem in models.Problem.find({"owner": auth.user.id})
-    ]
+    )
