@@ -52,3 +52,7 @@ class Problem(ProblemCreate, BaseODMSchema):
     _validate_group: Callable[[AnyCallable], classmethod] = reference_schema_validator(
         "group", ProblemGroup
     )
+
+
+class ListProblems(BaseModel):
+    rows: List[Problem]

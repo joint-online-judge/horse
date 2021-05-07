@@ -1,46 +1,44 @@
 from datetime import datetime
-from http import HTTPStatus
-from typing import List
 
-from fastapi import APIRouter, Body, Depends, File, Query, Response, UploadFile
+from fastapi import Body, Depends, File, Query, UploadFile
+from fastapi_utils.inferring_router import InferringRouter
 from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
+from joj.horse.schemas import Empty, StandardResponse
+from joj.horse.schemas.problem import ListProblems
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import get_db, instance
-from joj.horse.utils.errors import (
-    DeleteProblemBadRequestError,
-    InvalidAuthenticationError,
-    ProblemNotFoundError,
-)
-from joj.horse.utils.parser import (
-    parse_domain,
-    parse_problem,
-    parse_problem_set,
-    parse_uid,
-)
+from joj.horse.utils.errors import BizError, ErrorEnum
+from joj.horse.utils.parser import parse_problem, parse_problem_set
 
-router = APIRouter()
+router = InferringRouter()
 router_name = "problems"
 router_tag = "problem"
 router_prefix = "/api/v1"
 
 
-@router.get("", response_model=List[schemas.Problem])
-async def list_problems(auth: Authentication = Depends(),) -> List[schemas.Problem]:
-    return [
-        schemas.Problem.from_orm(problem)
-        async for problem in models.Problem.find({"owner": auth.user.id})
-    ]
+@router.get("")
+async def list_problems(
+    auth: Authentication = Depends(),
+) -> StandardResponse[ListProblems]:
+    return StandardResponse(
+        ListProblems(
+            rows=[
+                schemas.Problem.from_orm(problem)
+                async for problem in models.Problem.find({"owner": auth.user.id})
+            ]
+        )
+    )
 
 
-@router.post("", response_model=schemas.Problem)
+@router.post("")
 async def create_problem(
     problem: schemas.ProblemCreate, auth: Authentication = Depends()
-) -> schemas.Problem:
+) -> StandardResponse[schemas.Problem]:
     if auth.user is None:
-        raise InvalidAuthenticationError()
+        raise BizError(ErrorEnum.InvalidAuthenticationError)
     domain = await models.Domain.find_by_url_or_id(problem.domain)
 
     # use transaction for multiple operations
@@ -67,35 +65,38 @@ async def create_problem(
     except Exception as e:
         logger.error("problem creation failed: %s", problem.title)
         raise e
-    return schemas.Problem.from_orm(new_problem)
+    return StandardResponse(schemas.Problem.from_orm(new_problem))
 
 
-@router.get("/{problem}", response_model=schemas.Problem)
+@router.get("/{problem}")
 async def get_problem(
     problem: models.Problem = Depends(parse_problem),
-) -> schemas.Problem:
-    return schemas.Problem.from_orm(problem)
+) -> StandardResponse[schemas.Problem]:
+    return StandardResponse(schemas.Problem.from_orm(problem))
 
 
-@router.delete("/{problem}", status_code=HTTPStatus.NO_CONTENT, response_class=Response)
-async def delete_problem(problem: models.Problem = Depends(parse_problem)) -> None:
+@router.delete("/{problem}")
+async def delete_problem(
+    problem: models.Problem = Depends(parse_problem),
+) -> StandardResponse[Empty]:
     # TODO: optimize
     async for problem_set in models.ProblemSet.find():
         if problem in problem_set:
-            raise DeleteProblemBadRequestError
+            raise BizError(ErrorEnum.DeleteProblemBadRequestError)
     await problem.delete()
+    return StandardResponse()
 
 
-@router.patch("/{problem}", response_model=schemas.Problem)
+@router.patch("/{problem}")
 async def update_problem(
     edit_problem: schemas.ProblemEdit, problem: models.Problem = Depends(parse_problem)
-) -> schemas.Problem:
+) -> StandardResponse[schemas.Problem]:
     problem.update_from_schema(edit_problem)
     await problem.commit()
-    return schemas.Problem.from_orm(problem)
+    return StandardResponse(schemas.Problem.from_orm(problem))
 
 
-@router.post("/{problem}/clone", response_model=schemas.Problem)
+@router.post("/{problem}/clone")
 async def clone_problem(
     problem: models.Problem = Depends(parse_problem),
     domain: str = Query(..., description="url or the id of the domain"),
@@ -103,7 +104,7 @@ async def clone_problem(
         False, description="create new problem group or use the original one"
     ),
     auth: Authentication = Depends(),
-) -> schemas.Problem:
+) -> StandardResponse[schemas.Problem]:
     # use transaction for multiple operations
     try:
         async with instance.session() as session:
@@ -131,17 +132,17 @@ async def clone_problem(
     except Exception as e:
         logger.error("problem clone failed: %s", problem.title)
         raise e
-    return schemas.Problem.from_orm(new_problem)
+    return StandardResponse(schemas.Problem.from_orm(new_problem))
 
 
-@router.post("/{problem_set}/{problem}", response_model=schemas.Record)
+@router.post("/{problem_set}/{problem}")
 async def submit_solution_to_problem(
     code_type: schemas.RecordCodeType = Body(...),
     file: UploadFile = File(...),
     problem_set: models.ProblemSet = Depends(parse_problem_set),
     problem: models.Problem = Depends(parse_problem),
     auth: Authentication = Depends(),
-) -> schemas.Record:
+) -> StandardResponse[schemas.Record]:
     try:
         gfs = AsyncIOMotorGridFSBucket(get_db())
         file_id = await gfs.upload_from_stream(
@@ -169,32 +170,29 @@ async def submit_solution_to_problem(
         logger.error("problem submission failed: %s", problem.id)
         raise e
 
-    return schemas.Record.from_orm(record)
+    return StandardResponse(schemas.Record.from_orm(record))
 
 
-@router.delete(
-    "/{problem_set}/{problem}",
-    status_code=HTTPStatus.NO_CONTENT,
-    response_class=Response,
-)
+@router.delete("/{problem_set}/{problem}")
 async def delete_problem_from_problem_set(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
     problem: models.Problem = Depends(parse_problem),
     auth: Authentication = Depends(),
-) -> None:
+) -> StandardResponse[Empty]:
     if problem not in problem_set.problems:
-        raise ProblemNotFoundError(problem.id)
+        raise BizError(ErrorEnum.ProblemNotFoundError)
     problem_set.problems.remove(problem)
     await problem_set.commit()
+    return StandardResponse()
 
 
-@router.put("/{problem_set}/{problem}", response_model=schemas.ProblemSet)
+@router.put("/{problem_set}/{problem}")
 async def add_problem_to_problem_set(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
     problem: models.Problem = Depends(parse_problem),
     auth: Authentication = Depends(),
-) -> schemas.ProblemSet:
+) -> StandardResponse[schemas.ProblemSet]:
     if problem not in problem_set.problems:
         problem_set.problems.append(problem)
         await problem_set.commit()
-    return schemas.ProblemSet.from_orm(problem_set)
+    return StandardResponse(schemas.ProblemSet.from_orm(problem_set))
