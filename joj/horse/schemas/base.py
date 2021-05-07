@@ -1,8 +1,12 @@
+from enum import IntEnum
+from functools import lru_cache
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     Generator,
+    Generic,
+    List,
     Optional,
     Type,
     TypeVar,
@@ -10,11 +14,11 @@ from typing import (
 )
 
 from bson import ObjectId
-from pydantic import BaseModel, ConstrainedStr, validator
-from pydantic.typing import AnyCallable
+from pydantic import BaseModel, ConstrainedStr, create_model, validator
 from umongo.frameworks.motor_asyncio import MotorAsyncIOReference
 
 from joj.horse.models.base import DocumentMixin
+from joj.horse.utils.errors import ErrorEnum
 
 if TYPE_CHECKING:
     from pydantic.typing import AbstractSetIntStr, DictIntStrAny, DictStrAny
@@ -110,3 +114,31 @@ def reference_schema_validator(
         return v
 
     return validator(field, pre=True, allow_reuse=True, each_item=each_item)(wrapped)
+
+
+BT = TypeVar("BT", bound=BaseModel)
+
+
+@lru_cache()
+def get_standard_response_model(cls: Type[BaseModel]) -> Type[BaseModel]:
+    name = cls.__name__
+    return create_model(
+        f"StandardResponse[{name}]", code=(ErrorEnum, ...), data=(Optional[cls], None)
+    )
+
+
+class Empty(BaseModel):
+    pass
+
+
+class StandardResponse(Generic[BT]):
+    def __class_getitem__(cls, item: Any) -> Type[Any]:
+        return get_standard_response_model(item)
+
+    def __new__(
+        cls, data: Union[BT, Type[BT], Empty] = Empty()
+    ) -> "StandardResponse[BT]":
+        response_type = get_standard_response_model(type(data))  # type: ignore
+        response_data = data
+
+        return response_type(code=ErrorEnum.Success, data=response_data)  # type: ignore

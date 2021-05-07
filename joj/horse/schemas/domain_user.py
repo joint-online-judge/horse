@@ -1,7 +1,8 @@
 from datetime import datetime
-from typing import Any, Callable, Optional
+from typing import Any, Callable, List, Optional
 
 from pydantic import validator
+from pydantic.main import BaseModel
 from pydantic.typing import AnyCallable
 
 from joj.horse.schemas.base import (
@@ -30,3 +31,7 @@ class DomainUser(BaseODMSchema):
     _validator_user: Callable[[AnyCallable], classmethod] = reference_schema_validator(
         "user", UserBase
     )
+
+
+class ListDomainMembers(BaseModel):
+    rows: List[DomainUser]

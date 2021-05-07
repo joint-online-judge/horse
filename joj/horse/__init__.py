@@ -12,6 +12,7 @@ from uvicorn.config import logger
 from joj.horse.config import settings
 from joj.horse.utils.cache import test_cache
 from joj.horse.utils.db import ensure_indexes, get_db
+from joj.horse.utils.errors import BizError, ErrorEnum
 from joj.horse.utils.url import generate_url
 from joj.horse.utils.version import get_git_version, get_version
 
@@ -63,6 +64,14 @@ async def marshmallow_validation_exception_handler(
         content=jsonable_encoder({"detail": exc.messages}),
         status_code=HTTPStatus.UNPROCESSABLE_ENTITY.value,
     )
+
+
+@app.exception_handler(BizError)
+async def http_exception_handler(request: Request, exc: BizError) -> JSONResponse:
+    response = JSONResponse(
+        jsonable_encoder({"code": exc.errorCode, "data": {}}), status_code=200
+    )
+    return response
 
 
 import joj.horse.apis
