@@ -1,6 +1,30 @@
+from enum import IntEnum, auto
 from typing import Any
 
 from fastapi import HTTPException, status
+
+
+class ErrorEnum(IntEnum):
+    Success = 0
+    Error = 10000
+    APINotImplementedError = auto()
+    InvalidAuthenticationError = auto()
+    UserNotFoundError = auto()
+    DomainNotFoundError = auto()
+    DomainUrlNotUniqueError = auto()
+    InvalidDomainURLError = auto()
+    ProblemNotFoundError = auto()
+    ProblemSetNotFoundError = auto()
+    ProblemGroupNotFoundError = auto()
+    RecordNotFoundError = auto()
+    DeleteProblemBadRequestError = auto()
+    UserAlreadyInDomainBadRequestError = auto()
+    DomainInvitationBadRequestError = auto()
+
+
+class BizError(Exception):
+    def __init__(self, errorCode: ErrorEnum):
+        self.errorCode = errorCode
 
 
 class BaseError(HTTPException):

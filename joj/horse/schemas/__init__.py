@@ -1,3 +1,4 @@
+from joj.horse.schemas.base import StandardResponse as StandardResponse
 from joj.horse.schemas.domain import Domain as Domain
 from joj.horse.schemas.domain import DomainCreate as DomainCreate
 from joj.horse.schemas.domain import DomainEdit as DomainEdit
