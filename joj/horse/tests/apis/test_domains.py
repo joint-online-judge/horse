@@ -9,6 +9,7 @@ from joj.horse import schemas
 from joj.horse.apis import domains, user
 from joj.horse.models.user import User
 from joj.horse.tests.utils.utils import get_base_url, random_lower_string
+from joj.horse.utils.errors import ErrorEnum
 
 base_user_url = get_base_url(user)
 base_domain_url = get_base_url(domains)
@@ -39,6 +40,8 @@ def test_create_domain(
     r = client.post(f"{base_domain_url}", json=data, headers=test_user_token_headers)
     assert r.status_code == 200
     res = r.json()
+    assert res["errorCode"] == ErrorEnum.Success
+    res = res["data"]
     NEW_DOMAIN = res
     assert res["id"]
     assert res["url"] == domain.url
@@ -64,6 +67,9 @@ def test_list_domains(
     r = client.get(f"{base_domain_url}", headers=test_user_token_headers)
     assert r.status_code == 200
     res = r.json()
+    assert res["errorCode"] == ErrorEnum.Success
+    res = res["data"]["rows"]
+    assert len(res) == 1
     assert res[0] == NEW_DOMAIN
 
 
@@ -73,6 +79,8 @@ def test_get_domain(
     r = client.get(f"{base_domain_url}/{domain.url}", headers=test_user_token_headers)
     assert r.status_code == 200
     res = r.json()
+    assert res["errorCode"] == ErrorEnum.Success
+    res = res["data"]
     assert NEW_DOMAIN["owner"] == res["owner"]["id"]
     res["owner"] = NEW_DOMAIN["owner"]
     assert res == NEW_DOMAIN
@@ -90,9 +98,9 @@ def test_member_join_in_domain_expired(
         params={"invitation_code": domain_edit.invitation_code},
         headers=global_test_user_token_headers,
     )
-    assert r.status_code == 400
+    assert r.status_code == 200
     res = r.json()
-    assert res["detail"]
+    assert res["errorCode"] == ErrorEnum.DomainInvitationBadRequestError
 
 
 def test_update_domain(
@@ -105,6 +113,8 @@ def test_update_domain(
     )
     assert r.status_code == 200
     res = r.json()
+    assert res["errorCode"] == ErrorEnum.Success
+    res = res["data"]
     assert ObjectId.is_valid(res["id"])
     assert res["url"] == domain.url
     assert res["name"] == domain_edit.name
@@ -124,24 +134,25 @@ def test_add_member_to_domain(
         f"{base_domain_url}/{domain.url}/members/{test_user.id}",
         headers=test_user_token_headers,
     )
-    assert r.status_code == 400
+    assert r.status_code == 200
     res = r.json()
-    assert res["detail"]
+    assert res["errorCode"] == ErrorEnum.UserAlreadyInDomainBadRequestError
     # add new member
     r = client.post(
         f"{base_domain_url}/{domain.url}/members/{global_test_user.id}",
         headers=test_user_token_headers,
     )
-    assert r.status_code == 204
-    assert not r.content
+    assert r.status_code == 200
+    res = r.json()
+    assert res["errorCode"] == ErrorEnum.Success
     # add new duplicate member
     r = client.post(
         f"{base_domain_url}/{domain.url}/members/{global_test_user.id}",
         headers=test_user_token_headers,
     )
-    assert r.status_code == 400
+    assert r.status_code == 200
     res = r.json()
-    assert res["detail"]
+    assert res["errorCode"] == ErrorEnum.UserAlreadyInDomainBadRequestError
 
 
 def test_list_members_in_domain(
@@ -155,6 +166,8 @@ def test_list_members_in_domain(
     )
     assert r.status_code == 200
     res = r.json()
+    assert res["errorCode"] == ErrorEnum.Success
+    res = res["data"]["rows"]
     assert len(res) == 2
     for item in res:
         assert item["domain"] == NEW_DOMAIN["id"]
@@ -177,14 +190,17 @@ def test_remove_member_from_domain(
         f"{base_domain_url}/{domain.url}/members/{global_test_user.id}",
         headers=test_user_token_headers,
     )
-    assert r.status_code == 204
-    assert not r.content
+    assert r.status_code == 200
+    res = r.json()
+    assert res["errorCode"] == ErrorEnum.Success
     # TODO: what about the last user / creator of the domain is deleted?
     r = client.get(
         f"{base_domain_url}/{domain.url}/members", headers=test_user_token_headers
     )
     assert r.status_code == 200
     res = r.json()
+    assert res["errorCode"] == ErrorEnum.Success
+    res = res["data"]["rows"]
     assert len(res) == 1
     res = res[0]
     assert res["user"]["id"] == str(test_user.id)
@@ -203,14 +219,16 @@ def test_member_join_in_domain(
         params={"invitation_code": "wrong"},
         headers=global_test_user_token_headers,
     )
-    assert r.status_code == 400
+    assert r.status_code == 200
     res = r.json()
-    assert res["detail"]
+    assert res["errorCode"] == ErrorEnum.DomainInvitationBadRequestError
     r = client.get(
         f"{base_domain_url}/{domain.url}/members", headers=test_user_token_headers
     )
     assert r.status_code == 200
     res = r.json()
+    assert res["errorCode"] == ErrorEnum.Success
+    res = res["data"]
     assert len(res) == 1
     # right invitation code
     r = client.get(
@@ -218,13 +236,16 @@ def test_member_join_in_domain(
         params={"invitation_code": domain_edit.invitation_code},
         headers=global_test_user_token_headers,
     )
-    assert r.status_code == 204
-    assert not r.content
+    assert r.status_code == 200
+    res = r.json()
+    assert res["errorCode"] == ErrorEnum.Success
     r = client.get(
         f"{base_domain_url}/{domain.url}/members", headers=test_user_token_headers
     )
     assert r.status_code == 200
     res = r.json()
+    assert res["errorCode"] == ErrorEnum.Success
+    res = res["data"]["rows"]
     assert len(res) == 2
     for item in res:
         assert item["domain"] == NEW_DOMAIN["id"]
@@ -249,4 +270,6 @@ def test_list_labels_in_domain(
     )
     assert r.status_code == 200
     res = r.json()
+    assert res["errorCode"] == ErrorEnum.Success
+    res = res["data"]["rows"]
     assert len(res) == 0
