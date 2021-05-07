@@ -69,7 +69,7 @@ async def marshmallow_validation_exception_handler(
 @app.exception_handler(BizError)
 async def http_exception_handler(request: Request, exc: BizError) -> JSONResponse:
     response = JSONResponse(
-        jsonable_encoder({"code": exc.errorCode, "data": {}}), status_code=200
+        jsonable_encoder({"errorCode": exc.errorCode, "data": {}}), status_code=200
     )
     return response
 

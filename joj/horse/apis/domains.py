@@ -118,7 +118,7 @@ async def get_domain(
 )
 async def delete_domain(
     domain: models.Domain = Depends(parse_domain_from_auth),
-) -> None:
+) -> StandardResponse[Empty]:
     # TODO: finish this part
     # tc-imba: delete domain have many side effects, and is not urgent,
     #          marked it deprecated and implement it later
