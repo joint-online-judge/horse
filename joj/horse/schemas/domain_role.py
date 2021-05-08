@@ -1,7 +1,8 @@
 from datetime import datetime
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, List
 
 from pydantic import validator
+from pydantic.main import BaseModel
 from pydantic.typing import AnyCallable
 
 from joj.horse.models.permission import DomainPermission
@@ -33,3 +34,7 @@ class DomainRole(BaseODMSchema):
     _validator_domain: Callable[
         [AnyCallable], classmethod
     ] = reference_schema_validator("domain", Domain)
+
+
+class ListDomainRoles(BaseModel):
+    rows: List[DomainRole]
