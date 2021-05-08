@@ -55,7 +55,7 @@ async def create_domain(
 ) -> StandardResponse[schemas.Domain]:
     # we can not use ObjectId as the url
     if ObjectId.is_valid(domain.url):
-        raise BizError(ErrorCode.InvalidDomainURLError)
+        raise BizError(ErrorCode.InvalidDomainUrlError)
     if auth.user is None:
         raise BizError(ErrorCode.InvalidAuthenticationError)
 
@@ -110,7 +110,7 @@ async def delete_domain(
     # TODO: finish this part
     # tc-imba: delete domain have many side effects, and is not urgent,
     #          marked it deprecated and implement it later
-    raise BizError(ErrorCode.APINotImplementedError)
+    raise BizError(ErrorCode.ApiNotImplementedError)
     # await domain.delete()
 
 
