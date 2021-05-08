@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from fastapi import Body, Depends, File, Query, UploadFile
-from fastapi_utils.inferring_router import InferringRouter
 from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 from uvicorn.config import logger
 
@@ -12,8 +11,9 @@ from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import get_db, instance
 from joj.horse.utils.errors import BizError, ErrorEnum
 from joj.horse.utils.parser import parse_problem, parse_problem_set
+from joj.horse.utils.router import MyRouter
 
-router = InferringRouter()
+router = MyRouter()
 router_name = "problems"
 router_tag = "problem"
 router_prefix = "/api/v1"

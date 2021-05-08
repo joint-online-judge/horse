@@ -2,7 +2,7 @@ from typing import List, Union
 
 import aiohttp
 import jwt
-from fastapi import APIRouter, Cookie, Depends, HTTPException, Query, Request, status
+from fastapi import Cookie, Depends, HTTPException, Query, Request, status
 from fastapi_jwt_auth import AuthJWT
 from starlette.responses import JSONResponse, RedirectResponse
 from uvicorn.config import logger
@@ -17,9 +17,10 @@ from joj.horse.utils.db import generate_join_pipeline
 from joj.horse.utils.errors import APINotImplementedError
 from joj.horse.utils.oauth import jaccount
 from joj.horse.utils.parser import parse_uid
+from joj.horse.utils.router import MyRouter
 from joj.horse.utils.url import generate_url
 
-router = APIRouter()
+router = MyRouter()
 router_name = "user"
 router_tag = "user"
 router_prefix = "/api/v1"

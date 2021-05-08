@@ -1,7 +1,6 @@
 from typing import List
 
 from fastapi import Depends
-from fastapi_utils.inferring_router import InferringRouter
 
 from joj.horse import models, schemas
 from joj.horse.schemas import StandardResponse
@@ -9,8 +8,9 @@ from joj.horse.schemas.problem import ListProblems
 from joj.horse.schemas.problem_group import ListProblemGroups
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.parser import parse_problem_group
+from joj.horse.utils.router import MyRouter
 
-router = InferringRouter()
+router = MyRouter()
 router_name = "problem_groups"
 router_tag = "problem group"
 router_prefix = "/api/v1"

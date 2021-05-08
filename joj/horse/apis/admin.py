@@ -1,28 +1,29 @@
 from http import HTTPStatus
 from typing import List
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import Depends, Response
 
 from joj.horse import models, schemas
 from joj.horse.models.permission import DefaultRole
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.errors import ForbiddenError
 from joj.horse.utils.parser import parse_uid
+from joj.horse.utils.router import MyRouter
 
-router = APIRouter()
+router = MyRouter()
 router_name = "admin"
 router_tag = "admin"
 router_prefix = "/api/v1"
 
 
-@router.get("/users", response_model=List[schemas.User])
+@router.get("/users")
 async def list_users(auth: Authentication = Depends(),) -> List[schemas.User]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
     return [schemas.User.from_orm(user) async for user in models.User.find()]
 
 
-@router.post("/users", response_model=schemas.User)
+@router.post("/users")
 async def create_user(
     student_id: str,
     jaccount_name: str,
@@ -50,7 +51,7 @@ async def delete_user(
     await user.delete()
 
 
-@router.get("/domain_users", response_model=List[schemas.DomainUser])
+@router.get("/domain_users")
 async def list_domain_users(
     auth: Authentication = Depends(),
 ) -> List[schemas.DomainUser]:
@@ -62,7 +63,7 @@ async def list_domain_users(
     ]
 
 
-@router.get("/domain_roles", response_model=List[schemas.DomainRole])
+@router.get("/domain_roles")
 async def list_domain_roles(
     auth: Authentication = Depends(),
 ) -> List[schemas.DomainRole]:

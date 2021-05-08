@@ -1,13 +1,14 @@
 from typing import List
 
-from fastapi import APIRouter, Depends
+from fastapi import Depends
 
 from joj.horse import models, schemas
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import generate_join_pipeline
 from joj.horse.utils.parser import parse_uid
+from joj.horse.utils.router import MyRouter
 
-router = APIRouter()
+router = MyRouter()
 router_name = "users"
 router_tag = "user"
 router_prefix = "/api/v1"
