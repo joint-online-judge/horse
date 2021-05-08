@@ -1,10 +1,13 @@
 from http import HTTPStatus
-from typing import List
 
 from fastapi import Depends, Response
 
 from joj.horse import models, schemas
 from joj.horse.models.permission import DefaultRole
+from joj.horse.schemas.base import Empty, StandardResponse
+from joj.horse.schemas.domain_role import ListDomainRoles
+from joj.horse.schemas.domain_user import ListDomainMembers
+from joj.horse.schemas.user import ListUsers
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.errors import ForbiddenError
 from joj.horse.utils.parser import parse_uid
@@ -17,10 +20,14 @@ router_prefix = "/api/v1"
 
 
 @router.get("/users")
-async def list_users(auth: Authentication = Depends(),) -> List[schemas.User]:
+async def list_users(auth: Authentication = Depends()) -> StandardResponse[ListUsers]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
-    return [schemas.User.from_orm(user) async for user in models.User.find()]
+    return StandardResponse(
+        ListUsers(
+            rows=[schemas.User.from_orm(user) async for user in models.User.find()]
+        )
+    )
 
 
 @router.post("/users")
@@ -30,14 +37,14 @@ async def create_user(
     real_name: str,
     ip: str,
     auth: Authentication = Depends(),
-) -> schemas.User:
+) -> StandardResponse[schemas.User]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
     user = await models.User.login_by_jaccount(
         student_id=student_id, jaccount_name=jaccount_name, real_name=real_name, ip=ip
     )
     assert user is not None
-    return schemas.User.from_orm(user)
+    return StandardResponse(schemas.User.from_orm(user))
 
 
 @router.delete(
@@ -45,31 +52,40 @@ async def create_user(
 )
 async def delete_user(
     user: models.User = Depends(parse_uid), auth: Authentication = Depends()
-) -> None:
+) -> StandardResponse[Empty]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
     await user.delete()
+    return StandardResponse()
 
 
 @router.get("/domain_users")
 async def list_domain_users(
     auth: Authentication = Depends(),
-) -> List[schemas.DomainUser]:
+) -> StandardResponse[ListDomainMembers]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
-    return [
-        schemas.DomainUser.from_orm(domain_user)
-        async for domain_user in models.DomainUser.find()
-    ]
+    return StandardResponse(
+        ListDomainMembers(
+            rows=[
+                schemas.DomainUser.from_orm(domain_user)
+                async for domain_user in models.DomainUser.find()
+            ]
+        )
+    )
 
 
 @router.get("/domain_roles")
 async def list_domain_roles(
     auth: Authentication = Depends(),
-) -> List[schemas.DomainRole]:
+) -> StandardResponse[ListDomainRoles]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
-    return [
-        schemas.DomainRole.from_orm(domain_role)
-        async for domain_role in models.DomainRole.find()
-    ]
+    return StandardResponse(
+        ListDomainRoles(
+            rows=[
+                schemas.DomainRole.from_orm(domain_role)
+                async for domain_role in models.DomainRole.find()
+            ]
+        )
+    )

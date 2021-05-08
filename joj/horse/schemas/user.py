@@ -1,8 +1,10 @@
 import re
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from pydantic import EmailStr, validator
+from pydantic.main import BaseModel
+from umongo.abstract import BaseMarshmallowSchema
 
 from joj.horse.schemas.base import BaseODMSchema
 
@@ -63,3 +65,7 @@ class User(UserBase):
     @validator("login_timestamp", pre=True, always=True)
     def default_login_timestamp(cls, v: datetime) -> datetime:
         return v or datetime.utcnow()
+
+
+class ListUsers(BaseModel):
+    rows: List[User]
