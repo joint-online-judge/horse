@@ -4,7 +4,6 @@ from typing import Any, Dict, List
 
 from pydantic import EmailStr, validator
 from pydantic.main import BaseModel
-from umongo.abstract import BaseMarshmallowSchema
 
 from joj.horse.schemas.base import BaseODMSchema
 
