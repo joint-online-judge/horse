@@ -44,7 +44,7 @@ async def get_record(
 
 
 @router.get("/{record}/code")
-async def get_record_code(record: models.Record = Depends(parse_record),) -> Any:
+async def get_record_code(record: models.Record = Depends(parse_record)) -> Any:
     mime_types = [
         "text/plain",
         "application/x-tar",
