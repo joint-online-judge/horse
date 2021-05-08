@@ -90,4 +90,4 @@ class Record(BaseODMSchema):
 
 
 class ListRecords(BaseModel):
-    rows: List[Record]
+    results: List[Record]

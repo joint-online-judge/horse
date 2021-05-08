@@ -164,7 +164,7 @@ async def get_user(auth: Authentication = Depends()) -> StandardResponse[schemas
 #     pipeline = generate_join_pipeline(field="domain", condition={"user": auth.user.id})
 #     return StandardResponse(
 #         ListDomains(
-#             rows=[
+#             results=[
 #                 schemas.DomainUser.from_orm(
 #                     models.DomainUser.build_from_mongo(domain_user), unfetch_all=False
 #                 )
@@ -180,7 +180,7 @@ async def get_user_problems(
 ) -> StandardResponse[ListProblems]:
     return StandardResponse(
         ListProblems(
-            rows=[
+            results=[
                 schemas.Problem.from_orm(problem)
                 async for problem in models.Problem.find({"owner": auth.user.id})
             ]

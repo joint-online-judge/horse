@@ -55,4 +55,4 @@ class Problem(ProblemCreate, BaseODMSchema):
 
 
 class ListProblems(BaseModel):
-    rows: List[Problem]
+    results: List[Problem]

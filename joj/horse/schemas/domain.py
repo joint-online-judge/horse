@@ -37,8 +37,8 @@ class Domain(DomainCreate, BaseODMSchema):
 
 
 class ListDomains(BaseModel):
-    rows: List[Domain]
+    results: List[Domain]
 
 
 class ListDomainLabels(BaseModel):
-    rows: List[str]
+    results: List[str]

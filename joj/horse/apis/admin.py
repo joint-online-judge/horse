@@ -25,7 +25,7 @@ async def list_users(auth: Authentication = Depends()) -> StandardResponse[ListU
         raise ForbiddenError()
     return StandardResponse(
         ListUsers(
-            rows=[schemas.User.from_orm(user) async for user in models.User.find()]
+            results=[schemas.User.from_orm(user) async for user in models.User.find()]
         )
     )
 
@@ -67,7 +67,7 @@ async def list_domain_users(
         raise ForbiddenError()
     return StandardResponse(
         ListDomainMembers(
-            rows=[
+            results=[
                 schemas.DomainUser.from_orm(domain_user)
                 async for domain_user in models.DomainUser.find()
             ]
@@ -83,7 +83,7 @@ async def list_domain_roles(
         raise ForbiddenError()
     return StandardResponse(
         ListDomainRoles(
-            rows=[
+            results=[
                 schemas.DomainRole.from_orm(domain_role)
                 async for domain_role in models.DomainRole.find()
             ]

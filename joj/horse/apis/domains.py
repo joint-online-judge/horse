@@ -35,7 +35,7 @@ async def list_domains(
     # print("self")
     return StandardResponse(
         ListDomains(
-            rows=[
+            results=[
                 schemas.Domain.from_orm(domain)
                 async for domain in models.Domain.find({"owner": auth.user.id})
             ]
@@ -137,7 +137,7 @@ async def list_members_in_domain(
     pipeline = generate_join_pipeline(field="user", condition={"domain": domain.id})
     return StandardResponse(
         ListDomainMembers(
-            rows=[
+            results=[
                 schemas.DomainUser.from_orm(
                     models.DomainUser.build_from_mongo(domain_user), unfetch_all=False
                 )
@@ -205,7 +205,7 @@ async def list_labels_in_domain(
     # TODO: aggregate
     return StandardResponse(
         ListDomainLabels(
-            rows=[
+            results=[
                 label
                 async for problem_set in models.ProblemSet.find({"domain": domain.id})
                 for label in schemas.ProblemSet.from_orm(problem_set).labels

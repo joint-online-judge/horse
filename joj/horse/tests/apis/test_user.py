@@ -84,7 +84,7 @@ def test_get_user(
 #     assert r.status_code == 200
 #     res = r.json()
 #     assert res["errorCode"] == ErrorCode.Success
-#     res = res["data"]["rows"]
+#     res = res["data"]["results"]
 #     assert len(res) == 1
 #     res = res[0]
 #     assert ObjectId.is_valid(res["id"])
