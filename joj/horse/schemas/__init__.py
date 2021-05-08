@@ -13,6 +13,7 @@ from joj.horse.schemas.problem_set import ProblemSet as ProblemSet
 from joj.horse.schemas.problem_set import ProblemSetCreate as ProblemSetCreate
 from joj.horse.schemas.problem_set import ProblemSetEdit as ProblemSetEdit
 from joj.horse.schemas.record import Record as Record
+from joj.horse.schemas.record import RecordCase as RecordCase
 from joj.horse.schemas.record import RecordCodeType as RecordCodeType
 from joj.horse.schemas.record import RecordStatus as RecordStatus
 from joj.horse.schemas.user import User as User
