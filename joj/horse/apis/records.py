@@ -27,7 +27,7 @@ async def list_records(
         owner_filter = {"owner": auth.user.id}
     return StandardResponse(
         ListRecords(
-            rows=[
+            results=[
                 schemas.Record.from_orm(record)
                 async for record in models.Record.find(owner_filter)
             ]

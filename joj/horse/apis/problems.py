@@ -25,7 +25,7 @@ async def list_problems(
 ) -> StandardResponse[ListProblems]:
     return StandardResponse(
         ListProblems(
-            rows=[
+            results=[
                 schemas.Problem.from_orm(problem)
                 async for problem in models.Problem.find({"owner": auth.user.id})
             ]

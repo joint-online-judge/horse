@@ -20,7 +20,7 @@ async def list_problem_groups(
 ) -> StandardResponse[ListProblemGroups]:
     return StandardResponse(
         ListProblemGroups(
-            rows=[
+            results=[
                 schemas.ProblemGroup.from_orm(problem)
                 async for problem in models.ProblemGroup.find({})
             ]
@@ -35,7 +35,7 @@ async def get_problems_in_problem_group(
 ) -> StandardResponse[ListProblems]:
     return StandardResponse(
         ListProblems(
-            rows=[
+            results=[
                 schemas.Problem.from_orm(problem)
                 async for problem in models.Problem.find({"group": problem_group.id})
             ]

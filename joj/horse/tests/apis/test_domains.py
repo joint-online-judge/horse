@@ -58,7 +58,7 @@ def test_list_domains(
     assert r.status_code == 200
     res = r.json()
     assert res["errorCode"] == ErrorCode.Success
-    res = res["data"]["rows"]
+    res = res["data"]["results"]
     assert len(res) == 1
     assert res[0] == NEW_DOMAIN
 
@@ -157,7 +157,7 @@ def test_list_members_in_domain(
     assert r.status_code == 200
     res = r.json()
     assert res["errorCode"] == ErrorCode.Success
-    res = res["data"]["rows"]
+    res = res["data"]["results"]
     assert len(res) == 2
     for item in res:
         assert item["domain"] == NEW_DOMAIN["id"]
@@ -190,7 +190,7 @@ def test_remove_member_from_domain(
     assert r.status_code == 200
     res = r.json()
     assert res["errorCode"] == ErrorCode.Success
-    res = res["data"]["rows"]
+    res = res["data"]["results"]
     assert len(res) == 1
     res = res[0]
     assert res["user"]["id"] == str(test_user.id)
@@ -235,7 +235,7 @@ def test_member_join_in_domain(
     assert r.status_code == 200
     res = r.json()
     assert res["errorCode"] == ErrorCode.Success
-    res = res["data"]["rows"]
+    res = res["data"]["results"]
     assert len(res) == 2
     for item in res:
         assert item["domain"] == NEW_DOMAIN["id"]
@@ -261,5 +261,5 @@ def test_list_labels_in_domain(
     assert r.status_code == 200
     res = r.json()
     assert res["errorCode"] == ErrorCode.Success
-    res = res["data"]["rows"]
+    res = res["data"]["results"]
     assert len(res) == 0

@@ -34,4 +34,4 @@ class DomainUser(BaseODMSchema):
 
 
 class ListDomainMembers(BaseModel):
-    rows: List[DomainUser]
+    results: List[DomainUser]

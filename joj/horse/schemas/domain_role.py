@@ -37,4 +37,4 @@ class DomainRole(BaseODMSchema):
 
 
 class ListDomainRoles(BaseModel):
-    rows: List[DomainRole]
+    results: List[DomainRole]

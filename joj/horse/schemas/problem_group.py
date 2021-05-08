@@ -11,4 +11,4 @@ class ProblemGroup(BaseODMSchema):
 
 
 class ListProblemGroups(BaseModel):
-    rows: List[ProblemGroup]
+    results: List[ProblemGroup]

@@ -24,7 +24,7 @@ async def list_problem_sets(
 ) -> StandardResponse[ListProblemSets]:
     return StandardResponse(
         ListProblemSets(
-            rows=[
+            results=[
                 schemas.ProblemSet.from_orm(problem_set)
                 async for problem_set in models.ProblemSet.find({"owner": auth.user.id})
                 if all(label in problem_set.labels for label in required_labels)

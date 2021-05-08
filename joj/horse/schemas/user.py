@@ -67,4 +67,4 @@ class User(UserBase):
 
 
 class ListUsers(BaseModel):
-    rows: List[User]
+    results: List[User]
