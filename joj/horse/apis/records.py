@@ -1,4 +1,5 @@
 import io
+from typing import Any
 
 from fastapi import Depends
 from fastapi.responses import StreamingResponse
@@ -42,10 +43,8 @@ async def get_record(
     return StandardResponse(schemas.Record.from_orm(record))
 
 
-@router.get("/{record}/code", response_model=None)
-async def get_record_code(
-    record: models.Record = Depends(parse_record),
-) -> StreamingResponse:
+@router.get("/{record}/code")
+async def get_record_code(record: models.Record = Depends(parse_record),) -> Any:
     mime_types = [
         "text/plain",
         "application/x-tar",

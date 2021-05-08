@@ -13,6 +13,6 @@ class MyRouter(APIRouter):
         def add_api_route(
             self, path: str, endpoint: Callable[..., Any], **kwargs: Any
         ) -> None:
-            if "response_model" not in kwargs:
+            if kwargs.get("response_model") is None:
                 kwargs["response_model"] = get_type_hints(endpoint).get("return")
             return super().add_api_route(path, endpoint, **kwargs)

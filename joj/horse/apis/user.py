@@ -81,7 +81,7 @@ async def jaccount_login(
     return response
 
 
-@router.get("/jaccount/auth")
+@router.get("/jaccount/auth", response_model=RedirectModel)
 async def jaccount_auth(
     request: Request,
     state: str,
