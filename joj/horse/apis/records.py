@@ -1,6 +1,6 @@
 import io
 
-from fastapi import APIRouter, Depends
+from fastapi import Depends
 from fastapi.responses import StreamingResponse
 from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 
@@ -10,14 +10,15 @@ from joj.horse.schemas.record import ListRecords
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import get_db
 from joj.horse.utils.parser import parse_record, parse_uid_or_none
+from joj.horse.utils.router import MyRouter
 
-router = APIRouter()
+router = MyRouter()
 router_name = "records"
 router_tag = "record"
 router_prefix = "/api/v1"
 
 
-@router.get("", response_model=StandardResponse[ListRecords])
+@router.get("")
 async def list_records(
     user: models.User = Depends(parse_uid_or_none), auth: Authentication = Depends()
 ) -> StandardResponse[ListRecords]:
@@ -34,14 +35,14 @@ async def list_records(
     )
 
 
-@router.get("/{record}", response_model=StandardResponse[schemas.Record])
+@router.get("/{record}")
 async def get_record(
     record: models.Record = Depends(parse_record),
 ) -> StandardResponse[schemas.Record]:
     return StandardResponse(schemas.Record.from_orm(record))
 
 
-@router.get("/{record}/code")
+@router.get("/{record}/code", response_model=None)
 async def get_record_code(
     record: models.Record = Depends(parse_record),
 ) -> StreamingResponse:

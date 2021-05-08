@@ -2,7 +2,6 @@ from datetime import datetime
 
 from bson import ObjectId
 from fastapi import Depends, Query
-from fastapi_utils.inferring_router import InferringRouter
 from marshmallow.exceptions import ValidationError
 from uvicorn.config import logger
 
@@ -15,8 +14,9 @@ from joj.horse.utils.auth import Authentication, DomainAuthentication, ensure_pe
 from joj.horse.utils.db import generate_join_pipeline, instance
 from joj.horse.utils.errors import BizError, ErrorEnum
 from joj.horse.utils.parser import parse_domain, parse_domain_from_auth, parse_uid
+from joj.horse.utils.router import MyRouter
 
-router = InferringRouter()
+router = MyRouter()
 router_name = "domains"
 router_tag = "domain"
 router_prefix = "/api/v1"
