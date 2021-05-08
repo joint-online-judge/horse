@@ -12,7 +12,7 @@ from joj.horse.schemas.domain import ListDomainLabels, ListDomains
 from joj.horse.schemas.domain_user import ListDomainMembers
 from joj.horse.utils.auth import Authentication, DomainAuthentication, ensure_permission
 from joj.horse.utils.db import generate_join_pipeline, instance
-from joj.horse.utils.errors import BizError, ErrorEnum
+from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import parse_domain, parse_domain_from_auth, parse_uid
 from joj.horse.utils.router import MyRouter
 
@@ -55,9 +55,9 @@ async def create_domain(
 ) -> StandardResponse[schemas.Domain]:
     # we can not use ObjectId as the url
     if ObjectId.is_valid(domain.url):
-        raise BizError(ErrorEnum.InvalidDomainURLError)
+        raise BizError(ErrorCode.InvalidDomainURLError)
     if auth.user is None:
-        raise BizError(ErrorEnum.InvalidAuthenticationError)
+        raise BizError(ErrorCode.InvalidAuthenticationError)
 
     # use transaction for multiple operations
     try:
@@ -75,7 +75,7 @@ async def create_domain(
                 logger.info("domain user created: %s", domain_user)
                 # TODO: create domain roles here
     except ValidationError:
-        raise BizError(ErrorEnum.DomainUrlNotUniqueError)  # non-unique domain url
+        raise BizError(ErrorCode.DomainUrlNotUniqueError)  # non-unique domain url
     except Exception as e:
         logger.error("domain creation failed: %s", domain.url)
         raise e
@@ -110,7 +110,7 @@ async def delete_domain(
     # TODO: finish this part
     # tc-imba: delete domain have many side effects, and is not urgent,
     #          marked it deprecated and implement it later
-    raise BizError(ErrorEnum.APINotImplementedError)
+    raise BizError(ErrorCode.APINotImplementedError)
     # await domain.delete()
 
 
@@ -154,7 +154,7 @@ async def add_member_to_domain(
     auth: Authentication = Depends(),
 ) -> StandardResponse[Empty]:
     if await models.DomainUser.find_one({"domain": domain.id, "user": user.id}):
-        raise BizError(ErrorEnum.UserAlreadyInDomainBadRequestError)
+        raise BizError(ErrorCode.UserAlreadyInDomainBadRequestError)
     domain_user = schemas.DomainUser(
         domain=domain.id, user=user.id, role=DefaultRole.USER
     )
@@ -170,12 +170,12 @@ async def member_join_in_domain(
     auth: Authentication = Depends(),
 ) -> StandardResponse[Empty]:
     if await models.DomainUser.find_one({"domain": domain.id, "user": auth.user.id}):
-        raise BizError(ErrorEnum.UserAlreadyInDomainBadRequestError)
+        raise BizError(ErrorCode.UserAlreadyInDomainBadRequestError)
     if (
         invitation_code != domain.invitation_code
         or datetime.now() > domain.invitation_expire_at
     ):
-        raise BizError(ErrorEnum.DomainInvitationBadRequestError)
+        raise BizError(ErrorCode.DomainInvitationBadRequestError)
     domain_user = schemas.DomainUser(
         domain=domain.id, user=auth.user.id, role=DefaultRole.USER
     )

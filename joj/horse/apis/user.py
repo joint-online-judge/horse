@@ -14,7 +14,7 @@ from joj.horse.schemas.misc import RedirectModel
 from joj.horse.schemas.problem import ListProblems
 from joj.horse.utils.auth import Authentication, auth_jwt_encode
 from joj.horse.utils.db import generate_join_pipeline
-from joj.horse.utils.errors import APINotImplementedError
+from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.oauth import jaccount
 from joj.horse.utils.parser import parse_uid
 from joj.horse.utils.router import MyRouter
@@ -67,7 +67,7 @@ async def jaccount_login(
 ) -> Union[RedirectResponse, JSONResponse]:
     client = jaccount.get_client()
     if client is None:
-        raise APINotImplementedError(message="Jaccount not supported")
+        raise BizError(ErrorCode.APINotImplementedError)
 
     jaccount_redirect_url = generate_url(router_prefix, router_name, "jaccount", "auth")
     url, state = client.get_authorize_url(jaccount_redirect_url)
@@ -92,7 +92,7 @@ async def jaccount_auth(
 ) -> RedirectResponse:
     client = jaccount.get_client()
     if client is None:
-        raise APINotImplementedError(message="Jaccount not supported")
+        raise BizError(ErrorCode.APINotImplementedError)
 
     if jaccount_state != state:
         raise HTTPException(
@@ -146,7 +146,7 @@ async def jaccount_auth(
 def get_jaccount_logout_url(redirect_url: str) -> str:
     client = jaccount.get_client()
     if client is None:
-        raise APINotImplementedError(message="Jaccount not supported")
+        raise BizError(ErrorCode.APINotImplementedError)
 
     return client.get_logout_url(redirect_url)
 

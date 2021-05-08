@@ -4,15 +4,7 @@ from fastapi import Depends, Path, Query
 
 from joj.horse import models
 from joj.horse.utils.auth import Authentication, DomainAuthentication
-from joj.horse.utils.errors import (
-    DomainNotFoundError,
-    InvalidAuthenticationError,
-    ProblemGroupNotFoundError,
-    ProblemNotFoundError,
-    ProblemSetNotFoundError,
-    RecordNotFoundError,
-    UserNotFoundError,
-)
+from joj.horse.utils.errors import BizError, ErrorCode
 
 
 async def parse_uid(
@@ -21,12 +13,12 @@ async def parse_uid(
     if uid == "me":
         if auth.user:
             return auth.user
-        raise InvalidAuthenticationError()
+        raise BizError(ErrorCode.InvalidAuthenticationError)
     else:
         user = await models.User.find_by_id(uid)
         if user:
             return user
-        raise UserNotFoundError(uid)
+        raise BizError(ErrorCode.UserNotFoundError)
 
 
 async def parse_uid_or_none(
@@ -42,7 +34,7 @@ async def parse_problem(
     problem_model = await models.Problem.find_by_id(problem)
     if problem_model and problem_model.owner == auth.user:
         return problem_model
-    raise ProblemNotFoundError(problem)
+    raise BizError(ErrorCode.ProblemNotFoundError)
 
 
 async def parse_problem_set(
@@ -51,21 +43,21 @@ async def parse_problem_set(
     problem_set_model = await models.ProblemSet.find_by_id(problem_set)
     if problem_set_model and problem_set_model.owner == auth.user:
         return problem_set_model
-    raise ProblemSetNotFoundError(problem_set)
+    raise BizError(ErrorCode.ProblemSetNotFoundError)
 
 
 async def parse_problem_group(problem_group: str) -> models.ProblemSet:
     problem_group_model = await models.ProblemGroup.find_by_id(problem_group)
     if problem_group_model:
         return problem_group_model
-    raise ProblemGroupNotFoundError(problem_group_model)
+    raise BizError(ErrorCode.ProblemGroupNotFoundError)
 
 
 async def parse_record(record: str, auth: Authentication = Depends()) -> models.Record:
     record_model = await models.Record.find_by_id(record)
     if record_model and record_model.user == auth.user:
         return record_model
-    raise RecordNotFoundError(record)
+    raise BizError(ErrorCode.RecordNotFoundError)
 
 
 async def parse_domain(
@@ -74,7 +66,7 @@ async def parse_domain(
     domain_model = await models.Domain.find_by_url_or_id(domain)
     if domain_model:  # and domain_model.owner == auth.user:
         return domain_model
-    raise DomainNotFoundError(domain)
+    raise BizError(ErrorCode.DomainNotFoundError)
 
 
 def parse_domain_from_auth(

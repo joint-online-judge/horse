@@ -8,7 +8,7 @@ from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.problem_set import ListProblemSets
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import instance
-from joj.horse.utils.errors import BizError, ErrorEnum
+from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import parse_problem_set
 from joj.horse.utils.router import MyRouter
 
@@ -38,7 +38,7 @@ async def create_problem_set(
     problem_set: schemas.ProblemSetCreate, auth: Authentication = Depends()
 ) -> StandardResponse[schemas.ProblemSet]:
     if auth.user is None:
-        raise BizError(ErrorEnum.InvalidAuthenticationError)
+        raise BizError(ErrorCode.InvalidAuthenticationError)
 
     # use transaction for multiple operations
     try:
@@ -53,7 +53,7 @@ async def create_problem_set(
                     zip(problem_set.problems, problems_models)
                 ):
                     if problem_model is None:
-                        raise BizError(ErrorEnum.ProblemNotFoundError)
+                        raise BizError(ErrorCode.ProblemNotFoundError)
                     problems_models[i] = problem_model.id
                 logger.info("problems_models: %s", problems_models)
                 problem_set = schemas.ProblemSet(

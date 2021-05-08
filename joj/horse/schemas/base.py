@@ -16,7 +16,7 @@ from pydantic import BaseModel, ConstrainedStr, create_model, validator
 from umongo.frameworks.motor_asyncio import MotorAsyncIOReference
 
 from joj.horse.models.base import DocumentMixin
-from joj.horse.utils.errors import ErrorEnum
+from joj.horse.utils.errors import ErrorCode
 
 if TYPE_CHECKING:
     from pydantic.typing import AbstractSetIntStr, DictIntStrAny, DictStrAny
@@ -121,7 +121,7 @@ BT = TypeVar("BT", bound=BaseModel)
 def get_standard_response_model(cls: Type[BaseModel]) -> Type[BaseModel]:
     name = cls.__name__
     return create_model(
-        f"{name}Resp", errorCode=(ErrorEnum, ...), data=(Optional[cls], None)
+        f"{name}Resp", errorCode=(ErrorCode, ...), data=(Optional[cls], None)
     )
 
 
@@ -140,5 +140,5 @@ class StandardResponse(Generic[BT]):
         response_data = data
 
         return response_type(
-            errorCode=ErrorEnum.Success, data=response_data
+            errorCode=ErrorCode.Success, data=response_data
         )  # type: ignore

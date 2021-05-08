@@ -9,7 +9,7 @@ from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.problem import ListProblems
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import get_db, instance
-from joj.horse.utils.errors import BizError, ErrorEnum
+from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import parse_problem, parse_problem_set
 from joj.horse.utils.router import MyRouter
 
@@ -38,7 +38,7 @@ async def create_problem(
     problem: schemas.ProblemCreate, auth: Authentication = Depends()
 ) -> StandardResponse[schemas.Problem]:
     if auth.user is None:
-        raise BizError(ErrorEnum.InvalidAuthenticationError)
+        raise BizError(ErrorCode.InvalidAuthenticationError)
     domain = await models.Domain.find_by_url_or_id(problem.domain)
 
     # use transaction for multiple operations
@@ -82,7 +82,7 @@ async def delete_problem(
     # TODO: optimize
     async for problem_set in models.ProblemSet.find():
         if problem in problem_set:
-            raise BizError(ErrorEnum.DeleteProblemBadRequestError)
+            raise BizError(ErrorCode.DeleteProblemBadRequestError)
     await problem.delete()
     return StandardResponse()
 
@@ -180,7 +180,7 @@ async def delete_problem_from_problem_set(
     auth: Authentication = Depends(),
 ) -> StandardResponse[Empty]:
     if problem not in problem_set.problems:
-        raise BizError(ErrorEnum.ProblemNotFoundError)
+        raise BizError(ErrorCode.ProblemNotFoundError)
     problem_set.problems.remove(problem)
     await problem_set.commit()
     return StandardResponse()
