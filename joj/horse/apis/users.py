@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi import Depends
 
 from joj.horse import models, schemas
@@ -41,7 +39,7 @@ async def get_user_domains(
     )
 
 
-@router.get("/{uid}/problems", response_model=List[schemas.Problem])
+@router.get("/{uid}/problems")
 async def get_user_problems(
     user: models.User = Depends(parse_uid),
 ) -> StandardResponse[ListProblems]:

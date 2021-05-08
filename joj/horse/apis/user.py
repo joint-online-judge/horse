@@ -151,13 +151,13 @@ def get_jaccount_logout_url(redirect_url: str) -> str:
     return client.get_logout_url(redirect_url)
 
 
-@router.get("", response_model=StandardResponse[schemas.User])
+@router.get("")
 async def get_user(auth: Authentication = Depends()) -> StandardResponse[schemas.User]:
     return StandardResponse(schemas.User.from_orm(auth.user))
 
 
 # FIXME: what is it
-# @router.get("/domains", response_model=StandardResponse[ListDomains])
+# @router.get("/domains"
 # async def get_user_domains(
 #     auth: Authentication = Depends(),
 # ) -> StandardResponse[ListDomains]:
@@ -174,7 +174,7 @@ async def get_user(auth: Authentication = Depends()) -> StandardResponse[schemas
 #     )
 
 
-@router.get("/problems", response_model=StandardResponse[ListProblems])
+@router.get("/problems")
 async def get_user_problems(
     auth: Authentication = Depends(),
 ) -> StandardResponse[ListProblems]:
