@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import IntEnum
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 from pydantic import validator
 from pydantic.main import BaseModel
@@ -44,6 +44,9 @@ class RecordCodeType(IntEnum):
 
 
 class RecordCase(BaseModel):
+    class Config:
+        orm_mode = True
+
     status: RecordStatus = RecordStatus.waiting
     score: int = 0
     time_ms: int = 0
@@ -68,19 +71,22 @@ class Record(BaseODMSchema):
     judge_category: List[str]
 
     submit_at: datetime
-    judge_at: datetime
+    judge_at: Optional[datetime]
 
-    judge_user: ReferenceSchema[UserBase]  # FIXME: how to create a schema for it?
+    judge_user: ReferenceSchema[UserBase]
 
     compiler_texts: str = ""
-    # cases: List[RecordCase] = [] # FIXME: how to create a schema for it?
+    cases: List[RecordCase] = []
 
     _validate_domain: Callable[[AnyCallable], classmethod] = reference_schema_validator(
         "domain", Domain
     )
-    _validate_owner: Callable[[AnyCallable], classmethod] = reference_schema_validator(
+    _validate_user: Callable[[AnyCallable], classmethod] = reference_schema_validator(
         "user", UserBase
     )
+    _validate_judge_user: Callable[
+        [AnyCallable], classmethod
+    ] = reference_schema_validator("judge_user", UserBase)
     _validate_problem: Callable[
         [AnyCallable], classmethod
     ] = reference_schema_validator("problem", Problem)

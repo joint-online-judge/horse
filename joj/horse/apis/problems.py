@@ -1,12 +1,13 @@
 from datetime import datetime
 
-from fastapi import Body, Depends, File, Query, UploadFile
+from fastapi import BackgroundTasks, Body, Depends, File, Query, UploadFile
 from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.problem import ListProblems
+from joj.horse.tasks import celery_app
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import get_db, instance
 from joj.horse.utils.errors import BizError, ErrorCode
@@ -135,8 +136,21 @@ async def clone_problem(
     return StandardResponse(schemas.Problem.from_orm(new_problem))
 
 
+async def submit_to_celery(record_model: models.Record) -> None:
+    record_model.update({"status": schemas.RecordStatus.waiting})
+    await record_model.commit()
+    task = celery_app.send_task("joj.tiger.compile", args=[])
+    res = task.get()
+    record_model.update(
+        {"status": schemas.RecordStatus.accepted, "judge_at": datetime.utcnow()}
+    )
+    record_model.cases[0].update(res)
+    await record_model.commit()
+
+
 @router.post("/{problem_set}/{problem}")
 async def submit_solution_to_problem(
+    background_tasks: BackgroundTasks,
     code_type: schemas.RecordCodeType = Body(...),
     file: UploadFile = File(...),
     problem_set: models.ProblemSet = Depends(parse_problem_set),
@@ -159,18 +173,17 @@ async def submit_solution_to_problem(
             code=file_id,
             judge_category=[],
             submit_at=datetime.utcnow(),
-            judge_at=datetime.utcnow(),  # TODO: modify later
             judge_user=auth.user.id,  # TODO: modify later
+            cases=[schemas.RecordCase()],  # TODO: modify later
         )
-        record = models.Record(**record.to_model())
-        await record.commit()
-        logger.info("problem submitted with record: %s", record.id)
-
+        record_model = models.Record(**record.to_model())
+        await record_model.commit()
+        logger.info("problem submitted with record: %s", record_model.id)
     except Exception as e:
         logger.error("problem submission failed: %s", problem.id)
         raise e
-
-    return StandardResponse(schemas.Record.from_orm(record))
+    background_tasks.add_task(submit_to_celery, record_model)
+    return StandardResponse(schemas.Record.from_orm(record_model))
 
 
 @router.delete("/{problem_set}/{problem}")

@@ -13,7 +13,7 @@ from joj.horse.utils.db import instance
 
 @instance.register
 class RecordCase(EmbeddedDocumentImplementation):
-    status = fields.IntegerField()
+    status = fields.IntegerField(default=0)
     score = fields.IntegerField(default=0)
     time_ms = fields.IntegerField(default=0)
     memory_kb = fields.IntegerField(default=0)
@@ -63,4 +63,6 @@ class Record(DocumentMixin, MotorAsyncIODocument):
     judge_user = fields.ReferenceField(User)
 
     compiler_texts = fields.StringField(default="")
-    cases = fields.ListField(fields.EmbeddedField(RecordCase, default=RecordCase()))
+    cases = fields.ListField(
+        fields.EmbeddedField(RecordCase, default=RecordCase()), default=[]
+    )
