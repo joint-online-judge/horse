@@ -1,5 +1,3 @@
-from http import HTTPStatus
-
 from fastapi import Depends, Response
 
 from joj.horse import models, schemas
@@ -47,9 +45,7 @@ async def create_user(
     return StandardResponse(schemas.User.from_orm(user))
 
 
-@router.delete(
-    "/users/{uid}", status_code=HTTPStatus.NO_CONTENT, response_class=Response
-)
+@router.delete("/users/{uid}")
 async def delete_user(
     user: models.User = Depends(parse_uid), auth: Authentication = Depends()
 ) -> StandardResponse[Empty]:
