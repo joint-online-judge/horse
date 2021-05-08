@@ -67,7 +67,7 @@ async def jaccount_login(
 ) -> Union[RedirectResponse, JSONResponse]:
     client = jaccount.get_client()
     if client is None:
-        raise BizError(ErrorCode.APINotImplementedError)
+        raise BizError(ErrorCode.ApiNotImplementedError)
 
     jaccount_redirect_url = generate_url(router_prefix, router_name, "jaccount", "auth")
     url, state = client.get_authorize_url(jaccount_redirect_url)
@@ -92,7 +92,7 @@ async def jaccount_auth(
 ) -> RedirectResponse:
     client = jaccount.get_client()
     if client is None:
-        raise BizError(ErrorCode.APINotImplementedError)
+        raise BizError(ErrorCode.ApiNotImplementedError)
 
     if jaccount_state != state:
         raise HTTPException(
@@ -146,7 +146,7 @@ async def jaccount_auth(
 def get_jaccount_logout_url(redirect_url: str) -> str:
     client = jaccount.get_client()
     if client is None:
-        raise BizError(ErrorCode.APINotImplementedError)
+        raise BizError(ErrorCode.ApiNotImplementedError)
 
     return client.get_logout_url(redirect_url)
 
