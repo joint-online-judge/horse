@@ -1,4 +1,3 @@
-from enum import IntEnum
 from functools import lru_cache
 from typing import (
     TYPE_CHECKING,
@@ -6,7 +5,6 @@ from typing import (
     Callable,
     Generator,
     Generic,
-    List,
     Optional,
     Type,
     TypeVar,

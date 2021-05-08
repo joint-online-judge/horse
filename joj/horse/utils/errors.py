@@ -1,4 +1,4 @@
-from enum import Enum, IntEnum, auto
+from enum import Enum
 from typing import Any
 
 from fastapi import HTTPException, status

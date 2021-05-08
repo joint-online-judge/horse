@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi import Depends
 
 from joj.horse import models, schemas
