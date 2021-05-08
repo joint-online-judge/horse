@@ -1,7 +1,6 @@
 import asyncio
-from http import HTTPStatus
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from marshmallow.exceptions import ValidationError as MValidationError
 from pydantic.error_wrappers import ValidationError
@@ -12,7 +11,7 @@ from uvicorn.config import logger
 from joj.horse.config import settings
 from joj.horse.utils.cache import test_cache
 from joj.horse.utils.db import ensure_indexes, get_db
-from joj.horse.utils.errors import BizError, ErrorCode
+from joj.horse.utils.errors import BizError
 from joj.horse.utils.url import generate_url
 from joj.horse.utils.version import get_git_version, get_version
 
@@ -52,7 +51,7 @@ async def validation_exception_handler(
 ) -> JSONResponse:
     return JSONResponse(
         content=jsonable_encoder({"detail": exc.errors()}),
-        status_code=HTTPStatus.UNPROCESSABLE_ENTITY.value,
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
     )
 
 
@@ -62,16 +61,16 @@ async def marshmallow_validation_exception_handler(
 ) -> JSONResponse:
     return JSONResponse(
         content=jsonable_encoder({"detail": exc.messages}),
-        status_code=HTTPStatus.UNPROCESSABLE_ENTITY.value,
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
     )
 
 
 @app.exception_handler(BizError)
-async def http_exception_handler(request: Request, exc: BizError) -> JSONResponse:
-    response = JSONResponse(
-        jsonable_encoder({"errorCode": exc.errorCode, "data": {}}), status_code=200
+async def business_exception_handler(request: Request, exc: BizError) -> JSONResponse:
+    return JSONResponse(
+        jsonable_encoder({"errorCode": exc.errorCode, "data": {}}),
+        status_code=status.HTTP_200_OK,
     )
-    return response
 
 
 import joj.horse.apis
