@@ -7,12 +7,12 @@ from uvicorn.config import logger
 from joj.horse import models, schemas
 from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.problem import ListProblems
-from joj.horse.tasks import celery_app
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import get_db, instance
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import parse_problem, parse_problem_set
 from joj.horse.utils.router import MyRouter
+from joj.horse.utils.tasks import CeleryWorker
 
 router = MyRouter()
 router_name = "problems"
@@ -136,18 +136,6 @@ async def clone_problem(
     return StandardResponse(schemas.Problem.from_orm(new_problem))
 
 
-async def submit_to_celery(record_model: models.Record) -> None:
-    record_model.update({"status": schemas.RecordStatus.waiting})
-    await record_model.commit()
-    task = celery_app.send_task("joj.tiger.compile", args=[])
-    res = task.get()
-    record_model.update(
-        {"status": schemas.RecordStatus.accepted, "judge_at": datetime.utcnow()}
-    )
-    record_model.cases[0].update(res)
-    await record_model.commit()
-
-
 @router.post("/{problem_set}/{problem}")
 async def submit_solution_to_problem(
     background_tasks: BackgroundTasks,
@@ -174,7 +162,7 @@ async def submit_solution_to_problem(
             judge_category=[],
             submit_at=datetime.utcnow(),
             judge_user=auth.user.id,  # TODO: modify later
-            cases=[schemas.RecordCase()],  # TODO: modify later
+            cases=[schemas.RecordCase() for i in range(10)],  # TODO: modify later
         )
         record_model = models.Record(**record.to_model())
         await record_model.commit()
@@ -182,7 +170,7 @@ async def submit_solution_to_problem(
     except Exception as e:
         logger.error("problem submission failed: %s", problem.id)
         raise e
-    background_tasks.add_task(submit_to_celery, record_model)
+    background_tasks.add_task(CeleryWorker(record_model, record).submit_to_celery)
     return StandardResponse(schemas.Record.from_orm(record_model))
 
 
