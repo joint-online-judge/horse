@@ -6,6 +6,8 @@ from pydantic.typing import AnyCallable
 
 from joj.horse.schemas.base import (
     BaseODMSchema,
+    LongStr,
+    LongText,
     NoneEmptyStr,
     ReferenceSchema,
     reference_schema_validator,
@@ -17,19 +19,21 @@ from joj.horse.schemas.user import UserBase
 
 class ProblemEdit(BaseModel):
     title: Optional[NoneEmptyStr]
-    content: Optional[str]
+    content: Optional[LongText]
     hidden: Optional[bool]
     data: Optional[int]
     data_version: Optional[int]
-    languages: Optional[List[str]]
+    languages: Optional[List[LongStr]]
 
 
 class ProblemCreate(BaseModel):
-    domain: str = Field(..., description="url or the id of the domain")
+    domain: LongStr = Field(..., description="url or the id of the domain")
     title: NoneEmptyStr = Field(..., description="title of the problem")
-    content: str = Field("", description="content of the problem")
+    content: LongText = Field("", description="content of the problem")
     hidden: bool = Field(False, description="whether the problem is hidden")
-    languages: List[str] = Field([], description="acceptable language of the problem")
+    languages: List[LongStr] = Field(
+        [], description="acceptable language of the problem"
+    )
 
 
 class Problem(ProblemCreate, BaseODMSchema):
