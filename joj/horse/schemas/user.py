@@ -20,6 +20,9 @@ class UserBase(BaseODMSchema):
     mail_lower: str = ""
     gravatar: str = ""
 
+    student_id: str = ""
+    real_name: str = ""
+
     @validator("uname", pre=True)
     def validate_uname(cls, v: str) -> str:
         if not UNAME_RE.fullmatch(v):
@@ -47,9 +50,6 @@ class User(UserBase):
     salt: str = ""
     hash: str = ""
     role: str = "user"
-
-    student_id: str = ""
-    real_name: str = ""
 
     register_ip: str = "0.0.0.0"
     login_ip: str = "0.0.0.0"
