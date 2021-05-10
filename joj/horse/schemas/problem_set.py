@@ -6,7 +6,9 @@ from pydantic.typing import AnyCallable
 
 from joj.horse.schemas.base import (
     BaseODMSchema,
-    NoneEmptyStr,
+    LongStr,
+    LongText,
+    NoneEmptyLongStr,
     ReferenceSchema,
     reference_schema_validator,
 )
@@ -16,26 +18,28 @@ from joj.horse.schemas.user import UserBase
 
 
 class ProblemSetEdit(BaseModel):
-    title: Optional[NoneEmptyStr]
-    content: Optional[str]
+    title: Optional[NoneEmptyLongStr]
+    content: Optional[LongText]
     hidden: Optional[bool]
-    labels: Optional[List[str]]
+    labels: Optional[List[LongStr]]
     problems: Optional[List[ReferenceSchema[Problem]]]
 
 
 class ProblemSetCreate(BaseModel):
-    domain: str = Field(..., description="url or the id of the domain")
-    title: str = Field(..., description="title of the problem set")
-    content: str = Field("", description="content of the problem set")
+    domain: LongStr = Field(..., description="url or the id of the domain")
+    title: NoneEmptyLongStr = Field(..., description="title of the problem set")
+    content: LongText = Field("", description="content of the problem set")
     hidden: bool = Field(False, description="whether the problem set is hidden")
-    problems: List[str] = Field([], description="problems belonging to the problem set")
+    problems: List[LongStr] = Field(
+        [], description="problems belonging to the problem set"
+    )
 
 
 class ProblemSet(ProblemSetCreate, BaseODMSchema):
     domain: ReferenceSchema[Domain]  # type: ignore
     owner: ReferenceSchema[UserBase]
 
-    labels: List[str] = []
+    labels: List[LongStr] = []
     num_submit: int = 0
     num_accept: int = 0
 

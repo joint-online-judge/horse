@@ -7,6 +7,8 @@ from pydantic.typing import AnyCallable
 
 from joj.horse.schemas.base import (
     BaseODMSchema,
+    LongStr,
+    LongText,
     ReferenceSchema,
     reference_schema_validator,
 )
@@ -14,18 +16,18 @@ from joj.horse.schemas.user import UserBase
 
 
 class DomainEdit(BaseModel):
-    name: Optional[str]
-    gravatar: Optional[str]
-    bulletin: Optional[str]
-    invitation_code: Optional[str]
+    name: Optional[LongStr]
+    gravatar: Optional[LongStr]
+    bulletin: Optional[LongText]
+    invitation_code: Optional[LongStr]
     invitation_expire_at: Optional[datetime]
 
 
 class DomainCreate(BaseModel):
-    url: str = Field(..., description="(unique) url of the domain")
-    name: str = Field(..., description="displayed name of the domain")
-    bulletin: str = Field("", description="bulletin of the domain")
-    gravatar: str = Field("", description="gravatar url of the domain")
+    url: LongStr = Field(..., description="(unique) url of the domain")
+    name: LongStr = Field(..., description="displayed name of the domain")
+    bulletin: LongText = Field("", description="bulletin of the domain")
+    gravatar: LongStr = Field("", description="gravatar url of the domain")
 
 
 class Domain(DomainCreate, BaseODMSchema):

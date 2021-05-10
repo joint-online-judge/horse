@@ -24,9 +24,20 @@ if TYPE_CHECKING:
     Model = TypeVar("Model", bound="BaseModel")
 
 
+class LongStr(ConstrainedStr):
+    max_length = 256
+
+
 class NoneEmptyStr(ConstrainedStr):
-    strip_whitespace = True
     min_length = 1
+
+
+class NoneEmptyLongStr(LongStr, NoneEmptyStr):
+    pass
+
+
+class LongText(ConstrainedStr):
+    max_length = 65536
 
 
 class PydanticObjectId(str):
