@@ -7,6 +7,7 @@ from pydantic.schema import schema
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
+from joj.horse.models import problem
 from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.base import PydanticObjectId
 from joj.horse.schemas.problem_set import ListProblemSets
@@ -14,7 +15,7 @@ from joj.horse.schemas.score import Score, ScoreBoard, UserScore
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import generate_join_pipeline, instance
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.parser import parse_problem_set
+from joj.horse.utils.parser import parse_problem_set, parse_problem_set_with_time
 from joj.horse.utils.router import MyRouter
 
 router = MyRouter()
@@ -69,6 +70,8 @@ async def create_problem_set(
                     owner=auth.user.id,
                     problems=problems_models,
                     scoreboard_hidden=problem_set.scoreboard_hidden,
+                    available_time=problem_set.available_time,
+                    due_time=problem_set.due_time,
                 )
                 problem_set = models.ProblemSet(**problem_set.to_model())
                 await problem_set.commit()
@@ -82,7 +85,7 @@ async def create_problem_set(
 
 @router.get("/{problem_set}")
 async def get_problem_set(
-    problem_set: models.ProblemSet = Depends(parse_problem_set),
+    problem_set: models.ProblemSet = Depends(parse_problem_set_with_time),
 ) -> StandardResponse[schemas.ProblemSet]:
     return StandardResponse(schemas.ProblemSet.from_orm(problem_set))
 
@@ -107,7 +110,7 @@ async def update_problem_set(
 
 @router.get("/{problem_set}/scoreboard")
 async def get_scoreboard(
-    problem_set: models.ProblemSet = Depends(parse_problem_set),
+    problem_set: models.ProblemSet = Depends(parse_problem_set_with_time),
 ) -> StandardResponse[ScoreBoard]:
     if problem_set.scoreboard_hidden:
         raise BizError(ErrorCode.ScoreboardHiddenBadRequestError)

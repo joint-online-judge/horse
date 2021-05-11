@@ -21,6 +21,8 @@ class ErrorCode(str, Enum):
     UserAlreadyInDomainBadRequestError = "UserAlreadyInDomainBadRequestError"
     DomainInvitationBadRequestError = "DomainInvitationBadRequestError"
     ScoreboardHiddenBadRequestError = "ScoreboardHiddenBadRequestError"
+    ProblemSetBeforeAvailableError = "ProblemSetBeforeAvailableError"
+    ProblemSetAfterDueError = "ProblemSetAfterDueError"
 
 
 class BizError(Exception):
