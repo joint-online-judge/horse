@@ -127,6 +127,7 @@ async def get_scoreboard(
             record_model = await models.Record.find_one(
                 {"user": ObjectId(user.id), "problem": problem.id}
             )  # TODO: find the latest record
+            tried = record_model is not None
             record = schemas.Record.from_orm(record_model) if record_model else None
             score = 0
             time = datetime(1970, 1, 1)
@@ -139,7 +140,11 @@ async def get_scoreboard(
             total_time_spent += time_spent
             scores.append(
                 Score(
-                    score=score, time=time, full_score=full_score, time_spent=time_spent
+                    score=score,
+                    time=time,
+                    full_score=full_score,
+                    time_spent=time_spent,
+                    tried=tried,
                 )
             )
         user_score = UserScore(
