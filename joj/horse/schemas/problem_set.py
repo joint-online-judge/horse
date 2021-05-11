@@ -41,10 +41,10 @@ class ProblemSetCreate(BaseModel):
         False, description="whether the scoreboard of the problem set is hidden"
     )
     available_time: datetime = Field(
-        datetime.now(), description="the problem set is available from"
+        datetime.utcnow(), description="the problem set is available from"
     )
     due_time: datetime = Field(
-        datetime.now() + timedelta(days=7), description="the problem set is due at"
+        datetime.utcnow() + timedelta(days=7), description="the problem set is due at"
     )
 
 
