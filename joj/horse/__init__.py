@@ -29,7 +29,7 @@ app = FastAPI(
 async def startup_event() -> None:
     try:
         logger.info("Using %s." % asyncio.get_running_loop().__module__)
-        await test_cache()
+        # await test_cache()
         get_db()
         await ensure_indexes()
     except RetryError as e:
@@ -45,14 +45,14 @@ async def redirect_to_docs() -> RedirectResponse:
     return RedirectResponse(redirect_url)
 
 
-@app.exception_handler(ValidationError)
-async def validation_exception_handler(
-    request: Request, exc: ValidationError
-) -> JSONResponse:
-    return JSONResponse(
-        content=jsonable_encoder({"detail": exc.errors()}),
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-    )
+# @app.exception_handler(ValidationError)
+# async def validation_exception_handler(
+#     request: Request, exc: ValidationError
+# ) -> JSONResponse:
+#     return JSONResponse(
+#         content=jsonable_encoder({"detail": exc.errors()}),
+#         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+#     )
 
 
 @app.exception_handler(MValidationError)

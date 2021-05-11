@@ -45,6 +45,7 @@ class Problem(ProblemCreate, BaseODMSchema):
     num_accept: int = 0
 
     data: Optional[int] = None  # modify later
+    total_score: int = 0
     data_version: int = 2
 
     _validate_domain: Callable[[AnyCallable], classmethod] = reference_schema_validator(
