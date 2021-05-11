@@ -16,7 +16,6 @@ class Score(BaseModel):
 
 
 class UserScore(BaseModel):
-    rank: int
     user: UserBase
     total_score: int
     total_time_spent: timedelta
