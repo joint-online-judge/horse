@@ -23,6 +23,7 @@ class ProblemSetEdit(BaseModel):
     hidden: Optional[bool]
     labels: Optional[List[LongStr]]
     problems: Optional[List[LongStr]]
+    scoreboard_hidden: Optional[bool]
 
 
 class ProblemSetCreate(BaseModel):
@@ -33,6 +34,9 @@ class ProblemSetCreate(BaseModel):
     problems: List[LongStr] = Field(
         [], description="problems belonging to the problem set"
     )
+    scoreboard_hidden: bool = Field(
+        False, description="whether the scoreboard of the problem set is hidden"
+    )
 
 
 class ProblemSet(ProblemSetCreate, BaseODMSchema):
@@ -42,6 +46,7 @@ class ProblemSet(ProblemSetCreate, BaseODMSchema):
     labels: List[LongStr] = []
     num_submit: int = 0
     num_accept: int = 0
+    scoreboard_hidden: bool
 
     problems: List[ReferenceSchema[Problem]] = []  # type: ignore
 

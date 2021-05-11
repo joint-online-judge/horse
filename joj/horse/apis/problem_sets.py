@@ -68,6 +68,7 @@ async def create_problem_set(
                     domain=domain.id,
                     owner=auth.user.id,
                     problems=problems_models,
+                    scoreboard_hidden=problem_set.scoreboard_hidden,
                 )
                 problem_set = models.ProblemSet(**problem_set.to_model())
                 await problem_set.commit()
@@ -108,6 +109,8 @@ async def update_problem_set(
 async def get_scoreboard(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
 ) -> StandardResponse[ScoreBoard]:
+    if problem_set.scoreboard_hidden:
+        raise BizError(ErrorCode.ScoreboardHiddenBadRequestError)
     problem_ids: List[PydanticObjectId] = [
         problem.pk for problem in problem_set.problems
     ]
