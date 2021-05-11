@@ -158,12 +158,11 @@ async def get_scoreboard(
                 )
             )
         user_score = UserScore(
-            rank=i + 1,  # TODO: modify later
             user=user,
             total_score=total_score,
             total_time_spent=total_time_spent,
             scores=scores,
         )
         results.append(user_score)
-    ...  # TODO: sort rank here
+    results.sort(key=lambda x: (x.total_score, x.total_time_spent))
     return StandardResponse(ScoreBoard(results=results, problem_ids=problem_ids))
