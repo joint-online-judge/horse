@@ -22,7 +22,7 @@ class ProblemSetEdit(BaseModel):
     content: Optional[LongText]
     hidden: Optional[bool]
     labels: Optional[List[LongStr]]
-    problems: Optional[List[ReferenceSchema[Problem]]]
+    problems: Optional[List[LongStr]]
 
 
 class ProblemSetCreate(BaseModel):
