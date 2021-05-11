@@ -124,11 +124,10 @@ async def get_scoreboard(
         total_score = 0
         total_time_spent = timedelta(0)
         for problem in problems:
-            record = schemas.Record.from_orm(
-                await models.Record.find_one(
-                    {"user": ObjectId(user.id), "problem": ObjectId(problem.id)}
-                )
+            record_model = await models.Record.find_one(
+                {"user": ObjectId(user.id), "problem": problem.id}
             )  # TODO: find the latest record
+            record = schemas.Record.from_orm(record_model) if record_model else None
             score = 0
             time = datetime(1970, 1, 1)
             time_spent = timedelta(hours=1)  # TODO: modify later
