@@ -10,7 +10,11 @@ from joj.horse.schemas.problem import ListProblems
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import get_db, instance
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.parser import parse_problem, parse_problem_set
+from joj.horse.utils.parser import (
+    parse_problem,
+    parse_problem_set,
+    parse_problem_set_with_time,
+)
 from joj.horse.utils.router import MyRouter
 from joj.horse.utils.tasks import CeleryWorker
 
@@ -141,7 +145,7 @@ async def submit_solution_to_problem(
     background_tasks: BackgroundTasks,
     code_type: schemas.RecordCodeType = Body(...),
     file: UploadFile = File(...),
-    problem_set: models.ProblemSet = Depends(parse_problem_set),
+    problem_set: models.ProblemSet = Depends(parse_problem_set_with_time),
     problem: models.Problem = Depends(parse_problem),
     auth: Authentication = Depends(),
 ) -> StandardResponse[schemas.Record]:

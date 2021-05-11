@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import Callable, List, Optional
 
 from pydantic import Field
@@ -24,6 +25,8 @@ class ProblemSetEdit(BaseModel):
     labels: Optional[List[LongStr]]
     problems: Optional[List[LongStr]]
     scoreboard_hidden: Optional[bool]
+    available_time: Optional[datetime]
+    due_time: Optional[datetime]
 
 
 class ProblemSetCreate(BaseModel):
@@ -37,6 +40,12 @@ class ProblemSetCreate(BaseModel):
     scoreboard_hidden: bool = Field(
         False, description="whether the scoreboard of the problem set is hidden"
     )
+    available_time: datetime = Field(
+        datetime.now(), description="the problem set is available from"
+    )
+    due_time: datetime = Field(
+        datetime.now() + timedelta(days=7), description="the problem set is due at"
+    )
 
 
 class ProblemSet(ProblemSetCreate, BaseODMSchema):
@@ -47,6 +56,9 @@ class ProblemSet(ProblemSetCreate, BaseODMSchema):
     num_submit: int = 0
     num_accept: int = 0
     scoreboard_hidden: bool
+
+    available_time: datetime
+    due_time: datetime
 
     problems: List[ReferenceSchema[Problem]] = []  # type: ignore
 
