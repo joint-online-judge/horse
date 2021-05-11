@@ -19,8 +19,10 @@ class CeleryWorker:
         result = body["result"]
         del result["index"]
         self.record_model.cases[index].update(result)
-        ...  # TODO: commit record here
-        logger.info(f"receive from celery: case {index}, {result}")
+        create_task(self.record_model.commit())
+        logger.info(
+            f"problem {self.record_model.id} receive from celery: case {index}, {result}"
+        )
 
     async def submit_to_celery(self) -> None:
         self.record_model.update({"status": schemas.RecordStatus.waiting})
@@ -31,5 +33,5 @@ class CeleryWorker:
         await waiting_task
         res = task.get(on_message=self.on_message, propagate=False)
         self.record_model.update(res)
-        logger.info(f"receive from celery: {res}")
+        logger.info(f"problem {self.record_model.id} result receive from celery: {res}")
         await self.record_model.commit()
