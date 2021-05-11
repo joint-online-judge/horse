@@ -8,8 +8,9 @@ from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.schemas import Empty, StandardResponse
+from joj.horse.schemas.base import PydanticObjectId
 from joj.horse.schemas.problem_set import ListProblemSets
-from joj.horse.schemas.score import ListUserScores, Score, UserScore
+from joj.horse.schemas.score import Score, ScoreBoard, UserScore
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import generate_join_pipeline, instance
 from joj.horse.utils.errors import BizError, ErrorCode
@@ -106,7 +107,10 @@ async def update_problem_set(
 @router.get("/{problem_set}/scoreboard")
 async def get_scoreboard(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
-) -> StandardResponse[ListUserScores]:
+) -> StandardResponse[ScoreBoard]:
+    problem_ids: List[PydanticObjectId] = [
+        problem.pk for problem in problem_set.problems
+    ]
     problems = [
         await models.Problem.find_by_id(problem.pk) for problem in problem_set.problems
     ]
@@ -156,4 +160,4 @@ async def get_scoreboard(
         )
         results.append(user_score)
     ...  # TODO: sort rank here
-    return StandardResponse(ListUserScores(results=results))
+    return StandardResponse(ScoreBoard(results=results, problem_ids=problem_ids))
