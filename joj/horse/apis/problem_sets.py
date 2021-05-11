@@ -134,14 +134,14 @@ async def get_scoreboard(
         total_score = 0
         total_time_spent = timedelta(0)
         for problem in problems:
-            record_model = await models.Record.find_one(
+            record_model: models.Record = await models.Record.find_one(
                 {"user": ObjectId(user.id), "problem": problem.id}
             )  # TODO: find the latest record
             tried = record_model is not None
             record = schemas.Record.from_orm(record_model) if record_model else None
             score = 0
             time = datetime(1970, 1, 1)
-            time_spent = timedelta(hours=1)  # TODO: modify later
+            time_spent = record_model.submit_at - problem_set.available_time
             full_score = 1000  # TODO: modify later
             if record is not None:
                 score = record.score

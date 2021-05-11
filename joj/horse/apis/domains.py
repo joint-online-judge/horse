@@ -32,7 +32,6 @@ async def list_domains(
     """
     # TODO: finish this part
     # auth.ensure(ScopeType.GENERAL, PermissionType.UNKNOWN)
-    # print("self")
     return StandardResponse(
         ListDomains(
             results=[
@@ -173,7 +172,7 @@ async def member_join_in_domain(
         raise BizError(ErrorCode.UserAlreadyInDomainBadRequestError)
     if (
         invitation_code != domain.invitation_code
-        or datetime.now() > domain.invitation_expire_at
+        or datetime.utcnow() > domain.invitation_expire_at
     ):
         raise BizError(ErrorCode.DomainInvitationBadRequestError)
     domain_user = schemas.DomainUser(
