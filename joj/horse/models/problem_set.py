@@ -21,6 +21,7 @@ class ProblemSet(DocumentMixin, MotorAsyncIODocument):
     title = fields.StringField(required=True)
     content = fields.StringField(default="")
     hidden = fields.BooleanField(default=False)
+    scoreboard_hidden = fields.BooleanField(default=False)
     labels = fields.ListField(fields.StringField(), default=[])
     num_submit = fields.IntegerField(default=0)
     num_accept = fields.IntegerField(default=0)

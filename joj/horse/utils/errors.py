@@ -20,6 +20,7 @@ class ErrorCode(str, Enum):
     DeleteProblemBadRequestError = "DeleteProblemBadRequestError"
     UserAlreadyInDomainBadRequestError = "UserAlreadyInDomainBadRequestError"
     DomainInvitationBadRequestError = "DomainInvitationBadRequestError"
+    ScoreboardHiddenBadRequestError = "ScoreboardHiddenBadRequestError"
 
 
 class BizError(Exception):
