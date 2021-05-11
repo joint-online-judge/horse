@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from typing import List
 
+import pymongo
 from bson.objectid import ObjectId
 from fastapi import Depends, Query
 from pydantic.schema import schema
@@ -135,17 +136,19 @@ async def get_scoreboard(
         total_time_spent = timedelta(0)
         for problem in problems:
             record_model: models.Record = await models.Record.find_one(
-                {"user": ObjectId(user.id), "problem": problem.id}
-            )  # TODO: find the latest record
+                {"user": ObjectId(user.id), "problem": problem.id},
+                sort=[("submit_at", pymongo.DESCENDING)],
+            )
             tried = record_model is not None
             record = schemas.Record.from_orm(record_model) if record_model else None
             score = 0
             time = datetime(1970, 1, 1)
-            time_spent = record_model.submit_at - problem_set.available_time
+            time_spent = datetime.utcnow() - problem_set.available_time
             full_score = 1000  # TODO: modify later
             if record is not None:
                 score = record.score
                 time = record.submit_at
+                time_spent = record_model.submit_at - problem_set.available_time
             total_score += score
             total_time_spent += time_spent
             scores.append(
