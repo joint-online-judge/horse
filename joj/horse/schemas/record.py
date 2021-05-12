@@ -19,7 +19,14 @@ from joj.horse.schemas.user import User, UserBase
 
 
 class RecordStatus(IntEnum):
+    # waiting
     waiting = 0
+    # working
+    judging = 20
+    # compiling = 21
+    # fetched = 22
+    # ignored = 30
+    # done
     accepted = 1
     wrong_answer = 2
     time_limit_exceeded = 3
@@ -30,10 +37,6 @@ class RecordStatus(IntEnum):
     system_error = 8
     canceled = 9
     etc = 10
-    judging = 20
-    compiling = 21
-    fetched = 22
-    ignored = 30
 
 
 class RecordCodeType(IntEnum):

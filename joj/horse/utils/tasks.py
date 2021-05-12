@@ -25,12 +25,9 @@ class CeleryWorker:
         )
 
     async def submit_to_celery(self) -> None:
-        self.record_model.update({"status": schemas.RecordStatus.waiting})
-        waiting_task = create_task(self.record_model.commit())
         task = celery_app.send_task(
             "joj.tiger.compile", args=[self.record_schema.dict()]
         )
-        await waiting_task
         # TODO: it seems that FastAPI is blocked
         res = task.get(on_message=self.on_message, propagate=False)
         self.record_model.update(res)
