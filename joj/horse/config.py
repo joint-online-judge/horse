@@ -18,7 +18,8 @@ class Settings(BaseSettings):
 
     host: str = "127.0.0.1"
     port: int = 34765
-    url_prefix: str = "http://%s:%d" % (host, port)
+    http_url_prefix: str = "http://%s:%d" % (host, port)
+    ws_url_prefix: str = "ws://%s:%d" % (host, port)
     debug: bool = False
 
     session_ttl: int = 14 * 24 * 60 * 60  # 14 days, in seconds

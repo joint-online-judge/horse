@@ -1,8 +1,10 @@
 from joj.horse.config import settings
 
 
-def generate_url(*args: str) -> str:
+def generate_url(*args: str, protocol: str = "http") -> str:
+    assert protocol in ["http", "ws"]
     path = "/".join(args)
-    if not path or path[0] != "/":
+    if path and path[0] != "/":
         path = "/" + path
-    return settings.url_prefix + path
+    prefix = settings.http_url_prefix if protocol == "http" else settings.ws_url_prefix
+    return prefix + path
