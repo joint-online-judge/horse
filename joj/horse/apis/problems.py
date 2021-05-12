@@ -1,22 +1,20 @@
 from datetime import datetime
 
-from fastapi import BackgroundTasks, Body, Depends, File, Query, UploadFile
+from fastapi import Body, Depends, File, Query, UploadFile
 from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
+from joj.horse.apis import records
 from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.problem import ListProblems
+from joj.horse.tasks import celery_app
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import get_db, instance
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.parser import (
-    parse_problem,
-    parse_problem_set,
-    parse_problem_set_with_time,
-)
+from joj.horse.utils.parser import parse_problem
 from joj.horse.utils.router import MyRouter
-from joj.horse.utils.tasks import CeleryWorker
+from joj.horse.utils.url import generate_url
 
 router = MyRouter()
 router_name = "problems"
@@ -140,12 +138,10 @@ async def clone_problem(
     return StandardResponse(schemas.Problem.from_orm(new_problem))
 
 
-@router.post("/{problem_set}/{problem}")
+@router.post("/{problem}")
 async def submit_solution_to_problem(
-    background_tasks: BackgroundTasks,
     code_type: schemas.RecordCodeType = Body(...),
     file: UploadFile = File(...),
-    problem_set: models.ProblemSet = Depends(parse_problem_set_with_time),
     problem: models.Problem = Depends(parse_problem),
     auth: Authentication = Depends(),
 ) -> StandardResponse[schemas.Record]:
@@ -159,7 +155,6 @@ async def submit_solution_to_problem(
         record = schemas.Record(
             domain=problem.domain,
             problem=problem.id,
-            problem_set=problem_set.id,
             user=auth.user.id,
             code_type=code_type,
             code=file_id,
@@ -174,30 +169,9 @@ async def submit_solution_to_problem(
     except Exception as e:
         logger.error("problem submission failed: %s", problem.id)
         raise e
-    background_tasks.add_task(CeleryWorker(record_model, record).submit_to_celery)
-    return StandardResponse(schemas.Record.from_orm(record_model))
-
-
-@router.delete("/{problem_set}/{problem}")
-async def delete_problem_from_problem_set(
-    problem_set: models.ProblemSet = Depends(parse_problem_set),
-    problem: models.Problem = Depends(parse_problem),
-    auth: Authentication = Depends(),
-) -> StandardResponse[Empty]:
-    if problem not in problem_set.problems:
-        raise BizError(ErrorCode.ProblemNotFoundError)
-    problem_set.problems.remove(problem)
-    await problem_set.commit()
-    return StandardResponse()
-
-
-@router.put("/{problem_set}/{problem}")
-async def add_problem_to_problem_set(
-    problem_set: models.ProblemSet = Depends(parse_problem_set),
-    problem: models.Problem = Depends(parse_problem),
-    auth: Authentication = Depends(),
-) -> StandardResponse[schemas.ProblemSet]:
-    if problem not in problem_set.problems:
-        problem_set.problems.append(problem)
-        await problem_set.commit()
-    return StandardResponse(schemas.ProblemSet.from_orm(problem_set))
+    record_schema = schemas.Record.from_orm(record_model)
+    ws_url = generate_url(
+        records.router_prefix, records.router_name, record_schema.id, protocol="ws"
+    )
+    celery_app.send_task("joj.tiger.compile", args=[record_schema.dict(), ws_url])
+    return StandardResponse(record_schema)

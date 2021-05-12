@@ -66,7 +66,6 @@ class Record(BaseODMSchema):
     memory_kb: int = 0
     domain: ReferenceSchema[Domain]
     problem: ReferenceSchema[Problem]
-    problem_set: ReferenceSchema[ProblemSet]
     problem_data: int = 0
     user: ReferenceSchema[UserBase]
     code_type: RecordCodeType
@@ -93,9 +92,6 @@ class Record(BaseODMSchema):
     _validate_problem: Callable[
         [AnyCallable], classmethod
     ] = reference_schema_validator("problem", Problem)
-    _validate_problem_set: Callable[
-        [AnyCallable], classmethod
-    ] = reference_schema_validator("problem_set", ProblemSet)
 
 
 class ListRecords(BaseModel):
