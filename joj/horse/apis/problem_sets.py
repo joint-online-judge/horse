@@ -12,6 +12,7 @@ from joj.horse.models import problem
 from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.base import PydanticObjectId
 from joj.horse.schemas.problem_set import ListProblemSets
+from joj.horse.schemas.record import RecordStatus
 from joj.horse.schemas.score import Score, ScoreBoard, UserScore
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import generate_join_pipeline, instance
@@ -136,7 +137,11 @@ async def get_scoreboard(
         total_time_spent = timedelta(0)
         for problem in problems:
             record_model: models.Record = await models.Record.find_one(
-                {"user": ObjectId(user.id), "problem": problem.id},
+                {
+                    "user": ObjectId(user.id),
+                    "problem": problem.id,
+                    "status": {"$nin": [RecordStatus.waiting, RecordStatus.judging]},
+                },
                 sort=[("submit_at", pymongo.DESCENDING)],
             )
             tried = record_model is not None
