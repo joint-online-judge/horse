@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import Body, Depends, File, Query, UploadFile
+from fastapi import Depends, File, Form, Query, UploadFile
 from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 from uvicorn.config import logger
 
@@ -140,7 +140,7 @@ async def clone_problem(
 
 @router.post("/{problem}")
 async def submit_solution_to_problem(
-    code_type: schemas.RecordCodeType = Body(...),
+    code_type: schemas.RecordCodeType = Form(...),
     file: UploadFile = File(...),
     problem: models.Problem = Depends(parse_problem),
     auth: Authentication = Depends(),
