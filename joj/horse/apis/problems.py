@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from bson import get_data_and_view
 from fastapi import Depends, File, Form, Query, UploadFile
 from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 from uvicorn.config import logger
@@ -43,7 +44,9 @@ async def create_problem(
     if auth.user is None:
         raise BizError(ErrorCode.InvalidAuthenticationError)
     domain = await models.Domain.find_by_url_or_id(problem.domain)
-
+    problem_set: models.ProblemSet = await models.ProblemSet.find_by_id(
+        problem.problem_set
+    )
     # use transaction for multiple operations
     try:
         async with instance.session() as session:
@@ -51,20 +54,21 @@ async def create_problem(
                 problem_group = schemas.ProblemGroup()
                 problem_group = models.ProblemGroup(**problem_group.to_model())
                 await problem_group.commit()
-                # domain = await models.Domain.find_by_id(problem.domain.__str__())
                 new_problem = schemas.Problem(
+                    domain=domain.id,
                     title=problem.title,
                     content=problem.content,
-                    hidden=problem.hidden,
+                    data_version=problem.data_version,
                     languages=problem.languages,
-                    domain=domain.id,
+                    problem_set=problem_set.id,
                     owner=auth.user.id,
-                    group=problem_group.id,
+                    problem_group=problem_group.id,
                 )
                 new_problem = models.Problem(**new_problem.to_model())
                 await new_problem.commit()
+                problem_set.update({})  # TODO: add new problem to problem_set
+                await problem_set.commit()
                 logger.info("problem created: %s", new_problem)
-
     except Exception as e:
         logger.error("problem creation failed: %s", problem.title)
         raise e
@@ -118,7 +122,7 @@ async def clone_problem(
                     problem_group = models.ProblemGroup(**problem_group.to_model())
                     await problem_group.commit()
                 else:
-                    problem_group = await problem.group.fetch()
+                    problem_group = await problem.problem_group.fetch()
                 new_problem = schemas.Problem(
                     title=problem.title,
                     content=problem.content,
@@ -126,7 +130,7 @@ async def clone_problem(
                     languages=problem.languages,
                     domain=domain.id,
                     owner=auth.user.id,
-                    group=problem_group.id,  # type: ignore
+                    problem_group=problem_group.id,  # type: ignore
                 )
                 new_problem = models.Problem(**new_problem.to_model())
                 await new_problem.commit()

@@ -4,7 +4,6 @@ from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 
 from joj.horse.models.base import DocumentMixin
 from joj.horse.models.domain import Domain
-from joj.horse.models.problem import Problem
 from joj.horse.models.user import User
 from joj.horse.utils.db import instance
 
@@ -27,7 +26,3 @@ class ProblemSet(DocumentMixin, MotorAsyncIODocument):
     due_time = fields.DateTimeField()
     num_submit = fields.IntegerField(default=0)
     num_accept = fields.IntegerField(default=0)
-
-    problems = fields.ListField(
-        fields.ReferenceField(Problem, required=True), default=[]
-    )

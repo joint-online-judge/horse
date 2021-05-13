@@ -6,6 +6,7 @@ from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 from joj.horse.models.base import DocumentMixin
 from joj.horse.models.domain import Domain
 from joj.horse.models.problem_group import ProblemGroup
+from joj.horse.models.problem_set import ProblemSet
 from joj.horse.models.user import User
 from joj.horse.utils.db import instance
 
@@ -17,12 +18,14 @@ class Problem(DocumentMixin, MotorAsyncIODocument):
         indexes = [
             IndexModel("domain"),
             IndexModel("owner"),
-            IndexModel("group", sparse=True),
+            IndexModel("problem_group"),
+            IndexModel("problem_set"),
         ]
 
     domain = fields.ReferenceField(Domain, required=True)
     owner = fields.ReferenceField(User, required=True)
-    group = fields.ReferenceField(ProblemGroup, required=True)
+    problem_group = fields.ReferenceField(ProblemGroup, required=True)
+    problem_set = fields.ReferenceField(ProblemSet, required=True)
 
     title = fields.StringField(required=True)
     content = fields.StringField(default="")
