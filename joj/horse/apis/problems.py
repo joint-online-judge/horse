@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from bson import get_data_and_view
 from fastapi import Depends, File, Form, Query, UploadFile
 from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 from uvicorn.config import logger
@@ -13,7 +12,7 @@ from joj.horse.tasks import celery_app
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import get_db, instance
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.parser import parse_problem
+from joj.horse.utils.parser import parse_problem, parse_problem_set
 from joj.horse.utils.router import MyRouter
 from joj.horse.utils.url import generate_url
 
@@ -86,10 +85,6 @@ async def get_problem(
 async def delete_problem(
     problem: models.Problem = Depends(parse_problem),
 ) -> StandardResponse[Empty]:
-    # TODO: optimize
-    async for problem_set in models.ProblemSet.find():
-        if problem in problem_set:
-            raise BizError(ErrorCode.DeleteProblemBadRequestError)
     await problem.delete()
     return StandardResponse()
 
@@ -106,36 +101,36 @@ async def update_problem(
 @router.post("/{problem}/clone")
 async def clone_problem(
     problem: models.Problem = Depends(parse_problem),
-    domain: str = Query(..., description="url or the id of the domain"),
-    new_group: bool = Query(
-        False, description="create new problem group or use the original one"
-    ),
+    problem_set: models.ProblemSet = Depends(parse_problem_set),
+    new_group: bool = Query(False, description="whether to create new problem group"),
     auth: Authentication = Depends(),
 ) -> StandardResponse[schemas.Problem]:
     # use transaction for multiple operations
     try:
         async with instance.session() as session:
             async with session.start_transaction():
-                domain = await models.Domain.find_by_url_or_id(domain)
                 if new_group:
-                    problem_group = schemas.ProblemGroup()
-                    problem_group = models.ProblemGroup(**problem_group.to_model())
+                    problem_group = models.ProblemGroup(
+                        **schemas.ProblemGroup().to_model()
+                    )
                     await problem_group.commit()
                 else:
                     problem_group = await problem.problem_group.fetch()
+                domain: models.Domain = await problem_set.domain.fetch()
                 new_problem = schemas.Problem(
-                    title=problem.title,
-                    content=problem.content,
-                    hidden=problem.hidden,
-                    languages=problem.languages,
                     domain=domain.id,
                     owner=auth.user.id,
-                    problem_group=problem_group.id,  # type: ignore
+                    title=problem.title,
+                    content=problem.content,
+                    data=problem.data,
+                    data_version=problem.data_version,
+                    languages=problem.languages,
+                    problem_group=problem_group.id,
+                    problem_set=problem_set.id,
                 )
                 new_problem = models.Problem(**new_problem.to_model())
                 await new_problem.commit()
-                logger.info("problem created: %s", new_problem)
-
+                logger.info("problem cloned: %s", new_problem)
     except Exception as e:
         logger.error("problem clone failed: %s", problem.title)
         raise e

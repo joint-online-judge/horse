@@ -80,7 +80,7 @@ async def get_problem_set(
     return StandardResponse(schemas.ProblemSet.from_orm(problem_set))
 
 
-@router.delete("/{problem_set}")
+@router.delete("/{problem_set}", deprecated=True)
 async def delete_problem_set(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
 ) -> StandardResponse[Empty]:
