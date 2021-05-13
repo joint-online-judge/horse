@@ -91,7 +91,6 @@ def test_get_user(
 #     # assert res["domain"] == NEW_DOMAIN["id"]
 #     assert res["title"] == problem.title
 #     assert res["content"] == problem.content
-#     assert res["hidden"] == problem.hidden
 #     assert res["languages"] == problem.languages
 #     assert res["owner"] == str(test_user.id)
 #     assert res["num_submit"] == 0
