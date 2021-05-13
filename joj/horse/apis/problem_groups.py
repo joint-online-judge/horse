@@ -37,7 +37,9 @@ async def get_problems_in_problem_group(
         ListProblems(
             results=[
                 schemas.Problem.from_orm(problem)
-                async for problem in models.Problem.find({"group": problem_group.id})
+                async for problem in models.Problem.find(
+                    {"problem_group": problem_group.id}
+                )
             ]
         )
     )

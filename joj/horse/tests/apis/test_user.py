@@ -20,13 +20,13 @@ domain = schemas.DomainCreate(
     bulletin=random_lower_string(),
     gravatar=random_lower_string(),
 )
-problem = schemas.ProblemCreate(
-    domain=domain.url,
-    title=random_lower_string(),
-    content=random_lower_string(length=64),
-    hidden=random_bool(),
-    languages=[],
-)
+# problem = schemas.ProblemCreate(
+#     domain=domain.url,
+#     title=random_lower_string(),
+#     content=random_lower_string(length=64),
+#     data_version=2,
+#     languages=[],
+# )
 # NEW_DOMAIN = {}
 
 
@@ -94,7 +94,6 @@ def test_get_user(
 #     assert res["hidden"] == problem.hidden
 #     assert res["languages"] == problem.languages
 #     assert res["owner"] == str(test_user.id)
-#     assert res["group"]
 #     assert res["num_submit"] == 0
 #     assert res["num_accept"] == 0
 #     assert res["data"] is None

@@ -53,24 +53,12 @@ async def create_problem_set(
         async with instance.session() as session:
             async with session.start_transaction():
                 domain = await models.Domain.find_by_url_or_id(problem_set.domain)
-                problems_models = [
-                    await models.Problem.find_by_id(problem)
-                    for problem in problem_set.problems
-                ]
-                for i, (problem_id, problem_model) in enumerate(
-                    zip(problem_set.problems, problems_models)
-                ):
-                    if problem_model is None:
-                        raise BizError(ErrorCode.ProblemNotFoundError)
-                    problems_models[i] = problem_model.id
-                logger.info("problems_models: %s", problems_models)
                 problem_set = schemas.ProblemSet(
                     title=problem_set.title,
                     content=problem_set.content,
                     hidden=problem_set.hidden,
                     domain=domain.id,
                     owner=auth.user.id,
-                    problems=problems_models,
                     scoreboard_hidden=problem_set.scoreboard_hidden,
                     available_time=problem_set.available_time,
                     due_time=problem_set.due_time,
@@ -116,12 +104,6 @@ async def get_scoreboard(
 ) -> StandardResponse[ScoreBoard]:
     if problem_set.scoreboard_hidden:
         raise BizError(ErrorCode.ScoreboardHiddenBadRequestError)
-    problem_ids: List[PydanticObjectId] = [
-        problem.pk for problem in problem_set.problems
-    ]
-    problems = [
-        await models.Problem.find_by_id(problem.pk) for problem in problem_set.problems
-    ]
     domain = await problem_set.domain.fetch()
     pipeline = generate_join_pipeline(field="user", condition={"domain": domain.id})
     users = [
@@ -131,11 +113,15 @@ async def get_scoreboard(
         async for domain_user in models.DomainUser.aggregate(pipeline)
     ]
     results: List[UserScore] = []
+    problem_ids: List[PydanticObjectId] = []
+    firstUser = True
     for i, user in enumerate(users):
         scores: List[Score] = []
         total_score = 0
         total_time_spent = timedelta(0)
-        for problem in problems:
+        async for problem in models.Problem.find({"problem_set": problem_set.id}):
+            if firstUser:
+                problem_ids.append(problem.id)
             record_model: models.Record = await models.Record.find_one(
                 {
                     "user": ObjectId(user.id),
@@ -173,5 +159,6 @@ async def get_scoreboard(
             scores=scores,
         )
         results.append(user_score)
+        firstUser = False
     results.sort(key=lambda x: (x.total_score, x.total_time_spent))
     return StandardResponse(ScoreBoard(results=results, problem_ids=problem_ids))
