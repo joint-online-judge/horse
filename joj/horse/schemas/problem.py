@@ -36,7 +36,7 @@ class ProblemCreate(BaseModel):
     domain: LongStr = Field(..., description="url or the id of the domain")
     title: NoneEmptyStr = Field(..., description="title of the problem")
     content: LongText = Field("", description="content of the problem")
-    data_version: DataVersion = Field(...)
+    data_version: DataVersion = Field(DataVersion.v2)
     languages: List[LongStr] = Field(
         [], description="acceptable language of the problem"
     )
