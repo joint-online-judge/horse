@@ -126,7 +126,7 @@ async def get_scoreboard(
                 {
                     "user": ObjectId(user.id),
                     "problem": problem.id,
-                    "submit_at": {"$ge": problem_set.available_time},
+                    "submit_at": {"$gte": problem_set.available_time},
                     "status": {"$nin": [RecordStatus.waiting, RecordStatus.judging]},
                 },
                 sort=[("submit_at", pymongo.DESCENDING)],
