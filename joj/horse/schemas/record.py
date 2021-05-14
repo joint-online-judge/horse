@@ -96,3 +96,16 @@ class Record(BaseODMSchema):
 
 class ListRecords(BaseModel):
     results: List[Record]
+
+
+class RecordCaseResult(BaseModel):
+    index: int
+    result: RecordCase
+
+
+class RecordResult(BaseModel):
+    status: RecordStatus
+    score: int
+    time_ms: int
+    memory_kb: int
+    judge_at: datetime
