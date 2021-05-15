@@ -36,7 +36,9 @@ async def list_domains(
         ListDomains(
             results=[
                 schemas.Domain.from_orm(domain)
-                async for domain in models.Domain.find({"owner": auth.user.id})
+                async for domain in models.Domain.find({"owner": auth.user.id}).sort(
+                    "_id", -1
+                )
             ]
         )
     )
