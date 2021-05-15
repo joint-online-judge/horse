@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import List
+from typing import List, Optional
 
 import pymongo
 from bson.objectid import ObjectId
@@ -28,13 +28,18 @@ router_prefix = "/api/v1"
 
 @router.get("")
 async def list_problem_sets(
-    required_labels: List[str] = Query([]), auth: Authentication = Depends()
+    domain_id: Optional[PydanticObjectId] = Query(None),
+    required_labels: List[str] = Query([]),
+    auth: Authentication = Depends(),
 ) -> StandardResponse[ListProblemSets]:
+    filter = {"owner": auth.user.id}
+    if domain_id is not None:
+        filter["domain"] = ObjectId(domain_id)
     return StandardResponse(
         ListProblemSets(
             results=[
                 schemas.ProblemSet.from_orm(problem_set)
-                async for problem_set in models.ProblemSet.find({"owner": auth.user.id})
+                async for problem_set in models.ProblemSet.find(filter)
                 if all(label in problem_set.labels for label in required_labels)
             ]
         )

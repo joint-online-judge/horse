@@ -78,7 +78,6 @@ def test_get_user(
 #         json=jsonable_encoder(problem),
 #         headers=test_user_token_headers,
 #     )
-#     print(r.json())
 #     assert r.status_code == 200
 #     r = client.get(f"{base_user_url}/problems", headers=test_user_token_headers)
 #     assert r.status_code == 200

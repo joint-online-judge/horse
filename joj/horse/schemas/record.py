@@ -75,7 +75,7 @@ class Record(BaseODMSchema):
     submit_at: datetime
     judge_at: Optional[datetime]
 
-    judge_user: ReferenceSchema[UserBase]
+    judge_user: Optional[ReferenceSchema[UserBase]]
 
     compiler_texts: str = ""
     cases: List[RecordCase] = []
