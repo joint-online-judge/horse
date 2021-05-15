@@ -26,15 +26,15 @@ def include_router(module: Any) -> None:
     )
 
 
-include_router(admin)
-include_router(misc)
 include_router(domains)
-include_router(problems)
 include_router(problem_sets)
-include_router(problem_groups)
+include_router(problems)
 include_router(records)
+include_router(problem_groups)
 include_router(user)
 include_router(users)
+include_router(misc)
+include_router(admin)
 
 
 def update_schema_name(
