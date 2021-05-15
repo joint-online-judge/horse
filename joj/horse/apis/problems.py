@@ -1,12 +1,16 @@
 from datetime import datetime
+from typing import Optional
 
+from bson.objectid import ObjectId
 from fastapi import Depends, File, Form, Query, UploadFile
 from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.apis import records
+from joj.horse.models import domain
 from joj.horse.schemas import Empty, StandardResponse
+from joj.horse.schemas.base import PydanticObjectId
 from joj.horse.schemas.problem import ListProblems
 from joj.horse.tasks import celery_app
 from joj.horse.utils.auth import Authentication
@@ -24,13 +28,20 @@ router_prefix = "/api/v1"
 
 @router.get("")
 async def list_problems(
+    domain_id: Optional[PydanticObjectId] = Query(None),
+    problem_set_id: Optional[PydanticObjectId] = Query(None),
     auth: Authentication = Depends(),
 ) -> StandardResponse[ListProblems]:
+    filter = {"owner": auth.user.id}
+    if domain_id is not None:
+        filter["domain"] = ObjectId(domain_id)
+    if problem_set_id is not None:
+        filter["problem_set"] = ObjectId(problem_set_id)
     return StandardResponse(
         ListProblems(
             results=[
                 schemas.Problem.from_orm(problem)
-                async for problem in models.Problem.find({"owner": auth.user.id})
+                async for problem in models.Problem.find(filter)
             ]
         )
     )
@@ -159,7 +170,6 @@ async def submit_solution_to_problem(
             code=file_id,
             judge_category=[],
             submit_at=datetime.utcnow(),
-            judge_user=auth.user.id,  # TODO: modify later
             cases=[schemas.RecordCase() for i in range(10)],  # TODO: modify later
         )
         record_model = models.Record(**record.to_model())
