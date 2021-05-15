@@ -1,13 +1,15 @@
 import io
-from typing import Any
+from typing import Any, Optional
 
-from fastapi import Depends, WebSocket
+from bson.objectid import ObjectId
+from fastapi import Depends
+from fastapi.param_functions import Query
 from fastapi.responses import StreamingResponse
 from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
-from joj.horse.schemas.base import Empty, StandardResponse
+from joj.horse.schemas.base import Empty, PydanticObjectId, StandardResponse
 from joj.horse.schemas.record import ListRecords, RecordCaseResult, RecordResult
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import get_db
@@ -23,16 +25,26 @@ router_prefix = "/api/v1"
 
 @router.get("")
 async def list_records(
-    user: models.User = Depends(parse_uid_or_none), auth: Authentication = Depends()
+    domain_id: Optional[PydanticObjectId] = Query(None),
+    problem_set_id: Optional[PydanticObjectId] = Query(None),
+    problem_id: Optional[PydanticObjectId] = Query(None),
+    user: models.User = Depends(parse_uid_or_none),
+    auth: Authentication = Depends(),
 ) -> StandardResponse[ListRecords]:
-    owner_filter = None
+    filter = {}
     if user:
-        owner_filter = {"owner": auth.user.id}
+        filter["user"] = auth.user.id
+    if domain_id is not None:
+        filter["domain"] = ObjectId(domain_id)
+    if problem_set_id is not None:
+        filter["problem_set"] = ObjectId(problem_set_id)
+    if problem_id is not None:
+        filter["problem"] = ObjectId(problem_id)
     return StandardResponse(
         ListRecords(
             results=[
                 schemas.Record.from_orm(record)
-                async for record in models.Record.find(owner_filter)
+                async for record in models.Record.find(filter)
             ]
         )
     )
