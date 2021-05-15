@@ -169,8 +169,8 @@ async def submit_solution_to_problem(
         logger.error("problem submission failed: %s", problem.id)
         raise e
     record_schema = schemas.Record.from_orm(record_model)
-    ws_url = generate_url(
-        records.router_prefix, records.router_name, record_schema.id, protocol="ws"
+    http_url = generate_url(
+        records.router_prefix, records.router_name, record_schema.id
     )
-    celery_app.send_task("joj.tiger.compile", args=[record_schema.dict(), ws_url])
+    celery_app.send_task("joj.tiger.compile", args=[record_schema.dict(), http_url])
     return StandardResponse(record_schema)
