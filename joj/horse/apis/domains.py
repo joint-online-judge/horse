@@ -13,7 +13,12 @@ from joj.horse.schemas.domain_user import ListDomainMembers
 from joj.horse.utils.auth import Authentication, DomainAuthentication, ensure_permission
 from joj.horse.utils.db import generate_join_pipeline, instance
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.parser import parse_domain, parse_domain_from_auth, parse_uid
+from joj.horse.utils.parser import (
+    parse_domain,
+    parse_domain_from_auth,
+    parse_query,
+    parse_uid,
+)
 from joj.horse.utils.router import MyRouter
 
 router = MyRouter()
@@ -24,7 +29,7 @@ router_prefix = "/api/v1"
 
 @router.get("")
 async def list_domains(
-    auth: Authentication = Depends(),
+    query: schemas.BaseFilter = Depends(parse_query), auth: Authentication = Depends()
 ) -> StandardResponse[ListDomains]:
     """
     List all domains in which {user} has a role.
@@ -32,16 +37,9 @@ async def list_domains(
     """
     # TODO: finish this part
     # auth.ensure(ScopeType.GENERAL, PermissionType.UNKNOWN)
-    return StandardResponse(
-        ListDomains(
-            results=[
-                schemas.Domain.from_orm(domain)
-                async for domain in models.Domain.find({"owner": auth.user.id}).sort(
-                    "_id", -1
-                )
-            ]
-        )
-    )
+    filter = {"owner": auth.user.id}
+    res = await models.Domain.to_schema_list(schemas.Domain, filter, query)
+    return StandardResponse(ListDomains(results=res))
 
 
 @router.post(

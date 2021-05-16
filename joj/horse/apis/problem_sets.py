@@ -17,7 +17,11 @@ from joj.horse.schemas.score import Score, ScoreBoard, UserScore
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import generate_join_pipeline, instance
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.parser import parse_problem_set, parse_problem_set_with_time
+from joj.horse.utils.parser import (
+    parse_problem_set,
+    parse_problem_set_with_time,
+    parse_query,
+)
 from joj.horse.utils.router import MyRouter
 
 router = MyRouter()
@@ -29,21 +33,14 @@ router_prefix = "/api/v1"
 @router.get("")
 async def list_problem_sets(
     domain_id: Optional[PydanticObjectId] = Query(None),
-    required_labels: List[str] = Query([]),
+    query: schemas.BaseFilter = Depends(parse_query),
     auth: Authentication = Depends(),
 ) -> StandardResponse[ListProblemSets]:
     filter = {"owner": auth.user.id}
     if domain_id is not None:
         filter["domain"] = ObjectId(domain_id)
-    return StandardResponse(
-        ListProblemSets(
-            results=[
-                schemas.ProblemSet.from_orm(problem_set)
-                async for problem_set in models.ProblemSet.find(filter)
-                if all(label in problem_set.labels for label in required_labels)
-            ]
-        )
-    )
+    res = await models.ProblemSet.to_schema_list(schemas.ProblemSet, filter, query)
+    return StandardResponse(ListProblemSets(results=res))
 
 
 @router.post("")

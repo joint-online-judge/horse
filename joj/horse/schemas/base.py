@@ -12,6 +12,7 @@ from typing import (
 )
 
 from bson import ObjectId
+from bson.errors import InvalidId
 from pydantic import BaseModel, ConstrainedStr, create_model, validator
 from umongo.frameworks.motor_asyncio import MotorAsyncIOReference
 
@@ -49,9 +50,12 @@ class PydanticObjectId(str):
 
     @classmethod
     def validate(cls, v: Union[str, ObjectId]) -> str:
-        if isinstance(v, str):
-            v = ObjectId(v)
-        elif not isinstance(v, ObjectId):
+        try:
+            if isinstance(v, str):
+                v = ObjectId(v)
+            elif not isinstance(v, ObjectId):
+                raise InvalidId() from None
+        except InvalidId:
             raise TypeError("ObjectId required")
         return str(v)
 

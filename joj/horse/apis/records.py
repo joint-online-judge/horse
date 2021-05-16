@@ -14,7 +14,7 @@ from joj.horse.schemas.record import ListRecords, RecordCaseResult, RecordResult
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import get_db
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.parser import parse_record, parse_uid_or_none
+from joj.horse.utils.parser import parse_query, parse_record, parse_uid_or_none
 from joj.horse.utils.router import MyRouter
 
 router = MyRouter()
@@ -28,6 +28,7 @@ async def list_records(
     domain_id: Optional[PydanticObjectId] = Query(None),
     problem_set_id: Optional[PydanticObjectId] = Query(None),
     problem_id: Optional[PydanticObjectId] = Query(None),
+    query: schemas.BaseFilter = Depends(parse_query),
     user: models.User = Depends(parse_uid_or_none),
     auth: Authentication = Depends(),
 ) -> StandardResponse[ListRecords]:
@@ -40,14 +41,8 @@ async def list_records(
         filter["problem_set"] = ObjectId(problem_set_id)
     if problem_id is not None:
         filter["problem"] = ObjectId(problem_id)
-    return StandardResponse(
-        ListRecords(
-            results=[
-                schemas.Record.from_orm(record)
-                async for record in models.Record.find(filter)
-            ]
-        )
-    )
+    res = await models.Record.to_schema_list(schemas.Record, filter, query)
+    return StandardResponse(ListRecords(results=res))
 
 
 @router.get("/{record}")

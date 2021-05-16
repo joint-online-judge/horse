@@ -16,7 +16,7 @@ from joj.horse.tasks import celery_app
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import get_db, instance
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.parser import parse_problem, parse_problem_set
+from joj.horse.utils.parser import parse_problem, parse_problem_set, parse_query
 from joj.horse.utils.router import MyRouter
 from joj.horse.utils.url import generate_url
 
@@ -30,6 +30,7 @@ router_prefix = "/api/v1"
 async def list_problems(
     domain_id: Optional[PydanticObjectId] = Query(None),
     problem_set_id: Optional[PydanticObjectId] = Query(None),
+    query: schemas.BaseFilter = Depends(parse_query),
     auth: Authentication = Depends(),
 ) -> StandardResponse[ListProblems]:
     filter = {"owner": auth.user.id}
@@ -37,14 +38,8 @@ async def list_problems(
         filter["domain"] = ObjectId(domain_id)
     if problem_set_id is not None:
         filter["problem_set"] = ObjectId(problem_set_id)
-    return StandardResponse(
-        ListProblems(
-            results=[
-                schemas.Problem.from_orm(problem)
-                async for problem in models.Problem.find(filter)
-            ]
-        )
-    )
+    res = await models.Problem.to_schema_list(schemas.Problem, filter, query)
+    return StandardResponse(ListProblems(results=res))
 
 
 @router.post("")
