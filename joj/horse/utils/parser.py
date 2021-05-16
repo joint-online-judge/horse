@@ -74,6 +74,15 @@ async def parse_record(record: str, auth: Authentication = Depends()) -> models.
     raise BizError(ErrorCode.RecordNotFoundError)
 
 
+async def parse_record_judger(
+    record: str, auth: Authentication = Depends()
+) -> models.Record:
+    record_model = await models.Record.find_by_id(record)
+    if record_model:
+        return record_model
+    raise BizError(ErrorCode.RecordNotFoundError)
+
+
 async def parse_domain(
     domain: str = Path(..., description="url or ObjectId of the domain"),
 ) -> models.Domain:

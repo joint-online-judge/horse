@@ -15,7 +15,12 @@ from joj.horse.schemas.record import ListRecords, RecordCaseResult, RecordResult
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import get_db
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.parser import parse_query, parse_record, parse_uid_or_none
+from joj.horse.utils.parser import (
+    parse_query,
+    parse_record,
+    parse_record_judger,
+    parse_uid_or_none,
+)
 from joj.horse.utils.router import MyRouter
 
 router = MyRouter()
@@ -108,7 +113,7 @@ async def get_record_code(record: models.Record = Depends(parse_record)) -> Any:
 @router.post("/{record}/http")
 async def http_record(
     record_result: RecordResult,
-    record: models.Record = Depends(parse_record),
+    record: models.Record = Depends(parse_record_judger),
     auth: Authentication = Depends(),
 ) -> StandardResponse[Empty]:
     if auth.user is None or auth.user.role != DefaultRole.JUDGE:
@@ -123,7 +128,7 @@ async def http_record(
 @router.post("/{record}/cases/http")
 async def http_record_cases(
     record_case_result: RecordCaseResult,
-    record: models.Record = Depends(parse_record),
+    record: models.Record = Depends(parse_record_judger),
     auth: Authentication = Depends(),
 ) -> StandardResponse[Empty]:
     if auth.user is None or auth.user.role != DefaultRole.JUDGE:
