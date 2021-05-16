@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
@@ -72,5 +73,18 @@ async def business_exception_handler(request: Request, exc: BizError) -> JSONRes
         status_code=status.HTTP_200_OK,
     )
 
+
+async def catch_exceptions_middleware(request: Request, call_next: Any) -> JSONResponse:
+    try:
+        return await call_next(request)
+    except Exception as e:
+        logger.exception(f"Unexcepted Error: {e.__class__.__name__}")
+        return JSONResponse(
+            jsonable_encoder({"errorCode": "InternalServerError", "data": {}}),
+            status_code=status.HTTP_200_OK,
+        )
+
+
+app.middleware("http")(catch_exceptions_middleware)
 
 import joj.horse.apis
