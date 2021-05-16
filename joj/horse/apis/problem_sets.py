@@ -36,6 +36,8 @@ async def list_problem_sets(
     query: schemas.BaseFilter = Depends(parse_query),
     auth: Authentication = Depends(),
 ) -> StandardResponse[ListProblemSets]:
+    if auth.user is None:
+        raise BizError(ErrorCode.InvalidAuthenticationError)
     filter = {"owner": auth.user.id}
     if domain_id is not None:
         filter["domain"] = ObjectId(domain_id)
