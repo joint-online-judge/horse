@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from fastapi import Depends
 from fastapi_jwt_auth.auth_jwt import AuthJWT
@@ -125,6 +125,6 @@ async def get_judger_jwt(
     jwt = AuthJWT().create_access_token(
         subject=str(user.id),
         user_claims={"name": user.uname_lower, "scope": user.scope, "channel": "admin"},
-        expires_time=False,
+        expires_time=timedelta(days=365 * 10000),
     )
     return JWT(jwt=jwt)
