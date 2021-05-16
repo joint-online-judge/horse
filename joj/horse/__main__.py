@@ -13,6 +13,7 @@ def main() -> None:
         port=settings.port,
         reload=settings.debug,
         log_config=log_config,
+        reload_dirs=["joj"],
     )
 
 

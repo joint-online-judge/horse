@@ -60,3 +60,22 @@ log_config["formatters"]["access"][
 
 log_config["formatters"]["default"]["datefmt"] = "%Y-%m-%d %H:%M:%S"
 log_config["formatters"]["access"]["datefmt"] = "%Y-%m-%d %H:%M:%S"
+
+log_config["handlers"]["default_file"] = {
+    "formatter": "default",
+    "class": "logging.handlers.RotatingFileHandler",
+    "filename": "fastapi.default.log",
+    "maxBytes": 10 * 1024 * 1024,
+    "backupCount": 5,
+}
+
+log_config["handlers"]["access_file"] = {
+    "formatter": "access",
+    "class": "logging.handlers.RotatingFileHandler",
+    "filename": "fastapi.access.log",
+    "maxBytes": 10 * 1024 * 1024,
+    "backupCount": 5,
+}
+
+log_config["loggers"]["uvicorn"]["handlers"] = ["default", "default_file"]
+log_config["loggers"]["uvicorn.access"]["handlers"] = ["access", "access_file"]
