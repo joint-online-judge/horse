@@ -14,8 +14,7 @@ from joj.horse.schemas.base import (
 )
 from joj.horse.schemas.domain import Domain
 from joj.horse.schemas.problem import Problem
-from joj.horse.schemas.problem_set import ProblemSet
-from joj.horse.schemas.user import User, UserBase
+from joj.horse.schemas.user import UserBase
 
 
 class RecordStatus(IntEnum):

@@ -4,6 +4,7 @@ from typing import Optional
 from fastapi import Depends, Path, Query
 
 from joj.horse import models
+from joj.horse.schemas.query import BaseFilter, SortEnum
 from joj.horse.utils.auth import Authentication, DomainAuthentication
 from joj.horse.utils.errors import BizError, ErrorCode
 
@@ -86,3 +87,11 @@ def parse_domain_from_auth(
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> models.Domain:
     return domain_auth.auth.domain
+
+
+def parse_query(
+    sort: Optional[SortEnum] = Query(None),
+    skip: Optional[int] = Query(None),
+    limit: Optional[int] = Query(None),
+) -> BaseFilter:
+    return BaseFilter(sort=sort, skip=skip, limit=limit)
