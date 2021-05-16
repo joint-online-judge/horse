@@ -8,7 +8,7 @@ from joj.horse.schemas.domain_user import ListDomainMembers
 from joj.horse.schemas.user import ListUsers
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.errors import ForbiddenError
-from joj.horse.utils.parser import parse_uid
+from joj.horse.utils.parser import parse_query, parse_uid
 from joj.horse.utils.router import MyRouter
 
 router = MyRouter()
@@ -18,14 +18,13 @@ router_prefix = "/api/v1"
 
 
 @router.get("/users")
-async def list_users(auth: Authentication = Depends()) -> StandardResponse[ListUsers]:
+async def list_users(
+    query: schemas.BaseFilter = Depends(parse_query), auth: Authentication = Depends()
+) -> StandardResponse[ListUsers]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
-    return StandardResponse(
-        ListUsers(
-            results=[schemas.User.from_orm(user) async for user in models.User.find()]
-        )
-    )
+    res = await schemas.User.to_list({}, query)
+    return StandardResponse(ListUsers(results=res))
 
 
 @router.post("/users")
@@ -57,31 +56,19 @@ async def delete_user(
 
 @router.get("/domain_users")
 async def list_domain_users(
-    auth: Authentication = Depends(),
+    query: schemas.BaseFilter = Depends(parse_query), auth: Authentication = Depends()
 ) -> StandardResponse[ListDomainMembers]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
-    return StandardResponse(
-        ListDomainMembers(
-            results=[
-                schemas.DomainUser.from_orm(domain_user)
-                async for domain_user in models.DomainUser.find()
-            ]
-        )
-    )
+    res = await schemas.DomainUser.to_list({}, query)
+    return StandardResponse(ListDomainMembers(results=res))
 
 
 @router.get("/domain_roles")
 async def list_domain_roles(
-    auth: Authentication = Depends(),
+    query: schemas.BaseFilter = Depends(parse_query), auth: Authentication = Depends()
 ) -> StandardResponse[ListDomainRoles]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
-    return StandardResponse(
-        ListDomainRoles(
-            results=[
-                schemas.DomainRole.from_orm(domain_role)
-                async for domain_role in models.DomainRole.find()
-            ]
-        )
-    )
+    res = await schemas.DomainRole.to_list({}, query)
+    return StandardResponse(ListDomainRoles(results=res))

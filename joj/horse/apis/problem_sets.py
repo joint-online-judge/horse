@@ -8,7 +8,6 @@ from pydantic.schema import schema
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
-from joj.horse.models import problem
 from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.base import PydanticObjectId
 from joj.horse.schemas.problem_set import ListProblemSets
@@ -41,7 +40,7 @@ async def list_problem_sets(
     filter = {"owner": auth.user.id}
     if domain_id is not None:
         filter["domain"] = ObjectId(domain_id)
-    res = await models.ProblemSet.to_schema_list(schemas.ProblemSet, filter, query)
+    res = await schemas.ProblemSet.to_list(filter, query)
     return StandardResponse(ListProblemSets(results=res))
 
 
