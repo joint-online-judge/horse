@@ -13,16 +13,12 @@ from joj.horse.utils.cache import test_cache
 from joj.horse.utils.db import ensure_indexes, get_db
 from joj.horse.utils.errors import BizError
 from joj.horse.utils.url import generate_url
-from joj.horse.utils.version import (
-    get_git_head_commit_time,
-    get_git_version,
-    get_version,
-)
+from joj.horse.utils.version import get_git_version, get_version
 
 app = FastAPI(
     title=settings.app_name,
     version=get_version(),
-    description=f"Git version: {get_git_version()}@{get_git_head_commit_time()}",
+    description=f"Git version: {get_git_version()}",
     openapi_url="/api/v1/openapi.json",
     docs_url="/api/v1",
     redoc_url="/api/v1/redoc",
