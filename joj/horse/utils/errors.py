@@ -23,6 +23,7 @@ class ErrorCode(str, Enum):
     ScoreboardHiddenBadRequestError = "ScoreboardHiddenBadRequestError"
     ProblemSetBeforeAvailableError = "ProblemSetBeforeAvailableError"
     ProblemSetAfterDueError = "ProblemSetAfterDueError"
+    UserNotJudgerError = "UserNotJudgerError"
 
 
 class BizError(Exception):
