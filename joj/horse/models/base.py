@@ -40,16 +40,3 @@ class DocumentMixin:
 
     def update_from_schema(self: MotorAsyncIODocument, schema: BaseModel) -> None:
         self.update({k: v for k, v in schema.__dict__.items() if v is not None})
-
-    @classmethod
-    async def to_schema_list(
-        cls: MotorAsyncIODocument, schema_type: Any, filter: Dict, query: Any
-    ) -> Any:
-        cursor = cls.find(filter)
-        if query.sort is not None:
-            cursor = cursor.sort("_id", query.sort)
-        if query.skip is not None:
-            cursor = cursor.skip(query.skip)
-        if query.limit is not None:
-            cursor = cursor.limit(query.limit)
-        return [schema_type.from_orm(doc) async for doc in cursor]

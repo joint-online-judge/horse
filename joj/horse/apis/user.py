@@ -16,7 +16,7 @@ from joj.horse.utils.auth import Authentication, auth_jwt_encode
 from joj.horse.utils.db import generate_join_pipeline
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.oauth import jaccount
-from joj.horse.utils.parser import parse_uid
+from joj.horse.utils.parser import parse_query
 from joj.horse.utils.router import MyRouter
 from joj.horse.utils.url import generate_url
 
@@ -176,13 +176,8 @@ async def get_user(auth: Authentication = Depends()) -> StandardResponse[schemas
 
 @router.get("/problems")
 async def get_user_problems(
-    auth: Authentication = Depends(),
+    query: schemas.BaseFilter = Depends(parse_query), auth: Authentication = Depends()
 ) -> StandardResponse[ListProblems]:
-    return StandardResponse(
-        ListProblems(
-            results=[
-                schemas.Problem.from_orm(problem)
-                async for problem in models.Problem.find({"owner": auth.user.id})
-            ]
-        )
-    )
+    filter = {"owner": auth.user.id}
+    res = await schemas.Problem.to_list(filter, query)
+    return StandardResponse(ListProblems(results=res))

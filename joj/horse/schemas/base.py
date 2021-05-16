@@ -3,6 +3,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Dict,
     Generator,
     Generic,
     Optional,
@@ -14,9 +15,10 @@ from typing import (
 from bson import ObjectId
 from bson.errors import InvalidId
 from pydantic import BaseModel, ConstrainedStr, create_model, validator
-from umongo.frameworks.motor_asyncio import MotorAsyncIOReference
+from umongo.frameworks.motor_asyncio import MotorAsyncIODocument, MotorAsyncIOReference
 
 from joj.horse.models.base import DocumentMixin
+from joj.horse.schemas.query import BaseFilter
 from joj.horse.utils.errors import ErrorCode
 
 if TYPE_CHECKING:
@@ -86,6 +88,29 @@ class BaseODMSchema(BaseModel):
         if unfetch_all:
             obj.unfetch_all()
         return super(BaseODMSchema, cls).from_orm(obj)  # type: ignore
+
+    @classmethod
+    async def to_list(
+        cls: Type["Model"], filter: Dict[str, Any], query: BaseFilter
+    ) -> Any:
+        def get_model_class(cls: Type["Model"]) -> MotorAsyncIODocument:
+            def _import(name: str) -> MotorAsyncIODocument:
+                components = name.split(".")
+                mod = __import__(components[0])
+                for comp in components[1:]:
+                    mod = getattr(mod, comp)
+                return mod
+
+            return _import(f"joj.horse.models.{cls.__name__}")
+
+        cursor = get_model_class(cls).find(filter)
+        if query.sort is not None:
+            cursor = cursor.sort("_id", query.sort)
+        if query.skip is not None:
+            cursor = cursor.skip(query.skip)
+        if query.limit is not None:
+            cursor = cursor.limit(query.limit)
+        return [cls.from_orm(doc) async for doc in cursor]
 
 
 # class EmbeddedDocument(Generic[T]):

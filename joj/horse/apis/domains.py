@@ -38,7 +38,7 @@ async def list_domains(
     # TODO: finish this part
     # auth.ensure(ScopeType.GENERAL, PermissionType.UNKNOWN)
     filter = {"owner": auth.user.id}
-    res = await models.Domain.to_schema_list(schemas.Domain, filter, query)
+    res = await schemas.Domain.to_list(filter, query)
     return StandardResponse(ListDomains(results=res))
 
 

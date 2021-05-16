@@ -6,7 +6,7 @@ from joj.horse.schemas.domain_user import ListDomainMembers
 from joj.horse.schemas.problem import ListProblems
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import generate_join_pipeline
-from joj.horse.utils.parser import parse_uid
+from joj.horse.utils.parser import parse_query, parse_uid
 from joj.horse.utils.router import MyRouter
 
 router = MyRouter()
@@ -42,12 +42,8 @@ async def get_user_domains(
 @router.get("/{uid}/problems")
 async def get_user_problems(
     user: models.User = Depends(parse_uid),
+    query: schemas.BaseFilter = Depends(parse_query),
 ) -> StandardResponse[ListProblems]:
-    return StandardResponse(
-        ListProblems(
-            results=[
-                schemas.Problem.from_orm(problem)
-                async for problem in models.Problem.find({"owner": user.id})
-            ]
-        )
-    )
+    filter = {"owner": user.id}
+    res = await schemas.Problem.to_list(filter, query)
+    return StandardResponse(ListProblems(results=res))
