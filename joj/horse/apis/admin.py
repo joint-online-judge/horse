@@ -21,7 +21,6 @@ router_prefix = "/api/v1"
 async def list_users(
     query: schemas.BaseFilter = Depends(parse_query), auth: Authentication = Depends()
 ) -> StandardResponse[ListUsers]:
-    a = 1 / 0
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
     res = await schemas.User.to_list({}, query)
