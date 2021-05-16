@@ -9,6 +9,7 @@ from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
+from joj.horse.models.permission import DefaultRole
 from joj.horse.schemas.base import Empty, PydanticObjectId, StandardResponse
 from joj.horse.schemas.record import ListRecords, RecordCaseResult, RecordResult
 from joj.horse.utils.auth import Authentication
@@ -106,29 +107,29 @@ async def get_record_code(record: models.Record = Depends(parse_record)) -> Any:
 
 @router.post("/{record}/http")
 async def http_record(
-    record: str, record_result: RecordResult
-) -> StandardResponse[Empty]:  # TODO: parse_record
-    record_model: models.Record = await models.Record.find_by_id(record)
-    if record_model is None:
-        raise BizError(ErrorCode.RecordNotFoundError)
+    record_result: RecordResult,
+    record: models.Record = Depends(parse_record),
+    auth: Authentication = Depends(),
+) -> StandardResponse[Empty]:
+    if auth.user is None or auth.user.role != DefaultRole.JUDGE:
+        raise BizError(ErrorCode.UserNotJudgerError)
     data = record_result.dict()
     logger.info(f"receive from record http: {data}")
-    record_model.update(data)
-    await record_model.commit()
+    record.update(data)
+    await record.commit()
     return StandardResponse()
 
 
 @router.post("/{record}/cases/http")
 async def http_record_cases(
-    record: str, record_case_result: RecordCaseResult  # TODO: parse_record
+    record_case_result: RecordCaseResult,
+    record: models.Record = Depends(parse_record),
+    auth: Authentication = Depends(),
 ) -> StandardResponse[Empty]:
-    record_model: models.Record = await models.Record.find_by_id(record)
-    if record_model is None:
-        raise BizError(ErrorCode.RecordNotFoundError)
+    if auth.user is None or auth.user.role != DefaultRole.JUDGE:
+        raise BizError(ErrorCode.UserNotJudgerError)
     data = record_case_result.dict()
     logger.info(f"receive from record cases http: {data}")
-    index = data["index"]
-    result = data["result"]
-    record_model.cases[index].update(result)
-    await record_model.commit()
+    record.cases[data["index"]].update(data["result"])
+    await record.commit()
     return StandardResponse()

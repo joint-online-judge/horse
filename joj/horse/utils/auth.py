@@ -91,7 +91,6 @@ def auth_jwt_decode(
 ) -> Optional[JWTToken]:
     auth_jwt.jwt_optional()
     payload = auth_jwt.get_raw_jwt()
-    # print(payload)
     if payload:
         try:
             return JWTToken(**payload)
@@ -103,7 +102,6 @@ def auth_jwt_decode(
 def auth_jwt_encode(auth_jwt: AuthJWT, user: User, channel: str = "") -> str:
     user_claims = {"name": user.uname_lower, "scope": user.scope, "channel": channel}
     jwt = auth_jwt.create_access_token(subject=str(user.id), user_claims=user_claims)
-    # print(jwt)
     return jwt
 
 
@@ -196,7 +194,6 @@ class Authentication:
 
     def check(self, scope: ScopeType, permission: PermissionType) -> bool:
         def _check(permissions: Optional[Dict[str, Any]]) -> bool:
-            # print(permissions)
             if permissions is None:
                 return False
             return permissions.get(permission, False)
@@ -278,7 +275,6 @@ class PermissionChecker:
 
 class UserPermissionChecker(PermissionChecker):
     def __call__(self, request: Request, auth: Authentication = Depends()) -> None:
-        print(self.scope, self.permission)
         self.ensure(auth)
 
 

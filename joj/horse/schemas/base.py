@@ -120,8 +120,6 @@ class BaseODMSchema(BaseModel):
 #
 #     @classmethod
 #     def validate(cls, v: MotorAsyncIOReference):
-#         print(v)
-#         print(cls.__orig_class__.__args__[0])
 #         if isinstance(v, str):
 #             v = ObjectId(v)
 #         if isinstance(v, ObjectId):
