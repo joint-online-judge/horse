@@ -13,9 +13,7 @@ async def parse_uid(
     uid: str = Query("me", description="uid or 'me'"), auth: Authentication = Depends()
 ) -> models.User:
     if uid == "me":
-        if auth.user:
-            return auth.user
-        raise BizError(ErrorCode.InvalidAuthenticationError)
+        return auth.user
     else:
         user = await models.User.find_by_id(uid)
         if user:

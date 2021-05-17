@@ -8,7 +8,6 @@ class ErrorCode(str, Enum):
     Success = "Success"
     Error = "Error"
     ApiNotImplementedError = "ApiNotImplementedError"
-    InvalidAuthenticationError = "InvalidAuthenticationError"
     UserNotFoundError = "UserNotFoundError"
     DomainNotFoundError = "DomainNotFoundError"
     DomainUrlNotUniqueError = "DomainUrlNotUniqueError"

@@ -116,7 +116,7 @@ async def http_record(
     record: models.Record = Depends(parse_record_judger),
     auth: Authentication = Depends(),
 ) -> StandardResponse[Empty]:
-    if auth.user is None or auth.user.role != DefaultRole.JUDGE:
+    if auth.user.role != DefaultRole.JUDGE:
         raise BizError(ErrorCode.UserNotJudgerError)
     data = record_result.dict()
     logger.info(f"receive from record http: {data}")
@@ -131,7 +131,7 @@ async def http_record_cases(
     record: models.Record = Depends(parse_record_judger),
     auth: Authentication = Depends(),
 ) -> StandardResponse[Empty]:
-    if auth.user is None or auth.user.role != DefaultRole.JUDGE:
+    if auth.user.role != DefaultRole.JUDGE:
         raise BizError(ErrorCode.UserNotJudgerError)
     data = record_case_result.dict()
     logger.info(f"receive from record cases http: {data}")

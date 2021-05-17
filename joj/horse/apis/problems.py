@@ -48,8 +48,6 @@ async def list_problems(
 async def create_problem(
     problem: schemas.ProblemCreate, auth: Authentication = Depends()
 ) -> StandardResponse[schemas.Problem]:
-    if auth.user is None:
-        raise BizError(ErrorCode.InvalidAuthenticationError)
     domain = await models.Domain.find_by_url_or_id(problem.domain)
     problem_set: models.ProblemSet = await models.ProblemSet.find_by_id(
         problem.problem_set
