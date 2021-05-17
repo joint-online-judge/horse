@@ -55,8 +55,6 @@ async def create_domain(
     # we can not use ObjectId as the url
     if ObjectId.is_valid(domain.url):
         raise BizError(ErrorCode.InvalidDomainUrlError)
-    if auth.user is None:
-        raise BizError(ErrorCode.InvalidAuthenticationError)
 
     # use transaction for multiple operations
     try:

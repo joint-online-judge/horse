@@ -7,6 +7,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from pydantic import BaseModel
+from starlette.status import HTTP_401_UNAUTHORIZED
 
 from joj.horse import app
 from joj.horse.config import settings
@@ -95,7 +96,9 @@ def auth_jwt_decode(
         try:
             return JWTToken(**payload)
         except:
-            raise HTTPException(status_code=401, detail="JWT Format Error")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="JWT Format Error"
+            )
     return None
 
 
@@ -106,14 +109,16 @@ def auth_jwt_encode(auth_jwt: AuthJWT, user: User, channel: str = "") -> str:
 
 
 # noinspection PyBroadException
-async def get_current_user(
-    jwt_decoded: JWTToken = Depends(auth_jwt_decode),
-) -> Optional[User]:
+async def get_current_user(jwt_decoded: JWTToken = Depends(auth_jwt_decode)) -> User:
     try:
         user = await User.find_by_uname(scope=jwt_decoded.scope, uname=jwt_decoded.name)
-        return user
+        if user is None:
+            raise Exception()
     except Exception:
-        return None
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized"
+        )
+    return user
 
 
 def get_site_role(user: Optional[User] = Depends(get_current_user)) -> str:
@@ -178,12 +183,12 @@ class Authentication:
     def __init__(
         self,
         jwt_decoded: Optional[JWTToken] = Depends(auth_jwt_decode),
-        user: Optional[User] = Depends(get_current_user),
+        user: User = Depends(get_current_user),
         site_role: str = Depends(get_site_role),
         site_permission: SitePermission = Depends(get_site_permission),
     ):
         self.jwt: Optional[JWTToken] = jwt_decoded
-        self.user: Optional[User] = user
+        self.user: User = user
         self.site_role: str = site_role
         self.site_permission: SitePermission = site_permission.dump()
         self.domain: Optional[Domain] = None

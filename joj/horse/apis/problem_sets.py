@@ -35,8 +35,6 @@ async def list_problem_sets(
     query: schemas.BaseFilter = Depends(parse_query),
     auth: Authentication = Depends(),
 ) -> StandardResponse[ListProblemSets]:
-    if auth.user is None:
-        raise BizError(ErrorCode.InvalidAuthenticationError)
     filter = {"owner": auth.user.id}
     if domain_id is not None:
         filter["domain"] = ObjectId(domain_id)
@@ -48,9 +46,6 @@ async def list_problem_sets(
 async def create_problem_set(
     problem_set: schemas.ProblemSetCreate, auth: Authentication = Depends()
 ) -> StandardResponse[schemas.ProblemSet]:
-    if auth.user is None:
-        raise BizError(ErrorCode.InvalidAuthenticationError)
-
     # use transaction for multiple operations
     try:
         async with instance.session() as session:
