@@ -18,7 +18,7 @@ from pydantic import BaseModel, ConstrainedStr, create_model, validator
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument, MotorAsyncIOReference
 
 from joj.horse.models.base import DocumentMixin
-from joj.horse.schemas.query import BaseFilter
+from joj.horse.schemas.query import BaseQuery
 from joj.horse.utils.errors import ErrorCode
 
 if TYPE_CHECKING:
@@ -91,7 +91,7 @@ class BaseODMSchema(BaseModel):
 
     @classmethod
     async def to_list(
-        cls: Type["Model"], filter: Dict[str, Any], query: BaseFilter
+        cls: Type["Model"], filter: Dict[str, Any], query: BaseQuery
     ) -> Any:
         def get_model_class(cls: Type["Model"]) -> MotorAsyncIODocument:
             def _import(name: str) -> MotorAsyncIODocument:

@@ -34,7 +34,7 @@ async def list_records(
     domain_id: Optional[PydanticObjectId] = Query(None),
     problem_set_id: Optional[PydanticObjectId] = Query(None),
     problem_id: Optional[PydanticObjectId] = Query(None),
-    query: schemas.BaseFilter = Depends(parse_query),
+    query: schemas.BaseQuery = Depends(parse_query),
     user: models.User = Depends(parse_uid_or_none),
     auth: Authentication = Depends(),
 ) -> StandardResponse[ListRecords]:

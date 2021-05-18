@@ -30,7 +30,7 @@ router_prefix = "/api/v1"
 
 @router.get("")
 async def list_domains(
-    query: schemas.BaseFilter = Depends(parse_query), auth: Authentication = Depends()
+    query: schemas.BaseQuery = Depends(parse_query), auth: Authentication = Depends()
 ) -> StandardResponse[ListDomains]:
     """
     List all domains in which {user} has a role.

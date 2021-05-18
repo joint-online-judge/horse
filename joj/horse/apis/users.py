@@ -42,7 +42,7 @@ async def get_user_domains(
 @router.get("/{uid}/problems")
 async def get_user_problems(
     user: models.User = Depends(parse_uid),
-    query: schemas.BaseFilter = Depends(parse_query),
+    query: schemas.BaseQuery = Depends(parse_query),
 ) -> StandardResponse[ListProblems]:
     filter = {"owner": user.id}
     res = await schemas.Problem.to_list(filter, query)

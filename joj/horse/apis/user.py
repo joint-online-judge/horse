@@ -176,7 +176,7 @@ async def get_user(auth: Authentication = Depends()) -> StandardResponse[schemas
 
 @router.get("/problems")
 async def get_user_problems(
-    query: schemas.BaseFilter = Depends(parse_query), auth: Authentication = Depends()
+    query: schemas.BaseQuery = Depends(parse_query), auth: Authentication = Depends()
 ) -> StandardResponse[ListProblems]:
     filter = {"owner": auth.user.id}
     res = await schemas.Problem.to_list(filter, query)
