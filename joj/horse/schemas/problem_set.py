@@ -29,6 +29,9 @@ class ProblemSetEdit(BaseModel):
 
 class ProblemSetCreate(BaseModel):
     domain: LongStr = Field(..., description="url or the id of the domain")
+    url: NoneEmptyLongStr = Field(
+        None, description="(in domain unique) url of the problem"
+    )
     title: NoneEmptyLongStr = Field(..., description="title of the problem set")
     content: LongText = Field("", description="content of the problem set")
     hidden: bool = Field(False, description="whether the problem set is hidden")

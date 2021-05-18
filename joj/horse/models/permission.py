@@ -151,15 +151,6 @@ class DomainPermission(EmbeddedDocumentImplementation):
     record = fields.EmbeddedField(RecordPermission, default=RecordPermission())
 
 
-# class DomainPermission(BaseModel):
-#     """All permissions in a domain"""
-#
-#     general: GeneralPermission = GeneralPermission()
-#     problem: ProblemPermission = ProblemPermission()
-#     problem_set: ProblemSetPermission = ProblemSetPermission()
-#     record: RecordPermission = RecordPermission()
-
-
 @instance.register
 class UserSpecificPermission(EmbeddedDocumentImplementation):
     view = fields.BoolField(default=True)

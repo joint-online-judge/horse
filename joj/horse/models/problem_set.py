@@ -1,4 +1,6 @@
-from pymongo import IndexModel
+import bson
+from bson import ObjectId
+from pymongo import ASCENDING, IndexModel
 from umongo import fields
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 
@@ -12,11 +14,16 @@ from joj.horse.utils.db import instance
 class ProblemSet(DocumentMixin, MotorAsyncIODocument):
     class Meta:
         collection_name = "problem.sets"
-        indexes = [IndexModel("domain"), IndexModel("owner")]
+        indexes = [
+            IndexModel("domain"),
+            IndexModel("owner"),
+            IndexModel([("domain", ASCENDING), ("url", ASCENDING)], unique=True),
+        ]
 
     domain = fields.ReferenceField(Domain, required=True)
     owner = fields.ReferenceField(User, required=True)
 
+    url = fields.StringField(required=True)
     title = fields.StringField(required=True)
     content = fields.StringField(default="")
     hidden = fields.BooleanField(default=False)
