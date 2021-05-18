@@ -1,7 +1,8 @@
+import string
 from datetime import datetime
 from typing import Callable, List, Optional
 
-from pydantic import Field
+from pydantic import Field, validator
 from pydantic.main import BaseModel
 from pydantic.typing import AnyCallable
 
@@ -28,6 +29,13 @@ class DomainCreate(BaseModel):
     name: LongStr = Field(..., description="displayed name of the domain")
     bulletin: LongText = Field("", description="bulletin of the domain")
     gravatar: LongStr = Field("", description="gravatar url of the domain")
+
+    @validator("url")
+    def validate_url(cls, v: str) -> str:
+        for c in v:
+            if not c in string.ascii_letters + string.digits + "_-":
+                raise ValueError("url")
+        return v
 
 
 class Domain(DomainCreate, BaseODMSchema):
