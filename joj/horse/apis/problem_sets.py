@@ -63,6 +63,7 @@ async def create_problem_set(
                     title=problem_set.title,
                     content=problem_set.content,
                     hidden=problem_set.hidden,
+                    url=problem_set.url,
                     domain=domain.id,
                     owner=auth.user.id,
                     scoreboard_hidden=problem_set.scoreboard_hidden,
