@@ -28,6 +28,22 @@ async def parse_uid_or_none(
     return await parse_uid(uid, auth) if uid else None
 
 
+def parse_domain_from_auth(
+    domain_auth: DomainAuthentication = Depends(DomainAuthentication),
+) -> models.Domain:
+    return domain_auth.auth.domain
+
+
+async def parse_domain(
+    domain: str = Path(..., description="url or ObjectId of the domain"),
+    auth: Authentication = Depends(),
+) -> models.Domain:
+    domain_model = await models.Domain.find_by_url_or_id(domain)
+    if domain_model:  # and domain_model.owner == auth.user: # TODO: let domain user
+        return domain_model
+    raise BizError(ErrorCode.DomainNotFoundError)
+
+
 async def parse_problem(
     problem: str, auth: Authentication = Depends()
 ) -> models.Problem:
@@ -38,7 +54,8 @@ async def parse_problem(
 
 
 async def parse_problem_set(
-    problem_set: str, auth: Authentication = Depends()
+    problem_set: str = Path(..., description="url or ObjectId of the problem set"),
+    auth: Authentication = Depends(),
 ) -> models.ProblemSet:
     problem_set_model = await models.ProblemSet.find_by_id(problem_set)
     if problem_set_model and problem_set_model.owner == auth.user:
@@ -79,21 +96,6 @@ async def parse_record_judger(
     if record_model:
         return record_model
     raise BizError(ErrorCode.RecordNotFoundError)
-
-
-async def parse_domain(
-    domain: str = Path(..., description="url or ObjectId of the domain"),
-) -> models.Domain:
-    domain_model = await models.Domain.find_by_url_or_id(domain)
-    if domain_model:  # and domain_model.owner == auth.user:
-        return domain_model
-    raise BizError(ErrorCode.DomainNotFoundError)
-
-
-def parse_domain_from_auth(
-    domain_auth: DomainAuthentication = Depends(DomainAuthentication),
-) -> models.Domain:
-    return domain_auth.auth.domain
 
 
 def parse_query(

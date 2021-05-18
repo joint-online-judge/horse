@@ -1,10 +1,11 @@
+import time
 from datetime import datetime, timedelta
 from typing import List, Optional
 
 import pymongo
 from bson.objectid import ObjectId
 from fastapi import Depends, Query
-from pydantic.schema import schema
+from marshmallow.exceptions import ValidationError
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
@@ -46,12 +47,19 @@ async def list_problem_sets(
 async def create_problem_set(
     problem_set: schemas.ProblemSetCreate, auth: Authentication = Depends()
 ) -> StandardResponse[schemas.ProblemSet]:
+    if ObjectId.is_valid(problem_set.url):
+        raise BizError(ErrorCode.InvalidUrlError)
+    none_url = problem_set.url is None
+    if problem_set.url is None:
+        problem_set.url = str(time.time()).replace(".", "")
     # use transaction for multiple operations
     try:
         async with instance.session() as session:
             async with session.start_transaction():
-                domain = await models.Domain.find_by_url_or_id(problem_set.domain)
-                problem_set = schemas.ProblemSet(
+                domain: models.Domain = await models.Domain.find_by_url_or_id(
+                    problem_set.domain
+                )
+                problem_set_schema = schemas.ProblemSet(
                     title=problem_set.title,
                     content=problem_set.content,
                     hidden=problem_set.hidden,
@@ -61,14 +69,18 @@ async def create_problem_set(
                     available_time=problem_set.available_time,
                     due_time=problem_set.due_time,
                 )
-                problem_set = models.ProblemSet(**problem_set.to_model())
-                await problem_set.commit()
-                logger.info("problem set created: %s", problem_set)
-
+                problem_set_model = models.ProblemSet(**problem_set_schema.to_model())
+                await problem_set_model.commit()
+                if none_url:
+                    problem_set_model.url = str(problem_set_model.id)
+                    await problem_set_model.commit()
+                logger.info("problem set created: %s", problem_set_model)
+    except ValidationError:
+        raise BizError(ErrorCode.UrlNotUniqueError)
     except Exception as e:
         logger.error("problem set creation failed: %s", problem_set.title)
         raise e
-    return StandardResponse(schemas.ProblemSet.from_orm(problem_set))
+    return StandardResponse(schemas.ProblemSet.from_orm(problem_set_model))
 
 
 @router.get("/{problem_set}")

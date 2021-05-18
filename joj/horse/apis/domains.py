@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 
 from bson import ObjectId
@@ -52,32 +53,35 @@ async def list_domains(
 async def create_domain(
     domain: schemas.DomainCreate, auth: Authentication = Depends()
 ) -> StandardResponse[schemas.Domain]:
-    # we can not use ObjectId as the url
     if ObjectId.is_valid(domain.url):
-        raise BizError(ErrorCode.InvalidDomainUrlError)
-
+        raise BizError(ErrorCode.InvalidUrlError)
+    none_url = domain.url is None
+    if domain.url is None:
+        domain.url = str(time.time()).replace(".", "")
     # use transaction for multiple operations
     try:
         async with instance.session() as session:
             async with session.start_transaction():
-                domain = schemas.Domain(**domain.dict(), owner=auth.user.id)
-                domain = models.Domain(**domain.to_model())
-                await domain.commit()
-                logger.info("domain created: %s", domain)
+                domain_schema = schemas.Domain(**domain.dict(), owner=auth.user.id)
+                domain_model = models.Domain(**domain_schema.to_model())
+                await domain_model.commit()
+                if none_url:
+                    domain_model.url = str(domain_model.id)
+                    await domain_model.commit()
+                logger.info("domain created: %s", domain_model)
                 domain_user = schemas.DomainUser(
-                    domain=domain.id, user=auth.user.id, role=DefaultRole.ROOT
+                    domain=domain_model.id, user=auth.user.id, role=DefaultRole.ROOT
                 )
                 domain_user = models.DomainUser(**domain_user.to_model())
                 await domain_user.commit()
                 logger.info("domain user created: %s", domain_user)
                 # TODO: create domain roles here
     except ValidationError:
-        raise BizError(ErrorCode.DomainUrlNotUniqueError)  # non-unique domain url
+        raise BizError(ErrorCode.UrlNotUniqueError)
     except Exception as e:
         logger.error("domain creation failed: %s", domain.url)
         raise e
-
-    return StandardResponse(schemas.Domain.from_orm(domain))
+    return StandardResponse(schemas.Domain.from_orm(domain_model))
 
 
 @router.get(
@@ -148,7 +152,6 @@ async def list_members_in_domain(
 async def add_member_to_domain(
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_uid),
-    auth: Authentication = Depends(),
 ) -> StandardResponse[Empty]:
     if await models.DomainUser.find_one({"domain": domain.id, "user": user.id}):
         raise BizError(ErrorCode.UserAlreadyInDomainBadRequestError)
@@ -185,7 +188,6 @@ async def member_join_in_domain(
 async def remove_member_from_domain(
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_uid),
-    auth: Authentication = Depends(),
 ) -> StandardResponse[Empty]:
     domain_user = await models.DomainUser.find_one(
         {"domain": domain.id, "user": user.id}
