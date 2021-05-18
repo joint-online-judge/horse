@@ -12,7 +12,7 @@ from joj.horse.schemas.problem_group import ProblemGroup as ProblemGroup
 from joj.horse.schemas.problem_set import ProblemSet as ProblemSet
 from joj.horse.schemas.problem_set import ProblemSetCreate as ProblemSetCreate
 from joj.horse.schemas.problem_set import ProblemSetEdit as ProblemSetEdit
-from joj.horse.schemas.query import BaseFilter as BaseFilter
+from joj.horse.schemas.query import BaseQuery as BaseQuery
 from joj.horse.schemas.record import Record as Record
 from joj.horse.schemas.record import RecordCase as RecordCase
 from joj.horse.schemas.record import RecordCodeType as RecordCodeType

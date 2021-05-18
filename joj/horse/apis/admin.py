@@ -29,7 +29,7 @@ router_prefix = "/api/v1"
 
 @router.get("/users")
 async def list_users(
-    query: schemas.BaseFilter = Depends(parse_query), auth: Authentication = Depends()
+    query: schemas.BaseQuery = Depends(parse_query), auth: Authentication = Depends()
 ) -> StandardResponse[ListUsers]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
@@ -66,7 +66,7 @@ async def delete_user(
 
 @router.get("/domain_users")
 async def list_domain_users(
-    query: schemas.BaseFilter = Depends(parse_query), auth: Authentication = Depends()
+    query: schemas.BaseQuery = Depends(parse_query), auth: Authentication = Depends()
 ) -> StandardResponse[ListDomainMembers]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
@@ -76,7 +76,7 @@ async def list_domain_users(
 
 @router.get("/domain_roles")
 async def list_domain_roles(
-    query: schemas.BaseFilter = Depends(parse_query), auth: Authentication = Depends()
+    query: schemas.BaseQuery = Depends(parse_query), auth: Authentication = Depends()
 ) -> StandardResponse[ListDomainRoles]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
@@ -86,7 +86,7 @@ async def list_domain_roles(
 
 @router.get("/judgers")
 async def list_judgers(
-    query: schemas.BaseFilter = Depends(parse_query), auth: Authentication = Depends()
+    query: schemas.BaseQuery = Depends(parse_query), auth: Authentication = Depends()
 ) -> StandardResponse[ListUsers]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()

@@ -10,7 +10,7 @@ class SortEnum(IntEnum):
     des = DESCENDING
 
 
-class BaseFilter(BaseModel):
+class BaseQuery(BaseModel):
     sort: Optional[SortEnum]
     skip: Optional[int]
     limit: Optional[int]
