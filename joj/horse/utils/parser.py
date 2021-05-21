@@ -44,6 +44,13 @@ async def parse_domain(
     raise BizError(ErrorCode.DomainNotFoundError)
 
 
+async def parse_domain_body(
+    domain: str = Body(..., description="url or ObjectId of the domain"),
+    auth: Authentication = Depends(),
+) -> models.Domain:
+    return await parse_domain(domain, auth)
+
+
 async def parse_problem(
     problem: str, auth: Authentication = Depends()
 ) -> models.Problem:
