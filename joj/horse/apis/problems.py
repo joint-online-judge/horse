@@ -54,11 +54,10 @@ async def list_problems(
 async def create_problem(
     problem: schemas.ProblemCreate, auth: Authentication = Depends()
 ) -> StandardResponse[schemas.Problem]:
-    domain = await models.Domain.find_by_url_or_id(problem.domain)
     problem_set: models.ProblemSet = await models.ProblemSet.find_by_id(
         problem.problem_set
     )
-    # use transaction for multiple operations
+    domain: models.Domain = await problem_set.domain.fetch()
     try:
         async with instance.session() as session:
             async with session.start_transaction():
@@ -117,7 +116,6 @@ async def clone_problem(
     new_group: bool = Body(False, description="whether to create new problem group"),
     auth: Authentication = Depends(),
 ) -> StandardResponse[ListProblems]:
-    # use transaction for multiple operations
     try:
         async with instance.session() as session:
             async with session.start_transaction():

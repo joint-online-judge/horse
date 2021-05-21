@@ -33,7 +33,6 @@ class ProblemEdit(BaseModel):
 
 
 class ProblemCreate(BaseModel):
-    domain: LongStr = Field(..., description="url or the id of the domain")
     title: NoneEmptyStr = Field(..., description="title of the problem")
     content: LongText = Field("", description="content of the problem")
     data_version: DataVersion = Field(DataVersion.v2)
@@ -44,7 +43,7 @@ class ProblemCreate(BaseModel):
 
 
 class Problem(ProblemCreate, BaseODMSchema):
-    domain: ReferenceSchema[Domain]  # type: ignore
+    domain: ReferenceSchema[Domain]
     owner: ReferenceSchema[UserBase]
     problem_group: ReferenceSchema[ProblemGroup]
     problem_set: ReferenceSchema[ProblemSet]  # type: ignore
