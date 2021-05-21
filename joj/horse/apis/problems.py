@@ -1,8 +1,8 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 from bson.objectid import ObjectId
-from fastapi import Depends, File, Form, Query, UploadFile
+from fastapi import Body, Depends, File, Form, Query, UploadFile
 from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 from uvicorn.config import logger
 
@@ -15,7 +15,13 @@ from joj.horse.tasks import celery_app
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import get_db, instance
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.parser import parse_problem, parse_problem_set, parse_query
+from joj.horse.utils.parser import (
+    parse_problem,
+    parse_problem_set,
+    parse_problem_set_body,
+    parse_problems,
+    parse_query,
+)
 from joj.horse.utils.router import MyRouter
 from joj.horse.utils.url import generate_url
 
@@ -104,43 +110,46 @@ async def update_problem(
     return StandardResponse(schemas.Problem.from_orm(problem))
 
 
-@router.post("/{problem}/clone")
+@router.post("/clone")
 async def clone_problem(
-    problem: models.Problem = Depends(parse_problem),
-    problem_set: models.ProblemSet = Depends(parse_problem_set),
-    new_group: bool = Query(False, description="whether to create new problem group"),
+    problems: List[models.Problem] = Depends(parse_problems),
+    problem_set: models.ProblemSet = Depends(parse_problem_set_body),
+    new_group: bool = Body(False, description="whether to create new problem group"),
     auth: Authentication = Depends(),
-) -> StandardResponse[schemas.Problem]:
+) -> StandardResponse[ListProblems]:
     # use transaction for multiple operations
     try:
         async with instance.session() as session:
             async with session.start_transaction():
-                if new_group:
-                    problem_group = models.ProblemGroup(
-                        **schemas.ProblemGroup().to_model()
-                    )
-                    await problem_group.commit()
-                else:
-                    problem_group = await problem.problem_group.fetch()
                 domain: models.Domain = await problem_set.domain.fetch()
-                new_problem = schemas.Problem(
-                    domain=domain.id,
-                    owner=auth.user.id,
-                    title=problem.title,
-                    content=problem.content,
-                    data=problem.data,
-                    data_version=problem.data_version,
-                    languages=problem.languages,
-                    problem_group=problem_group.id,
-                    problem_set=problem_set.id,
-                )
-                new_problem = models.Problem(**new_problem.to_model())
-                await new_problem.commit()
-                logger.info("problem cloned: %s", new_problem)
+                res = []
+                for problem in problems:
+                    if new_group:
+                        problem_group = models.ProblemGroup(
+                            **schemas.ProblemGroup().to_model()
+                        )
+                        await problem_group.commit()
+                    else:
+                        problem_group = await problem.problem_group.fetch()
+                    new_problem = schemas.Problem(
+                        domain=domain.id,
+                        owner=auth.user.id,
+                        title=problem.title,
+                        content=problem.content,
+                        data=problem.data,
+                        data_version=problem.data_version,
+                        languages=problem.languages,
+                        problem_group=problem_group.id,
+                        problem_set=problem_set.id,
+                    )
+                    new_problem = models.Problem(**new_problem.to_model())
+                    await new_problem.commit()
+                    res.append(schemas.Problem.from_orm(new_problem))
+                    logger.info("problem cloned: %s", new_problem)
     except Exception as e:
-        logger.error("problem clone failed: %s", problem.title)
+        logger.error("problems clone to problem set failed: %s", problem_set)
         raise e
-    return StandardResponse(schemas.Problem.from_orm(new_problem))
+    return StandardResponse(ListProblems(results=res))
 
 
 @router.post("/{problem}")
