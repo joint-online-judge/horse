@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
-from fastapi import Depends, Path, Query
+from fastapi import Body, Depends, Path, Query
 
 from joj.horse import models
 from joj.horse.schemas.query import BaseQuery, SortEnum
@@ -53,8 +53,24 @@ async def parse_problem(
     raise BizError(ErrorCode.ProblemNotFoundError)
 
 
+async def parse_problems(
+    problems: List[str], auth: Authentication = Depends()
+) -> List[models.Problem]:
+    return [await parse_problem(oid, auth) for oid in problems]
+
+
 async def parse_problem_set(
     problem_set: str = Path(..., description="url or ObjectId of the problem set"),
+    auth: Authentication = Depends(),
+) -> models.ProblemSet:
+    problem_set_model = await models.ProblemSet.find_by_id(problem_set)
+    if problem_set_model and problem_set_model.owner == auth.user:
+        return problem_set_model
+    raise BizError(ErrorCode.ProblemSetNotFoundError)
+
+
+async def parse_problem_set_body(
+    problem_set: str = Body(..., description="url or ObjectId of the problem set"),
     auth: Authentication = Depends(),
 ) -> models.ProblemSet:
     problem_set_model = await models.ProblemSet.find_by_id(problem_set)
