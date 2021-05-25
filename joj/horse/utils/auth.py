@@ -1,9 +1,15 @@
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Set, Tuple, Union
-
-try:
-    from typing import Literal  # type: ignore
-except ImportError:
-    from typing_extensions import Literal
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Literal,
+    NamedTuple,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+)
 
 import jwt
 from fastapi import Depends, HTTPException, Request, status
