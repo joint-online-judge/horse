@@ -34,13 +34,13 @@ router_prefix = "/api/v1"
 
 @router.get("")
 async def list_problem_sets(
-    domain_id: Optional[PydanticObjectId] = Query(None),
+    domain: Optional[PydanticObjectId] = Query(None),
     query: schemas.BaseQuery = Depends(parse_query),
     auth: Authentication = Depends(),
 ) -> StandardResponse[ListProblemSets]:
     filter = {"owner": auth.user.id}
-    if domain_id is not None:
-        filter["domain"] = ObjectId(domain_id)
+    if domain is not None:
+        filter["domain"] = ObjectId(domain)
     res = await schemas.ProblemSet.to_list(filter, query)
     return StandardResponse(ListProblemSets(results=res))
 

@@ -31,9 +31,9 @@ router_prefix = "/api/v1"
 
 @router.get("")
 async def list_records(
-    domain_id: Optional[PydanticObjectId] = Query(None),
-    problem_set_id: Optional[PydanticObjectId] = Query(None),
-    problem_id: Optional[PydanticObjectId] = Query(None),
+    domain: Optional[PydanticObjectId] = Query(None),
+    problem_set: Optional[PydanticObjectId] = Query(None),
+    problem: Optional[PydanticObjectId] = Query(None),
     query: schemas.BaseQuery = Depends(parse_query),
     user: models.User = Depends(parse_uid_or_none),
     auth: Authentication = Depends(),
@@ -41,12 +41,12 @@ async def list_records(
     filter = {}
     if user:
         filter["user"] = auth.user.id
-    if domain_id is not None:
-        filter["domain"] = ObjectId(domain_id)
-    if problem_set_id is not None:
-        filter["problem_set"] = ObjectId(problem_set_id)
-    if problem_id is not None:
-        filter["problem"] = ObjectId(problem_id)
+    if domain is not None:
+        filter["domain"] = ObjectId(domain)
+    if problem_set is not None:
+        filter["problem_set"] = ObjectId(problem_set)
+    if problem is not None:
+        filter["problem"] = ObjectId(problem)
     res = await schemas.Record.to_list(filter, query)
     return StandardResponse(ListRecords(results=res))
 
