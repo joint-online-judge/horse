@@ -1,4 +1,9 @@
-from typing import Any, Callable, Dict, Optional, Set
+from typing import Any, Callable, Dict, List, NamedTuple, Optional, Set, Tuple, Union
+
+try:
+    from typing import Literal  # type: ignore
+except ImportError:
+    from typing_extensions import Literal
 
 import jwt
 from fastapi import Depends, HTTPException, Request, status
@@ -7,7 +12,6 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from pydantic import BaseModel
-from starlette.status import HTTP_401_UNAUTHORIZED
 
 from joj.horse import app
 from joj.horse.config import settings
@@ -104,8 +108,7 @@ def auth_jwt_decode(
 
 def auth_jwt_encode(auth_jwt: AuthJWT, user: User, channel: str = "") -> str:
     user_claims = {"name": user.uname_lower, "scope": user.scope, "channel": channel}
-    jwt = auth_jwt.create_access_token(subject=str(user.id), user_claims=user_claims)
-    return jwt
+    return auth_jwt.create_access_token(subject=str(user.id), user_claims=user_claims)
 
 
 # noinspection PyBroadException
@@ -218,34 +221,6 @@ class Authentication:
         # permission denied if every check failed
         return False
 
-    def ensure(self, scope: ScopeType, permission: PermissionType) -> None:
-        if not self.check(scope, permission):
-            raise HTTPException(
-                status_code=403,
-                detail="{} {} Permission Denied.".format(scope, permission),
-            )
-
-    def ensure_or(self, *args: Any) -> None:
-        if not args:
-            return
-        scope, permission = (ScopeType.UNKNOWN, PermissionType.UNKNOWN)
-        for arg in args:
-            try:
-                scope, permission = arg
-                if self.check(scope, permission):
-                    return
-            except:
-                pass
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="{} {} Permission Denied.".format(scope, permission),
-        )
-
-    # TODO: better annotations
-    def ensure_and(self, *args: Any) -> None:
-        for arg in args:
-            self.ensure(*arg)
-
 
 class DomainAuthentication:
     def __init__(
@@ -261,46 +236,169 @@ class DomainAuthentication:
         self.auth.domain_permission = domain_permission
 
 
+class PermKey(NamedTuple):
+    scope: ScopeType
+    permission: PermissionType
+
+
+class PermCompose(BaseModel):
+    permissions: List[Union["PermCompose", PermKey]]
+    action: Literal["AND", "OR"] = "AND"
+
+
+PermKeyTuple = Tuple[ScopeType, PermissionType]
+PermComposeIterable = List[  # type: ignore
+    Union[PermKey, PermCompose, PermKeyTuple, "PermComposeTuple"]  # type: ignore
+]
+PermComposeTuple = Union[  # type: ignore
+    PermComposeIterable,
+    Tuple[PermComposeIterable],
+    Tuple[PermComposeIterable, Literal["AND", "OR"]],
+]
+PermArg1 = (
+    Union[
+        ScopeType,
+        PermComposeIterable,
+        PermKey,
+        PermCompose,
+        PermKeyTuple,
+        PermComposeTuple,
+    ],
+)
+PermArg2 = Union[PermissionType, Optional[Literal["AND", "OR"]]]
+
+
 class PermissionChecker:
-    def __init__(self, scope: ScopeType, permission: PermissionType):
-        # self.type = type
-        self.scope = scope
-        self.permission = permission
+    def __init__(self, perm: Union[PermKey, PermCompose]):
+        self.perm = perm
 
-    def ensure(self, auth: Authentication) -> None:
-        auth.ensure(scope=self.scope, permission=self.permission)
+    def ensure(self, auth: Authentication, perm: Union[PermKey, PermCompose]) -> None:
+        if not isinstance(self.perm, PermKey) and not isinstance(
+            self.perm, PermCompose
+        ):
+            raise HTTPException(status_code=500, detail="Permission Definition Error!")
+        result = self.check(auth, perm)
+        if result is not None:
+            raise HTTPException(
+                status_code=403,
+                detail="{} {} Permission Denied.".format(
+                    result.scope, result.permission
+                ),
+            )
 
-    def allow(self, request: Request, auth: Authentication) -> None:
-        try:
-            request.state.allowed
-        except:
-            if auth.check(self.scope, self.permission):
-                request.state.allowed = True
+    def check(
+        self, auth: Authentication, perm: Union[PermKey, PermCompose]
+    ) -> Optional[PermKey]:
+        if isinstance(perm, PermKey):
+            if auth.check(perm.scope, perm.permission):
+                return None
+            else:
+                return perm
+
+        for child in perm.permissions:
+            result = self.check(auth, child)
+            if result is None and perm.action == "OR":
+                return None
+            elif result is not None and perm.action == "AND":
+                return result
+
+        if perm.action == "OR":
+            return PermKey(ScopeType.UNKNOWN, PermissionType.UNKNOWN)
+        elif perm.action == "AND":
+            return None
+
+        return PermKey(ScopeType.UNKNOWN, PermissionType.UNKNOWN)
 
 
 class UserPermissionChecker(PermissionChecker):
-    def __call__(self, request: Request, auth: Authentication = Depends()) -> None:
-        self.ensure(auth)
+    def __call__(self, auth: Authentication = Depends(Authentication)) -> None:
+        self.ensure(auth, self.perm)
 
 
 class DomainPermissionChecker(PermissionChecker):
     def __call__(
         self, domain_auth: DomainAuthentication = Depends(DomainAuthentication)
     ) -> None:
-        self.ensure(domain_auth.auth)
+        self.ensure(domain_auth.auth, self.perm)
 
 
 def ensure_permission(
-    scope: ScopeType, permission: PermissionType
+    arg1: PermArg1, arg2: PermArg2 = None  # type: ignore
 ) -> Optional[Callable[..., Any]]:
-    if is_domain_permission(scope):
-        return DomainPermissionChecker(scope, permission)
-    return UserPermissionChecker(scope, permission)
+    """
+    Returns a permission check dependency in fastapi.
+    Support flexible formats:
 
+    (1) Example of one permission
+        ensure_permission(ScopeType, PermissionType)
+        ensure_permission((ScopeType, PermissionType))
+        ensure_permission([(ScopeType, PermissionType)])
 
-def allow_permission(
-    scope: ScopeType, permission: PermissionType
-) -> Optional[Callable[..., Any]]:
-    if is_domain_permission(scope):
-        return DomainPermissionChecker(scope, permission)
-    return UserPermissionChecker(scope, permission)
+    (2) Example of two permission with operator AND
+        ensure_permission([(ScopeType1, PermissionType1), (ScopeType2, PermissionType2)])
+        ensure_permission([(ScopeType1, PermissionType1), (ScopeType2, PermissionType2)], "AND")
+
+    (3) Example of two permission with operator OR
+        ensure_permission([(ScopeType1, PermissionType1), (ScopeType2, PermissionType2)], "OR")
+
+    (4) Example of complex permissions
+        ensure_permission(
+            [
+                ([(ScopeType1, PermissionType1), (ScopeType2, PermissionType2)], "AND"),
+                [(ScopeType3, PermissionType3), (ScopeType4, PermissionType4), (ScopeType5, PermissionType5)],
+            ],
+            "OR"
+        )
+    """
+
+    def construct_perm(
+        _arg1: PermArg1, _arg2: PermArg2 = None  # type: ignore
+    ) -> Union[PermKey, PermCompose]:
+        _perm: Optional[Union[PermKey, PermCompose]] = None
+        if isinstance(_arg1, ScopeType) and isinstance(_arg2, PermissionType):
+            # accept (scope, permission)
+            _perm = PermKey(_arg1, _arg2)
+        elif isinstance(_arg1, (PermKey, PermCompose)):
+            # accept initialized PermKey and PermCompose
+            if _arg2 is None:
+                _perm = _arg1
+        elif isinstance(_arg1, tuple):
+            # split tuple parentheses
+            if len(_arg1) == 1:
+                _perm = construct_perm(_arg1[0])
+            elif len(_arg1) == 2:
+                _perm = construct_perm(_arg1[0], _arg1[1])
+        else:
+            # accept (permissions, action)
+            try:
+                if _arg2 is None:
+                    _arg2 = "AND"
+                if _arg2 in ("AND", "OR"):
+                    perms = []
+                    for child in _arg1:
+                        perms.append(construct_perm(child))
+                    if len(perms) == 1:
+                        _perm = perms[0]
+                    else:
+                        _perm = PermCompose(permissions=perms, action=_arg2)
+            except TypeError:
+                pass
+        if _perm is None:
+            raise ValueError(
+                "Permission Initialization failed for {}, {}.".format(_arg1, _arg2)
+            )
+        return _perm
+
+    def contains_domain(_perm: Union[PermKey, PermCompose]) -> bool:
+        if isinstance(_perm, PermKey):
+            return is_domain_permission(_perm.scope)
+        for child in _perm.permissions:
+            if contains_domain(child):
+                return True
+        return False
+
+    perm = construct_perm(arg1, arg2)
+    if contains_domain(perm):
+        return DomainPermissionChecker(perm)
+    else:
+        return UserPermissionChecker(perm)
