@@ -282,11 +282,14 @@ class PermissionChecker:
         if not isinstance(self.perm, PermKey) and not isinstance(
             self.perm, PermCompose
         ):
-            raise HTTPException(status_code=500, detail="Permission Definition Error!")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Permission Definition Error!",
+            )
         result = self.check(auth, perm)
         if result is not None:
             raise HTTPException(
-                status_code=403,
+                status_code=status.HTTP_403_FORBIDDEN,
                 detail="{} {} Permission Denied.".format(
                     result.scope, result.permission
                 ),
