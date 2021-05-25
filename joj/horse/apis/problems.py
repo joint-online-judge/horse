@@ -33,19 +33,19 @@ router_prefix = "/api/v1"
 
 @router.get("")
 async def list_problems(
-    domain_id: Optional[PydanticObjectId] = Query(None),
-    problem_set_id: Optional[PydanticObjectId] = Query(None),
-    problem_group_id: Optional[PydanticObjectId] = Query(None),
+    domain: Optional[PydanticObjectId] = Query(None),
+    problem_set: Optional[PydanticObjectId] = Query(None),
+    problem_group: Optional[PydanticObjectId] = Query(None),
     query: schemas.BaseQuery = Depends(parse_query),
     auth: Authentication = Depends(),
 ) -> StandardResponse[ListProblems]:
     filter = {"owner": auth.user.id}
-    if domain_id is not None:
-        filter["domain"] = ObjectId(domain_id)
-    if problem_set_id is not None:
-        filter["problem_set"] = ObjectId(problem_set_id)
-    if problem_group_id is not None:
-        filter["problem_group"] = ObjectId(problem_group_id)
+    if domain is not None:
+        filter["domain"] = ObjectId(domain)
+    if problem_set is not None:
+        filter["problem_set"] = ObjectId(problem_set)
+    if problem_group is not None:
+        filter["problem_group"] = ObjectId(problem_group)
     res = await schemas.Problem.to_list(filter, query)
     return StandardResponse(ListProblems(results=res))
 
