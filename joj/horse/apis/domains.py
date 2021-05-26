@@ -7,7 +7,12 @@ from marshmallow.exceptions import ValidationError
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
-from joj.horse.models.permission import DefaultRole, PermissionType, ScopeType
+from joj.horse.models.permission import (
+    DefaultRole,
+    Permission,
+    PermissionType,
+    ScopeType,
+)
 from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.domain import ListDomainLabels, ListDomains
 from joj.horse.schemas.domain_user import ListDomainMembers
@@ -88,7 +93,7 @@ async def create_domain(
     "/{domain}",
     dependencies=[
         # Depends(ensure_permission(ScopeType.SITE_USER, PermissionType.VIEW_HIDDEN)),
-        Depends(ensure_permission(ScopeType.DOMAIN_GENERAL, PermissionType.VIEW))
+        Depends(ensure_permission(Permission.DomainGeneral.view))
     ],
 )
 async def get_domain(
@@ -100,9 +105,7 @@ async def get_domain(
 
 @router.delete(
     "/{domain}",
-    dependencies=[
-        Depends(ensure_permission(ScopeType.SITE_DOMAIN, PermissionType.DELETE))
-    ],
+    dependencies=[Depends(ensure_permission(Permission.SiteDomain.delete))],
     deprecated=True,
 )
 async def delete_domain(
@@ -117,9 +120,7 @@ async def delete_domain(
 
 @router.patch(
     "/{domain}",
-    dependencies=[
-        Depends(ensure_permission(ScopeType.DOMAIN_GENERAL, PermissionType.EDIT))
-    ],
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def update_domain(
     domain_edit: schemas.DomainEdit,

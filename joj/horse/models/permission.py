@@ -31,30 +31,45 @@ class ScopeType(str, Enum):
 
 
 class PermissionType(str, Enum):
-    VIEW = "view"
-    VIEW_MOD_BADGE = "view_mod_badge"
-    VIEW_HIDDEN = "view_hidden"
-    VIEW_CONFIG = "view_config"
-    VIEW_CONFIG_SELF = "view_config_self"
+    view = "view"
+    view_mod_badge = "view_mod_badge"
+    view_hidden = "view_hidden"
+    view_config = "view_config"
+    view_config_self = "view_config_self"
 
-    EDIT_PERMISSION = "edit_permission"
-    EDIT = "edit"
+    edit_permission = "edit_permission"
+    edit = "edit"
 
-    CREATE = "create"
-    SUBMIT = "submit"
-    CLAIM = "claim"
-    SCOREBOARD = "scoreboard"
-    MANAGE = "manage"
-    DETAIL = "detail"
-    CODE = "code"
-    REJUDGE = "rejudge"
-    DELETE = "delete"
+    create = "create"
+    submit = "submit"
+    claim = "claim"
+    scoreboard = "scoreboard"
+    manage = "manage"
+    detail = "detail"
+    code = "code"
+    rejudge = "rejudge"
+    delete = "delete"
 
-    UNKNOWN = "unknown"
+    unlimited_quota = "unlimited_quota"
+    judge = "judge"
+
+    unknown = "unknown"
 
 
-@instance.register
-class GeneralPermission(EmbeddedDocumentImplementation):
+T = TypeVar("T")
+
+
+def wrap_permission(scope: ScopeType, cls: T) -> T:
+    value = "Wrapped" + cls.__name__  # type: ignore
+    names = []
+    for k, v in cls.__dict__.items():
+        if not k.startswith("_"):
+            perm = PermissionType[k]
+            names.append((k, (scope, perm)))
+    return Enum(value, names=names, type=tuple)  # type: ignore
+
+
+class GeneralPermissionModel:
     view = fields.BoolField(default=True)
     edit_permission = fields.BoolField(default=False)
     view_mod_badge = fields.BoolField(default=True)  # what's this?
@@ -62,16 +77,12 @@ class GeneralPermission(EmbeddedDocumentImplementation):
     unlimited_quota = fields.BoolField(default=False)
 
 
-# class GeneralPermission(BaseModel):
-#     view: bool = True
-#     edit_permission: bool = False
-#     view_mod_badge: bool = True  # what's this?
-#     edit: bool = False
-#     unlimited_quota: bool = False
-
-
 @instance.register
-class ProblemPermission(EmbeddedDocumentImplementation):
+class GeneralPermission(GeneralPermissionModel, EmbeddedDocumentImplementation):
+    pass
+
+
+class ProblemPermissionModel:
     create = fields.BoolField(default=False)
     view = fields.BoolField(default=True)
     view_hidden = fields.BoolField(default=False)
@@ -81,20 +92,12 @@ class ProblemPermission(EmbeddedDocumentImplementation):
     view_config = fields.BoolField(default=False)
 
 
-# class ProblemPermission(BaseModel):
-#     create: bool = False
-#     view: bool = True
-#     view_hidden: bool = False
-#     submit: bool = True
-#
-#     edit: bool = False
-#     edit_self: bool = True
-#     view_config: bool = False
-#     view_config_self: bool = True
-
-
 @instance.register
-class ProblemSetPermission(EmbeddedDocumentImplementation):
+class ProblemPermission(ProblemPermissionModel, EmbeddedDocumentImplementation):
+    pass
+
+
+class ProblemSetPermissionModel:
     create = fields.BoolField(default=False)
     view = fields.BoolField(default=True)
     view_hidden = fields.BoolField(default=False)
@@ -107,23 +110,12 @@ class ProblemSetPermission(EmbeddedDocumentImplementation):
     view_config = fields.BoolField(default=False)
 
 
-# class ProblemSetPermission(BaseModel):
-#     create: bool = False
-#     view: bool = True
-#     view_hidden: bool = False
-#     claim: bool = True
-#
-#     scoreboard: bool = False
-#     manage: bool = False
-#
-#     edit: bool = False
-#     edit_self: bool = True
-#     view_config: bool = False
-#     view_config_self: bool = True
-
-
 @instance.register
-class RecordPermission(EmbeddedDocumentImplementation):
+class ProblemSetPermission(ProblemSetPermissionModel, EmbeddedDocumentImplementation):
+    pass
+
+
+class RecordPermissionModel:
     view = fields.BoolField(default=True)
     detail = fields.BoolField(default=False)
     code = fields.BoolField(default=False)
@@ -131,12 +123,35 @@ class RecordPermission(EmbeddedDocumentImplementation):
     rejudge = fields.BoolField(default=False)
 
 
-# class RecordPermission(BaseModel):
-#     view: bool = True
-#     detail: bool = False
-#     code: bool = False
-#     judge: bool = False
-#     rejudge: bool = False
+@instance.register
+class RecordPermission(RecordPermissionModel, EmbeddedDocumentImplementation):
+    pass
+
+
+class UserSpecificPermissionModel:
+    view = fields.BoolField(default=True)
+    view_hidden = fields.BoolField(default=False)
+
+
+@instance.register
+class UserSpecificPermission(
+    UserSpecificPermissionModel, EmbeddedDocumentImplementation
+):
+    pass
+
+
+class DomainSpecificPermissionModel:
+    create = fields.BoolField(default=False)
+    edit = fields.BoolField(default=False)
+    delete = fields.BoolField(default=False)
+    view_hidden = fields.BoolField(default=False)
+
+
+@instance.register
+class DomainSpecificPermission(
+    DomainSpecificPermissionModel, EmbeddedDocumentImplementation
+):
+    pass
 
 
 @instance.register
@@ -152,31 +167,6 @@ class DomainPermission(EmbeddedDocumentImplementation):
 
 
 @instance.register
-class UserSpecificPermission(EmbeddedDocumentImplementation):
-    view = fields.BoolField(default=True)
-    view_hidden = fields.BoolField(default=False)
-
-
-@instance.register
-class DomainSpecificPermission(EmbeddedDocumentImplementation):
-    create = fields.BoolField(default=False)
-    edit = fields.BoolField(default=False)
-    delete = fields.BoolField(default=False)
-    view_hidden = fields.BoolField(default=False)
-
-
-# class UserSpecificPermission(BaseModel):
-#     view: bool = True
-#     view_hidden: bool = False
-#
-#
-# class DomainSpecificPermission(BaseModel):
-#     create: bool = False
-#     edit: bool = False
-#     view_hidden: bool = False
-
-
-@instance.register
 class SitePermission(DomainPermission):
     user = fields.EmbeddedField(
         UserSpecificPermission, default=UserSpecificPermission()
@@ -184,9 +174,6 @@ class SitePermission(DomainPermission):
     domain = fields.EmbeddedField(
         DomainSpecificPermission, default=DomainSpecificPermission()
     )
-    # domain: DomainSpecificPermission = DomainSpecificPermission()
-    # user: UserSpecificPermission = UserSpecificPermission()
-    pass
 
 
 def __get_default_permission(
@@ -240,3 +227,15 @@ DEFAULT_SITE_PERMISSION = {
     DefaultRole.GUEST: __get_default_site_permission(False, False),
     DefaultRole.JUDGE: __DEFAULT_JUDGE_PERMISSION,
 }
+
+
+class Permission:
+    DomainGeneral = wrap_permission(ScopeType.DOMAIN_GENERAL, GeneralPermissionModel)
+    DomainProblem = wrap_permission(ScopeType.DOMAIN_PROBLEM, ProblemPermissionModel)
+    DomainProblemSet = wrap_permission(
+        ScopeType.DOMAIN_PROBLEM_SET, ProblemSetPermissionModel
+    )
+    DomainRecord = wrap_permission(ScopeType.DOMAIN_RECORD, RecordPermissionModel)
+
+    SiteUser = wrap_permission(ScopeType.SITE_USER, UserSpecificPermissionModel)
+    SiteDomain = wrap_permission(ScopeType.SITE_DOMAIN, DomainSpecificPermissionModel)
