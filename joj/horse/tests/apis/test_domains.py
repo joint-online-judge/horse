@@ -246,20 +246,3 @@ def test_member_join_in_domain(
             assert item["role"] == "user"
         else:
             assert False, f"Unknown user id: {item['user']['id']}"
-
-
-def test_list_labels_in_domain(
-    client: TestClient,
-    test_user_token_headers: Dict[str, str],
-    test_user: User,
-    global_test_user: User,
-) -> None:
-    # TODO: add real tag in problems
-    r = client.get(
-        f"{base_domain_url}/{domain.url}/labels", headers=test_user_token_headers
-    )
-    assert r.status_code == 200
-    res = r.json()
-    assert res["errorCode"] == ErrorCode.Success
-    res = res["data"]["results"]
-    assert len(res) == 0

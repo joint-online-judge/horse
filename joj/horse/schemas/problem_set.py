@@ -21,7 +21,6 @@ class ProblemSetEdit(BaseModel):
     title: Optional[NoneEmptyLongStr]
     content: Optional[LongText]
     hidden: Optional[bool]
-    labels: Optional[List[LongStr]]
     scoreboard_hidden: Optional[bool]
     available_time: Optional[datetime]
     due_time: Optional[datetime]
@@ -50,7 +49,6 @@ class ProblemSet(ProblemSetCreate, BaseODMSchema):
     domain: ReferenceSchema[Domain]  # type: ignore
     owner: ReferenceSchema[UserBase]
 
-    labels: List[LongStr] = []
     num_submit: int = 0
     num_accept: int = 0
     scoreboard_hidden: bool
