@@ -14,7 +14,7 @@ from joj.horse.models.permission import (
     ScopeType,
 )
 from joj.horse.schemas import Empty, StandardResponse
-from joj.horse.schemas.domain import ListDomainLabels, ListDomains
+from joj.horse.schemas.domain import ListDomains
 from joj.horse.schemas.domain_user import ListDomainMembers
 from joj.horse.utils.auth import Authentication, DomainAuthentication, ensure_permission
 from joj.horse.utils.db import generate_join_pipeline, instance
@@ -196,19 +196,3 @@ async def remove_member_from_domain(
     if domain_user:
         await domain_user.delete()
     return StandardResponse()
-
-
-@router.get("/{domain}/labels")
-async def list_labels_in_domain(
-    domain: models.Domain = Depends(parse_domain), auth: Authentication = Depends()
-) -> StandardResponse[ListDomainLabels]:
-    # TODO: aggregate
-    return StandardResponse(
-        ListDomainLabels(
-            results=[
-                label
-                async for problem_set in models.ProblemSet.find({"domain": domain.id})
-                for label in schemas.ProblemSet.from_orm(problem_set).labels
-            ]
-        )
-    )

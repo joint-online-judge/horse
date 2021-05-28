@@ -50,7 +50,3 @@ class Domain(DomainCreate, BaseODMSchema):
 
 class ListDomains(BaseModel):
     results: List[Domain]
-
-
-class ListDomainLabels(BaseModel):
-    results: List[str]
