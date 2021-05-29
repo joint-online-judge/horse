@@ -13,7 +13,6 @@ from joj.horse.schemas.domain import ListDomains
 from joj.horse.schemas.misc import RedirectModel
 from joj.horse.schemas.problem import ListProblems
 from joj.horse.utils.auth import Authentication, auth_jwt_encode
-from joj.horse.utils.db import generate_join_pipeline
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.oauth import jaccount
 from joj.horse.utils.parser import parse_query
@@ -178,6 +177,7 @@ async def get_user(auth: Authentication = Depends()) -> StandardResponse[schemas
 async def get_user_problems(
     query: schemas.BaseQuery = Depends(parse_query), auth: Authentication = Depends()
 ) -> StandardResponse[ListProblems]:
-    filter = {"owner": auth.user.id}
-    res = await schemas.Problem.to_list(filter, query)
+    condition = {"owner": auth.user.id}
+    cursor = models.Problem.cursor_find(condition, query)
+    res = await schemas.Problem.to_list(cursor)
     return StandardResponse(ListProblems(results=res))

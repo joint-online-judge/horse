@@ -3,9 +3,9 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Generator,
     Generic,
+    List,
     Optional,
     Type,
     TypeVar,
@@ -15,10 +15,13 @@ from typing import (
 from bson import ObjectId
 from bson.errors import InvalidId
 from pydantic import BaseModel, ConstrainedStr, create_model, validator
-from umongo.frameworks.motor_asyncio import MotorAsyncIODocument, MotorAsyncIOReference
+from umongo.frameworks.motor_asyncio import (
+    AsyncIOMotorCursor,
+    MotorAsyncIODocument,
+    MotorAsyncIOReference,
+)
 
 from joj.horse.models.base import DocumentMixin
-from joj.horse.schemas.query import BaseQuery
 from joj.horse.utils.errors import ErrorCode
 
 if TYPE_CHECKING:
@@ -90,27 +93,31 @@ class BaseODMSchema(BaseModel):
         return super(BaseODMSchema, cls).from_orm(obj)  # type: ignore
 
     @classmethod
+    def get_model_class(cls: Type["Model"]) -> MotorAsyncIODocument:
+        def _import(name: str) -> MotorAsyncIODocument:
+            components = name.split(".")
+            mod = __import__(components[0])
+            for comp in components[1:]:
+                mod = getattr(mod, comp)
+            return mod
+
+        return _import(f"joj.horse.models.{cls.__name__}")
+
+    @classmethod
     async def to_list(
-        cls: Type["Model"], filter: Dict[str, Any], query: BaseQuery
-    ) -> Any:
-        def get_model_class(cls: Type["Model"]) -> MotorAsyncIODocument:
-            def _import(name: str) -> MotorAsyncIODocument:
-                components = name.split(".")
-                mod = __import__(components[0])
-                for comp in components[1:]:
-                    mod = getattr(mod, comp)
-                return mod
+        cls: Type["Model"],
+        cursor: AsyncIOMotorCursor,
+        func: Optional[Callable[[Any], "Model"]] = None,
+    ) -> List["Model"]:
+        def _default_func(x: Any) -> "Model":
+            if isinstance(x, dict):
+                model = cls.get_model_class()  # type: ignore
+                x = model.build_from_mongo(x)
+            return cls.from_orm(x, unfetch_all=False)  # type: ignore
 
-            return _import(f"joj.horse.models.{cls.__name__}")
-
-        cursor = get_model_class(cls).find(filter)
-        if query.sort is not None:
-            cursor = cursor.sort("_id", query.sort)
-        if query.skip is not None:
-            cursor = cursor.skip(query.skip)
-        if query.limit is not None:
-            cursor = cursor.limit(query.limit)
-        return [cls.from_orm(doc) async for doc in cursor]
+        if func is None:
+            func = _default_func
+        return [func(doc) async for doc in cursor]
 
 
 # class EmbeddedDocument(Generic[T]):
@@ -180,6 +187,6 @@ class StandardResponse(Generic[BT]):
         response_type = get_standard_response_model(type(data))  # type: ignore
         response_data = data
 
-        return response_type(
-            errorCode=ErrorCode.Success, errorMsg="", data=response_data
-        )  # type: ignore
+        return response_type(  # type: ignore
+            errorCode=ErrorCode.Success, data=response_data
+        )

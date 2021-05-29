@@ -15,7 +15,7 @@ from joj.horse.schemas.problem_set import ListProblemSets
 from joj.horse.schemas.record import RecordStatus
 from joj.horse.schemas.score import Score, ScoreBoard, UserScore
 from joj.horse.utils.auth import Authentication
-from joj.horse.utils.db import generate_join_pipeline, instance
+from joj.horse.utils.db import instance
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
     parse_domain_body,
@@ -38,10 +38,11 @@ async def list_problem_sets(
     query: schemas.BaseQuery = Depends(parse_query),
     auth: Authentication = Depends(),
 ) -> StandardResponse[ListProblemSets]:
-    filter = {"owner": auth.user.id}
+    condition = {"owner": auth.user.id}
     if domain is not None:
-        filter["domain"] = ObjectId(domain)
-    res = await schemas.ProblemSet.to_list(filter, query)
+        condition["domain"] = ObjectId(domain)
+    cursor = models.ProblemSet.cursor_find(condition, query)
+    res = await schemas.ProblemSet.to_list(cursor)
     return StandardResponse(ListProblemSets(results=res))
 
 
@@ -168,13 +169,10 @@ async def get_scoreboard(
     if problem_set.scoreboard_hidden:
         raise BizError(ErrorCode.ScoreboardHiddenBadRequestError)
     domain: models.Domain = await problem_set.domain.fetch()
-    pipeline = generate_join_pipeline(field="user", condition={"domain": domain.id})
-    users = [
-        schemas.User.from_orm(
-            await models.DomainUser.build_from_mongo(domain_user).user.fetch()
-        )
-        async for domain_user in models.DomainUser.aggregate(pipeline)
-    ]
+    cursor = models.DomainUser.cursor_join(
+        field="user", condition={"domain": domain.id}
+    )
+    users = await schemas.User.to_list(cursor)
     results: List[UserScore] = []
     problem_ids: List[PydanticObjectId] = []
     firstUser = True

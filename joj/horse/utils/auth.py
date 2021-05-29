@@ -1,9 +1,9 @@
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Set, Tuple, Union
 
 try:
-    from typing import Literal
+    from typing import Literal  # type: ignore
 except ImportError:
-    from typing_extensions import Literal  # type: ignore
+    from typing_extensions import Literal
 
 import jwt
 from fastapi import Depends, HTTPException, Request, status
@@ -306,11 +306,11 @@ class PermissionChecker:
                 return result
 
         if perm.action == "OR":
-            return PermKey(ScopeType.UNKNOWN, PermissionType.UNKNOWN)
+            return PermKey(ScopeType.UNKNOWN, PermissionType.unknown)
         elif perm.action == "AND":
             return None
 
-        return PermKey(ScopeType.UNKNOWN, PermissionType.UNKNOWN)
+        return PermKey(ScopeType.UNKNOWN, PermissionType.unknown)
 
 
 class UserPermissionChecker(PermissionChecker):
@@ -326,11 +326,14 @@ class DomainPermissionChecker(PermissionChecker):
 
 
 def ensure_permission(
-    arg1: PermArg1, arg2: PermArg2 = None  # type: ignore
+    arg1: PermArg1 = None, arg2: PermArg2 = None  # type: ignore
 ) -> Optional[Callable[..., Any]]:
     """
     Returns a permission check dependency in fastapi.
     Support flexible formats:
+
+    (0) Example of no permission (but require login)
+        ensure_permission()
 
     (1) Example of one permission
         ensure_permission(ScopeType, PermissionType)
@@ -358,7 +361,10 @@ def ensure_permission(
         _arg1: PermArg1, _arg2: PermArg2 = None  # type: ignore
     ) -> Union[PermKey, PermCompose]:
         _perm: Optional[Union[PermKey, PermCompose]] = None
-        if isinstance(_arg1, ScopeType) and isinstance(_arg2, PermissionType):
+        if _arg1 is None:
+            if _arg2 is None:
+                _perm = PermCompose(permissions=[], action="AND")
+        elif isinstance(_arg1, ScopeType) and isinstance(_arg2, PermissionType):
             # accept (scope, permission)
             _perm = PermKey(_arg1, _arg2)
         elif isinstance(_arg1, (PermKey, PermCompose)):
