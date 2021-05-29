@@ -1,5 +1,6 @@
 import time
 from datetime import datetime
+from typing import List
 
 from bson import ObjectId
 from fastapi import Depends, Query
@@ -7,17 +8,12 @@ from marshmallow.exceptions import ValidationError
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
-from joj.horse.models.permission import (
-    DefaultRole,
-    Permission,
-    PermissionType,
-    ScopeType,
-)
+from joj.horse.models.permission import DefaultRole, Permission
 from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.domain import ListDomains
 from joj.horse.schemas.domain_user import ListDomainMembers
 from joj.horse.utils.auth import Authentication, DomainAuthentication, ensure_permission
-from joj.horse.utils.db import generate_join_pipeline, instance
+from joj.horse.utils.db import instance
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
     parse_domain,
@@ -33,27 +29,22 @@ router_tag = "domain"
 router_prefix = "/api/v1"
 
 
-@router.get("")
+@router.get("", dependencies=[Depends(ensure_permission())])
 async def list_domains(
-    query: schemas.BaseQuery = Depends(parse_query), auth: Authentication = Depends()
-) -> StandardResponse[ListDomains]:
+    role: List[str] = Query([]),
+    query: schemas.BaseQuery = Depends(parse_query),
+    auth: Authentication = Depends(),
+) -> StandardResponse[ListDomainMembers]:
     """
-    List all domains in which {user} has a role.
-    Use current login user if {user} is not specified.
+    List all domains visible to the current user.
     """
-    # TODO: finish this part
-    # auth.ensure(ScopeType.GENERAL, PermissionType.UNKNOWN)
-    filter = {"owner": auth.user.id}
-    res = await schemas.Domain.to_list(filter, query)
-    return StandardResponse(ListDomains(results=res))
+    cursor = models.DomainUser.cursor_find_user_domains(auth.user.id, role, query)
+    results = await schemas.DomainUser.to_list(cursor)
+    return StandardResponse(ListDomainMembers(results=results))
 
 
 @router.post(
-    "",
-    dependencies=[
-        # Depends(ensure_permission(ScopeType.SITE_DOMAIN, PermissionType.CREATE))
-        # TODO: add it back and do it for test user
-    ],
+    "", dependencies=[Depends(ensure_permission(Permission.SiteDomain.create))]
 )
 async def create_domain(
     domain: schemas.DomainCreate, auth: Authentication = Depends()
@@ -134,19 +125,12 @@ async def update_domain(
 @router.get("/{domain}/members")
 async def list_members_in_domain(
     domain: models.Domain = Depends(parse_domain),
-    auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> StandardResponse[ListDomainMembers]:
-    pipeline = generate_join_pipeline(field="user", condition={"domain": domain.id})
-    return StandardResponse(
-        ListDomainMembers(
-            results=[
-                schemas.DomainUser.from_orm(
-                    models.DomainUser.build_from_mongo(domain_user), unfetch_all=False
-                )
-                async for domain_user in models.DomainUser.aggregate(pipeline)
-            ]
-        )
+    cursor = models.DomainUser.cursor_join(
+        field="user", condition={"domain": domain.id}
     )
+    results = await schemas.DomainUser.to_list(cursor)
+    return StandardResponse(ListDomainMembers(results=results))
 
 
 @router.post("/{domain}/members/{uid}")

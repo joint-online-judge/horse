@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, List, Type
 
 from motor.motor_asyncio import AsyncIOMotorClient
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument, MotorAsyncIOInstance
@@ -42,22 +42,3 @@ async def ensure_indexes() -> None:
     for model in collections:
         logger.info('Ensure indexes for "%s".' % model.opts.collection_name)
         await model.ensure_indexes()
-
-
-def generate_join_pipeline(
-    field: str, condition: Dict[str, Any], collection: Optional[str] = None
-) -> List[Any]:
-    if collection is None:
-        collection = field + "s"
-    return [
-        {"$match": condition},
-        {
-            "$lookup": {
-                "from": collection,
-                "localField": field,
-                "foreignField": "_id",
-                "as": field,
-            }
-        },
-        {"$addFields": {field: {"$arrayElemAt": ["$" + field, 0]}}},
-    ]
