@@ -33,5 +33,5 @@ class DomainUser(BaseODMSchema):
     )
 
 
-class ListDomainMembers(BaseModel):
+class ListDomainUsers(BaseModel):
     results: List[DomainUser]

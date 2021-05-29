@@ -4,7 +4,7 @@ from fastapi import Depends, Query
 
 from joj.horse import models, schemas
 from joj.horse.schemas import StandardResponse
-from joj.horse.schemas.domain_user import ListDomainMembers
+from joj.horse.schemas.domain_user import ListDomainUsers
 from joj.horse.schemas.problem import ListProblems
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.parser import parse_query, parse_uid
@@ -28,10 +28,10 @@ async def get_user_domains(
     user: models.User = Depends(parse_uid),
     role: List[str] = Query([]),
     query: schemas.BaseQuery = Depends(parse_query),
-) -> StandardResponse[ListDomainMembers]:
+) -> StandardResponse[ListDomainUsers]:
     cursor = models.DomainUser.cursor_find_user_domains(user.id, role, query)
     results = await schemas.DomainUser.to_list(cursor)
-    return StandardResponse(ListDomainMembers(results=results))
+    return StandardResponse(ListDomainUsers(results=results))
 
 
 @router.get("/{uid}/problems")

@@ -8,7 +8,7 @@ from joj.horse import models, schemas
 from joj.horse.models.permission import DefaultRole
 from joj.horse.schemas.base import Empty, StandardResponse
 from joj.horse.schemas.domain_role import ListDomainRoles
-from joj.horse.schemas.domain_user import ListDomainMembers
+from joj.horse.schemas.domain_user import ListDomainUsers
 from joj.horse.schemas.misc import JWT
 from joj.horse.schemas.user import ListUsers
 from joj.horse.utils.auth import (
@@ -33,7 +33,8 @@ async def list_users(
 ) -> StandardResponse[ListUsers]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
-    res = await schemas.User.to_list({}, query)
+    cursor = models.User.cursor_find({}, query)
+    res = await schemas.User.to_list(cursor)
     return StandardResponse(ListUsers(results=res))
 
 
@@ -67,11 +68,12 @@ async def delete_user(
 @router.get("/domain_users")
 async def list_domain_users(
     query: schemas.BaseQuery = Depends(parse_query), auth: Authentication = Depends()
-) -> StandardResponse[ListDomainMembers]:
+) -> StandardResponse[ListDomainUsers]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
-    res = await schemas.DomainUser.to_list({}, query)
-    return StandardResponse(ListDomainMembers(results=res))
+    cursor = models.DomainUser.cursor_find({}, query)
+    res = await schemas.DomainUser.to_list(cursor)
+    return StandardResponse(ListDomainUsers(results=res))
 
 
 @router.get("/domain_roles")
@@ -80,7 +82,8 @@ async def list_domain_roles(
 ) -> StandardResponse[ListDomainRoles]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
-    res = await schemas.DomainRole.to_list({}, query)
+    cursor = models.DomainRole.cursor_find({}, query)
+    res = await schemas.DomainRole.to_list(cursor)
     return StandardResponse(ListDomainRoles(results=res))
 
 
@@ -90,8 +93,9 @@ async def list_judgers(
 ) -> StandardResponse[ListUsers]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
-    filter = {"role": DefaultRole.JUDGE}
-    res = await schemas.User.to_list(filter, query)
+    condition = {"role": DefaultRole.JUDGE}
+    cursor = models.User.cursor_find(condition, query)
+    res = await schemas.User.to_list(cursor)
     return StandardResponse(ListUsers(results=res))
 
 

@@ -23,6 +23,7 @@ class ErrorCode(str, Enum):
     ProblemSetBeforeAvailableError = "ProblemSetBeforeAvailableError"
     ProblemSetAfterDueError = "ProblemSetAfterDueError"
     UserNotJudgerError = "UserNotJudgerError"
+    DomainRoleNotFoundError = "DomainRoleNotFoundError"
 
 
 class BizError(Exception):
