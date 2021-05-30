@@ -28,6 +28,7 @@ from joj.horse.models.permission import (
     SitePermission,
 )
 from joj.horse.models.user import User
+from joj.horse.utils.errors import BizError, ErrorCode
 
 jwt_scheme = HTTPBearer(bearerFormat="JWT", auto_error=False)
 
@@ -139,7 +140,10 @@ def get_site_permission(site_role: str = Depends(get_site_role)) -> SitePermissi
 
 
 async def get_domain(domain: str) -> Domain:
-    return await Domain.find_by_url_or_id(domain)
+    domain_model = await Domain.find_by_url_or_id(domain)
+    if domain_model is None:
+        raise BizError(ErrorCode.DomainNotFoundError)
+    return domain_model
 
 
 async def get_domain_role(
@@ -233,7 +237,7 @@ class DomainAuthentication:
         self.auth = auth
         self.auth.domain = domain
         self.auth.domain_role = domain_role
-        self.auth.domain_permission = domain_permission
+        self.auth.domain_permission = domain_permission.dump()
 
 
 class PermKey(NamedTuple):

@@ -51,6 +51,15 @@ async def parse_domain_body(
     return await parse_domain(domain, auth)
 
 
+async def parse_domain_invitation(
+    invitation: str = Path(..., description="ObjectId of the domain invitation"),
+) -> models.DomainInvitation:
+    invitation_model = await models.DomainInvitation.find_by_id(invitation)
+    if invitation_model is None:
+        raise BizError(ErrorCode.DomainInvitationBadRequestError)
+    return invitation_model
+
+
 async def parse_problem(
     problem: str, auth: Authentication = Depends()
 ) -> models.Problem:

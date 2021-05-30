@@ -29,6 +29,7 @@ from joj.horse import models
 collections: List[Type[MotorAsyncIODocument]] = [
     models.User,
     models.Domain,
+    models.DomainInvitation,
     models.DomainRole,
     models.DomainUser,
     models.Record,

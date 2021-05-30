@@ -1,5 +1,4 @@
 import string
-from datetime import datetime
 from typing import Callable, List, Optional
 
 from bson import ObjectId
@@ -19,11 +18,10 @@ from joj.horse.schemas.user import UserBase
 
 
 class DomainEdit(BaseModel):
+    url: Optional[NoneEmptyLongStr]
     name: Optional[LongStr]
     gravatar: Optional[LongStr]
     bulletin: Optional[LongText]
-    invitation_code: Optional[LongStr]
-    invitation_expire_at: Optional[datetime]
 
 
 class DomainCreate(BaseModel):
