@@ -70,7 +70,7 @@ async def marshmallow_validation_exception_handler(
 async def business_exception_handler(request: Request, exc: BizError) -> JSONResponse:
     return JSONResponse(
         jsonable_encoder(
-            {"errorCode": exc.errorCode, "errorMsg": exc.errorMsg, "data": {}}
+            {"error_code": exc.error_code, "error_msg": exc.error_msg, "data": {}}
         ),
         status_code=status.HTTP_200_OK,
     )
@@ -84,8 +84,8 @@ async def catch_exceptions_middleware(request: Request, call_next: Any) -> JSONR
         return JSONResponse(
             jsonable_encoder(
                 {
-                    "errorCode": "InternalServerError",
-                    "errorMsg": e.__class__.__name__,
+                    "error_code": "InternalServerError",
+                    "error_msg": e.__class__.__name__,
                     "data": {},
                 }
             ),

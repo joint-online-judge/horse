@@ -36,7 +36,7 @@ def test_get_user(
     r = client.get(base_user_url, headers=test_user_token_headers)
     assert r.status_code == 200
     res = r.json()
-    assert res["errorCode"] == ErrorCode.Success
+    assert res["error_code"] == ErrorCode.Success
     res = res["data"]
     assert res["scope"] == "sjtu"
     assert res["uname"] == test_user.uname
@@ -82,7 +82,7 @@ def test_get_user(
 #     r = client.get(f"{base_user_url}/problems", headers=test_user_token_headers)
 #     assert r.status_code == 200
 #     res = r.json()
-#     assert res["errorCode"] == ErrorCode.Success
+#     assert res["error_code"] == ErrorCode.Success
 #     res = res["data"]["results"]
 #     assert len(res) == 1
 #     res = res[0]

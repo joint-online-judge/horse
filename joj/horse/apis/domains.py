@@ -41,7 +41,7 @@ async def list_domains(
     auth: Authentication = Depends(),
 ) -> StandardResponse[ListDomainUsers]:
     """
-    List all domains visible to the current user.
+    List all domains that the current user has a role.
     """
     cursor = models.DomainUser.cursor_find_user_domains(auth.user.id, role, query)
     results = await schemas.DomainUser.to_list(cursor)
@@ -104,10 +104,7 @@ async def create_domain(
 
 @router.get(
     "/{domain}",
-    dependencies=[
-        # Depends(ensure_permission(ScopeType.SITE_USER, PermissionType.VIEW_HIDDEN)),
-        Depends(ensure_permission(Permission.DomainGeneral.view))
-    ],
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
 )
 async def get_domain(
     domain: models.Domain = Depends(parse_domain_from_auth),
