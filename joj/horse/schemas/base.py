@@ -188,5 +188,5 @@ class StandardResponse(Generic[BT]):
         response_data = data
 
         return response_type(  # type: ignore
-            error_code=ErrorCode.Success, data=response_data
+            error_code=ErrorCode.Success, error_msg=None, data=response_data
         )
