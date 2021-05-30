@@ -167,8 +167,8 @@ def get_standard_response_model(cls: Type[BaseModel]) -> Type[BaseModel]:
     name = cls.__name__
     return create_model(
         f"{name}Resp",
-        errorCode=(ErrorCode, ...),
-        errorMsg=(Optional[str], ...),
+        error_code=(ErrorCode, ...),
+        error_msg=(Optional[str], ...),
         data=(Optional[cls], None),
     )
 
@@ -188,5 +188,5 @@ class StandardResponse(Generic[BT]):
         response_data = data
 
         return response_type(  # type: ignore
-            errorCode=ErrorCode.Success, data=response_data
+            error_code=ErrorCode.Success, data=response_data
         )

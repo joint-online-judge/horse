@@ -40,7 +40,7 @@ def test_create_domain(
     r = client.post(f"{base_domain_url}", json=data, headers=test_user_token_headers)
     assert r.status_code == 200
     res = r.json()
-    assert res["errorCode"] == ErrorCode.Success
+    assert res["error_code"] == ErrorCode.Success
     res = res["data"]
     NEW_DOMAIN = res
     assert res["id"]
@@ -57,7 +57,7 @@ def test_list_domains(
     r = client.get(f"{base_domain_url}", headers=test_user_token_headers)
     assert r.status_code == 200
     res = r.json()
-    assert res["errorCode"] == ErrorCode.Success
+    assert res["error_code"] == ErrorCode.Success
     res = res["data"]["results"]
     assert len(res) == 1
     assert res[0] == NEW_DOMAIN
@@ -69,7 +69,7 @@ def test_get_domain(
     r = client.get(f"{base_domain_url}/{domain.url}", headers=test_user_token_headers)
     assert r.status_code == 200
     res = r.json()
-    assert res["errorCode"] == ErrorCode.Success
+    assert res["error_code"] == ErrorCode.Success
     res = res["data"]
     assert NEW_DOMAIN["owner"] == res["owner"]["id"]
     res["owner"] = NEW_DOMAIN["owner"]
@@ -90,7 +90,7 @@ def test_member_join_in_domain_expired(
     )
     assert r.status_code == 200
     res = r.json()
-    assert res["errorCode"] == ErrorCode.DomainInvitationBadRequestError
+    assert res["error_code"] == ErrorCode.DomainInvitationBadRequestError
 
 
 def test_update_domain(
@@ -103,7 +103,7 @@ def test_update_domain(
     )
     assert r.status_code == 200
     res = r.json()
-    assert res["errorCode"] == ErrorCode.Success
+    assert res["error_code"] == ErrorCode.Success
     res = res["data"]
     assert ObjectId.is_valid(res["id"])
     assert res["url"] == domain.url
@@ -126,7 +126,7 @@ def test_add_member_to_domain(
     )
     assert r.status_code == 200
     res = r.json()
-    assert res["errorCode"] == ErrorCode.UserAlreadyInDomainBadRequestError
+    assert res["error_code"] == ErrorCode.UserAlreadyInDomainBadRequestError
     # add new member
     r = client.post(
         f"{base_domain_url}/{domain.url}/members/{global_test_user.id}",
@@ -134,7 +134,7 @@ def test_add_member_to_domain(
     )
     assert r.status_code == 200
     res = r.json()
-    assert res["errorCode"] == ErrorCode.Success
+    assert res["error_code"] == ErrorCode.Success
     # add new duplicate member
     r = client.post(
         f"{base_domain_url}/{domain.url}/members/{global_test_user.id}",
@@ -142,7 +142,7 @@ def test_add_member_to_domain(
     )
     assert r.status_code == 200
     res = r.json()
-    assert res["errorCode"] == ErrorCode.UserAlreadyInDomainBadRequestError
+    assert res["error_code"] == ErrorCode.UserAlreadyInDomainBadRequestError
 
 
 def test_list_members_in_domain(
@@ -156,7 +156,7 @@ def test_list_members_in_domain(
     )
     assert r.status_code == 200
     res = r.json()
-    assert res["errorCode"] == ErrorCode.Success
+    assert res["error_code"] == ErrorCode.Success
     res = res["data"]["results"]
     assert len(res) == 2
     for item in res:
@@ -182,14 +182,14 @@ def test_remove_member_from_domain(
     )
     assert r.status_code == 200
     res = r.json()
-    assert res["errorCode"] == ErrorCode.Success
+    assert res["error_code"] == ErrorCode.Success
     # TODO: what about the last user / creator of the domain is deleted?
     r = client.get(
         f"{base_domain_url}/{domain.url}/members", headers=test_user_token_headers
     )
     assert r.status_code == 200
     res = r.json()
-    assert res["errorCode"] == ErrorCode.Success
+    assert res["error_code"] == ErrorCode.Success
     res = res["data"]["results"]
     assert len(res) == 1
     res = res[0]
@@ -211,13 +211,13 @@ def test_member_join_in_domain(
     )
     assert r.status_code == 200
     res = r.json()
-    assert res["errorCode"] == ErrorCode.DomainInvitationBadRequestError
+    assert res["error_code"] == ErrorCode.DomainInvitationBadRequestError
     r = client.get(
         f"{base_domain_url}/{domain.url}/members", headers=test_user_token_headers
     )
     assert r.status_code == 200
     res = r.json()
-    assert res["errorCode"] == ErrorCode.Success
+    assert res["error_code"] == ErrorCode.Success
     res = res["data"]
     assert len(res) == 1
     # right invitation code
@@ -228,13 +228,13 @@ def test_member_join_in_domain(
     )
     assert r.status_code == 200
     res = r.json()
-    assert res["errorCode"] == ErrorCode.Success
+    assert res["error_code"] == ErrorCode.Success
     r = client.get(
         f"{base_domain_url}/{domain.url}/members", headers=test_user_token_headers
     )
     assert r.status_code == 200
     res = r.json()
-    assert res["errorCode"] == ErrorCode.Success
+    assert res["error_code"] == ErrorCode.Success
     res = res["data"]["results"]
     assert len(res) == 2
     for item in res:

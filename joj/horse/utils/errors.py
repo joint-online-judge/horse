@@ -27,9 +27,9 @@ class ErrorCode(str, Enum):
 
 
 class BizError(Exception):
-    def __init__(self, errorCode: ErrorCode, errorMsg: str = ""):
-        self.errorCode = errorCode
-        self.errorMsg = errorMsg
+    def __init__(self, error_code: ErrorCode, error_msg: str = ""):
+        self.error_code = error_code
+        self.error_msg = error_msg
 
 
 class BaseError(HTTPException):
