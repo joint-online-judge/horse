@@ -7,6 +7,8 @@ from fastapi import HTTPException, status
 class ErrorCode(str, Enum):
     Success = "Success"
     Error = "Error"
+    InternalServerError = "InternalServerError"
+
     ApiNotImplementedError = "ApiNotImplementedError"
     UserNotFoundError = "UserNotFoundError"
     DomainNotFoundError = "DomainNotFoundError"

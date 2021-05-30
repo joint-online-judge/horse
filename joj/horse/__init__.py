@@ -12,7 +12,7 @@ from uvicorn.config import logger
 from joj.horse.config import settings
 from joj.horse.utils.cache import test_cache
 from joj.horse.utils.db import ensure_indexes, get_db
-from joj.horse.utils.errors import BizError
+from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.url import generate_url
 from joj.horse.utils.version import get_git_version, get_version
 
@@ -84,7 +84,7 @@ async def catch_exceptions_middleware(request: Request, call_next: Any) -> JSONR
         return JSONResponse(
             jsonable_encoder(
                 {
-                    "error_code": "InternalServerError",
+                    "error_code": ErrorCode.InternalServerError,
                     "error_msg": e.__class__.__name__,
                     "data": {},
                 }
