@@ -1,4 +1,5 @@
 from joj.horse.models.domain import Domain as Domain
+from joj.horse.models.domain_invitation import DomainInvitation as DomainInvitation
 from joj.horse.models.domain_role import DomainRole as DomainRole
 from joj.horse.models.domain_user import DomainUser as DomainUser
 from joj.horse.models.problem import Problem as Problem

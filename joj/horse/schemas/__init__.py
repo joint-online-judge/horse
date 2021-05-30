@@ -3,6 +3,13 @@ from joj.horse.schemas.base import StandardResponse as StandardResponse
 from joj.horse.schemas.domain import Domain as Domain
 from joj.horse.schemas.domain import DomainCreate as DomainCreate
 from joj.horse.schemas.domain import DomainEdit as DomainEdit
+from joj.horse.schemas.domain_invitation import DomainInvitation as DomainInvitation
+from joj.horse.schemas.domain_invitation import (
+    DomainInvitationCreate as DomainInvitationCreate,
+)
+from joj.horse.schemas.domain_invitation import (
+    DomainInvitationEdit as DomainInvitationEdit,
+)
 from joj.horse.schemas.domain_role import DomainRole as DomainRole
 from joj.horse.schemas.domain_user import DomainUser as DomainUser
 from joj.horse.schemas.problem import Problem as Problem

@@ -23,6 +23,7 @@ from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
     parse_domain,
     parse_domain_from_auth,
+    parse_domain_invitation,
     parse_query,
     parse_uid,
 )
@@ -168,7 +169,7 @@ async def add_member_to_domain(
         raise BizError(ErrorCode.UserAlreadyInDomainBadRequestError)
 
     if role == DefaultRole.ROOT:
-        # only root can set root role
+        # only root can add root member
         if (
             domain_auth.auth.domain_role != DefaultRole.ROOT
             and domain_auth.auth.site_role != DefaultRole.ROOT
@@ -185,6 +186,26 @@ async def add_member_to_domain(
     domain_user_model = models.DomainUser(**domain_user_schema.to_model())
     await domain_user_model.commit()
     return StandardResponse(schemas.DomainUser.from_orm(domain_user_model))
+
+
+@router.delete(
+    "/{domain}/members/{uid}",
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
+)
+async def remove_member_from_domain(
+    domain: models.Domain = Depends(parse_domain),
+    user: models.User = Depends(parse_uid),
+) -> StandardResponse[Empty]:
+    domain_user = await models.DomainUser.find_one(
+        {"domain": domain.id, "user": user.id}
+    )
+    if not domain_user:
+        raise BizError(ErrorCode.DomainUserNotFoundError)
+    # can not remove root member
+    if domain_user.role == DefaultRole.ROOT:
+        raise BizError(ErrorCode.DomainUserRootError)
+    await domain_user.delete()
+    return StandardResponse()
 
 
 @router.get("/{domain}/members/join")
@@ -208,14 +229,51 @@ async def member_join_in_domain(
     return StandardResponse()
 
 
-@router.delete("/{domain}/members/{uid}")
-async def remove_member_from_domain(
-    domain: models.Domain = Depends(parse_domain),
-    user: models.User = Depends(parse_uid),
+@router.post(
+    "/{domain}/invitations",
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
+)
+async def create_domain_invitation(
+    invitation: schemas.DomainInvitationCreate,
+    domain: models.Domain = Depends(parse_domain_from_auth),
+) -> StandardResponse[schemas.DomainInvitation]:
+    if await models.DomainInvitation.find_one(
+        {"domain": domain.id, "code": invitation.code}
+    ):
+        raise BizError(ErrorCode.DomainInvitationBadRequestError)
+
+    invitation_schema = schemas.DomainInvitation(**invitation.dict(), domain=domain.id)
+    invitation_model = models.DomainInvitation(**invitation_schema.to_model())
+    await invitation_model.commit()
+
+    return StandardResponse(schemas.DomainInvitation.from_orm(invitation_model))
+
+
+@router.delete(
+    "/{domain}/invitations/{invitation}",
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
+)
+async def delete_domain_invitation(
+    invitation: models.DomainInvitation = Depends(parse_domain_invitation),
+    domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardResponse[Empty]:
-    domain_user = await models.DomainUser.find_one(
-        {"domain": domain.id, "user": user.id}
-    )
-    if domain_user:
-        await domain_user.delete()
+    if invitation.domain != domain.id:
+        raise BizError(ErrorCode.DomainInvitationBadRequestError)
+    await invitation.delete()
     return StandardResponse()
+
+
+@router.patch(
+    "/{domain}/invitations/{invitation}",
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
+)
+async def edit_domain_invitation(
+    invitation_edit: schemas.DomainInvitationEdit,
+    invitation: models.DomainInvitation = Depends(parse_domain_invitation),
+    domain: models.Domain = Depends(parse_domain_from_auth),
+) -> StandardResponse[schemas.DomainInvitation]:
+    if invitation.domain != domain.id:
+        raise BizError(ErrorCode.DomainInvitationBadRequestError)
+    invitation.update_from_schema(invitation_edit)
+    await invitation.commit()
+    return StandardResponse(schemas.DomainInvitation.from_orm(invitation))
