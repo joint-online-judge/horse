@@ -159,7 +159,10 @@ BT = TypeVar("BT", bound=BaseModel)
 def get_standard_response_model(cls: Type[BaseModel]) -> Type[BaseModel]:
     name = cls.__name__
     return create_model(
-        f"{name}Resp", errorCode=(ErrorCode, ...), data=(Optional[cls], None)
+        f"{name}Resp",
+        errorCode=(ErrorCode, ...),
+        errorMsg=(Optional[str], ...),
+        data=(Optional[cls], None),
     )
 
 
@@ -178,5 +181,5 @@ class StandardResponse(Generic[BT]):
         response_data = data
 
         return response_type(
-            errorCode=ErrorCode.Success, data=response_data
+            errorCode=ErrorCode.Success, errorMsg="", data=response_data
         )  # type: ignore
