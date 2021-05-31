@@ -95,7 +95,7 @@ async def catch_exceptions_middleware(request: Request, call_next: Any) -> JSONR
         )
 
 
-sentry_sdk.init(dsn=settings.dsn)
+sentry_sdk.init(dsn=settings.dsn, traces_sample_rate=settings.traces_sample_rate)
 app.add_middleware(SentryAsgiMiddleware)
 app.middleware("http")(catch_exceptions_middleware)
 
