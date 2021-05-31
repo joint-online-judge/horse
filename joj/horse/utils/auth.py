@@ -225,6 +225,12 @@ class Authentication:
         # permission denied if every check failed
         return False
 
+    def is_root(self) -> bool:
+        return self.site_role == DefaultRole.ROOT
+
+    def is_domain_root(self) -> bool:
+        return self.is_root() or self.domain_role == DefaultRole.ROOT
+
 
 class DomainAuthentication:
     def __init__(

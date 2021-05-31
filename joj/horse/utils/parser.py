@@ -28,6 +28,12 @@ async def parse_uid_or_none(
     return await parse_uid(uid, auth) if uid else None
 
 
+def parse_user_from_auth(
+    auth: Authentication = Depends(Authentication),
+) -> models.User:
+    return auth.user
+
+
 def parse_domain_from_auth(
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> models.Domain:

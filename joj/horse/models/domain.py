@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Any
 
 from bson import ObjectId
@@ -28,8 +27,8 @@ class Domain(DocumentMixin, MotorAsyncIODocument):
     gravatar = fields.StringField(default="")
     bulletin = fields.StringField(default="")
 
-    invitation_code = fields.StringField(default="")
-    invitation_expire_at = fields.DateTimeField(default=datetime(1970, 1, 1))
+    # invitation_code = fields.StringField(default="")
+    # invitation_expire_at = fields.DateTimeField(default=datetime(1970, 1, 1))
 
     @classmethod
     async def find_by_url_or_id(cls: MotorAsyncIODocument, url_or_id: str) -> Any:

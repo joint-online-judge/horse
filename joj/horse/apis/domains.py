@@ -26,6 +26,7 @@ from joj.horse.utils.parser import (
     parse_domain_invitation,
     parse_query,
     parse_uid,
+    parse_user_from_auth,
 )
 from joj.horse.utils.router import MyRouter
 
@@ -39,12 +40,12 @@ router_prefix = "/api/v1"
 async def list_domains(
     role: List[str] = Query([]),
     query: schemas.BaseQuery = Depends(parse_query),
-    auth: Authentication = Depends(),
+    user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[ListDomainUsers]:
     """
     List all domains that the current user has a role.
     """
-    cursor = models.DomainUser.cursor_find_user_domains(auth.user.id, role, query)
+    cursor = models.DomainUser.cursor_find_user_domains(user.id, role, query)
     results = await schemas.DomainUser.to_list(cursor)
     return StandardResponse(ListDomainUsers(results=results))
 
@@ -53,7 +54,7 @@ async def list_domains(
     "", dependencies=[Depends(ensure_permission(Permission.SiteDomain.create))]
 )
 async def create_domain(
-    domain: schemas.DomainCreate, auth: Authentication = Depends()
+    domain: schemas.DomainCreate, user: models.User = Depends(parse_user_from_auth)
 ) -> StandardResponse[schemas.Domain]:
     if ObjectId.is_valid(domain.url):
         raise BizError(ErrorCode.InvalidUrlError)
@@ -65,7 +66,7 @@ async def create_domain(
     try:
         async with instance.session() as session:
             async with session.start_transaction():
-                domain_schema = schemas.Domain(**domain.dict(), owner=auth.user.id)
+                domain_schema = schemas.Domain(**domain.dict(), owner=user.id)
                 domain_model = models.Domain(**domain_schema.to_model())
                 await domain_model.commit()
                 if none_url:
@@ -74,7 +75,7 @@ async def create_domain(
                 logger.info("domain created: %s", domain_model)
                 # create domain user for creator
                 domain_user_schema = schemas.DomainUser(
-                    domain=domain_model.id, user=auth.user.id, role=DefaultRole.ROOT
+                    domain=domain_model.id, user=user.id, role=DefaultRole.ROOT
                 )
                 domain_user_model = models.DomainUser(**domain_user_schema.to_model())
                 await domain_user_model.commit()
@@ -165,26 +166,16 @@ async def add_member_to_domain(
     role: str = Body(DefaultRole.USER),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> StandardResponse[schemas.DomainUser]:
-    if await models.DomainUser.find_one({"domain": domain.id, "user": user.id}):
-        raise BizError(ErrorCode.UserAlreadyInDomainBadRequestError)
-
     if role == DefaultRole.ROOT:
         # only root can add root member
-        if (
-            domain_auth.auth.domain_role != DefaultRole.ROOT
-            and domain_auth.auth.site_role != DefaultRole.ROOT
-        ):
+        if domain_auth.auth.is_domain_root():
             # TODO: 403 Exception
             raise Exception
-    elif not await models.DomainRole.find_one({"domain": domain.id, "role": role}):
-        # check domain role
-        raise BizError(ErrorCode.DomainRoleNotFoundError)
 
-    domain_user_schema = schemas.DomainUser(
-        domain=domain.id, user=user.id, role=DefaultRole.USER
+    # add member
+    domain_user_model = await models.DomainUser.add_domain_user(
+        domain=domain.id, user=user.id, role=role
     )
-    domain_user_model = models.DomainUser(**domain_user_schema.to_model())
-    await domain_user_model.commit()
     return StandardResponse(schemas.DomainUser.from_orm(domain_user_model))
 
 
@@ -208,25 +199,27 @@ async def remove_member_from_domain(
     return StandardResponse()
 
 
-@router.get("/{domain}/members/join")
-async def member_join_in_domain(
-    invitation_code: str = Query(...),
+@router.patch(
+    "/{domain}/members/{uid}",
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
+)
+async def update_member_role(
     domain: models.Domain = Depends(parse_domain),
-    auth: Authentication = Depends(),
-) -> StandardResponse[Empty]:
-    if await models.DomainUser.find_one({"domain": domain.id, "user": auth.user.id}):
-        raise BizError(ErrorCode.UserAlreadyInDomainBadRequestError)
-    if (
-        invitation_code != domain.invitation_code
-        or datetime.utcnow() > domain.invitation_expire_at
-    ):
-        raise BizError(ErrorCode.DomainInvitationBadRequestError)
-    domain_user = schemas.DomainUser(
-        domain=domain.id, user=auth.user.id, role=DefaultRole.USER
+    user: models.User = Depends(parse_uid),
+    role: str = Body(DefaultRole.USER),
+    domain_auth: DomainAuthentication = Depends(DomainAuthentication),
+) -> StandardResponse[schemas.DomainUser]:
+    if role == DefaultRole.ROOT:
+        # only root can add root member
+        if domain_auth.auth.is_domain_root():
+            # TODO: 403 Exception
+            raise Exception
+
+    # update member
+    domain_user_model = await models.DomainUser.update_domain_user(
+        domain=domain.id, user=user.id, role=role
     )
-    domain_user = models.DomainUser(**domain_user.to_model())
-    await domain_user.commit()
-    return StandardResponse()
+    return StandardResponse(schemas.DomainUser.from_orm(domain_user_model))
 
 
 @router.post(
@@ -277,3 +270,22 @@ async def edit_domain_invitation(
     invitation.update_from_schema(invitation_edit)
     await invitation.commit()
     return StandardResponse(schemas.DomainInvitation.from_orm(invitation))
+
+
+@router.post("/{domain}/join", dependencies=[Depends(ensure_permission())])
+async def member_join_domain_by_invitation(
+    invitation_code: str = Query(...),
+    domain: models.Domain = Depends(parse_domain_from_auth),
+    user: models.User = Depends(parse_user_from_auth),
+) -> StandardResponse[schemas.DomainUser]:
+    # validate the invitation
+    invitation_model = await models.DomainInvitation.find_one(
+        {"domain": domain.id, "code": invitation_code}
+    )
+    if invitation_model is None or datetime.utcnow() > invitation_model.expire_at:
+        raise BizError(ErrorCode.DomainInvitationBadRequestError)
+    # add member
+    domain_user_model = await models.DomainUser.add_domain_user(
+        domain=domain.id, user=user.id, role=invitation_model.role
+    )
+    return StandardResponse(schemas.DomainUser.from_orm(domain_user_model))
