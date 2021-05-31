@@ -45,6 +45,9 @@ class Settings(BaseSettings):
     oauth_jaccount_id: str = ""
     oauth_jaccount_secret: str = ""
 
+    # sentry config
+    dsn: str = ""
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

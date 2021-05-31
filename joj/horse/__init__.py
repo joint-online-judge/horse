@@ -1,10 +1,12 @@
 import asyncio
 from typing import Any
 
+import sentry_sdk
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from marshmallow.exceptions import ValidationError as MValidationError
 from pydantic.error_wrappers import ValidationError
+from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.responses import JSONResponse, RedirectResponse
 from tenacity import RetryError
 from uvicorn.config import logger
@@ -93,6 +95,8 @@ async def catch_exceptions_middleware(request: Request, call_next: Any) -> JSONR
         )
 
 
+sentry_sdk.init(dsn=settings.dsn)
+app.add_middleware(SentryAsgiMiddleware)
 app.middleware("http")(catch_exceptions_middleware)
 
 import joj.horse.apis
