@@ -23,3 +23,8 @@ async def jwt(auth: Authentication = Depends()) -> JWT:
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED, detail="JWT not found"
     )
+
+
+@router.get("/test/sentry")
+async def test_sentry() -> None:
+    raise RuntimeError()
