@@ -47,6 +47,7 @@ class Settings(BaseSettings):
 
     # sentry config
     dsn: str = ""
+    traces_sample_rate: float = 1
 
     class Config:
         env_file = ".env"
