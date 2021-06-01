@@ -39,14 +39,15 @@ async def list_problems(
     query: schemas.BaseQuery = Depends(parse_query),
     auth: Authentication = Depends(),
 ) -> StandardResponse[ListProblems]:
-    filter = {"owner": auth.user.id}
+    condition = {"owner": auth.user.id}
     if domain is not None:
-        filter["domain"] = ObjectId(domain)
+        condition["domain"] = ObjectId(domain)
     if problem_set is not None:
-        filter["problem_set"] = ObjectId(problem_set)
+        condition["problem_set"] = ObjectId(problem_set)
     if problem_group is not None:
-        filter["problem_group"] = ObjectId(problem_group)
-    res = await schemas.Problem.to_list(filter, query)
+        condition["problem_group"] = ObjectId(problem_group)
+    cursor = models.Problem.cursor_find(condition, query)
+    res = await schemas.Problem.to_list(cursor)
     return StandardResponse(ListProblems(results=res))
 
 
