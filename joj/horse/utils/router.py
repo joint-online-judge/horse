@@ -1,6 +1,11 @@
 from typing import TYPE_CHECKING, Any, Callable, get_type_hints
 
 from fastapi import APIRouter
+from pydantic import BaseModel
+
+
+class Detail(BaseModel):
+    detail: str
 
 
 class MyRouter(APIRouter):
@@ -15,4 +20,5 @@ class MyRouter(APIRouter):
         ) -> None:
             if kwargs.get("response_model") is None:
                 kwargs["response_model"] = get_type_hints(endpoint).get("return")
+            kwargs["responses"] = {403: {"model": Detail}}
             return super().add_api_route(path, endpoint, **kwargs)

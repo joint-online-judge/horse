@@ -13,7 +13,7 @@ from joj.horse.schemas.domain import ListDomains
 from joj.horse.schemas.misc import RedirectModel
 from joj.horse.schemas.problem import ListProblems
 from joj.horse.utils.auth import Authentication, auth_jwt_encode
-from joj.horse.utils.errors import BizError, ErrorCode
+from joj.horse.utils.errors import BadRequestError, BizError, ErrorCode
 from joj.horse.utils.oauth import jaccount
 from joj.horse.utils.parser import parse_query
 from joj.horse.utils.router import MyRouter
@@ -94,10 +94,7 @@ async def jaccount_auth(
         raise BizError(ErrorCode.ApiNotImplementedError)
 
     if jaccount_state != state:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid authentication state",
-        )
+        raise BadRequestError(message="Invalid authentication state")
 
     jaccount_redirect_url = generate_url(router_prefix, router_name, "jaccount", "auth")
     token_url, headers, body = client.get_token_url(
@@ -113,10 +110,7 @@ async def jaccount_auth(
                 parsed_data = jwt.decode(data["id_token"], verify=False)
                 id_token = jaccount.IDToken(**parsed_data)
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Jaccount authentication failed",
-        )
+        raise BadRequestError(message="Jaccount authentication failed")
 
     logger.info("Jaccount login: " + str(id_token))
     user = await models.User.login_by_jaccount(
@@ -126,9 +120,7 @@ async def jaccount_auth(
         ip=request.client.host,
     )
     if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Jaccount login failed"
-        )
+        raise BadRequestError(message="Jaccount login failed")
 
     access_jwt = auth_jwt_encode(auth_jwt=auth_jwt, user=user, channel="jaccount")
 
