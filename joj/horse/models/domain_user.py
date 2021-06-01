@@ -39,7 +39,7 @@ class DomainUser(DocumentMixin, MotorAsyncIODocument):
         query: Optional[BaseQuery] = None,
     ) -> AsyncIOMotorCursor:
         condition = {"user": user_id}
-        if role is not None and len(role) > 0:
+        if role is not None:
             condition["role"] = {"$in": role}
         return cls.cursor_join(field="domain", condition=condition, query=query)
 
