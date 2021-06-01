@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from bson import ObjectId
 from fastapi import Body, Depends, Query
@@ -38,7 +38,7 @@ router_prefix = "/api/v1"
 
 @router.get("", dependencies=[Depends(ensure_permission())])
 async def list_domains(
-    role: List[str] = Query([]),
+    role: Optional[List[str]] = Query(None),
     query: schemas.BaseQuery = Depends(parse_query),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[ListDomainUsers]:
