@@ -2,6 +2,7 @@ from fastapi import Depends, HTTPException, status
 
 from joj.horse.schemas.misc import JWT, Version
 from joj.horse.utils.auth import Authentication, jwt_token_encode
+from joj.horse.utils.errors import UnauthorizedError
 from joj.horse.utils.router import MyRouter
 from joj.horse.utils.version import get_git_version, get_version
 
@@ -20,9 +21,7 @@ async def version() -> Version:
 async def jwt(auth: Authentication = Depends()) -> JWT:
     if auth.jwt:
         return JWT(jwt=jwt_token_encode(auth.jwt))
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED, detail="JWT not found"
-    )
+    raise UnauthorizedError(message="JWT not found")
 
 
 @router.get("/test/sentry")

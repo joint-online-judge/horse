@@ -1,19 +1,18 @@
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Set, Tuple, Union
 
+from starlette.types import Message
+
 try:
-    from typing import Literal  # type: ignore
+    from typing import Literal
 except ImportError:
-    from typing_extensions import Literal
+    from typing_extensions import Literal  # type: ignore
 
 import jwt
-from fastapi import Depends, HTTPException, Request, status
-from fastapi.responses import JSONResponse
+from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi_jwt_auth import AuthJWT
-from fastapi_jwt_auth.exceptions import AuthJWTException
 from pydantic import BaseModel
 
-from joj.horse import app
 from joj.horse.config import settings
 from joj.horse.models.domain import Domain
 from joj.horse.models.domain_role import DomainRole
@@ -28,7 +27,13 @@ from joj.horse.models.permission import (
     SitePermission,
 )
 from joj.horse.models.user import User
-from joj.horse.utils.errors import BizError, ErrorCode
+from joj.horse.utils.errors import (
+    BizError,
+    ErrorCode,
+    ForbiddenError,
+    InternalServerError,
+    UnauthorizedError,
+)
 
 jwt_scheme = HTTPBearer(bearerFormat="JWT", auto_error=False)
 
@@ -77,12 +82,6 @@ def get_config() -> Settings:
     )
 
 
-@app.exception_handler(AuthJWTException)
-def authjwt_exception_handler(request: Request, exc: AuthJWTException) -> JSONResponse:
-    # noinspection PyUnresolvedReferences
-    return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
-
-
 def jwt_token_encode(token: JWTToken) -> bytes:
     encoded_jwt = jwt.encode(
         token.dict(), settings.jwt_secret, algorithm=settings.jwt_algorithm
@@ -101,9 +100,7 @@ def auth_jwt_decode(
         try:
             return JWTToken(**payload)
         except:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="JWT Format Error"
-            )
+            raise UnauthorizedError(message="JWT Format Error")
     return None
 
 
@@ -119,9 +116,7 @@ async def get_current_user(jwt_decoded: JWTToken = Depends(auth_jwt_decode)) -> 
         if user is None:
             raise Exception()
     except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized"
-        )
+        raise UnauthorizedError(message="Unauthorized")
     return user
 
 
@@ -286,17 +281,11 @@ class PermissionChecker:
         if not isinstance(self.perm, PermKey) and not isinstance(
             self.perm, PermCompose
         ):
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Permission Definition Error!",
-            )
+            raise InternalServerError(message="Permission Definition Error!")
         result = self.check(auth, perm)
         if result is not None:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="{} {} Permission Denied.".format(
-                    result.scope, result.permission
-                ),
+            raise ForbiddenError(
+                message=f"{result.scope} {result.permission} Permission Denied."
             )
 
     def check(

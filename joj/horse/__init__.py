@@ -4,6 +4,7 @@ from typing import Any
 import sentry_sdk
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
+from fastapi_jwt_auth.exceptions import AuthJWTException
 from marshmallow.exceptions import ValidationError as MValidationError
 from pydantic.error_wrappers import ValidationError
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
@@ -56,6 +57,12 @@ async def redirect_to_docs() -> RedirectResponse:
 #         content=jsonable_encoder({"detail": exc.errors()}),
 #         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
 #     )
+
+
+@app.exception_handler(AuthJWTException)
+def authjwt_exception_handler(request: Request, exc: AuthJWTException) -> JSONResponse:
+    # noinspection PyUnresolvedReferences
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
 
 
 @app.exception_handler(MValidationError)

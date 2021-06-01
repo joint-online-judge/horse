@@ -76,3 +76,12 @@ class UnprocessableEntityError(BaseError):
         super().__init__(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, message=message, args=args
         )
+
+
+class InternalServerError(BaseError):
+    def __init__(self, message: str = "", args: Any = None) -> None:
+        super().__init__(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            message=message,
+            args=args,
+        )
