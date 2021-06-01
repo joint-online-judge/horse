@@ -14,6 +14,9 @@ if TYPE_CHECKING:
 class DocumentMixin:
     __slots__ = ()
 
+    class Meta:
+        strict = False
+
     id: ObjectId
 
     @classmethod
