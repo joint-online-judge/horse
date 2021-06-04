@@ -16,8 +16,9 @@ from joj.horse.models.permission import (
 )
 from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.base import NoneEmptyLongStr
+from joj.horse.schemas.domain import ListDomains
 from joj.horse.schemas.domain_user import ListDomainUsers
-from joj.horse.utils.auth import Authentication, DomainAuthentication, ensure_permission
+from joj.horse.utils.auth import DomainAuthentication, ensure_permission
 from joj.horse.utils.db import instance
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
@@ -27,6 +28,8 @@ from joj.horse.utils.parser import (
     parse_query,
     parse_uid,
     parse_user_from_auth,
+    parse_user_from_body,
+    parse_user_from_path_or_query,
 )
 from joj.horse.utils.router import MyRouter
 
@@ -41,13 +44,14 @@ async def list_domains(
     role: Optional[List[str]] = Query(None),
     query: schemas.BaseQuery = Depends(parse_query),
     user: models.User = Depends(parse_user_from_auth),
-) -> StandardResponse[ListDomainUsers]:
+) -> StandardResponse[ListDomains]:
     """
     List all domains that the current user has a role.
     """
     cursor = models.DomainUser.cursor_find_user_domains(user.id, role, query)
-    results = await schemas.DomainUser.to_list(cursor)
-    return StandardResponse(ListDomainUsers(results=results))
+    domain_users = await schemas.DomainUser.to_list(cursor)
+    results = [x.domain for x in domain_users]
+    return StandardResponse(ListDomains(results=results))  # type: ignore
 
 
 @router.post(
@@ -145,9 +149,12 @@ async def update_domain(
     return StandardResponse(schemas.Domain.from_orm(domain))
 
 
-@router.get("/{domain}/members")
-async def list_members_in_domain(
-    domain: models.Domain = Depends(parse_domain),
+@router.get(
+    "/{domain}/users",
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
+)
+async def list_domain_users(
+    domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardResponse[ListDomainUsers]:
     cursor = models.DomainUser.cursor_join(
         field="user", condition={"domain": domain.id}
@@ -157,18 +164,18 @@ async def list_members_in_domain(
 
 
 @router.post(
-    "/{domain}/members/{uid}",
+    "/{domain}/users",
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
-async def add_member_to_domain(
+async def add_domain_user(
     domain: models.Domain = Depends(parse_domain),
-    user: models.User = Depends(parse_uid),
+    user: models.User = Depends(parse_user_from_body),
     role: str = Body(DefaultRole.USER),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> StandardResponse[schemas.DomainUser]:
     if role == DefaultRole.ROOT:
         # only root can add root member
-        if domain_auth.auth.is_domain_root():
+        if not domain_auth.auth.is_domain_root():
             # TODO: 403 Exception
             raise Exception
 
@@ -179,13 +186,27 @@ async def add_member_to_domain(
     return StandardResponse(schemas.DomainUser.from_orm(domain_user_model))
 
 
+@router.get(
+    "/{domain}/users/{user}",
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
+)
+async def get_domain_user(
+    domain: models.Domain = Depends(parse_domain),
+    user: models.User = Depends(parse_user_from_path_or_query),
+) -> StandardResponse[schemas.DomainUser]:
+    domain_user = await models.DomainUser.find_one(
+        {"domain": domain.id, "user": user.id}
+    )
+    return StandardResponse(schemas.DomainUser.from_orm(domain_user))
+
+
 @router.delete(
-    "/{domain}/members/{uid}",
+    "/{domain}/users/{user}",
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
-async def remove_member_from_domain(
+async def remove_domain_user(
     domain: models.Domain = Depends(parse_domain),
-    user: models.User = Depends(parse_uid),
+    user: models.User = Depends(parse_user_from_path_or_query),
 ) -> StandardResponse[Empty]:
     domain_user = await models.DomainUser.find_one(
         {"domain": domain.id, "user": user.id}
@@ -200,18 +221,18 @@ async def remove_member_from_domain(
 
 
 @router.patch(
-    "/{domain}/members/{uid}",
+    "/{domain}/users/{user}",
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
-async def update_member_role(
+async def update_domain_user(
     domain: models.Domain = Depends(parse_domain),
-    user: models.User = Depends(parse_uid),
+    user: models.User = Depends(parse_user_from_path_or_query),
     role: str = Body(DefaultRole.USER),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> StandardResponse[schemas.DomainUser]:
     if role == DefaultRole.ROOT:
-        # only root can add root member
-        if domain_auth.auth.is_domain_root():
+        # only root can add fixed roles
+        if not domain_auth.auth.is_domain_root():
             # TODO: 403 Exception
             raise Exception
 
@@ -220,6 +241,14 @@ async def update_member_role(
         domain=domain.id, user=user.id, role=role
     )
     return StandardResponse(schemas.DomainUser.from_orm(domain_user_model))
+
+
+@router.get(
+    "/{domain}/roles",
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
+)
+async def list_domain_roles() -> None:
+    pass
 
 
 @router.post(
@@ -260,7 +289,7 @@ async def delete_domain_invitation(
     "/{domain}/invitations/{invitation}",
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
-async def edit_domain_invitation(
+async def update_domain_invitation(
     invitation_edit: schemas.DomainInvitationEdit,
     invitation: models.DomainInvitation = Depends(parse_domain_invitation),
     domain: models.Domain = Depends(parse_domain_from_auth),
@@ -273,7 +302,7 @@ async def edit_domain_invitation(
 
 
 @router.post("/{domain}/join", dependencies=[Depends(ensure_permission())])
-async def member_join_domain_by_invitation(
+async def join_domain_by_invitation(
     invitation_code: str = Query(...),
     domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_auth),

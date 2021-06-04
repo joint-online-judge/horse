@@ -206,7 +206,7 @@ def __get_default_site_permission(
     )
 
 
-FIXED_ROLES = {DefaultRole.ROOT, DefaultRole.JUDGE}
+FIXED_ROLES = {DefaultRole.JUDGE}
 
 DEFAULT_DOMAIN_PERMISSION = {
     DefaultRole.ROOT: __get_default_domain_permission(True),
