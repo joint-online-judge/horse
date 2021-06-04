@@ -28,6 +28,18 @@ async def parse_uid_or_none(
     return await parse_uid(uid, auth) if uid else None
 
 
+async def parse_user_from_path_or_query(
+    user: str = Query("me", description="uid or 'me'"), auth: Authentication = Depends()
+) -> models.User:
+    return await parse_uid(user, auth)
+
+
+async def parse_user_from_body(
+    user: str = Body("me", description="uid or 'me'"), auth: Authentication = Depends()
+) -> models.User:
+    return await parse_uid(user, auth)
+
+
 def parse_user_from_auth(
     auth: Authentication = Depends(Authentication),
 ) -> models.User:
