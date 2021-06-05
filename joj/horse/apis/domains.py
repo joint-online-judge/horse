@@ -11,12 +11,14 @@ from joj.horse import models, schemas
 from joj.horse.models.permission import (
     DEFAULT_DOMAIN_PERMISSION,
     FIXED_ROLES,
+    READONLY_ROLES,
     DefaultRole,
     Permission,
 )
 from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.base import NoneEmptyLongStr
 from joj.horse.schemas.domain import ListDomains
+from joj.horse.schemas.domain_role import ListDomainRoles
 from joj.horse.schemas.domain_user import ListDomainUsers
 from joj.horse.utils.auth import DomainAuthentication, ensure_permission
 from joj.horse.utils.db import instance
@@ -25,6 +27,7 @@ from joj.horse.utils.parser import (
     parse_domain,
     parse_domain_from_auth,
     parse_domain_invitation,
+    parse_domain_role,
     parse_query,
     parse_uid,
     parse_user_from_auth,
@@ -168,7 +171,7 @@ async def list_domain_users(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def add_domain_user(
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_body),
     role: str = Body(DefaultRole.USER),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
@@ -191,7 +194,7 @@ async def add_domain_user(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
 )
 async def get_domain_user(
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_path_or_query),
 ) -> StandardResponse[schemas.DomainUser]:
     domain_user = await models.DomainUser.find_one(
@@ -205,7 +208,7 @@ async def get_domain_user(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def remove_domain_user(
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_path_or_query),
 ) -> StandardResponse[Empty]:
     domain_user = await models.DomainUser.find_one(
@@ -225,7 +228,7 @@ async def remove_domain_user(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def update_domain_user(
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_path_or_query),
     role: str = Body(DefaultRole.USER),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
@@ -247,8 +250,71 @@ async def update_domain_user(
     "/{domain}/roles",
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
 )
-async def list_domain_roles() -> None:
-    pass
+async def list_domain_roles(
+    domain: models.Domain = Depends(parse_domain_from_auth),
+) -> StandardResponse[ListDomainRoles]:
+    condition = {"domain": domain.id}
+    cursor = models.DomainRole.cursor_find(condition)
+    results = await schemas.DomainRole.to_list(cursor)
+    return StandardResponse(ListDomainRoles(results=results))
+
+
+@router.post(
+    "/{domain}/roles",
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
+)
+async def create_domain_role(
+    domain_role: schemas.DomainRoleCreate,
+    domain: models.Domain = Depends(parse_domain_from_auth),
+) -> StandardResponse[schemas.DomainRole]:
+    if domain_role.role in READONLY_ROLES:
+        raise BizError(ErrorCode.DomainRoleReadOnlyError)
+    if await models.DomainRole.find_one(
+        {"domain": domain.id, "role": domain_role.role}
+    ):
+        raise BizError(ErrorCode.DomainRoleNotUniqueError)
+    domain_permission = models.DomainPermission()
+    domain_permission.update(domain_role.permission)
+    domain_role_schema = schemas.DomainRole(
+        domain=domain.id, role=domain_role.role, permission=domain_permission.dump()
+    )
+    domain_role_model = models.DomainRole(**domain_role_schema.to_model())
+    await domain_role_model.commit()
+    return StandardResponse(schemas.DomainRole.from_orm(domain_role_model))
+
+
+@router.delete(
+    "/{domain}/roles/{role}",
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
+)
+async def delete_domain_role(
+    domain_role: models.DomainRole = Depends(parse_domain_role),
+    domain: models.Domain = Depends(parse_domain_from_auth),
+) -> StandardResponse[Empty]:
+    if domain_role.role in READONLY_ROLES:
+        raise BizError(ErrorCode.DomainRoleReadOnlyError)
+    if await models.DomainUser.find_one(
+        {"domain": domain.id, "role": domain_role.role}
+    ):
+        raise BizError(ErrorCode.DomainRoleUsedError)
+    await domain_role.delete()
+    return StandardResponse()
+
+
+@router.patch(
+    "/{domain}/roles/{role}",
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
+)
+async def update_domain_role(
+    domain_role: models.DomainRole = Depends(parse_domain_role),
+    domain: models.Domain = Depends(parse_domain_from_auth),
+    rename_role: Optional[NoneEmptyLongStr] = Body(
+        None, description="new name of the role"
+    ),
+) -> StandardResponse[schemas.DomainRole]:
+    if rename_role and domain_role.role in READONLY_ROLES:
+        raise BizError(ErrorCode.DomainRoleReadOnlyError)
+    return StandardResponse(schemas.DomainRole.from_orm(domain_role))
 
 
 @router.post(

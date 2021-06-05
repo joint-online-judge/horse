@@ -4,6 +4,7 @@ from typing import List, Optional
 from fastapi import Body, Depends, Path, Query
 
 from joj.horse import models
+from joj.horse.schemas.base import NoneEmptyLongStr
 from joj.horse.schemas.query import BaseQuery, SortEnum
 from joj.horse.utils.auth import Authentication, DomainAuthentication
 from joj.horse.utils.errors import BizError, ErrorCode
@@ -67,6 +68,18 @@ async def parse_domain_body(
     auth: Authentication = Depends(),
 ) -> models.Domain:
     return await parse_domain(domain, auth)
+
+
+async def parse_domain_role(
+    role: NoneEmptyLongStr = Path(..., description="name of the domain role"),
+    domain: models.Domain = Depends(parse_domain_from_auth),
+) -> models.DomainRole:
+    domain_role_model = await models.DomainRole.find_one(
+        {"domain": domain.id, "role": role}
+    )
+    if domain_role_model is None:
+        raise BizError(ErrorCode.DomainRoleNotFoundError)
+    return domain_role_model
 
 
 async def parse_domain_invitation(

@@ -3,6 +3,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Dict,
     Generator,
     Generic,
     List,
@@ -15,6 +16,7 @@ from typing import (
 from bson import ObjectId
 from bson.errors import InvalidId
 from pydantic import BaseModel, ConstrainedStr, create_model, validator
+from umongo.embedded_document import EmbeddedDocumentImplementation
 from umongo.frameworks.motor_asyncio import (
     AsyncIOMotorCursor,
     MotorAsyncIODocument,
@@ -154,6 +156,15 @@ def reference_schema_validator(
                 _doc = v.document_cls.build_from_mongo(v.pk)
                 return schema_type.from_orm(_doc)
             return v._document and schema_type(**v._document.dump()) or v.pk
+        return v
+
+    return validator(field, pre=True, allow_reuse=True, each_item=each_item)(wrapped)
+
+
+def embedded_dict_schema_validator(field: str, each_item: bool = False) -> Any:
+    def wrapped(v: EmbeddedDocumentImplementation,) -> Dict[str, Any]:
+        if isinstance(v, EmbeddedDocumentImplementation):
+            return v.dump()
         return v
 
     return validator(field, pre=True, allow_reuse=True, each_item=each_item)(wrapped)

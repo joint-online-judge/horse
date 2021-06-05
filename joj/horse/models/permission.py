@@ -56,20 +56,21 @@ class PermissionType(str, Enum):
     unknown = "unknown"
 
 
-T = TypeVar("T")
+T = TypeVar("T", bound=Type[EmbeddedDocumentImplementation])
 
 
 def wrap_permission(scope: ScopeType, cls: T) -> T:
-    value = "Wrapped" + cls.__name__  # type: ignore
+    value = "Wrapped" + cls.__name__
     names = []
-    for k, v in cls.__dict__.items():
+    for k in cls().dump().keys():
         if not k.startswith("_"):
             perm = PermissionType[k]
             names.append((k, (scope, perm)))
     return Enum(value, names=names, type=tuple)  # type: ignore
 
 
-class GeneralPermissionModel:
+@instance.register
+class GeneralPermission(EmbeddedDocumentImplementation):
     view = fields.BoolField(default=True)
     edit_permission = fields.BoolField(default=False)
     view_mod_badge = fields.BoolField(default=True)  # what's this?
@@ -78,11 +79,7 @@ class GeneralPermissionModel:
 
 
 @instance.register
-class GeneralPermission(GeneralPermissionModel, EmbeddedDocumentImplementation):
-    pass
-
-
-class ProblemPermissionModel:
+class ProblemPermission(EmbeddedDocumentImplementation):
     create = fields.BoolField(default=False)
     view = fields.BoolField(default=True)
     view_hidden = fields.BoolField(default=False)
@@ -93,11 +90,7 @@ class ProblemPermissionModel:
 
 
 @instance.register
-class ProblemPermission(ProblemPermissionModel, EmbeddedDocumentImplementation):
-    pass
-
-
-class ProblemSetPermissionModel:
+class ProblemSetPermission(EmbeddedDocumentImplementation):
     create = fields.BoolField(default=False)
     view = fields.BoolField(default=True)
     view_hidden = fields.BoolField(default=False)
@@ -111,11 +104,7 @@ class ProblemSetPermissionModel:
 
 
 @instance.register
-class ProblemSetPermission(ProblemSetPermissionModel, EmbeddedDocumentImplementation):
-    pass
-
-
-class RecordPermissionModel:
+class RecordPermission(EmbeddedDocumentImplementation):
     view = fields.BoolField(default=True)
     detail = fields.BoolField(default=False)
     code = fields.BoolField(default=False)
@@ -124,34 +113,17 @@ class RecordPermissionModel:
 
 
 @instance.register
-class RecordPermission(RecordPermissionModel, EmbeddedDocumentImplementation):
-    pass
-
-
-class UserSpecificPermissionModel:
+class UserSpecificPermission(EmbeddedDocumentImplementation):
     view = fields.BoolField(default=True)
     view_hidden = fields.BoolField(default=False)
 
 
 @instance.register
-class UserSpecificPermission(
-    UserSpecificPermissionModel, EmbeddedDocumentImplementation
-):
-    pass
-
-
-class DomainSpecificPermissionModel:
+class DomainSpecificPermission(EmbeddedDocumentImplementation):
     create = fields.BoolField(default=False)
     edit = fields.BoolField(default=False)
     delete = fields.BoolField(default=False)
     view_hidden = fields.BoolField(default=False)
-
-
-@instance.register
-class DomainSpecificPermission(
-    DomainSpecificPermissionModel, EmbeddedDocumentImplementation
-):
-    pass
 
 
 @instance.register
@@ -207,6 +179,7 @@ def __get_default_site_permission(
 
 
 FIXED_ROLES = {DefaultRole.JUDGE}
+READONLY_ROLES = {DefaultRole.ROOT, DefaultRole.GUEST, DefaultRole.JUDGE}
 
 DEFAULT_DOMAIN_PERMISSION = {
     DefaultRole.ROOT: __get_default_domain_permission(True),
@@ -232,12 +205,12 @@ DEFAULT_SITE_PERMISSION = {
 
 
 class Permission:
-    DomainGeneral = wrap_permission(ScopeType.DOMAIN_GENERAL, GeneralPermissionModel)
-    DomainProblem = wrap_permission(ScopeType.DOMAIN_PROBLEM, ProblemPermissionModel)
+    DomainGeneral = wrap_permission(ScopeType.DOMAIN_GENERAL, GeneralPermission)
+    DomainProblem = wrap_permission(ScopeType.DOMAIN_PROBLEM, ProblemPermission)
     DomainProblemSet = wrap_permission(
-        ScopeType.DOMAIN_PROBLEM_SET, ProblemSetPermissionModel
+        ScopeType.DOMAIN_PROBLEM_SET, ProblemSetPermission
     )
-    DomainRecord = wrap_permission(ScopeType.DOMAIN_RECORD, RecordPermissionModel)
+    DomainRecord = wrap_permission(ScopeType.DOMAIN_RECORD, RecordPermission)
 
-    SiteUser = wrap_permission(ScopeType.SITE_USER, UserSpecificPermissionModel)
-    SiteDomain = wrap_permission(ScopeType.SITE_DOMAIN, DomainSpecificPermissionModel)
+    SiteUser = wrap_permission(ScopeType.SITE_USER, UserSpecificPermission)
+    SiteDomain = wrap_permission(ScopeType.SITE_DOMAIN, DomainSpecificPermission)
