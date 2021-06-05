@@ -26,6 +26,9 @@ class ErrorCode(str, Enum):
     ProblemSetAfterDueError = "ProblemSetAfterDueError"
     UserNotJudgerError = "UserNotJudgerError"
     DomainRoleNotFoundError = "DomainRoleNotFoundError"
+    DomainRoleNotUniqueError = "DomainRoleNotUniqueError"
+    DomainRoleReadOnlyError = "DomainRoleReadOnlyError"
+    DomainRoleUsedError = "DomainRoleUsedError"
     DomainUserNotFoundError = "DomainUserNotFoundError"
     DomainUserRootError = "DomainUserRootError"
 

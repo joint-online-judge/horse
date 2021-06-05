@@ -8,17 +8,17 @@ from pydantic.typing import AnyCallable
 from joj.horse.models.permission import DomainPermission
 from joj.horse.schemas.base import (
     BaseODMSchema,
+    NoneEmptyLongStr,
     ReferenceSchema,
+    embedded_dict_schema_validator,
     reference_schema_validator,
 )
 from joj.horse.schemas.domain import Domain
 
 
-class DomainRole(BaseODMSchema):
-    domain: ReferenceSchema[Domain]
-    role: str
+class DomainRoleCreate(BaseModel):
+    role: NoneEmptyLongStr
     permission: Dict[str, Any] = {}
-
     updated_at: datetime = datetime.utcnow()
 
     @validator("permission", pre=True, always=True)
@@ -31,9 +31,18 @@ class DomainRole(BaseODMSchema):
     def default_updated_at(cls, v: datetime, *, values: Any, **kwargs: Any) -> datetime:
         return v or datetime.utcnow()
 
+
+class DomainRole(DomainRoleCreate, BaseODMSchema):
+    domain: ReferenceSchema[Domain]
+    role: str  # type: ignore
+
     _validator_domain: Callable[
         [AnyCallable], classmethod
     ] = reference_schema_validator("domain", Domain)
+
+    _validator_permission: Callable[
+        [AnyCallable], classmethod
+    ] = embedded_dict_schema_validator("permission")
 
 
 class ListDomainRoles(BaseModel):
