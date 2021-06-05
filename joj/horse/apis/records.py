@@ -47,7 +47,8 @@ async def list_records(
         filter["problem_set"] = ObjectId(problem_set)
     if problem is not None:
         filter["problem"] = ObjectId(problem)
-    res = await schemas.Record.to_list(filter, query)
+    cursor = models.Record.cursor_find(filter, query)
+    res = await schemas.Record.to_list(cursor)
     return StandardResponse(ListRecords(results=res))
 
 
