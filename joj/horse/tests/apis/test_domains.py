@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Dict
 
 from bson import ObjectId
@@ -26,8 +25,6 @@ domain_edit = schemas.DomainEdit(
     name=random_lower_string(),
     bulletin=random_lower_string(),
     gravatar=random_lower_string(),
-    invitation_code=random_lower_string(),
-    invitation_expire_at=datetime(3000, 1, 1),
 )
 update_data = jsonable_encoder(domain_edit)
 NEW_DOMAIN = {}
@@ -85,7 +82,6 @@ def test_member_join_in_domain_expired(
 ) -> None:
     r = client.get(
         f"{base_domain_url}/{domain.url}/members/join",
-        params={"invitation_code": domain_edit.invitation_code},
         headers=global_test_user_token_headers,
     )
     assert r.status_code == 200
@@ -223,7 +219,6 @@ def test_member_join_in_domain(
     # right invitation code
     r = client.get(
         f"{base_domain_url}/{domain.url}/members/join",
-        params={"invitation_code": domain_edit.invitation_code},
         headers=global_test_user_token_headers,
     )
     assert r.status_code == 200

@@ -18,5 +18,6 @@ router_prefix = "/api/v1"
 async def list_problem_groups(
     query: schemas.BaseQuery = Depends(parse_query), auth: Authentication = Depends()
 ) -> StandardResponse[ListProblemGroups]:
-    res = await schemas.ProblemGroup.to_list({}, query)
+    cursor = models.ProblemGroup.cursor_find({}, query)
+    res = await schemas.ProblemGroup.to_list(cursor)
     return StandardResponse(ListProblemGroups(results=res))
