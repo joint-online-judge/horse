@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
-from pydantic import validator
+from pydantic import Field, validator
 from pydantic.main import BaseModel
 from pydantic.typing import AnyCallable
 
@@ -14,6 +14,13 @@ from joj.horse.schemas.base import (
     reference_schema_validator,
 )
 from joj.horse.schemas.domain import Domain
+
+
+class DomainRoleEdit(BaseModel):
+    role: Optional[NoneEmptyLongStr] = Field(None, description="New role name")
+    permission: Optional[Dict[str, Any]] = Field(
+        None, description="The permission which needs to be updated"
+    )
 
 
 class DomainRoleCreate(BaseModel):

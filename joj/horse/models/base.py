@@ -31,6 +31,15 @@ class DocumentMixin:
     ) -> AsyncIOMotorCursor:
         return cls.collection.aggregate(pipeline, **kwargs)
 
+    @classmethod
+    def update_many(
+        cls: MotorAsyncIODocument,
+        filter: Dict[str, Any],
+        update: Dict[str, Any],
+        **kwargs: Any
+    ) -> AsyncIOMotorCursor:
+        return cls.collection.update_many(filter, update, **kwargs)
+
     def unfetch_all(self: MotorAsyncIODocument) -> None:
         for field in self._data.values():
             if isinstance(field, data_objects.Reference):

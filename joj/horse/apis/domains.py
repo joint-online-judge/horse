@@ -87,9 +87,9 @@ async def create_domain(
                 domain_user_model = models.DomainUser(**domain_user_schema.to_model())
                 await domain_user_model.commit()
                 logger.info("domain user created: %s", domain_user_model)
-                # create domain roles (admin, user, guest)
+                # create domain roles (root, admin, user, guest)
                 for role in DefaultRole:
-                    # skip fixed roles (root, judge)
+                    # skip fixed roles (judge)
                     if role in FIXED_ROLES:
                         continue
                     domain_role_schema = schemas.DomainRole(
@@ -306,14 +306,30 @@ async def delete_domain_role(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def update_domain_role(
+    domain_role_edit: schemas.DomainRoleEdit,
     domain_role: models.DomainRole = Depends(parse_domain_role),
     domain: models.Domain = Depends(parse_domain_from_auth),
-    rename_role: Optional[NoneEmptyLongStr] = Body(
-        None, description="new name of the role"
-    ),
 ) -> StandardResponse[schemas.DomainRole]:
-    if rename_role and domain_role.role in READONLY_ROLES:
-        raise BizError(ErrorCode.DomainRoleReadOnlyError)
+    if domain_role_edit.role:
+        if (
+            domain_role.role in READONLY_ROLES
+            or domain_role_edit.role in READONLY_ROLES
+        ):
+            raise BizError(ErrorCode.DomainRoleReadOnlyError)
+        if await models.DomainRole.find_one(
+            {"domain": domain.id, "role": domain_role_edit.role}
+        ):
+            raise BizError(ErrorCode.DomainRoleNotUniqueError)
+        async with instance.session() as session:
+            async with session.start_transaction():
+                condition = {"domain": domain.id, "role": domain_role.role}
+                update = {"$set": {"role": domain_role_edit.role}}
+                await models.DomainUser.update_many(condition, update)
+                domain_role.update_from_schema(domain_role_edit)
+                await domain_role.commit()
+    else:
+        domain_role.update_from_schema(domain_role_edit)
+        await domain_role.commit()
     return StandardResponse(schemas.DomainRole.from_orm(domain_role))
 
 
