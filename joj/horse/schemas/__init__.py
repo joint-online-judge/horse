@@ -12,6 +12,7 @@ from joj.horse.schemas.domain_invitation import (
 )
 from joj.horse.schemas.domain_role import DomainRole as DomainRole
 from joj.horse.schemas.domain_role import DomainRoleCreate as DomainRoleCreate
+from joj.horse.schemas.domain_role import DomainRoleEdit as DomainRoleEdit
 from joj.horse.schemas.domain_user import DomainUser as DomainUser
 from joj.horse.schemas.problem import Problem as Problem
 from joj.horse.schemas.problem import ProblemCreate as ProblemCreate
