@@ -24,6 +24,7 @@ class DomainUser(DocumentMixin, MotorAsyncIODocument):
             IndexModel("user"),
             IndexModel([("domain", ASCENDING), ("user", ASCENDING)], unique=True),
         ]
+        strict = False
 
     domain = fields.ReferenceField(Domain, required=True)
     user = fields.ReferenceField(User, required=True)

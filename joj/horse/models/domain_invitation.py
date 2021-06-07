@@ -16,6 +16,7 @@ class DomainInvitation(DocumentMixin, MotorAsyncIODocument):
             IndexModel("code"),
             IndexModel([("domain", ASCENDING), ("code", ASCENDING)], unique=True),
         ]
+        strict = False
 
     domain = fields.ReferenceField(Domain, required=True)
     code = fields.StringField(required=True)

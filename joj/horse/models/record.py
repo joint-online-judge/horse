@@ -43,6 +43,7 @@ class Record(DocumentMixin, MotorAsyncIODocument):
             ),
             IndexModel([("user", ASCENDING), ("submit_at", DESCENDING)]),
         ]
+        strict = False
 
     status = fields.IntegerField(default=0)
     score = fields.IntegerField(default=0)

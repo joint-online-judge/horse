@@ -19,6 +19,7 @@ class ProblemSet(DocumentMixin, MotorAsyncIODocument):
             IndexModel("owner"),
             IndexModel([("domain", ASCENDING), ("url", ASCENDING)], unique=True),
         ]
+        strict = False
 
     domain = fields.ReferenceField(Domain, required=True)
     owner = fields.ReferenceField(User, required=True)

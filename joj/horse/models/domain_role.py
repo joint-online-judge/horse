@@ -19,6 +19,7 @@ class DomainRole(DocumentMixin, MotorAsyncIODocument):
             IndexModel("role"),
             IndexModel([("domain", ASCENDING), ("role", ASCENDING)], unique=True),
         ]
+        strict = False
 
     domain = fields.ReferenceField(Domain, required=True)
     role = fields.StringField(required=True)
