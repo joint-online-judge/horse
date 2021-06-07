@@ -25,5 +25,6 @@ async def jwt(auth: Authentication = Depends()) -> JWT:
 
 
 @router.get("/test/sentry")
-async def test_sentry() -> None:
+async def test_sentry() -> str:
     raise RuntimeError()
+    return "you should not get this"
