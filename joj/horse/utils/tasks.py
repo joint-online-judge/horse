@@ -28,7 +28,7 @@ class CeleryWorker:
         task = celery_app.send_task(
             "joj.tiger.compile", args=[self.record_schema.dict()]
         )
-        # TODO: it seems that FastAPI is blocked
+        # FIXME: it seems that FastAPI is blocked here
         res = task.get(on_message=self.on_message, propagate=False)
         self.record_model.update(res)
         logger.info(f"problem {self.record_model.id} result receive from celery: {res}")

@@ -22,7 +22,7 @@ from joj.horse.schemas.domain_role import ListDomainRoles
 from joj.horse.schemas.domain_user import ListDomainUsers
 from joj.horse.utils.auth import DomainAuthentication, ensure_permission
 from joj.horse.utils.db import instance
-from joj.horse.utils.errors import BizError, ErrorCode
+from joj.horse.utils.errors import BizError, ErrorCode, ForbiddenError
 from joj.horse.utils.parser import (
     parse_domain,
     parse_domain_from_auth,
@@ -179,8 +179,7 @@ async def add_domain_user(
     if role == DefaultRole.ROOT:
         # only root can add root member
         if not domain_auth.auth.is_domain_root():
-            # TODO: 403 Exception
-            raise Exception
+            raise ForbiddenError()
 
     # add member
     domain_user_model = await models.DomainUser.add_domain_user(
@@ -236,8 +235,7 @@ async def update_domain_user(
     if role == DefaultRole.ROOT:
         # only root can add fixed roles
         if not domain_auth.auth.is_domain_root():
-            # TODO: 403 Exception
-            raise Exception
+            raise ForbiddenError()
 
     # update member
     domain_user_model = await models.DomainUser.update_domain_user(

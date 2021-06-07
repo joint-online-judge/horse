@@ -19,6 +19,7 @@ class User(DocumentMixin, MotorAsyncIODocument):
             IndexModel([("scope", ASCENDING), ("uname_lower", ASCENDING)], unique=True),
             IndexModel([("scope", ASCENDING), ("mail_lower", ASCENDING)], unique=True),
         ]
+        strict = False
 
     scope = fields.StringField(required=True)
     uname = fields.StringField(required=True)

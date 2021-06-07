@@ -147,24 +147,6 @@ async def get_user(auth: Authentication = Depends()) -> StandardResponse[schemas
     return StandardResponse(schemas.User.from_orm(auth.user))
 
 
-# FIXME: what is it
-# @router.get("/domains"
-# async def get_user_domains(
-#     auth: Authentication = Depends(),
-# ) -> StandardResponse[ListDomains]:
-#     pipeline = generate_join_pipeline(field="domain", condition={"user": auth.user.id})
-#     return StandardResponse(
-#         ListDomains(
-#             results=[
-#                 schemas.DomainUser.from_orm(
-#                     models.DomainUser.build_from_mongo(domain_user), unfetch_all=False
-#                 )
-#                 async for domain_user in models.DomainUser.aggregate(pipeline)
-#             ]
-#         )
-#     )
-
-
 @router.get("/problems")
 async def get_user_problems(
     query: schemas.BaseQuery = Depends(parse_query), auth: Authentication = Depends()

@@ -10,5 +10,6 @@ from joj.horse.utils.db import instance
 class ProblemGroup(DocumentMixin, MotorAsyncIODocument):
     class Meta:
         collection_name = "problem.groups"
+        strict = False
 
     moss_results = fields.ListField(fields.StringField(), default=List(str))

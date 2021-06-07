@@ -77,8 +77,6 @@ async def create_problem(
                 )
                 new_problem = models.Problem(**new_problem.to_model())
                 await new_problem.commit()
-                problem_set.update({})  # TODO: add new problem to problem_set
-                await problem_set.commit()
                 logger.info("problem created: %s", new_problem)
     except Exception as e:
         logger.error("problem creation failed: %s", problem.title)
@@ -177,6 +175,8 @@ async def submit_solution_to_problem(
         )
         record_model = models.Record(**record.to_model())
         await record_model.commit()
+        problem.num_submit += 1
+        await problem.commit()
         logger.info("problem submitted with record: %s", record_model.id)
     except Exception as e:
         logger.error("problem submission failed: %s", problem.id)

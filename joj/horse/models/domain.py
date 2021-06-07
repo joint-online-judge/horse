@@ -19,6 +19,7 @@ class Domain(DocumentMixin, MotorAsyncIODocument):
             IndexModel("owner"),
             IndexModel("name"),
         ]
+        strict = False
 
     url = fields.StringField(required=True)
     name = fields.StringField(required=True)

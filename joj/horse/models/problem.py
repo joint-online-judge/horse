@@ -21,6 +21,7 @@ class Problem(DocumentMixin, MotorAsyncIODocument):
             IndexModel("problem_group"),
             IndexModel("problem_set"),
         ]
+        strict = False
 
     domain = fields.ReferenceField(Domain, required=True)
     owner = fields.ReferenceField(User, required=True)

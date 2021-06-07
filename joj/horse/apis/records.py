@@ -76,7 +76,7 @@ async def get_record_code(record: models.Record = Depends(parse_record)) -> Any:
 
 # @router.websocket("/{record}/ws")
 # async def websocket_record(
-#     record: str, websocket: WebSocket  # TODO: parse_record
+#     record: str, websocket: WebSocket
 # ) -> None:
 #     record_model: models.Record = await models.Record.find_by_id(record)
 #     if record_model is None:
@@ -94,7 +94,7 @@ async def get_record_code(record: models.Record = Depends(parse_record)) -> Any:
 
 # @router.websocket("/{record}/cases/ws")
 # async def websocket_record_cases(
-#     record: str, websocket: WebSocket  # TODO: parse_record
+#     record: str, websocket: WebSocket
 # ) -> None:
 #     record_model: models.Record = await models.Record.find_by_id(record)
 #     if record_model is None:
@@ -123,6 +123,7 @@ async def http_record(
     logger.info(f"receive from record http: {data}")
     record.update(data)
     await record.commit()
+    # TODO: num_accept for problem
     return StandardResponse()
 
 
