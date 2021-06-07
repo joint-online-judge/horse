@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from fastapi import Body, Depends, Path, Query
+from pydantic.types import conint
 
 from joj.horse import models
 from joj.horse.schemas.base import NoneEmptyLongStr
@@ -163,7 +164,7 @@ async def parse_record_judger(
 
 def parse_query(
     sort: Optional[SortEnum] = Query(None),
-    skip: Optional[int] = Query(None),
-    limit: Optional[int] = Query(None),
+    skip: Optional[conint(ge=0)] = Query(None),  # type: ignore
+    limit: Optional[conint(ge=1)] = Query(None),  # type: ignore
 ) -> BaseQuery:
     return BaseQuery(sort=sort, skip=skip, limit=limit)
