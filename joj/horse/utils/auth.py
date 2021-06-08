@@ -1,17 +1,12 @@
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Set, Tuple, Union
 
-from starlette.types import Message
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore
-
 import jwt
-from fastapi import Depends
+from fastapi import Depends, Path
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi_jwt_auth import AuthJWT
 from pydantic import BaseModel
+from starlette.types import Message
+from typing_extensions import Literal
 
 from joj.horse.config import settings
 from joj.horse.models.domain import Domain
@@ -134,7 +129,9 @@ def get_site_permission(site_role: str = Depends(get_site_role)) -> SitePermissi
         return DEFAULT_SITE_PERMISSION[DefaultRole.GUEST]
 
 
-async def get_domain(domain: str) -> Domain:
+async def get_domain(
+    domain: str = Path(..., description="url or ObjectId of the domain"),
+) -> Domain:
     domain_model = await Domain.find_by_url_or_id(domain)
     if domain_model is None:
         raise BizError(ErrorCode.DomainNotFoundError)
