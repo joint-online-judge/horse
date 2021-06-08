@@ -1,4 +1,4 @@
-name: Swagger Codegen
+name: swagger codegen
 on:
   push:
     branches:
