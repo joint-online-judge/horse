@@ -1,0 +1,47 @@
+name: Swagger Codegen
+on:
+  push:
+    branches:
+      - openapi
+      - openapi-develop
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    env:
+      SWAGGER_CODEGEN_VERSION: 3.0.26
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up OpenJDK 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+          check-latest: true
+      - name: Cache swagger-codegen
+        id: cache-swagger-codegen
+        uses: actions/cache@v2
+        with:
+          path: swagger-codegen-cli.jar
+          key: ${{ runner.os }}-swagger-codegen-${{ env.SWAGGER_CODEGEN_VERSION }}
+      - name: Download swagger-codegen
+        if: steps.cache-swagger-codegen.outputs.cache-hit != 'true'
+        run: |
+          wget https://repo1.maven.org/maven2/io/swagger/codegen/v3/swagger-codegen-cli/${{ env.SWAGGER_CODEGEN_VERSION }}/swagger-codegen-cli-${{ env.SWAGGER_CODEGEN_VERSION }}.jar -O swagger-codegen-cli.jar
+      - name: Create config file
+        run: |
+          echo '{packageName: "joj.horse.client", projectName: "horse-python-client"}' > python-client.json
+      - name: Generate client
+        run: |
+          java -jar swagger-codegen-cli.jar -i openapi.json -l python -o samples/client/python -c python-client.json
+      - name: Push to client repo
+        id: push_directory
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          source-directory: 'samples/client/python'
+          destination-github-username: 'joint-online-judge'
+          destination-repository-name: 'horse-python-client'
+          user-email: joj@sjtu.edu.cn
+          commit-message: See ORIGIN_COMMIT from $GITHUB_REF
+          target-branch: ${{ github.ref == 'refs/heads/openapi' && 'master' || 'develop' }}
