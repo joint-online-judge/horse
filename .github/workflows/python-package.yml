@@ -68,7 +68,7 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: openapi-json
-          path: build/openapi.json
+          path: build/openapi
       - name: Set up OpenJDK 11
         uses: actions/setup-java@v2
         with:
@@ -87,19 +87,21 @@ jobs:
           wget https://repo1.maven.org/maven2/io/swagger/codegen/v3/swagger-codegen-cli/${{ env.JAR_VERSION }}/swagger-codegen-cli-${{ env.JAR_VERSION }}.jar -O swagger-codegen-cli.jar
       - name: Create config file
         run: |
-          echo '{packageName: "joj.horse.client", projectName: "horse-python-client"}' > build/python-client.json
+          echo '{"packageName": "joj.horse.client", "projectName": "horse-python-client"}' > build/python-client.json
       - name: Generate client
         run: |
-          java -jar swagger-codegen-cli.jar -i build/openapi.json -l python -o build/client/python -c build/python-client.json
+          java -jar swagger-codegen-cli.jar generate -i ./build/openapi/openapi.json -l python -o build/client/python -c build/python-client.json
       - name: Push to client repo
         id: push_directory
         uses: cpina/github-action-push-to-another-repository@main
         env:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+          BRANCH_NAME: ${{ github.ref == 'refs/heads/master' && 'master' || 'develop' }}
         with:
           source-directory: 'build/client/python'
           destination-github-username: 'joint-online-judge'
           destination-repository-name: 'horse-python-client'
-          user-email: joj@sjtu.edu.cn
-          commit-message: See ORIGIN_COMMIT from $GITHUB_REF
-          target-branch: ${GITHUB_REF##*/}
+          user-name: github-actions[bot]
+          user-email: 41898282+github-actions[bot]@users.noreply.github.com
+          commit-message: See ORIGIN_COMMIT from ${{ env.BRANCH_NAME }}
+          target-branch: ${{ env.BRANCH_NAME }}
