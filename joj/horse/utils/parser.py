@@ -7,12 +7,13 @@ from pydantic.types import conint
 from joj.horse import models
 from joj.horse.schemas.base import NoneEmptyLongStr
 from joj.horse.schemas.query import BaseQuery, SortEnum
-from joj.horse.utils.auth import Authentication, DomainAuthentication
+from joj.horse.utils.auth import Authentication, get_domain
 from joj.horse.utils.errors import BizError, ErrorCode
 
 
 async def parse_uid(
-    uid: str = Query("me", description="uid or 'me'"), auth: Authentication = Depends()
+    uid: str = Query("me", description="'me' or ObjectId of the user"),
+    auth: Authentication = Depends(),
 ) -> models.User:
     if uid == "me":
         return auth.user
@@ -31,13 +32,15 @@ async def parse_uid_or_none(
 
 
 async def parse_user_from_path_or_query(
-    user: str = Query("me", description="uid or 'me'"), auth: Authentication = Depends()
+    user: str = Path("me", description="'me' or ObjectId of the user"),
+    auth: Authentication = Depends(),
 ) -> models.User:
     return await parse_uid(user, auth)
 
 
 async def parse_user_from_body(
-    user: str = Body("me", description="uid or 'me'"), auth: Authentication = Depends()
+    user: str = Body("me", description="'me' or ObjectId of the user"),
+    auth: Authentication = Depends(),
 ) -> models.User:
     return await parse_uid(user, auth)
 
@@ -48,32 +51,19 @@ def parse_user_from_auth(
     return auth.user
 
 
-def parse_domain_from_auth(
-    domain_auth: DomainAuthentication = Depends(DomainAuthentication),
-) -> models.Domain:
-    return domain_auth.auth.domain
-
-
-async def parse_domain(
-    domain: str = Path(..., description="url or ObjectId of the domain"),
-    auth: Authentication = Depends(),
-) -> models.Domain:
-    domain_model = await models.Domain.find_by_url_or_id(domain)
-    if domain_model:  # and domain_model.owner == auth.user: # TODO: let domain user
-        return domain_model
-    raise BizError(ErrorCode.DomainNotFoundError)
+async def parse_domain(domain: models.Domain = Depends(get_domain)) -> models.Domain:
+    return domain
 
 
 async def parse_domain_body(
     domain: str = Body(..., description="url or ObjectId of the domain"),
-    auth: Authentication = Depends(),
 ) -> models.Domain:
-    return await parse_domain(domain, auth)
+    return await get_domain(domain)
 
 
 async def parse_domain_role(
     role: NoneEmptyLongStr = Path(..., description="name of the domain role"),
-    domain: models.Domain = Depends(parse_domain_from_auth),
+    domain: models.Domain = Depends(parse_domain),
 ) -> models.DomainRole:
     domain_role_model = await models.DomainRole.find_one(
         {"domain": domain.id, "role": role}
