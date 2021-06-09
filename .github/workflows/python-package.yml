@@ -87,10 +87,16 @@ jobs:
           wget https://repo1.maven.org/maven2/io/swagger/codegen/v3/swagger-codegen-cli/${{ env.JAR_VERSION }}/swagger-codegen-cli-${{ env.JAR_VERSION }}.jar -O swagger-codegen-cli.jar
       - name: Create config file
         run: |
-          echo '{"packageName": "joj.horse.client", "projectName": "horse-python-client"}' > build/python-client.json
+          echo '{"packageName": "joj.horse.client", "projectName": "horse-python-client", "library": "asyncio"}' > build/python-client.json
       - name: Generate client
         run: |
-          java -jar swagger-codegen-cli.jar generate -i ./build/openapi/openapi.json -l python -o build/client/python -c build/python-client.json
+          java -jar swagger-codegen-cli.jar generate \
+          -i build/openapi/openapi.json \
+          --git-user-id "joint-online-judge" \
+          --git-repo-id "horse-python-client" \
+          -l python \
+          -o build/client/python \
+          -c build/python-client.json
       - name: Push to client repo
         id: push_directory
         uses: cpina/github-action-push-to-another-repository@main
