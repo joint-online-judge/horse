@@ -97,6 +97,10 @@ jobs:
           -l python \
           -o build/client/python \
           -c build/python-client.json
+      - name: Move joj.horse.client to joj/horse/client
+        run: |
+           cp -rp build/client/python/joj.horse.client/* build/client/python/joj/horse/client/
+           rm -rf build/client/python/joj.horse.client
       - name: Push to client repo
         id: push_directory
         uses: cpina/github-action-push-to-another-repository@main
