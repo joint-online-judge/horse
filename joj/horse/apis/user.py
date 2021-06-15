@@ -107,7 +107,9 @@ async def jaccount_auth(
                 token_url, headers=headers, data=body.encode("utf-8")
             ) as response:
                 data = await response.json()
-                parsed_data = jwt.decode(data["id_token"], verify=False)
+                parsed_data = jwt.decode(
+                    data["id_token"], verify=False, options={"verify_signature": False}
+                )
                 id_token = jaccount.IDToken(**parsed_data)
     except Exception as e:
         raise BadRequestError(message="Jaccount authentication failed")
