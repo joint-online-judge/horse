@@ -6,8 +6,8 @@ fastapi-jwt-auth
 fastapi-utils
 fastapi-versioning
 fastapi[all]>=0.63.0
-git+git://github.com/joint-online-judge/elephant@master#egg=joj-elephant
 gitpython>=3.1.7
+joj-elephant
 motor>=2.1.0
 oauth-jaccount
 pbr>=5.5.1
