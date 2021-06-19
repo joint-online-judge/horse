@@ -5,6 +5,9 @@ from joj.horse.models.domain_user import DomainUser as DomainUser
 from joj.horse.models.permission import DomainPermission as DomainPermission
 from joj.horse.models.permission import SitePermission as SitePermission
 from joj.horse.models.problem import Problem as Problem
+from joj.horse.models.problem_config_mapping import (
+    ProblemConfigMapping as ProblemConfigMapping,
+)
 from joj.horse.models.problem_group import ProblemGroup as ProblemGroup
 from joj.horse.models.problem_set import ProblemSet as ProblemSet
 from joj.horse.models.record import Record as Record
