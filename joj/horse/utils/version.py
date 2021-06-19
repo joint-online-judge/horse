@@ -6,7 +6,7 @@ from uvicorn.config import logger
 
 
 def get_version() -> str:
-    return str(pbr.version.VersionInfo("joj.horse"))
+    return str(pbr.version.VersionInfo("joj-horse"))
 
 
 def get_git_version() -> str:
