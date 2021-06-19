@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip wheel
-          pip install git+https://github.com/joint-online-judge/elephant@master#egg=joj-elephant
+          python -m pip install git+https://github.com/joint-online-judge/elephant@master#egg=joj-elephant
           if [ -f requirements.txt ]; then pip install -e .; fi
       - name: Git setup
         uses: fregante/setup-git-user@v1
