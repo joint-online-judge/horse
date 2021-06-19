@@ -26,9 +26,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip wheel
           if [ -f requirements.txt ]; then pip install -e .; fi
-          git clone https://github.com/joint-online-judge/elephant.git
-          cd elephant
-          python -m pip install -e .
+          pip install -e git+https://github.com/joint-online-judge/elephant@master#egg=joj-elephant
       - name: Git setup
         uses: fregante/setup-git-user@v1
       - name: Generate openapi.json
