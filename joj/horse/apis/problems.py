@@ -64,32 +64,32 @@ async def create_problem(
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.Problem]:
-    problem_set: models.ProblemSet = await models.ProblemSet.find_by_id(
-        problem.problem_set
-    )
+    # problem_set: models.ProblemSet = await models.ProblemSet.find_by_id(
+    #     problem.problem_set
+    # )
     try:
         async with instance.session() as session:
             async with session.start_transaction():
                 problem_group = schemas.ProblemGroup()
                 problem_group = models.ProblemGroup(**problem_group.to_model())
                 await problem_group.commit()
-                new_problem = schemas.Problem(
+                problem_model = schemas.Problem(
                     domain=domain.id,
                     title=problem.title,
                     content=problem.content,
-                    data_version=problem.data_version,
-                    languages=problem.languages,
-                    problem_set=problem_set.id,
+                    # data_version=problem.data_version,
+                    # languages=problem.languages,
+                    # problem_set=problem_set.id,
                     owner=user.id,
                     problem_group=problem_group.id,
                 )
-                new_problem = models.Problem(**new_problem.to_model())
-                await new_problem.commit()
-                logger.info("problem created: %s", new_problem)
+                problem_model = models.Problem(**problem_model.to_model())
+                await problem_model.commit()
+                logger.info("problem created: %s", problem_model)
     except Exception as e:
         logger.error("problem creation failed: %s", problem.title)
         raise e
-    return StandardResponse(schemas.Problem.from_orm(new_problem))
+    return StandardResponse(schemas.Problem.from_orm(problem_model))
 
 
 @router.get(
@@ -122,6 +122,16 @@ async def update_problem(
 ) -> StandardResponse[schemas.Problem]:
     problem.update_from_schema(edit_problem)
     await problem.commit()
+    return StandardResponse(schemas.Problem.from_orm(problem))
+
+
+@router.patch(
+    "/{problem}/config",
+    dependencies=[Depends(ensure_permission(Permission.DomainProblem.view_config))],
+)
+async def update_problem_config(
+    config: UploadFile = File(...), problem: models.Problem = Depends(parse_problem)
+) -> StandardResponse[schemas.Problem]:
     return StandardResponse(schemas.Problem.from_orm(problem))
 
 

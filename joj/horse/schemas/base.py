@@ -1,3 +1,4 @@
+import uuid
 from functools import lru_cache
 from typing import (
     TYPE_CHECKING,
@@ -42,6 +43,28 @@ class NoneEmptyStr(ConstrainedStr):
 
 class NoneEmptyLongStr(LongStr, NoneEmptyStr):
     pass
+
+
+class UserInputURL(NoneEmptyLongStr):
+    @classmethod
+    def __get_validators__(
+        cls,
+    ) -> Generator[Callable[[Union[str, Any]], str], None, None]:
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v: Optional[str]) -> NoneEmptyLongStr:
+        if not v:
+            return NoneEmptyLongStr(uuid.uuid4())
+        if ObjectId.is_valid(v):
+            raise ValueError("url can not be ObjectId")
+        try:
+            uuid.UUID(v)
+        except ValueError:
+            pass
+        else:
+            raise ValueError("url can not be uuid")
+        return NoneEmptyLongStr(v)
 
 
 class LongText(ConstrainedStr):

@@ -1,3 +1,4 @@
+import uuid
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from bson import ObjectId
@@ -54,6 +55,20 @@ class DocumentMixin:
 
     def update_from_schema(self: MotorAsyncIODocument, schema: BaseModel) -> None:
         self.update({k: v for k, v in schema.__dict__.items() if v is not None})
+
+    async def set_url_from_id(self: MotorAsyncIODocument) -> bool:
+        """
+        Update url by _id if it is not a uuid
+        """
+        if "url" not in self._data.keys():
+            return False
+        try:
+            uuid.UUID(str(self._data["url"]))
+        except ValueError:
+            return False
+        self.update({"url": str(self.id)})
+        await self.commit()
+        return True
 
     @staticmethod
     def generate_join_pipeline(
