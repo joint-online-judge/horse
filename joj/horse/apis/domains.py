@@ -1,4 +1,3 @@
-import uuid
 from datetime import datetime
 from typing import Dict, List, Optional
 
@@ -56,18 +55,17 @@ async def list_domains(
     return StandardResponse(ListDomains(results=results))
 
 
-@router.post(
-    "", dependencies=[Depends(ensure_permission(Permission.SiteDomain.create))]
-)
+@router.post("", dependencies=[Depends(ensure_permission())])
 async def create_domain(
     domain: schemas.DomainCreate, user: models.User = Depends(parse_user_from_auth)
 ) -> StandardResponse[schemas.Domain]:
-    if ObjectId.is_valid(domain.url):
-        raise BizError(ErrorCode.InvalidUrlError)
-    none_url = domain.url is None
-    if none_url:
-        # use a random uuid for empty url, replace it with _id later
-        domain.url = NoneEmptyLongStr(uuid.uuid4())
+    # if not domain.url.is_valid_input():
+    #     raise BizError(ErrorCode.InvalidUrlError)
+    # return None
+    # none_url = domain.url is None
+    # if none_url:
+    #     use a random uuid for empty url, replace it with _id later
+    #     domain.url = NoneEmptyLongStr(uuid.uuid4())
     # use transaction for multiple operations
     try:
         async with instance.session() as session:
@@ -75,9 +73,10 @@ async def create_domain(
                 domain_schema = schemas.Domain(**domain.dict(), owner=user.id)
                 domain_model = models.Domain(**domain_schema.to_model())
                 await domain_model.commit()
-                if none_url:
-                    domain_model.url = str(domain_model.id)
-                    await domain_model.commit()
+                await domain_model.set_url_from_id()
+                # if none_url:
+                #     domain_model.url = str(domain_model.id)
+                #     await domain_model.commit()
                 logger.info("domain created: %s", domain_model)
                 # create domain user for creator
                 domain_user_schema = schemas.DomainUser(
@@ -151,6 +150,7 @@ async def delete_domain(
 async def update_domain(
     domain_edit: schemas.DomainEdit, domain: models.Domain = Depends(parse_domain)
 ) -> StandardResponse[schemas.Domain]:
+    print(domain_edit)
     domain.update_from_schema(domain_edit)
     await domain.commit()
     return StandardResponse(schemas.Domain.from_orm(domain))

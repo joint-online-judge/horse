@@ -14,6 +14,7 @@ from joj.horse.schemas.base import (
     reference_schema_validator,
 )
 from joj.horse.schemas.domain import Domain
+from joj.horse.schemas.problem import Problem
 from joj.horse.schemas.user import UserBase
 
 
@@ -27,9 +28,9 @@ class ProblemSetEdit(BaseModel):
 
 
 class ProblemSetCreate(BaseModel):
-    domain: LongStr = Field(..., description="url or the id of the domain")
+    # domain: LongStr = Field(..., description="url or the id of the domain")
     url: NoneEmptyLongStr = Field(
-        None, description="(in domain unique) url of the problem"
+        None, description="(in domain unique) url of the problem set"
     )
     title: NoneEmptyLongStr = Field(..., description="title of the problem set")
     content: LongText = Field("", description="content of the problem set")
@@ -51,10 +52,12 @@ class ProblemSet(ProblemSetCreate, BaseODMSchema):
 
     num_submit: int = 0
     num_accept: int = 0
-    scoreboard_hidden: bool
 
-    available_time: datetime
-    due_time: datetime
+    # scoreboard_hidden: bool
+    # available_time: datetime
+    # due_time: datetime
+
+    problems: List[ReferenceSchema[Problem]] = []
 
     _validate_domain: Callable[[AnyCallable], classmethod] = reference_schema_validator(
         "domain", Domain
@@ -62,6 +65,9 @@ class ProblemSet(ProblemSetCreate, BaseODMSchema):
     _validate_owner: Callable[[AnyCallable], classmethod] = reference_schema_validator(
         "owner", UserBase
     )
+    _validate_problems: Callable[
+        [AnyCallable], classmethod
+    ] = reference_schema_validator("problems", Problem, each_item=True)
 
 
 class ListProblemSets(BaseModel):
