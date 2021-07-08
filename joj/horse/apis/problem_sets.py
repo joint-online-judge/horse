@@ -1,5 +1,4 @@
 import time
-import uuid
 from datetime import datetime, timedelta
 from typing import List
 
@@ -60,32 +59,15 @@ async def create_problem_set(
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.ProblemSet]:
-    if ObjectId.is_valid(problem_set.url):
-        raise BizError(ErrorCode.InvalidUrlError)
-    none_url = problem_set.url is None
-    if none_url:
-        problem_set.url = NoneEmptyLongStr(uuid.uuid4())
     try:
         async with instance.session() as session:
             async with session.start_transaction():
-                # domain: models.Domain = await models.Domain.find_by_url_or_id(
-                #     problem_set.domain
-                # )
                 problem_set_schema = schemas.ProblemSet(
-                    title=problem_set.title,
-                    content=problem_set.content,
-                    hidden=problem_set.hidden,
-                    url=problem_set.url,
-                    domain=domain.id,
-                    owner=user.id,
-                    scoreboard_hidden=problem_set.scoreboard_hidden,
-                    available_time=problem_set.available_time,
-                    due_time=problem_set.due_time,
+                    **problem_set.dict(), domain=domain.id, owner=user.id
                 )
                 problem_set_model = models.ProblemSet(**problem_set_schema.to_model())
                 await problem_set_model.commit()
-                if none_url:
-                    await problem_set_model.set_url_from_id()
+                await problem_set_model.set_url_from_id()
                 logger.info("problem set created: %s", problem_set_model)
     except ValidationError:
         raise BizError(ErrorCode.UrlNotUniqueError)

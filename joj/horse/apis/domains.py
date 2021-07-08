@@ -59,13 +59,6 @@ async def list_domains(
 async def create_domain(
     domain: schemas.DomainCreate, user: models.User = Depends(parse_user_from_auth)
 ) -> StandardResponse[schemas.Domain]:
-    # if not domain.url.is_valid_input():
-    #     raise BizError(ErrorCode.InvalidUrlError)
-    # return None
-    # none_url = domain.url is None
-    # if none_url:
-    #     use a random uuid for empty url, replace it with _id later
-    #     domain.url = NoneEmptyLongStr(uuid.uuid4())
     # use transaction for multiple operations
     try:
         async with instance.session() as session:

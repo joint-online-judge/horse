@@ -8,10 +8,11 @@ from pydantic.typing import AnyCallable
 
 from joj.horse.schemas.base import (
     BaseODMSchema,
-    LongStr,
     LongText,
+    NoneEmptyLongStr,
     NoneEmptyStr,
     ReferenceSchema,
+    UserInputURL,
     reference_schema_validator,
 )
 from joj.horse.schemas.domain import Domain
@@ -35,6 +36,7 @@ class ProblemEdit(BaseModel):
 
 
 class ProblemCreate(BaseModel):
+    url: UserInputURL = Field(None, description="(unique in domain) url of the problem")
     title: NoneEmptyStr = Field(..., description="title of the problem")
     content: LongText = Field("", description="content of the problem")
     # this field can be induced from the config file
@@ -50,6 +52,8 @@ class Problem(ProblemCreate, BaseODMSchema):
     owner: ReferenceSchema[UserBase]
     problem_group: ReferenceSchema[ProblemGroup]
     # problem_set: ReferenceSchema[ProblemSet]
+
+    url: NoneEmptyLongStr
     config: ProblemConfig = ProblemConfig()
 
     num_submit: int = 0
