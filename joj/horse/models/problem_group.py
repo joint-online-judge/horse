@@ -12,4 +12,4 @@ class ProblemGroup(DocumentMixin, MotorAsyncIODocument):
         collection_name = "problem.groups"
         strict = False
 
-    moss_results = fields.ListField(fields.StringField(), default=List(str))
+    moss_results = fields.ListField(fields.StringField(), default=[])

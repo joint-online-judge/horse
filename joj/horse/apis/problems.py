@@ -73,18 +73,20 @@ async def create_problem(
                 problem_group = schemas.ProblemGroup()
                 problem_group = models.ProblemGroup(**problem_group.to_model())
                 await problem_group.commit()
-                problem_model = schemas.Problem(
+                problem_schema = schemas.Problem(
+                    **problem.dict(),
                     domain=domain.id,
-                    title=problem.title,
-                    content=problem.content,
+                    # title=problem.title,
+                    # content=problem.content,
                     # data_version=problem.data_version,
                     # languages=problem.languages,
                     # problem_set=problem_set.id,
                     owner=user.id,
                     problem_group=problem_group.id,
                 )
-                problem_model = models.Problem(**problem_model.to_model())
+                problem_model = models.Problem(**problem_schema.to_model())
                 await problem_model.commit()
+                await problem_model.set_url_from_id()
                 logger.info("problem created: %s", problem_model)
     except Exception as e:
         logger.error("problem creation failed: %s", problem.title)
