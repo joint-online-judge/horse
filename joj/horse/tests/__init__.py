@@ -1,9 +1,9 @@
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import MongoClient
 
 from joj.horse.config import settings
 
 settings.db_name += "-test"
-client = AsyncIOMotorClient(
+client = MongoClient(
     host=settings.db_host,
     port=settings.db_port,
     username=settings.db_username,

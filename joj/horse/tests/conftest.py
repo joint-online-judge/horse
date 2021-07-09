@@ -1,11 +1,13 @@
 import asyncio
-from typing import Any, Dict, Generator
+from typing import Any, AsyncGenerator, Dict, Generator
 
 import pytest
-from fastapi.testclient import TestClient
+from asgi_lifespan import LifespanManager
+from fastapi import FastAPI
 from fastapi_jwt_auth import AuthJWT
+from httpx import AsyncClient
 
-from joj.horse import app
+from joj.horse import app as fastapi_app
 from joj.horse.models.permission import DefaultRole
 from joj.horse.models.user import User
 from joj.horse.tests.utils.utils import create_test_user
@@ -20,13 +22,19 @@ def event_loop(request: Any) -> Generator[asyncio.AbstractEventLoop, Any, Any]:
 
 
 @pytest.fixture(scope="session")
-def client() -> Generator[TestClient, Any, Any]:
-    with TestClient(app) as c:
+async def app() -> AsyncGenerator[FastAPI, Any]:
+    async with LifespanManager(fastapi_app):
+        yield fastapi_app
+
+
+@pytest.fixture(scope="session")
+async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, Any]:
+    async with AsyncClient(app=app, base_url="http://testserver") as c:
         yield c
 
 
 @pytest.fixture(scope="session")
-async def global_root_user() -> User:
+async def global_root_user(app: FastAPI) -> User:
     user = await create_test_user()
     user.role = DefaultRole.ROOT
     await user.commit()
@@ -34,17 +42,17 @@ async def global_root_user() -> User:
 
 
 @pytest.fixture(scope="session")
-async def global_domain_root_user() -> User:
+async def global_domain_root_user(app: FastAPI) -> User:
     return await create_test_user()
 
 
 @pytest.fixture(scope="session")
-async def global_domain_user() -> User:
+async def global_domain_user(app: FastAPI) -> User:
     return await create_test_user()
 
 
 @pytest.fixture(scope="session")
-async def global_guest_user() -> User:
+async def global_guest_user(app: FastAPI) -> User:
     return await create_test_user()
 
 

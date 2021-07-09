@@ -2,6 +2,7 @@ import pytest
 from bson import ObjectId
 from fastapi.encoders import jsonable_encoder
 from fastapi.testclient import TestClient
+from httpx import AsyncClient
 
 from joj.horse import schemas
 from joj.horse.apis import domains, problems, user
@@ -32,11 +33,13 @@ base_problems_url = get_base_url(problems)
 
 @pytest.mark.dependency()
 @pytest.mark.asyncio
-async def test_create_root_user(client: TestClient, global_root_user: User) -> None:
+async def test_create_root_user(global_root_user: User) -> None:
     assert global_root_user.role == DefaultRole.ROOT
 
 
-# def test_get_user(
+# @pytest.mark.dependency()
+# @pytest.mark.asyncio
+# async def test_get_user(
 #     client: TestClient, test_user_token_headers: Dict[str, str], test_user: User
 # ) -> None:
 #     r = client.get(base_user_url, headers=test_user_token_headers)
