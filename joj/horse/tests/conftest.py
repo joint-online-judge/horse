@@ -6,15 +6,46 @@ from fastapi.testclient import TestClient
 from fastapi_jwt_auth import AuthJWT
 
 from joj.horse import app
+from joj.horse.models.permission import DefaultRole
 from joj.horse.models.user import User
 from joj.horse.tests.utils.utils import create_test_user
 from joj.horse.utils.auth import auth_jwt_encode
 
 
-@pytest.fixture(scope="module")
+@pytest.yield_fixture(scope="session")
+def event_loop(request: Any) -> Generator[asyncio.AbstractEventLoop, Any, Any]:
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
+
+
+@pytest.fixture(scope="session")
 def client() -> Generator[TestClient, Any, Any]:
     with TestClient(app) as c:
         yield c
+
+
+@pytest.fixture(scope="session")
+async def global_root_user() -> User:
+    user = await create_test_user()
+    user.role = DefaultRole.ROOT
+    await user.commit()
+    return user
+
+
+@pytest.fixture(scope="session")
+async def global_domain_root_user() -> User:
+    return await create_test_user()
+
+
+@pytest.fixture(scope="session")
+async def global_domain_user() -> User:
+    return await create_test_user()
+
+
+@pytest.fixture(scope="session")
+async def global_guest_user() -> User:
+    return await create_test_user()
 
 
 @pytest.fixture(scope="session")

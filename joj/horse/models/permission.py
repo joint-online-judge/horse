@@ -5,12 +5,13 @@ from pydantic import BaseModel
 from umongo import fields
 from umongo.embedded_document import EmbeddedDocumentImplementation
 
+from joj.horse.utils.base import StrEnumMixin
 from joj.horse.utils.db import instance
 
 BaseModelType = TypeVar("BaseModelType", bound=BaseModel)
 
 
-class DefaultRole(str, Enum):
+class DefaultRole(StrEnumMixin, Enum):
     ROOT = "root"
     ADMIN = "admin"
     USER = "user"
@@ -18,7 +19,7 @@ class DefaultRole(str, Enum):
     JUDGE = "judge"
 
 
-class ScopeType(str, Enum):
+class ScopeType(StrEnumMixin, Enum):
     DOMAIN_GENERAL = "general"
     DOMAIN_PROBLEM = "problem"
     DOMAIN_PROBLEM_SET = "problem_set"
@@ -30,7 +31,7 @@ class ScopeType(str, Enum):
     UNKNOWN = "unknown"
 
 
-class PermissionType(str, Enum):
+class PermissionType(StrEnumMixin, Enum):
     view = "view"
     view_mod_badge = "view_mod_badge"
     view_hidden = "view_hidden"

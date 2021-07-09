@@ -67,9 +67,6 @@ async def create_domain(
                 domain_model = models.Domain(**domain_schema.to_model())
                 await domain_model.commit()
                 await domain_model.set_url_from_id()
-                # if none_url:
-                #     domain_model.url = str(domain_model.id)
-                #     await domain_model.commit()
                 logger.info("domain created: %s", domain_model)
                 # create domain user for creator
                 domain_user_schema = schemas.DomainUser(
