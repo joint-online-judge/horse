@@ -5,6 +5,7 @@ from typing import Any, Dict, List
 from pydantic import EmailStr, validator
 from pydantic.main import BaseModel
 
+from joj.horse.models.permission import DefaultRole
 from joj.horse.schemas.base import BaseODMSchema
 
 UID_RE = re.compile(r"-?\d+")
@@ -49,7 +50,7 @@ class UserBase(BaseODMSchema):
 class User(UserBase):
     salt: str = ""
     hash: str = ""
-    role: str = "user"
+    role: str = DefaultRole.USER
 
     register_ip: str = "0.0.0.0"
     login_ip: str = "0.0.0.0"

@@ -12,19 +12,19 @@ base_user_url = get_base_url(user)
 base_domain_url = get_base_url(domains)
 
 
-domain = schemas.DomainCreate(
-    url=random_lower_string(),
-    name=random_lower_string(),
-    bulletin=random_lower_string(),
-    gravatar=random_lower_string(),
-)
-data = jsonable_encoder(domain)
-domain_edit = schemas.DomainEdit(
-    name=random_lower_string(),
-    bulletin=random_lower_string(),
-    gravatar=random_lower_string(),
-)
-update_data = jsonable_encoder(domain_edit)
+# domain = schemas.DomainCreate(
+#     url=random_lower_string(),
+#     name=random_lower_string(),
+#     bulletin=random_lower_string(),
+#     gravatar=random_lower_string(),
+# )
+# data = jsonable_encoder(domain)
+# domain_edit = schemas.DomainEdit(
+#     name=random_lower_string(),
+#     bulletin=random_lower_string(),
+#     gravatar=random_lower_string(),
+# )
+# update_data = jsonable_encoder(domain_edit)
 # NEW_DOMAIN = {}
 
 

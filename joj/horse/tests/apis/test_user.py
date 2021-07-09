@@ -1,11 +1,11 @@
-from typing import Dict
-
+import pytest
 from bson import ObjectId
 from fastapi.encoders import jsonable_encoder
 from fastapi.testclient import TestClient
 
 from joj.horse import schemas
 from joj.horse.apis import domains, problems, user
+from joj.horse.models.permission import DefaultRole
 from joj.horse.models.user import User
 from joj.horse.tests.utils.utils import get_base_url, random_bool, random_lower_string
 from joj.horse.utils.errors import ErrorCode
@@ -14,12 +14,12 @@ base_user_url = get_base_url(user)
 base_domain_url = get_base_url(domains)
 base_problems_url = get_base_url(problems)
 
-domain = schemas.DomainCreate(
-    url=random_lower_string(),
-    name=random_lower_string(),
-    bulletin=random_lower_string(),
-    gravatar=random_lower_string(),
-)
+# domain = schemas.DomainCreate(
+#     url=random_lower_string(),
+#     name=random_lower_string(),
+#     bulletin=random_lower_string(),
+#     gravatar=random_lower_string(),
+# )
 # problem = schemas.ProblemCreate(
 #     domain=domain.url,
 #     title=random_lower_string(),
@@ -30,19 +30,25 @@ domain = schemas.DomainCreate(
 # NEW_DOMAIN = {}
 
 
-def test_get_user(
-    client: TestClient, test_user_token_headers: Dict[str, str], test_user: User
-) -> None:
-    r = client.get(base_user_url, headers=test_user_token_headers)
-    assert r.status_code == 200
-    res = r.json()
-    assert res["error_code"] == ErrorCode.Success
-    res = res["data"]
-    assert res["scope"] == "sjtu"
-    assert res["uname"] == test_user.uname
-    assert res["student_id"] == test_user.student_id
-    assert res["real_name"] == test_user.real_name
-    assert res["login_ip"] == test_user.login_ip
+@pytest.mark.dependency()
+@pytest.mark.asyncio
+async def test_create_root_user(client: TestClient, global_root_user: User) -> None:
+    assert global_root_user.role == DefaultRole.ROOT
+
+
+# def test_get_user(
+#     client: TestClient, test_user_token_headers: Dict[str, str], test_user: User
+# ) -> None:
+#     r = client.get(base_user_url, headers=test_user_token_headers)
+#     assert r.status_code == 200
+#     res = r.json()
+#     assert res["error_code"] == ErrorCode.Success
+#     res = res["data"]
+#     assert res["scope"] == "sjtu"
+#     assert res["uname"] == test_user.uname
+#     assert res["student_id"] == test_user.student_id
+#     assert res["real_name"] == test_user.real_name
+#     assert res["login_ip"] == test_user.login_ip
 
 
 # def test_get_user_domains(
