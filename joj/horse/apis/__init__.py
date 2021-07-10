@@ -3,17 +3,15 @@ from typing import Any, Callable
 from fastapi import FastAPI
 
 from joj.horse import app
-from joj.horse.apis import (
-    admin,
-    domains,
-    misc,
-    problem_groups,
-    problem_sets,
-    problems,
-    records,
-    user,
-    users,
-)
+from joj.horse.apis import admin as admin
+from joj.horse.apis import domains as domains
+from joj.horse.apis import misc as misc
+from joj.horse.apis import problem_groups as problem_groups
+from joj.horse.apis import problem_sets as problem_sets
+from joj.horse.apis import problems as problems
+from joj.horse.apis import records as records
+from joj.horse.apis import user as user
+from joj.horse.apis import users as users
 from joj.horse.apis.domains import add_domain_user
 from joj.horse.apis.problem_sets import clone_problem_set
 from joj.horse.apis.problems import clone_problem, submit_solution_to_problem
