@@ -8,7 +8,6 @@ The new generation of JOJ Backend. "Horse" is related to speed, an excellent fea
 
 + Python >= 3.7
 + mongodb >= 3.5
-+ rabbitmq
 + redis
 
 ## Installation

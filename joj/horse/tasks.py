@@ -1,6 +1,12 @@
 from celery import Celery
 
-celery_app = Celery("tasks", backend="rpc://", broker="pyamqp://localhost//")
+from joj.horse.config import settings
+
+celery_app = Celery(
+    "tasks",
+    backend="rpc://",
+    broker=f"redis://{settings.redis_host}:{settings.redis_port}/0",
+)
 
 celery_app.conf.update({"result_persistent": False})
 
