@@ -121,12 +121,12 @@ async def parse_problem_set_with_time(
     problem_set: str, auth: Authentication = Depends()
 ) -> models.ProblemSet:
     # TODO: domain admin can see problem sets which are not in available period
-    problem_set = await parse_problem_set(problem_set, auth)
-    if datetime.utcnow() < problem_set.available_time:
+    problem_set_schema = await parse_problem_set(problem_set, auth)
+    if datetime.utcnow() < problem_set_schema.available_time:
         raise BizError(ErrorCode.ProblemSetBeforeAvailableError)
-    if datetime.utcnow() > problem_set.due_time:
+    if datetime.utcnow() > problem_set_schema.due_time:
         raise BizError(ErrorCode.ProblemSetAfterDueError)
-    return problem_set
+    return problem_set_schema
 
 
 async def parse_problem_group(problem_group: str) -> models.ProblemSet:

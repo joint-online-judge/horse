@@ -13,7 +13,8 @@ from tenacity import RetryError
 from uvicorn.config import logger
 
 from joj.horse.config import settings
-from joj.horse.utils.cache import test_cache
+
+# from joj.horse.utils.cache import test_cache
 from joj.horse.utils.db import ensure_indexes, get_db
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.url import generate_url

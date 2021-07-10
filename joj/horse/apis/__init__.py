@@ -56,8 +56,8 @@ def update_schema_name(
         name: The new name of the schema.
     """
     for route in app.routes:
-        if route.endpoint is function:
-            route.body_field.type_.__name__ = name
+        if route.endpoint is function:  # type: ignore
+            route.body_field.type_.__name__ = name  # type: ignore
             break
 
 

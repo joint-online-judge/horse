@@ -46,7 +46,7 @@ class ProblemSetCreate(BaseModel):
 
 
 class ProblemSet(ProblemSetCreate, BaseODMSchema):
-    domain: ReferenceSchema[Domain]  # type: ignore
+    domain: ReferenceSchema[Domain]
     owner: ReferenceSchema[UserBase]
 
     num_submit: int = 0

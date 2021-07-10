@@ -46,7 +46,7 @@ class Problem(ProblemCreate, BaseODMSchema):
     domain: ReferenceSchema[Domain]
     owner: ReferenceSchema[UserBase]
     problem_group: ReferenceSchema[ProblemGroup]
-    problem_set: ReferenceSchema[ProblemSet]  # type: ignore
+    problem_set: ReferenceSchema[ProblemSet]
 
     num_submit: int = 0
     num_accept: int = 0
