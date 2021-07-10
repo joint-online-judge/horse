@@ -41,7 +41,7 @@ class DomainRoleCreate(BaseModel):
 
 class DomainRole(DomainRoleCreate, BaseODMSchema):
     domain: ReferenceSchema[Domain]
-    role: str  # type: ignore
+    role: str
 
     _validator_domain: Callable[
         [AnyCallable], classmethod
