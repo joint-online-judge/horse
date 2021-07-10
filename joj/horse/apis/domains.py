@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from bson import ObjectId
 from fastapi import Body, Depends, Query
@@ -53,7 +53,7 @@ async def list_domains(
     cursor = models.DomainUser.cursor_find_user_domains(user.id, role, query)
     domain_users = await schemas.DomainUser.to_list(cursor)
     results = [x.domain for x in domain_users]
-    return StandardResponse(ListDomains(results=results))  # type: ignore
+    return StandardResponse(ListDomains(results=results))
 
 
 @router.post(
@@ -95,6 +95,7 @@ async def create_domain(
                         domain=domain_model.id,
                         role=role,
                         permission=DEFAULT_DOMAIN_PERMISSION[role],
+                        updated_at=datetime.utcnow(),
                     )
                     domain_role_model = models.DomainRole(
                         **domain_role_schema.to_model()
@@ -102,10 +103,15 @@ async def create_domain(
                     await domain_role_model.commit()
                     logger.info("domain role created: %s", domain_user_model)
 
-    except ValidationError:
-        raise BizError(ErrorCode.UrlNotUniqueError)
+    except ValidationError as e:
+        if (
+            isinstance(e.messages, Dict)
+            and e.messages.get("url") == "Field value must be unique."
+        ):
+            raise BizError(ErrorCode.UrlNotUniqueError)
+        raise e
     except Exception as e:
-        logger.error("domain creation failed: %s", domain.url)
+        logger.exception(f"domain creation failed: {domain.url}")
         raise e
     return StandardResponse(schemas.Domain.from_orm(domain_model))
 
