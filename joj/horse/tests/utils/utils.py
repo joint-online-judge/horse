@@ -1,8 +1,11 @@
 import random
 import string
-from typing import Any
+from typing import Any, Dict
+
+from fastapi_jwt_auth import AuthJWT
 
 from joj.horse.models.user import User
+from joj.horse.utils.auth import auth_jwt_encode
 
 
 def random_lower_string(length: int = 32) -> str:
@@ -33,3 +36,8 @@ def get_base_url(module: Any) -> str:
     return module.router_prefix + (
         "/" + module.router_name if module.router_name else ""
     )
+
+
+def generate_auth_headers(user: User) -> Dict[str, str]:
+    access_jwt = auth_jwt_encode(auth_jwt=AuthJWT(), user=user, channel="jaccount")
+    return {"Authorization": f"Bearer {access_jwt}"}
