@@ -43,7 +43,7 @@ async def logout(
         url = get_jaccount_logout_url(redirect_url=redirect_url)
     else:
         url = redirect_url
-
+    response: Union[RedirectResponse, JSONResponse]
     if redirect:
         response = RedirectResponse(url)
     else:
@@ -71,6 +71,7 @@ async def jaccount_login(
     jaccount_redirect_url = generate_url(router_prefix, router_name, "jaccount", "auth")
     url, state = client.get_authorize_url(jaccount_redirect_url)
 
+    response: Union[RedirectResponse, JSONResponse]
     if redirect:
         response = RedirectResponse(url)
     else:
@@ -105,13 +106,14 @@ async def jaccount_auth(
         async with aiohttp.ClientSession() as http:
             async with http.post(
                 token_url, headers=headers, data=body.encode("utf-8")
-            ) as response:
-                data = await response.json()
+            ) as resp:
+                data = await resp.json()
                 parsed_data = jwt.decode(
                     data["id_token"], verify=False, options={"verify_signature": False}
                 )
                 id_token = jaccount.IDToken(**parsed_data)
     except Exception as e:
+        logger.exception("Jaccount auth error")
         raise BadRequestError(message="Jaccount authentication failed")
 
     logger.info("Jaccount login: " + str(id_token))
