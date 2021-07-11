@@ -14,6 +14,7 @@ from joj.horse.apis import (
     user,
     users,
 )
+from joj.horse.apis.domains import add_domain_user
 from joj.horse.apis.problem_sets import clone_problem_set
 from joj.horse.apis.problems import clone_problem, submit_solution_to_problem
 
@@ -56,11 +57,12 @@ def update_schema_name(
         name: The new name of the schema.
     """
     for route in app.routes:
-        if route.endpoint is function:  # type: ignore
-            route.body_field.type_.__name__ = name  # type: ignore
+        if route.endpoint is function:
+            route.body_field.type_.__name__ = name
             break
 
 
-update_schema_name(app, submit_solution_to_problem, "CodeFile")
-update_schema_name(app, clone_problem_set, "CloneProblemSet")
-update_schema_name(app, clone_problem, "CloneProblem")
+update_schema_name(app, add_domain_user, "DomainUserAdd")
+update_schema_name(app, submit_solution_to_problem, "ProblemSolutionSubmit")
+update_schema_name(app, clone_problem_set, "ProblemSetClone")
+update_schema_name(app, clone_problem, "ProblemClone")
