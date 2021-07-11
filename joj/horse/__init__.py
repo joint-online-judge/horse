@@ -43,7 +43,8 @@ async def startup_event() -> None:
         exit(-1)
 
 
-# we temporarily redirect "/" to "/api/v1" for debugging
+# we temporarily redirect "/" and "/api" to "/api/v1" for debugging
+@app.get("/api")
 @app.get("/")
 async def redirect_to_docs() -> RedirectResponse:
     redirect_url = generate_url("/api/v1")
