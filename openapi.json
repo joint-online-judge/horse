@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 2f2e00f",
+    "description": "Git version: 1a21292@2021-07-12 11:04:16",
     "version": "0.0.0"
   },
   "paths": {
@@ -22,51 +22,20 @@
         }
       }
     },
-    "/api/v1/version": {
+    "/api": {
       "get": {
-        "tags": [
-          "miscellaneous"
-        ],
-        "summary": "Version",
-        "operationId": "version_api_v1_version_get",
+        "summary": "Redirect To Docs",
+        "operationId": "redirect_to_docs_api_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Version"
-                }
+                "schema": {}
               }
             }
           }
         }
-      }
-    },
-    "/api/v1/jwt": {
-      "get": {
-        "tags": [
-          "miscellaneous"
-        ],
-        "summary": "Jwt",
-        "operationId": "jwt_api_v1_jwt_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JWT"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
       }
     },
     "/api/v1/domains": {
@@ -75,16 +44,47 @@
           "domain"
         ],
         "summary": "List Domains",
-        "description": "List all domains in which {user} has a role.\nUse current login user if {user} is not specified.",
+        "description": "List all domains that the current user has a role.",
         "operationId": "list_domains_api_v1_domains_get",
         "parameters": [
           {
             "required": false,
             "schema": {
-              "title": "Uid",
-              "type": "string"
+              "title": "Role",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             },
-            "name": "uid",
+            "name": "role",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Skip",
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "name": "skip",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Limit",
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "name": "limit",
             "in": "query"
           }
         ],
@@ -94,11 +94,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Response List Domains Api V1 Domains Get",
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Domain"
-                  }
+                  "$ref": "#/components/schemas/ListDomainsResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -126,61 +132,33 @@
         ],
         "summary": "Create Domain",
         "operationId": "create_domain_api_v1_domains_post",
-        "parameters": [
-          {
-            "description": "(unique) url of the domain",
-            "required": true,
-            "schema": {
-              "title": "Url",
-              "type": "string",
-              "description": "(unique) url of the domain"
-            },
-            "name": "url",
-            "in": "query"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DomainCreate"
+              }
+            }
           },
-          {
-            "description": "displayed name of the domain",
-            "required": true,
-            "schema": {
-              "title": "Name",
-              "type": "string",
-              "description": "displayed name of the domain"
-            },
-            "name": "name",
-            "in": "query"
-          },
-          {
-            "description": "bulletin of the domain",
-            "required": false,
-            "schema": {
-              "title": "Bulletin",
-              "type": "string",
-              "description": "bulletin of the domain",
-              "default": ""
-            },
-            "name": "bulletin",
-            "in": "query"
-          },
-          {
-            "description": "gravatar url of the domain",
-            "required": false,
-            "schema": {
-              "title": "Gravatar",
-              "type": "string",
-              "description": "gravatar url of the domain",
-              "default": ""
-            },
-            "name": "gravatar",
-            "in": "query"
-          }
-        ],
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Domain"
+                  "$ref": "#/components/schemas/DomainResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -212,10 +190,12 @@
         "operationId": "get_domain_api_v1_domains__domain__get",
         "parameters": [
           {
+            "description": "url or ObjectId of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
-              "type": "string"
+              "type": "string",
+              "description": "url or ObjectId of the domain"
             },
             "name": "domain",
             "in": "path"
@@ -227,7 +207,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Domain"
+                  "$ref": "#/components/schemas/DomainResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -254,6 +244,7 @@
           "domain"
         ],
         "summary": "Delete Domain",
+        "description": "TODO: finish this part\n\ntc-imba: delete domain have many side effects, and is not urgent,\n         marked it deprecated and implement it later",
         "operationId": "delete_domain_api_v1_domains__domain__delete",
         "parameters": [
           {
@@ -269,8 +260,25 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "Successful Response"
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmptyResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -283,6 +291,7 @@
             }
           }
         },
+        "deprecated": true,
         "security": [
           {
             "HTTPBearer": []
@@ -312,7 +321,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/EditDomain"
+                "$ref": "#/components/schemas/DomainEdit"
               }
             }
           },
@@ -324,7 +333,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Domain"
+                  "$ref": "#/components/schemas/DomainResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -347,24 +366,53 @@
         ]
       }
     },
-    "/api/v1/problems": {
+    "/api/v1/domains/{domain}/users": {
       "get": {
         "tags": [
-          "problem"
+          "domain"
         ],
-        "summary": "List Problems",
-        "operationId": "list_problems_api_v1_problems_get",
+        "summary": "List Domain Users",
+        "operationId": "list_domain_users_api_v1_domains__domain__users_get",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Response List Problems Api V1 Problems Get",
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Problem"
-                  }
+                  "$ref": "#/components/schemas/ListDomainUsersResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -378,32 +426,31 @@
       },
       "post": {
         "tags": [
-          "problem"
+          "domain"
         ],
-        "summary": "Create Problem",
-        "operationId": "create_problem_api_v1_problems_post",
+        "summary": "Add Domain User",
+        "operationId": "add_domain_user_api_v1_domains__domain__users_post",
         "parameters": [
           {
-            "description": "url or the id of the domain",
+            "description": "url or ObjectId of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or the id of the domain"
+              "description": "url or ObjectId of the domain"
             },
             "name": "domain",
-            "in": "query"
+            "in": "path"
           }
         ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Problem"
+                "$ref": "#/components/schemas/DomainUserAdd"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -411,7 +458,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Problem"
+                  "$ref": "#/components/schemas/DomainUserResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -434,21 +491,34 @@
         ]
       }
     },
-    "/api/v1/problems/{problem}": {
+    "/api/v1/domains/{domain}/users/{user}": {
       "get": {
         "tags": [
-          "problem"
+          "domain"
         ],
-        "summary": "Get Problem",
-        "operationId": "get_problem_api_v1_problems__problem__get",
+        "summary": "Get Domain User",
+        "operationId": "get_domain_user_api_v1_domains__domain__users__user__get",
         "parameters": [
           {
+            "description": "url or ObjectId of the domain",
             "required": true,
             "schema": {
-              "title": "Problem",
-              "type": "string"
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
             },
-            "name": "problem",
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "'me' or ObjectId of the user",
+            "required": true,
+            "schema": {
+              "title": "User",
+              "type": "string",
+              "description": "'me' or ObjectId of the user"
+            },
+            "name": "user",
             "in": "path"
           }
         ],
@@ -458,7 +528,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Problem"
+                  "$ref": "#/components/schemas/DomainUserResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -482,24 +562,54 @@
       },
       "delete": {
         "tags": [
-          "problem"
+          "domain"
         ],
-        "summary": "Delete Problem",
-        "operationId": "delete_problem_api_v1_problems__problem__delete",
+        "summary": "Remove Domain User",
+        "operationId": "remove_domain_user_api_v1_domains__domain__users__user__delete",
         "parameters": [
           {
+            "description": "url or ObjectId of the domain",
             "required": true,
             "schema": {
-              "title": "Problem",
-              "type": "string"
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
             },
-            "name": "problem",
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "'me' or ObjectId of the user",
+            "required": true,
+            "schema": {
+              "title": "User",
+              "type": "string",
+              "description": "'me' or ObjectId of the user"
+            },
+            "name": "user",
             "in": "path"
           }
         ],
         "responses": {
-          "204": {
-            "description": "Successful Response"
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmptyResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -520,18 +630,31 @@
       },
       "patch": {
         "tags": [
-          "problem"
+          "domain"
         ],
-        "summary": "Update Problem",
-        "operationId": "update_problem_api_v1_problems__problem__patch",
+        "summary": "Update Domain User",
+        "operationId": "update_domain_user_api_v1_domains__domain__users__user__patch",
         "parameters": [
           {
+            "description": "url or ObjectId of the domain",
             "required": true,
             "schema": {
-              "title": "Problem",
-              "type": "string"
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
             },
-            "name": "problem",
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "'me' or ObjectId of the user",
+            "required": true,
+            "schema": {
+              "title": "User",
+              "type": "string",
+              "description": "'me' or ObjectId of the user"
+            },
+            "name": "user",
             "in": "path"
           }
         ],
@@ -539,11 +662,12 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/EditProblem"
+                "title": "Role",
+                "type": "string",
+                "default": "user"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -551,7 +675,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Problem"
+                  "$ref": "#/components/schemas/DomainUserResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -574,100 +708,23 @@
         ]
       }
     },
-    "/api/v1/problems/{problem}/clone": {
-      "post": {
+    "/api/v1/domains/{domain}/roles": {
+      "get": {
         "tags": [
-          "problem"
+          "domain"
         ],
-        "summary": "Clone Problem",
-        "operationId": "clone_problem_api_v1_problems__problem__clone_post",
+        "summary": "List Domain Roles",
+        "operationId": "list_domain_roles_api_v1_domains__domain__roles_get",
         "parameters": [
           {
-            "required": true,
-            "schema": {
-              "title": "Problem",
-              "type": "string"
-            },
-            "name": "problem",
-            "in": "path"
-          },
-          {
-            "description": "url or the id of the domain",
+            "description": "url or ObjectId of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or the id of the domain"
+              "description": "url or ObjectId of the domain"
             },
             "name": "domain",
-            "in": "query"
-          },
-          {
-            "description": "create new problem group or use the original one",
-            "required": false,
-            "schema": {
-              "title": "New Group",
-              "type": "boolean",
-              "description": "create new problem group or use the original one",
-              "default": false
-            },
-            "name": "new_group",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/problems/{problem_set}/{problem}": {
-      "put": {
-        "tags": [
-          "problem"
-        ],
-        "summary": "Add Problem To Problem Set",
-        "operationId": "add_problem_to_problem_set_api_v1_problems__problem_set___problem__put",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "Problem Set",
-              "type": "string"
-            },
-            "name": "problem_set",
-            "in": "path"
-          },
-          {
-            "required": true,
-            "schema": {
-              "title": "Problem",
-              "type": "string"
-            },
-            "name": "problem",
             "in": "path"
           }
         ],
@@ -677,7 +734,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemSet"
+                  "$ref": "#/components/schemas/ListDomainRolesResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -701,43 +768,28 @@
       },
       "post": {
         "tags": [
-          "problem"
+          "domain"
         ],
-        "summary": "Submit Solution To Problem",
-        "operationId": "submit_solution_to_problem_api_v1_problems__problem_set___problem__post",
+        "summary": "Create Domain Role",
+        "operationId": "create_domain_role_api_v1_domains__domain__roles_post",
         "parameters": [
           {
+            "description": "url or ObjectId of the domain",
             "required": true,
             "schema": {
-              "title": "Problem Set",
-              "type": "string"
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
             },
-            "name": "problem_set",
+            "name": "domain",
             "in": "path"
-          },
-          {
-            "required": true,
-            "schema": {
-              "title": "Problem",
-              "type": "string"
-            },
-            "name": "problem",
-            "in": "path"
-          },
-          {
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/RecordCodeType"
-            },
-            "name": "code_type",
-            "in": "query"
           }
         ],
         "requestBody": {
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Body_submit_solution_to_problem_api_v1_problems__problem_set___problem__post"
+                "$ref": "#/components/schemas/DomainRoleCreate"
               }
             }
           },
@@ -749,7 +801,89 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Record"
+                  "$ref": "#/components/schemas/DomainRoleResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/roles/{role}": {
+      "delete": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "Delete Domain Role",
+        "operationId": "delete_domain_role_api_v1_domains__domain__roles__role__delete",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "name of the domain role",
+            "required": true,
+            "schema": {
+              "title": "Role",
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string",
+              "description": "name of the domain role"
+            },
+            "name": "role",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmptyResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -771,35 +905,68 @@
           }
         ]
       },
-      "delete": {
+      "patch": {
         "tags": [
-          "problem"
+          "domain"
         ],
-        "summary": "Delete Problem From Problem Set",
-        "operationId": "delete_problem_from_problem_set_api_v1_problems__problem_set___problem__delete",
+        "summary": "Update Domain Role",
+        "operationId": "update_domain_role_api_v1_domains__domain__roles__role__patch",
         "parameters": [
           {
+            "description": "url or ObjectId of the domain",
             "required": true,
             "schema": {
-              "title": "Problem Set",
-              "type": "string"
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
             },
-            "name": "problem_set",
+            "name": "domain",
             "in": "path"
           },
           {
+            "description": "name of the domain role",
             "required": true,
             "schema": {
-              "title": "Problem",
-              "type": "string"
+              "title": "Role",
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string",
+              "description": "name of the domain role"
             },
-            "name": "problem",
+            "name": "role",
             "in": "path"
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DomainRoleEdit"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
-          "204": {
-            "description": "Successful Response"
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DomainRoleResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -819,24 +986,366 @@
         ]
       }
     },
-    "/api/v1/problem_sets": {
+    "/api/v1/domains/{domain}/invitations": {
+      "post": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "Create Domain Invitation",
+        "operationId": "create_domain_invitation_api_v1_domains__domain__invitations_post",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DomainInvitationCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DomainInvitationResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/invitations/{invitation}": {
+      "delete": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "Delete Domain Invitation",
+        "operationId": "delete_domain_invitation_api_v1_domains__domain__invitations__invitation__delete",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "ObjectId of the domain invitation",
+            "required": true,
+            "schema": {
+              "title": "Invitation",
+              "type": "string",
+              "description": "ObjectId of the domain invitation"
+            },
+            "name": "invitation",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmptyResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "Update Domain Invitation",
+        "operationId": "update_domain_invitation_api_v1_domains__domain__invitations__invitation__patch",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "ObjectId of the domain invitation",
+            "required": true,
+            "schema": {
+              "title": "Invitation",
+              "type": "string",
+              "description": "ObjectId of the domain invitation"
+            },
+            "name": "invitation",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DomainInvitationEdit"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DomainInvitationResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/join": {
+      "post": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "Join Domain By Invitation",
+        "operationId": "join_domain_by_invitation_api_v1_domains__domain__join_post",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Invitation Code",
+              "type": "string"
+            },
+            "name": "invitation_code",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DomainUserResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/problem_sets": {
       "get": {
         "tags": [
           "problem set"
         ],
         "summary": "List Problem Sets",
-        "operationId": "list_problem_sets_api_v1_problem_sets_get",
+        "operationId": "list_problem_sets_api_v1_domains__domain__problem_sets_get",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Skip",
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "name": "skip",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Limit",
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "name": "limit",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Response List Problem Sets Api V1 Problem Sets Get",
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ProblemSet"
-                  }
+                  "$ref": "#/components/schemas/ListProblemSetsResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -853,77 +1362,47 @@
           "problem set"
         ],
         "summary": "Create Problem Set",
-        "operationId": "create_problem_set_api_v1_problem_sets_post",
+        "operationId": "create_problem_set_api_v1_domains__domain__problem_sets_post",
         "parameters": [
           {
-            "description": "url or the id of the domain",
+            "description": "url or ObjectId of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or the id of the domain"
+              "description": "url or ObjectId of the domain"
             },
             "name": "domain",
-            "in": "query"
-          },
-          {
-            "description": "title of the problem set",
-            "required": true,
-            "schema": {
-              "title": "Title",
-              "type": "string",
-              "description": "title of the problem set"
-            },
-            "name": "title",
-            "in": "query"
-          },
-          {
-            "description": "content of the problem set",
-            "required": false,
-            "schema": {
-              "title": "Content",
-              "type": "string",
-              "description": "content of the problem set",
-              "default": ""
-            },
-            "name": "content",
-            "in": "query"
-          },
-          {
-            "description": "whether the problem set is hidden",
-            "required": false,
-            "schema": {
-              "title": "Hidden",
-              "type": "boolean",
-              "description": "whether the problem set is hidden",
-              "default": false
-            },
-            "name": "hidden",
-            "in": "query"
-          },
-          {
-            "description": "problems belonging to the problem set",
-            "required": false,
-            "schema": {
-              "title": "Problems",
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "description": "problems belonging to the problem set",
-              "default": []
-            },
-            "name": "problems",
-            "in": "query"
+            "in": "path"
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProblemSetCreate"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemSet"
+                  "$ref": "#/components/schemas/ProblemSetResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -946,14 +1425,25 @@
         ]
       }
     },
-    "/api/v1/problem_sets/{problem_set}": {
+    "/api/v1/domains/{domain}/problem_sets/{problem_set}": {
       "get": {
         "tags": [
           "problem set"
         ],
         "summary": "Get Problem Set",
-        "operationId": "get_problem_set_api_v1_problem_sets__problem_set__get",
+        "operationId": "get_problem_set_api_v1_domains__domain__problem_sets__problem_set__get",
         "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
           {
             "required": true,
             "schema": {
@@ -970,7 +1460,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemSet"
+                  "$ref": "#/components/schemas/ProblemSetResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -997,7 +1497,225 @@
           "problem set"
         ],
         "summary": "Delete Problem Set",
-        "operationId": "delete_problem_set_api_v1_problem_sets__problem_set__delete",
+        "operationId": "delete_problem_set_api_v1_domains__domain__problem_sets__problem_set__delete",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or ObjectId of the problem set",
+            "required": true,
+            "schema": {
+              "title": "Problem Set",
+              "type": "string",
+              "description": "url or ObjectId of the problem set"
+            },
+            "name": "problem_set",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmptyResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": true,
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "problem set"
+        ],
+        "summary": "Update Problem Set",
+        "operationId": "update_problem_set_api_v1_domains__domain__problem_sets__problem_set__patch",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or ObjectId of the problem set",
+            "required": true,
+            "schema": {
+              "title": "Problem Set",
+              "type": "string",
+              "description": "url or ObjectId of the problem set"
+            },
+            "name": "problem_set",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProblemSetEdit"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemSetResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/problem_sets/clone": {
+      "post": {
+        "tags": [
+          "problem set"
+        ],
+        "summary": "Clone Problem Set",
+        "operationId": "clone_problem_set_api_v1_domains__domain__problem_sets_clone_post",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProblemSetClone"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemSetResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/problem_sets/{problem_set}/scoreboard": {
+      "get": {
+        "tags": [
+          "problem set"
+        ],
+        "summary": "Get Scoreboard",
+        "operationId": "get_scoreboard_api_v1_domains__domain__problem_sets__problem_set__scoreboard_get",
         "parameters": [
           {
             "required": true,
@@ -1007,11 +1725,421 @@
             },
             "name": "problem_set",
             "in": "path"
+          },
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
           }
         ],
         "responses": {
-          "204": {
-            "description": "Successful Response"
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScoreBoardResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/problems": {
+      "get": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "List Problems",
+        "operationId": "list_problems_api_v1_domains__domain__problems_get",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Problem Set",
+              "type": "string"
+            },
+            "name": "problem_set",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Problem Group",
+              "type": "string"
+            },
+            "name": "problem_group",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Skip",
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "name": "skip",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Limit",
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListProblemsResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "Create Problem",
+        "operationId": "create_problem_api_v1_domains__domain__problems_post",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProblemCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/problems/{problem}": {
+      "get": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "Get Problem",
+        "operationId": "get_problem_api_v1_domains__domain__problems__problem__get",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "Submit Solution To Problem",
+        "operationId": "submit_solution_to_problem_api_v1_domains__domain__problems__problem__post",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ProblemSolutionSubmit"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "Delete Problem",
+        "operationId": "delete_problem_api_v1_domains__domain__problems__problem__delete",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmptyResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -1032,18 +2160,29 @@
       },
       "patch": {
         "tags": [
-          "problem set"
+          "problem"
         ],
-        "summary": "Update Problem Set",
-        "operationId": "update_problem_set_api_v1_problem_sets__problem_set__patch",
+        "summary": "Update Problem",
+        "operationId": "update_problem_api_v1_domains__domain__problems__problem__patch",
         "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
           {
             "required": true,
             "schema": {
-              "title": "Problem Set",
+              "title": "Problem",
               "type": "string"
             },
-            "name": "problem_set",
+            "name": "problem",
             "in": "path"
           }
         ],
@@ -1051,7 +2190,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/EditProblemSet"
+                "$ref": "#/components/schemas/ProblemEdit"
               }
             }
           },
@@ -1063,7 +2202,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemSet"
+                  "$ref": "#/components/schemas/ProblemResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -1086,24 +2235,72 @@
         ]
       }
     },
-    "/api/v1/problem_groups": {
-      "get": {
+    "/api/v1/domains/{domain}/problems/{problem}/config": {
+      "patch": {
         "tags": [
-          "problem group"
+          "problem"
         ],
-        "summary": "List Problem Groups",
-        "operationId": "list_problem_groups_api_v1_problem_groups_get",
+        "summary": "Update Problem Config",
+        "operationId": "update_problem_config_api_v1_domains__domain__problems__problem__config_patch",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_update_problem_config_api_v1_domains__domain__problems__problem__config_patch"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Response List Problem Groups Api V1 Problem Groups Get",
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ProblemGroup"
-                  }
+                  "$ref": "#/components/schemas/ProblemResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -1116,35 +2313,53 @@
         ]
       }
     },
-    "/api/v1/problem_groups/{problem_group}": {
-      "get": {
+    "/api/v1/domains/{domain}/problems/clone": {
+      "post": {
         "tags": [
-          "problem group"
+          "problem"
         ],
-        "summary": "Get Problems In Problem Group",
-        "operationId": "get_problems_in_problem_group_api_v1_problem_groups__problem_group__get",
+        "summary": "Clone Problem",
+        "operationId": "clone_problem_api_v1_domains__domain__problems_clone_post",
         "parameters": [
           {
+            "description": "url or ObjectId of the domain",
             "required": true,
             "schema": {
-              "title": "Problem Group",
-              "type": "string"
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
             },
-            "name": "problem_group",
+            "name": "domain",
             "in": "path"
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProblemClone"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Response Get Problems In Problem Group Api V1 Problem Groups  Problem Group  Get",
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Problem"
-                  }
+                  "$ref": "#/components/schemas/ListProblemsResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -1176,6 +2391,61 @@
         "operationId": "list_records_api_v1_records_get",
         "parameters": [
           {
+            "required": false,
+            "schema": {
+              "title": "Domain",
+              "type": "string"
+            },
+            "name": "domain",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Problem Set",
+              "type": "string"
+            },
+            "name": "problem_set",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Problem",
+              "type": "string"
+            },
+            "name": "problem",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Skip",
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "name": "skip",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Limit",
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "name": "limit",
+            "in": "query"
+          },
+          {
             "description": "uid or 'me' or empty",
             "required": false,
             "schema": {
@@ -1194,11 +2464,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Response List Records Api V1 Records Get",
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Record"
-                  }
+                  "$ref": "#/components/schemas/ListRecordsResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -1245,7 +2521,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Record"
+                  "$ref": "#/components/schemas/RecordResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -1291,7 +2577,229 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "title": "Response Get Record Code Api V1 Records  Record  Code Get"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/records/{record}/http": {
+      "post": {
+        "tags": [
+          "record"
+        ],
+        "summary": "Http Record",
+        "operationId": "http_record_api_v1_records__record__http_post",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Record",
+              "type": "string"
+            },
+            "name": "record",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordResult"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmptyResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/records/{record}/cases/http": {
+      "post": {
+        "tags": [
+          "record"
+        ],
+        "summary": "Http Record Cases",
+        "operationId": "http_record_cases_api_v1_records__record__cases_http_post",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Record",
+              "type": "string"
+            },
+            "name": "record",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordCaseResult"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmptyResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/problem_groups": {
+      "get": {
+        "tags": [
+          "problem group"
+        ],
+        "summary": "List Problem Groups",
+        "operationId": "list_problem_groups_api_v1_problem_groups_get",
+        "parameters": [
+          {
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Skip",
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "name": "skip",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Limit",
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListProblemGroupsResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
               }
             }
           },
@@ -1328,7 +2836,7 @@
               "title": "Redirect Url",
               "type": "string",
               "description": "Set the redirect url after the logout.",
-              "default": "http://127.0.0.1:34765/"
+              "default": "http://127.0.0.1:34765"
             },
             "name": "redirect_url",
             "in": "query"
@@ -1353,6 +2861,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RedirectModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -1390,7 +2908,7 @@
               "title": "Redirect Url",
               "type": "string",
               "description": "Set the redirect url after the authorization.",
-              "default": "http://127.0.0.1:34765/"
+              "default": "http://127.0.0.1:34765"
             },
             "name": "redirect_url",
             "in": "query"
@@ -1415,6 +2933,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RedirectModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -1473,7 +3001,7 @@
             "schema": {
               "title": "Redirect Url",
               "type": "string",
-              "default": "http://127.0.0.1:34765/"
+              "default": "http://127.0.0.1:34765"
             },
             "name": "redirect_url",
             "in": "cookie"
@@ -1484,7 +3012,19 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/RedirectModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
               }
             }
           },
@@ -1514,37 +3054,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "$ref": "#/components/schemas/UserResp"
                 }
               }
             }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/user/domains": {
-      "get": {
-        "tags": [
-          "user"
-        ],
-        "summary": "Get User Domains",
-        "operationId": "get_user_domains_api_v1_user_domains_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
+          },
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Response Get User Domains Api V1 User Domains Get",
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Domain"
-                  }
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -1564,17 +3084,63 @@
         ],
         "summary": "Get User Problems",
         "operationId": "get_user_problems_api_v1_user_problems_get",
+        "parameters": [
+          {
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Skip",
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "name": "skip",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Limit",
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "name": "limit",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Response Get User Problems Api V1 User Problems Get",
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Problem"
-                  }
+                  "$ref": "#/components/schemas/ListProblemsResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -1611,7 +3177,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserBase"
+                  "$ref": "#/components/schemas/UserBaseResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -1650,6 +3226,47 @@
             },
             "name": "uid",
             "in": "path"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Role",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": []
+            },
+            "name": "role",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Skip",
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "name": "skip",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Limit",
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "name": "limit",
+            "in": "query"
           }
         ],
         "responses": {
@@ -1658,11 +3275,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Response Get User Domains Api V1 Users  Uid  Domains Get",
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/DomainUser"
-                  }
+                  "$ref": "#/components/schemas/ListDomainUsersResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -1701,6 +3324,34 @@
             },
             "name": "uid",
             "in": "path"
+          },
+          {
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Skip",
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "name": "skip",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Limit",
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "name": "limit",
+            "in": "query"
           }
         ],
         "responses": {
@@ -1709,11 +3360,681 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Response Get User Problems Api V1 Users  Uid  Problems Get",
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Problem"
-                  }
+                  "$ref": "#/components/schemas/ListProblemsResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/version": {
+      "get": {
+        "tags": [
+          "miscellaneous"
+        ],
+        "summary": "Version",
+        "operationId": "version_api_v1_version_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Version"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jwt": {
+      "get": {
+        "tags": [
+          "miscellaneous"
+        ],
+        "summary": "Jwt",
+        "operationId": "jwt_api_v1_jwt_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JWT"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/test/sentry": {
+      "get": {
+        "tags": [
+          "miscellaneous"
+        ],
+        "summary": "Test Sentry",
+        "operationId": "test_sentry_api_v1_test_sentry_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Test Sentry Api V1 Test Sentry Get",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/users": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "List Users",
+        "operationId": "list_users_api_v1_admin_users_get",
+        "parameters": [
+          {
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Skip",
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "name": "skip",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Limit",
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListUsersResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Create User",
+        "operationId": "create_user_api_v1_admin_users_post",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Student Id",
+              "type": "string"
+            },
+            "name": "student_id",
+            "in": "query"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Jaccount Name",
+              "type": "string"
+            },
+            "name": "jaccount_name",
+            "in": "query"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Real Name",
+              "type": "string"
+            },
+            "name": "real_name",
+            "in": "query"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Ip",
+              "type": "string"
+            },
+            "name": "ip",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/users/{uid}": {
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Delete User",
+        "operationId": "delete_user_api_v1_admin_users__uid__delete",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Uid",
+              "type": "string"
+            },
+            "name": "uid",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmptyResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/domain_users": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "List Domain Users",
+        "operationId": "list_domain_users_api_v1_admin_domain_users_get",
+        "parameters": [
+          {
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Skip",
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "name": "skip",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Limit",
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListDomainUsersResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/domain_roles": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "List Domain Roles",
+        "operationId": "list_domain_roles_api_v1_admin_domain_roles_get",
+        "parameters": [
+          {
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Skip",
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "name": "skip",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Limit",
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListDomainRolesResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/judgers": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "List Judgers",
+        "operationId": "list_judgers_api_v1_admin_judgers_get",
+        "parameters": [
+          {
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Skip",
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "name": "skip",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Limit",
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListUsersResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Create Judger",
+        "operationId": "create_judger_api_v1_admin_judgers_post",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Uname",
+              "type": "string"
+            },
+            "name": "uname",
+            "in": "query"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Mail",
+              "type": "string",
+              "format": "email"
+            },
+            "name": "mail",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/judgers/{uid}/jwt": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Get Judger Jwt",
+        "operationId": "get_judger_jwt_api_v1_admin_judgers__uid__jwt_get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Uid",
+              "type": "string"
+            },
+            "name": "uid",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JWT"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
                 }
               }
             }
@@ -1739,17 +4060,53 @@
   },
   "components": {
     "schemas": {
-      "Body_submit_solution_to_problem_api_v1_problems__problem_set___problem__post": {
-        "title": "Body_submit_solution_to_problem_api_v1_problems__problem_set___problem__post",
+      "Body_update_problem_config_api_v1_domains__domain__problems__problem__config_patch": {
+        "title": "Body_update_problem_config_api_v1_domains__domain__problems__problem__config_patch",
         "required": [
-          "file"
+          "config"
         ],
         "type": "object",
         "properties": {
-          "file": {
-            "title": "File",
+          "config": {
+            "title": "Config",
             "type": "string",
             "format": "binary"
+          }
+        }
+      },
+      "Config": {
+        "title": "Config",
+        "type": "object",
+        "properties": {
+          "files": {
+            "title": "Files",
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/File"
+            },
+            "default": {}
+          }
+        }
+      },
+      "DataVersion": {
+        "title": "DataVersion",
+        "enum": [
+          1,
+          2
+        ],
+        "type": "integer",
+        "description": "An enumeration."
+      },
+      "Detail": {
+        "title": "Detail",
+        "required": [
+          "detail"
+        ],
+        "type": "object",
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "string"
           }
         }
       },
@@ -1768,11 +4125,29 @@
           },
           "url": {
             "title": "Url",
+            "maxLength": 256,
+            "minLength": 1,
             "type": "string"
           },
           "name": {
             "title": "Name",
-            "type": "string"
+            "maxLength": 256,
+            "type": "string",
+            "description": "displayed name of the domain"
+          },
+          "bulletin": {
+            "title": "Bulletin",
+            "maxLength": 65536,
+            "type": "string",
+            "description": "bulletin of the domain",
+            "default": ""
+          },
+          "gravatar": {
+            "title": "Gravatar",
+            "maxLength": 256,
+            "type": "string",
+            "description": "gravatar url of the domain",
+            "default": ""
           },
           "owner": {
             "title": "Owner",
@@ -1784,16 +4159,303 @@
                 "$ref": "#/components/schemas/UserBase"
               }
             ]
-          },
-          "gravatar": {
-            "title": "Gravatar",
+          }
+        }
+      },
+      "DomainCreate": {
+        "title": "DomainCreate",
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "title": "Url",
             "type": "string",
+            "description": "(unique) url of the domain",
             "default": ""
+          },
+          "name": {
+            "title": "Name",
+            "maxLength": 256,
+            "type": "string",
+            "description": "displayed name of the domain"
           },
           "bulletin": {
             "title": "Bulletin",
+            "maxLength": 65536,
             "type": "string",
+            "description": "bulletin of the domain",
             "default": ""
+          },
+          "gravatar": {
+            "title": "Gravatar",
+            "maxLength": 256,
+            "type": "string",
+            "description": "gravatar url of the domain",
+            "default": ""
+          }
+        }
+      },
+      "DomainEdit": {
+        "title": "DomainEdit",
+        "type": "object",
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "maxLength": 256,
+            "type": "string"
+          },
+          "gravatar": {
+            "title": "Gravatar",
+            "maxLength": 256,
+            "type": "string"
+          },
+          "bulletin": {
+            "title": "Bulletin",
+            "maxLength": 65536,
+            "type": "string"
+          }
+        }
+      },
+      "DomainInvitation": {
+        "title": "DomainInvitation",
+        "required": [
+          "domain"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "code": {
+            "title": "Code",
+            "maxLength": 256,
+            "type": "string",
+            "description": "invitation code",
+            "default": ""
+          },
+          "expire_at": {
+            "title": "Expire At",
+            "type": "string",
+            "description": "expire time of invitation",
+            "format": "date-time",
+            "default": "9999-12-31T23:59:59.999999"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string",
+            "description": "domain role after invitation",
+            "default": "user"
+          },
+          "domain": {
+            "title": "Domain",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/Domain"
+              }
+            ]
+          }
+        }
+      },
+      "DomainInvitationCreate": {
+        "title": "DomainInvitationCreate",
+        "type": "object",
+        "properties": {
+          "code": {
+            "title": "Code",
+            "maxLength": 256,
+            "type": "string",
+            "description": "invitation code",
+            "default": ""
+          },
+          "expire_at": {
+            "title": "Expire At",
+            "type": "string",
+            "description": "expire time of invitation",
+            "format": "date-time",
+            "default": "9999-12-31T23:59:59.999999"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string",
+            "description": "domain role after invitation",
+            "default": "user"
+          }
+        }
+      },
+      "DomainInvitationEdit": {
+        "title": "DomainInvitationEdit",
+        "type": "object",
+        "properties": {
+          "code": {
+            "title": "Code",
+            "maxLength": 256,
+            "type": "string",
+            "description": "invitation code"
+          },
+          "expire_at": {
+            "title": "Expire At",
+            "type": "string",
+            "description": "expire time of invitation",
+            "format": "date-time"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string",
+            "description": "domain role after invitation"
+          }
+        }
+      },
+      "DomainInvitationResp": {
+        "title": "DomainInvitationResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DomainInvitation"
+          }
+        }
+      },
+      "DomainResp": {
+        "title": "DomainResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Domain"
+          }
+        }
+      },
+      "DomainRole": {
+        "title": "DomainRole",
+        "required": [
+          "role",
+          "domain"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "permission": {
+            "title": "Permission",
+            "type": "object",
+            "default": {}
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string",
+            "format": "date-time",
+            "default": "2021-07-12T11:05:02.024268"
+          },
+          "domain": {
+            "title": "Domain",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/Domain"
+              }
+            ]
+          }
+        }
+      },
+      "DomainRoleCreate": {
+        "title": "DomainRoleCreate",
+        "required": [
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "role": {
+            "title": "Role",
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "permission": {
+            "title": "Permission",
+            "type": "object",
+            "default": {}
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string",
+            "format": "date-time",
+            "default": "2021-07-12T11:05:02.024268"
+          }
+        }
+      },
+      "DomainRoleEdit": {
+        "title": "DomainRoleEdit",
+        "type": "object",
+        "properties": {
+          "role": {
+            "title": "Role",
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string",
+            "description": "New role name"
+          },
+          "permission": {
+            "title": "Permission",
+            "type": "object",
+            "description": "The permission which needs to be updated"
+          }
+        }
+      },
+      "DomainRoleResp": {
+        "title": "DomainRoleResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DomainRole"
           }
         }
       },
@@ -1843,72 +4505,133 @@
           }
         }
       },
-      "EditDomain": {
-        "title": "EditDomain",
+      "DomainUserAdd": {
+        "title": "DomainUserAdd",
         "type": "object",
         "properties": {
-          "gravatar": {
-            "title": "Gravatar",
-            "type": "string"
+          "role": {
+            "title": "Role",
+            "type": "string",
+            "default": "user"
           },
-          "bulletin": {
-            "title": "Bulletin",
-            "type": "string"
+          "user": {
+            "title": "User",
+            "type": "string",
+            "description": "'me' or ObjectId of the user",
+            "default": "me"
           }
         }
       },
-      "EditProblem": {
-        "title": "EditProblem",
+      "DomainUserResp": {
+        "title": "DomainUserResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
         "type": "object",
         "properties": {
-          "title": {
-            "title": "Title",
-            "minLength": 1,
-            "type": "string"
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
           },
-          "content": {
-            "title": "Content",
+          "error_msg": {
+            "title": "Error Msg",
             "type": "string"
-          },
-          "hidden": {
-            "title": "Hidden",
-            "type": "boolean"
           },
           "data": {
-            "title": "Data",
-            "type": "integer"
-          },
-          "data_version": {
-            "title": "Data Version",
-            "type": "integer"
-          },
-          "languages": {
-            "title": "Languages",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+            "$ref": "#/components/schemas/DomainUser"
           }
         }
       },
-      "EditProblemSet": {
-        "title": "EditProblemSet",
+      "Empty": {
+        "title": "Empty",
+        "type": "object",
+        "properties": {}
+      },
+      "EmptyResp": {
+        "title": "EmptyResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
         "type": "object",
         "properties": {
-          "title": {
-            "title": "Title",
-            "minLength": 1,
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
             "type": "string"
           },
-          "content": {
-            "title": "Content",
-            "type": "string"
-          },
-          "hidden": {
-            "title": "Hidden",
-            "type": "boolean"
+          "data": {
+            "$ref": "#/components/schemas/Empty"
           }
         }
+      },
+      "ErrorCode": {
+        "title": "ErrorCode",
+        "enum": [
+          "Success",
+          "Error",
+          "InternalServerError",
+          "ApiNotImplementedError",
+          "UserNotFoundError",
+          "DomainNotFoundError",
+          "UrlNotUniqueError",
+          "InvalidUrlError",
+          "ProblemNotFoundError",
+          "ProblemSetNotFoundError",
+          "ProblemGroupNotFoundError",
+          "RecordNotFoundError",
+          "DeleteProblemBadRequestError",
+          "UserAlreadyInDomainBadRequestError",
+          "DomainInvitationBadRequestError",
+          "ScoreboardHiddenBadRequestError",
+          "ProblemSetBeforeAvailableError",
+          "ProblemSetAfterDueError",
+          "UserNotJudgerError",
+          "DomainRoleNotFoundError",
+          "DomainRoleNotUniqueError",
+          "DomainRoleReadOnlyError",
+          "DomainRoleUsedError",
+          "DomainUserNotFoundError",
+          "DomainUserRootError"
+        ],
+        "type": "string",
+        "description": "An enumeration."
+      },
+      "File": {
+        "title": "File",
+        "required": [
+          "type",
+          "path",
+          "digest"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/FileType"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string",
+            "format": "path"
+          },
+          "digest": {
+            "title": "Digest",
+            "type": "string"
+          }
+        }
+      },
+      "FileType": {
+        "title": "FileType",
+        "enum": [
+          "compile",
+          "runtime",
+          "testcase",
+          "judge"
+        ],
+        "type": "string",
+        "description": "An enumeration."
       },
       "HTTPValidationError": {
         "title": "HTTPValidationError",
@@ -1936,19 +4659,327 @@
           }
         }
       },
+      "ListDomainRoles": {
+        "title": "ListDomainRoles",
+        "required": [
+          "results"
+        ],
+        "type": "object",
+        "properties": {
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DomainRole"
+            }
+          }
+        }
+      },
+      "ListDomainRolesResp": {
+        "title": "ListDomainRolesResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ListDomainRoles"
+          }
+        }
+      },
+      "ListDomainUsers": {
+        "title": "ListDomainUsers",
+        "required": [
+          "results"
+        ],
+        "type": "object",
+        "properties": {
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DomainUser"
+            }
+          }
+        }
+      },
+      "ListDomainUsersResp": {
+        "title": "ListDomainUsersResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ListDomainUsers"
+          }
+        }
+      },
+      "ListDomains": {
+        "title": "ListDomains",
+        "required": [
+          "results"
+        ],
+        "type": "object",
+        "properties": {
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Domain"
+            }
+          }
+        }
+      },
+      "ListDomainsResp": {
+        "title": "ListDomainsResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ListDomains"
+          }
+        }
+      },
+      "ListProblemGroups": {
+        "title": "ListProblemGroups",
+        "required": [
+          "results"
+        ],
+        "type": "object",
+        "properties": {
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProblemGroup"
+            }
+          }
+        }
+      },
+      "ListProblemGroupsResp": {
+        "title": "ListProblemGroupsResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ListProblemGroups"
+          }
+        }
+      },
+      "ListProblemSets": {
+        "title": "ListProblemSets",
+        "required": [
+          "results"
+        ],
+        "type": "object",
+        "properties": {
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProblemSet"
+            }
+          }
+        }
+      },
+      "ListProblemSetsResp": {
+        "title": "ListProblemSetsResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ListProblemSets"
+          }
+        }
+      },
+      "ListProblems": {
+        "title": "ListProblems",
+        "required": [
+          "results"
+        ],
+        "type": "object",
+        "properties": {
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "ListProblemsResp": {
+        "title": "ListProblemsResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ListProblems"
+          }
+        }
+      },
+      "ListRecords": {
+        "title": "ListRecords",
+        "required": [
+          "results"
+        ],
+        "type": "object",
+        "properties": {
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Record"
+            }
+          }
+        }
+      },
+      "ListRecordsResp": {
+        "title": "ListRecordsResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ListRecords"
+          }
+        }
+      },
+      "ListUsers": {
+        "title": "ListUsers",
+        "required": [
+          "results"
+        ],
+        "type": "object",
+        "properties": {
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          }
+        }
+      },
+      "ListUsersResp": {
+        "title": "ListUsersResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ListUsers"
+          }
+        }
+      },
       "Problem": {
         "title": "Problem",
         "required": [
+          "url",
+          "title",
           "domain",
           "owner",
-          "group",
-          "title"
+          "problem_group"
         ],
         "type": "object",
         "properties": {
           "id": {
             "title": "Id",
             "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "minLength": 1,
+            "type": "string",
+            "description": "title of the problem"
+          },
+          "content": {
+            "title": "Content",
+            "maxLength": 65536,
+            "type": "string",
+            "description": "content of the problem",
+            "default": ""
           },
           "domain": {
             "title": "Domain",
@@ -1972,8 +5003,8 @@
               }
             ]
           },
-          "group": {
-            "title": "Group",
+          "problem_group": {
+            "title": "Problem Group",
             "anyOf": [
               {
                 "type": "string"
@@ -1983,20 +5014,16 @@
               }
             ]
           },
-          "title": {
-            "title": "Title",
-            "minLength": 1,
-            "type": "string"
-          },
-          "content": {
-            "title": "Content",
-            "type": "string",
-            "default": ""
-          },
-          "hidden": {
-            "title": "Hidden",
-            "type": "boolean",
-            "default": false
+          "config": {
+            "title": "Config",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Config"
+              }
+            ],
+            "default": {
+              "files": {}
+            }
           },
           "num_submit": {
             "title": "Num Submit",
@@ -2012,18 +5039,89 @@
             "title": "Data",
             "type": "integer"
           },
-          "data_version": {
-            "title": "Data Version",
+          "total_score": {
+            "title": "Total Score",
             "type": "integer",
-            "default": 2
+            "default": 0
           },
-          "languages": {
-            "title": "Languages",
+          "data_version": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DataVersion"
+              }
+            ],
+            "default": 2
+          }
+        }
+      },
+      "ProblemClone": {
+        "title": "ProblemClone",
+        "required": [
+          "problems",
+          "problem_set"
+        ],
+        "type": "object",
+        "properties": {
+          "new_group": {
+            "title": "New Group",
+            "type": "boolean",
+            "description": "whether to create new problem group",
+            "default": false
+          },
+          "problems": {
+            "title": "Problems",
             "type": "array",
             "items": {
               "type": "string"
-            },
-            "default": []
+            }
+          },
+          "problem_set": {
+            "title": "Problem Set",
+            "type": "string",
+            "description": "url or ObjectId of the problem set"
+          }
+        }
+      },
+      "ProblemCreate": {
+        "title": "ProblemCreate",
+        "required": [
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string",
+            "description": "(unique in domain) url of the problem"
+          },
+          "title": {
+            "title": "Title",
+            "minLength": 1,
+            "type": "string",
+            "description": "title of the problem"
+          },
+          "content": {
+            "title": "Content",
+            "maxLength": 65536,
+            "type": "string",
+            "description": "content of the problem",
+            "default": ""
+          }
+        }
+      },
+      "ProblemEdit": {
+        "title": "ProblemEdit",
+        "type": "object",
+        "properties": {
+          "title": {
+            "title": "Title",
+            "minLength": 1,
+            "type": "string"
+          },
+          "content": {
+            "title": "Content",
+            "maxLength": 65536,
+            "type": "string"
           }
         }
       },
@@ -2048,18 +5146,85 @@
           }
         }
       },
+      "ProblemResp": {
+        "title": "ProblemResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Problem"
+          }
+        }
+      },
       "ProblemSet": {
         "title": "ProblemSet",
         "required": [
+          "url",
+          "title",
           "domain",
-          "owner",
-          "title"
+          "owner"
         ],
         "type": "object",
         "properties": {
           "id": {
             "title": "Id",
             "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string",
+            "description": "title of the problem set"
+          },
+          "content": {
+            "title": "Content",
+            "maxLength": 65536,
+            "type": "string",
+            "description": "content of the problem set",
+            "default": ""
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "whether the problem set is hidden",
+            "default": false
+          },
+          "scoreboard_hidden": {
+            "title": "Scoreboard Hidden",
+            "type": "boolean",
+            "description": "whether the scoreboard of the problem set is hidden",
+            "default": false
+          },
+          "available_time": {
+            "title": "Available Time",
+            "type": "string",
+            "description": "the problem set is available from",
+            "format": "date-time",
+            "default": "2021-07-12T11:05:02.036761"
+          },
+          "due_time": {
+            "title": "Due Time",
+            "type": "string",
+            "description": "the problem set is due at",
+            "format": "date-time",
+            "default": "2021-07-19T11:05:02.036772"
           },
           "domain": {
             "title": "Domain",
@@ -2082,21 +5247,6 @@
                 "$ref": "#/components/schemas/UserBase"
               }
             ]
-          },
-          "title": {
-            "title": "Title",
-            "minLength": 1,
-            "type": "string"
-          },
-          "content": {
-            "title": "Content",
-            "type": "string",
-            "default": ""
-          },
-          "hidden": {
-            "title": "Hidden",
-            "type": "boolean",
-            "default": false
           },
           "num_submit": {
             "title": "Num Submit",
@@ -2125,16 +5275,164 @@
           }
         }
       },
+      "ProblemSetClone": {
+        "title": "ProblemSetClone",
+        "required": [
+          "problem_set"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "title": "Url",
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string",
+            "description": "url of the cloned problem set"
+          },
+          "problem_set": {
+            "title": "Problem Set",
+            "type": "string",
+            "description": "url or ObjectId of the problem set"
+          }
+        }
+      },
+      "ProblemSetCreate": {
+        "title": "ProblemSetCreate",
+        "required": [
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string",
+            "description": "(unique in domain) url of the problem set"
+          },
+          "title": {
+            "title": "Title",
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string",
+            "description": "title of the problem set"
+          },
+          "content": {
+            "title": "Content",
+            "maxLength": 65536,
+            "type": "string",
+            "description": "content of the problem set",
+            "default": ""
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "whether the problem set is hidden",
+            "default": false
+          },
+          "scoreboard_hidden": {
+            "title": "Scoreboard Hidden",
+            "type": "boolean",
+            "description": "whether the scoreboard of the problem set is hidden",
+            "default": false
+          },
+          "available_time": {
+            "title": "Available Time",
+            "type": "string",
+            "description": "the problem set is available from",
+            "format": "date-time",
+            "default": "2021-07-12T11:05:02.036761"
+          },
+          "due_time": {
+            "title": "Due Time",
+            "type": "string",
+            "description": "the problem set is due at",
+            "format": "date-time",
+            "default": "2021-07-19T11:05:02.036772"
+          }
+        }
+      },
+      "ProblemSetEdit": {
+        "title": "ProblemSetEdit",
+        "type": "object",
+        "properties": {
+          "title": {
+            "title": "Title",
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "content": {
+            "title": "Content",
+            "maxLength": 65536,
+            "type": "string"
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean"
+          },
+          "scoreboard_hidden": {
+            "title": "Scoreboard Hidden",
+            "type": "boolean"
+          },
+          "available_time": {
+            "title": "Available Time",
+            "type": "string",
+            "format": "date-time"
+          },
+          "due_time": {
+            "title": "Due Time",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ProblemSetResp": {
+        "title": "ProblemSetResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProblemSet"
+          }
+        }
+      },
+      "ProblemSolutionSubmit": {
+        "title": "ProblemSolutionSubmit",
+        "required": [
+          "code_type",
+          "file"
+        ],
+        "type": "object",
+        "properties": {
+          "code_type": {
+            "$ref": "#/components/schemas/RecordCodeType"
+          },
+          "file": {
+            "title": "File",
+            "type": "string",
+            "format": "binary"
+          }
+        }
+      },
       "Record": {
         "title": "Record",
         "required": [
           "domain",
           "problem",
-          "problem_set",
           "user",
           "code_type",
           "code",
-          "judge_category"
+          "judge_category",
+          "submit_at"
         ],
         "type": "object",
         "properties": {
@@ -2187,17 +5485,6 @@
               }
             ]
           },
-          "problem_set": {
-            "title": "Problem Set",
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/ProblemSet"
-              }
-            ]
-          },
           "problem_data": {
             "title": "Problem Data",
             "type": "integer",
@@ -2227,6 +5514,101 @@
             "items": {
               "type": "string"
             }
+          },
+          "submit_at": {
+            "title": "Submit At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "judge_at": {
+            "title": "Judge At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "judge_user": {
+            "title": "Judge User",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/UserBase"
+              }
+            ]
+          },
+          "compiler_texts": {
+            "title": "Compiler Texts",
+            "type": "string",
+            "default": ""
+          },
+          "cases": {
+            "title": "Cases",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecordCase"
+            },
+            "default": []
+          }
+        }
+      },
+      "RecordCase": {
+        "title": "RecordCase",
+        "type": "object",
+        "properties": {
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RecordStatus"
+              }
+            ],
+            "default": 0
+          },
+          "score": {
+            "title": "Score",
+            "type": "integer",
+            "default": 0
+          },
+          "time_ms": {
+            "title": "Time Ms",
+            "type": "integer",
+            "default": 0
+          },
+          "memory_kb": {
+            "title": "Memory Kb",
+            "type": "integer",
+            "default": 0
+          },
+          "execute_status": {
+            "title": "Execute Status",
+            "type": "integer",
+            "default": 0
+          },
+          "stdout": {
+            "title": "Stdout",
+            "type": "string",
+            "default": ""
+          },
+          "stderr": {
+            "title": "Stderr",
+            "type": "string",
+            "default": ""
+          }
+        }
+      },
+      "RecordCaseResult": {
+        "title": "RecordCaseResult",
+        "required": [
+          "index",
+          "result"
+        ],
+        "type": "object",
+        "properties": {
+          "index": {
+            "title": "Index",
+            "type": "integer"
+          },
+          "result": {
+            "$ref": "#/components/schemas/RecordCase"
           }
         }
       },
@@ -2241,10 +5623,64 @@
         "type": "integer",
         "description": "An enumeration."
       },
+      "RecordResp": {
+        "title": "RecordResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Record"
+          }
+        }
+      },
+      "RecordResult": {
+        "title": "RecordResult",
+        "required": [
+          "status",
+          "score",
+          "time_ms",
+          "memory_kb",
+          "judge_at"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/RecordStatus"
+          },
+          "score": {
+            "title": "Score",
+            "type": "integer"
+          },
+          "time_ms": {
+            "title": "Time Ms",
+            "type": "integer"
+          },
+          "memory_kb": {
+            "title": "Memory Kb",
+            "type": "integer"
+          },
+          "judge_at": {
+            "title": "Judge At",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "RecordStatus": {
         "title": "RecordStatus",
         "enum": [
           0,
+          20,
           1,
           2,
           3,
@@ -2254,11 +5690,7 @@
           7,
           8,
           9,
-          10,
-          20,
-          21,
-          22,
-          30
+          10
         ],
         "type": "integer",
         "description": "An enumeration."
@@ -2275,6 +5707,94 @@
             "type": "string"
           }
         }
+      },
+      "Score": {
+        "title": "Score",
+        "required": [
+          "score",
+          "time",
+          "full_score",
+          "time_spent",
+          "tried"
+        ],
+        "type": "object",
+        "properties": {
+          "score": {
+            "title": "Score",
+            "type": "integer"
+          },
+          "time": {
+            "title": "Time",
+            "type": "string",
+            "format": "date-time"
+          },
+          "full_score": {
+            "title": "Full Score",
+            "type": "integer"
+          },
+          "time_spent": {
+            "title": "Time Spent",
+            "type": "number",
+            "format": "time-delta"
+          },
+          "tried": {
+            "title": "Tried",
+            "type": "boolean"
+          }
+        }
+      },
+      "ScoreBoard": {
+        "title": "ScoreBoard",
+        "required": [
+          "problem_ids",
+          "results"
+        ],
+        "type": "object",
+        "properties": {
+          "problem_ids": {
+            "title": "Problem Ids",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserScore"
+            }
+          }
+        }
+      },
+      "ScoreBoardResp": {
+        "title": "ScoreBoardResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ScoreBoard"
+          }
+        }
+      },
+      "SortEnum": {
+        "title": "SortEnum",
+        "enum": [
+          1,
+          -1
+        ],
+        "type": "integer",
+        "description": "An enumeration."
       },
       "User": {
         "title": "User",
@@ -2319,6 +5839,16 @@
             "type": "string",
             "default": ""
           },
+          "student_id": {
+            "title": "Student Id",
+            "type": "string",
+            "default": ""
+          },
+          "real_name": {
+            "title": "Real Name",
+            "type": "string",
+            "default": ""
+          },
           "salt": {
             "title": "Salt",
             "type": "string",
@@ -2333,16 +5863,6 @@
             "title": "Role",
             "type": "string",
             "default": "user"
-          },
-          "student_id": {
-            "title": "Student Id",
-            "type": "string",
-            "default": ""
-          },
-          "real_name": {
-            "title": "Real Name",
-            "type": "string",
-            "default": ""
           },
           "register_ip": {
             "title": "Register Ip",
@@ -2406,6 +5926,87 @@
             "title": "Gravatar",
             "type": "string",
             "default": ""
+          },
+          "student_id": {
+            "title": "Student Id",
+            "type": "string",
+            "default": ""
+          },
+          "real_name": {
+            "title": "Real Name",
+            "type": "string",
+            "default": ""
+          }
+        }
+      },
+      "UserBaseResp": {
+        "title": "UserBaseResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserBase"
+          }
+        }
+      },
+      "UserResp": {
+        "title": "UserResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/User"
+          }
+        }
+      },
+      "UserScore": {
+        "title": "UserScore",
+        "required": [
+          "user",
+          "total_score",
+          "total_time_spent",
+          "scores"
+        ],
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/UserBase"
+          },
+          "total_score": {
+            "title": "Total Score",
+            "type": "integer"
+          },
+          "total_time_spent": {
+            "title": "Total Time Spent",
+            "type": "number",
+            "format": "time-delta"
+          },
+          "scores": {
+            "title": "Scores",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Score"
+            }
           }
         }
       },
