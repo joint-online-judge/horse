@@ -50,7 +50,7 @@ async def list_domains(
     """
     List all domains that the current user has a role.
     """
-    cursor = models.DomainUser.cursor_find_user_domains(user.id, role, query)
+    cursor = models.DomainUser.cursor_find_user_domains(user, role, query)
     domain_users = await schemas.DomainUser.to_list(cursor)
     results = [x.domain for x in domain_users]
     return StandardResponse(ListDomains(results=results))

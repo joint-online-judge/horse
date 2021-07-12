@@ -34,12 +34,11 @@ class DomainUser(DocumentMixin, MotorAsyncIODocument):
 
     @classmethod
     def cursor_find_user_domains(
-        cls,
-        user_id: ObjectId,
-        role: Optional[List[str]],
-        query: Optional[BaseQuery] = None,
+        cls, user: User, role: Optional[List[str]], query: Optional[BaseQuery] = None
     ) -> AsyncIOMotorCursor:
-        condition = {"user": user_id}
+        condition = {}
+        if user.role != "root":
+            condition["user"] = user.id
         if role is not None:
             condition["role"] = {"$in": role}
         return cls.cursor_join(field="domain", condition=condition, query=query)
