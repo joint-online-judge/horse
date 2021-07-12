@@ -45,7 +45,7 @@ async def list_problem_sets(
 ) -> StandardResponse[ListProblemSets]:
     condition = {"owner": auth.user.id}
     if domain is not None:
-        condition["domain"] = ObjectId(domain)
+        condition["domain"] = ObjectId(domain.id)
     cursor = models.ProblemSet.cursor_find(condition, query)
     res = await schemas.ProblemSet.to_list(cursor)
     return StandardResponse(ListProblemSets(results=res))
