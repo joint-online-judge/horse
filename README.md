@@ -1,6 +1,6 @@
 # JOJ Horse
 
-[![Test](https://github.com/joint-online-judge/horse/actions/workflows/test.yml/badge.svg)](https://github.com/joint-online-judge/horse/actions/workflows/test.yml)
+[![CI/CD](https://github.com/joint-online-judge/horse/actions/workflows/cicd.yml/badge.svg?branch=master)](https://github.com/joint-online-judge/horse/actions/workflows/cicd.yml)
 
 The new generation of JOJ Backend. "Horse" is related to speed, an excellent feature of the backend server. It is also a homophonic name in Chinese, aka, "后(horse)端"
 
