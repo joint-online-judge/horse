@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: a476d70@2021-07-12 18:03:15",
+    "description": "Git version: 8535fdf@2021-07-12 18:45:32",
     "version": "0.0.0"
   },
   "paths": {
@@ -4310,7 +4310,7 @@
             "title": "Updated At",
             "type": "string",
             "format": "date-time",
-            "default": "2021-07-12T18:03:41.504080"
+            "default": "2021-07-12T18:46:01.451030"
           },
           "domain": {
             "title": "Domain",
@@ -4347,7 +4347,7 @@
             "title": "Updated At",
             "type": "string",
             "format": "date-time",
-            "default": "2021-07-12T18:03:41.504080"
+            "default": "2021-07-12T18:46:01.451030"
           }
         }
       },
@@ -5166,14 +5166,14 @@
             "type": "string",
             "description": "the problem set is available from",
             "format": "date-time",
-            "default": "2021-07-12T18:03:41.519462"
+            "default": "2021-07-12T18:46:01.464873"
           },
           "due_time": {
             "title": "Due Time",
             "type": "string",
             "description": "the problem set is due at",
             "format": "date-time",
-            "default": "2021-07-19T18:03:41.519468"
+            "default": "2021-07-19T18:46:01.464878"
           },
           "domain": {
             "title": "Domain",
@@ -5267,14 +5267,14 @@
             "type": "string",
             "description": "the problem set is available from",
             "format": "date-time",
-            "default": "2021-07-12T18:03:41.519462"
+            "default": "2021-07-12T18:46:01.464873"
           },
           "due_time": {
             "title": "Due Time",
             "type": "string",
             "description": "the problem set is due at",
             "format": "date-time",
-            "default": "2021-07-19T18:03:41.519468"
+            "default": "2021-07-19T18:46:01.464878"
           }
         }
       },
