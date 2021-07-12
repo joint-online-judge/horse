@@ -16,7 +16,8 @@ from typing import (
 
 from bson import ObjectId
 from bson.errors import InvalidId
-from pydantic import BaseModel, ConstrainedStr, create_model, validator
+from pydantic import BaseModel as PydanticBaseModel
+from pydantic import ConstrainedStr, create_model, validator
 from umongo.embedded_document import EmbeddedDocumentImplementation
 from umongo.frameworks.motor_asyncio import (
     AsyncIOMotorCursor,
@@ -33,6 +34,11 @@ if TYPE_CHECKING:
     Model = TypeVar("Model", bound="BaseModel")
 
 
+class BaseModel(PydanticBaseModel):
+    class Config:
+        validate_all = True
+
+
 class LongStr(ConstrainedStr):
     max_length = 256
 
@@ -45,7 +51,7 @@ class NoneEmptyLongStr(LongStr, NoneEmptyStr):
     pass
 
 
-class UserInputURL(NoneEmptyLongStr):
+class UserInputURL(str):
     @classmethod
     def __get_validators__(
         cls,
@@ -197,7 +203,9 @@ BT = TypeVar("BT", bound=BaseModel)
 
 
 @lru_cache()
-def get_standard_response_model(cls: Type[BaseModel]) -> Type[BaseModel]:
+def get_standard_response_model(
+    cls: Type[PydanticBaseModel]
+) -> Type[PydanticBaseModel]:
     name = cls.__name__
     return create_model(
         f"{name}Resp",

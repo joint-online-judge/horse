@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, AsyncGenerator, Dict, Generator
+from typing import Any, AsyncGenerator, Generator
 
 import pytest
 from asgi_lifespan import LifespanManager
@@ -8,10 +8,13 @@ from fastapi_jwt_auth import AuthJWT
 from httpx import AsyncClient
 
 from joj.horse import app as fastapi_app
+from joj.horse import models
 from joj.horse.models.permission import DefaultRole
-from joj.horse.models.user import User
-from joj.horse.tests.utils.utils import create_test_user
-from joj.horse.utils.auth import auth_jwt_encode
+from joj.horse.tests.utils.utils import (
+    create_test_domain,
+    create_test_user,
+    validate_test_domain,
+)
 
 
 @pytest.yield_fixture(scope="session")
@@ -34,7 +37,7 @@ async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, Any]:
 
 
 @pytest.fixture(scope="session")
-async def global_root_user(app: FastAPI) -> User:
+async def global_root_user(app: FastAPI) -> models.User:
     user = await create_test_user()
     user.role = DefaultRole.ROOT
     await user.commit()
@@ -42,43 +45,24 @@ async def global_root_user(app: FastAPI) -> User:
 
 
 @pytest.fixture(scope="session")
-async def global_domain_root_user(app: FastAPI) -> User:
+async def global_domain_root_user(app: FastAPI) -> models.User:
     return await create_test_user()
 
 
 @pytest.fixture(scope="session")
-async def global_domain_user(app: FastAPI) -> User:
+async def global_domain_user(app: FastAPI) -> models.User:
     return await create_test_user()
 
 
 @pytest.fixture(scope="session")
-async def global_guest_user(app: FastAPI) -> User:
+async def global_guest_user(app: FastAPI) -> models.User:
     return await create_test_user()
 
 
 @pytest.fixture(scope="session")
-def global_test_user() -> User:
-    loop = asyncio.get_event_loop()
-    user = loop.run_until_complete(create_test_user())
-    return user
-
-
-@pytest.fixture(scope="session")
-def global_test_user_token_headers(global_test_user: User) -> Dict[str, str]:
-    access_jwt = auth_jwt_encode(
-        auth_jwt=AuthJWT(), user=global_test_user, channel="jaccount"
-    )
-    return {"Authorization": f"Bearer {access_jwt}"}
-
-
-@pytest.fixture(scope="module")
-def test_user() -> User:
-    loop = asyncio.get_event_loop()
-    user = loop.run_until_complete(create_test_user())
-    return user
-
-
-@pytest.fixture(scope="module")
-def test_user_token_headers(test_user: User) -> Dict[str, str]:
-    access_jwt = auth_jwt_encode(auth_jwt=AuthJWT(), user=test_user, channel="jaccount")
-    return {"Authorization": f"Bearer {access_jwt}"}
+async def global_domain_1(
+    client: AsyncClient, global_root_user: models.User
+) -> models.Domain:
+    data = {"url": "test_domain_1", "name": "test_domain_1"}
+    response = await create_test_domain(client, global_root_user, data)
+    return validate_test_domain(response, global_root_user, data)
