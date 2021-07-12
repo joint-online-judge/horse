@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 6475f25@2021-07-12 13:40:27",
+    "description": "Git version: a2191d6@2021-07-12 14:52:30",
     "version": "0.0.0"
   },
   "paths": {
@@ -450,7 +450,8 @@
                 "$ref": "#/components/schemas/DomainUserAdd"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -1640,75 +1641,6 @@
         ]
       }
     },
-    "/api/v1/domains/{domain}/problem_sets/clone": {
-      "post": {
-        "tags": [
-          "problem set"
-        ],
-        "summary": "Clone Problem Set",
-        "operationId": "clone_problem_set_api_v1_domains__domain__problem_sets_clone_post",
-        "parameters": [
-          {
-            "description": "url or ObjectId of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or ObjectId of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProblemSetClone"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemSetResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
     "/api/v1/domains/{domain}/problem_sets/{problem_set}/scoreboard": {
       "get": {
         "tags": [
@@ -2268,7 +2200,7 @@
           "content": {
             "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/Body_update_problem_config_api_v1_domains__domain__problems__problem__config_patch"
+                "$ref": "#/components/schemas/ProblemConfigEdit"
               }
             }
           },
@@ -4060,20 +3992,6 @@
   },
   "components": {
     "schemas": {
-      "Body_update_problem_config_api_v1_domains__domain__problems__problem__config_patch": {
-        "title": "Body_update_problem_config_api_v1_domains__domain__problems__problem__config_patch",
-        "required": [
-          "config"
-        ],
-        "type": "object",
-        "properties": {
-          "config": {
-            "title": "Config",
-            "type": "string",
-            "format": "binary"
-          }
-        }
-      },
       "Config": {
         "title": "Config",
         "type": "object",
@@ -4095,6 +4013,18 @@
           2
         ],
         "type": "integer",
+        "description": "An enumeration."
+      },
+      "DefaultRole": {
+        "title": "DefaultRole",
+        "enum": [
+          "root",
+          "admin",
+          "user",
+          "guest",
+          "judge"
+        ],
+        "type": "string",
         "description": "An enumeration."
       },
       "Detail": {
@@ -4380,7 +4310,7 @@
             "title": "Updated At",
             "type": "string",
             "format": "date-time",
-            "default": "2021-07-12T13:41:07.023096"
+            "default": "2021-07-12T14:52:55.555200"
           },
           "domain": {
             "title": "Domain",
@@ -4417,7 +4347,7 @@
             "title": "Updated At",
             "type": "string",
             "format": "date-time",
-            "default": "2021-07-12T13:41:07.023096"
+            "default": "2021-07-12T14:52:55.555200"
           }
         }
       },
@@ -4507,18 +4437,23 @@
       },
       "DomainUserAdd": {
         "title": "DomainUserAdd",
+        "required": [
+          "user"
+        ],
         "type": "object",
         "properties": {
           "role": {
-            "title": "Role",
-            "type": "string",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DefaultRole"
+              }
+            ],
             "default": "user"
           },
           "user": {
             "title": "User",
             "type": "string",
-            "description": "'me' or ObjectId of the user",
-            "default": "me"
+            "description": "'me' or ObjectId of the user"
           }
         }
       },
@@ -5062,12 +4997,6 @@
         ],
         "type": "object",
         "properties": {
-          "new_group": {
-            "title": "New Group",
-            "type": "boolean",
-            "description": "whether to create new problem group",
-            "default": false
-          },
           "problems": {
             "title": "Problems",
             "type": "array",
@@ -5079,6 +5008,26 @@
             "title": "Problem Set",
             "type": "string",
             "description": "url or ObjectId of the problem set"
+          },
+          "new_group": {
+            "title": "New Group",
+            "type": "boolean",
+            "description": "whether to create new problem group",
+            "default": false
+          }
+        }
+      },
+      "ProblemConfigEdit": {
+        "title": "ProblemConfigEdit",
+        "required": [
+          "config"
+        ],
+        "type": "object",
+        "properties": {
+          "config": {
+            "title": "Config",
+            "type": "string",
+            "format": "binary"
           }
         }
       },
@@ -5217,14 +5166,14 @@
             "type": "string",
             "description": "the problem set is available from",
             "format": "date-time",
-            "default": "2021-07-12T13:41:07.041000"
+            "default": "2021-07-12T14:52:55.568680"
           },
           "due_time": {
             "title": "Due Time",
             "type": "string",
             "description": "the problem set is due at",
             "format": "date-time",
-            "default": "2021-07-19T13:41:07.041010"
+            "default": "2021-07-19T14:52:55.568685"
           },
           "domain": {
             "title": "Domain",
@@ -5275,27 +5224,6 @@
           }
         }
       },
-      "ProblemSetClone": {
-        "title": "ProblemSetClone",
-        "required": [
-          "problem_set"
-        ],
-        "type": "object",
-        "properties": {
-          "url": {
-            "title": "Url",
-            "maxLength": 256,
-            "minLength": 1,
-            "type": "string",
-            "description": "url of the cloned problem set"
-          },
-          "problem_set": {
-            "title": "Problem Set",
-            "type": "string",
-            "description": "url or ObjectId of the problem set"
-          }
-        }
-      },
       "ProblemSetCreate": {
         "title": "ProblemSetCreate",
         "required": [
@@ -5339,14 +5267,14 @@
             "type": "string",
             "description": "the problem set is available from",
             "format": "date-time",
-            "default": "2021-07-12T13:41:07.041000"
+            "default": "2021-07-12T14:52:55.568680"
           },
           "due_time": {
             "title": "Due Time",
             "type": "string",
             "description": "the problem set is due at",
             "format": "date-time",
-            "default": "2021-07-19T13:41:07.041010"
+            "default": "2021-07-19T14:52:55.568685"
           }
         }
       },
