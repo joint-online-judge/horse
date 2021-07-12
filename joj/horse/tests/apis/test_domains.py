@@ -1,15 +1,22 @@
+import pytest
 from bson import ObjectId
 from fastapi.encoders import jsonable_encoder
 from fastapi.testclient import TestClient
+from httpx import AsyncClient
+from pytest_lazyfixture import lazy_fixture
 
-from joj.horse import schemas
-from joj.horse.apis import domains, user
-from joj.horse.models.user import User
-from joj.horse.tests.utils.utils import get_base_url, random_lower_string
+from joj.horse import apis, models, schemas
+from joj.horse.tests.utils.utils import (
+    create_test_domain,
+    generate_auth_headers,
+    get_base_url,
+    random_lower_string,
+    validate_test_domain,
+)
 from joj.horse.utils.errors import ErrorCode
 
-base_user_url = get_base_url(user)
-base_domain_url = get_base_url(domains)
+base_user_url = get_base_url(apis.user)
+base_domain_url = get_base_url(apis.domains)
 
 
 # domain = schemas.DomainCreate(
@@ -28,22 +35,26 @@ base_domain_url = get_base_url(domains)
 # NEW_DOMAIN = {}
 
 
-# def test_create_domain(
-#     client: TestClient, test_user_token_headers: Dict[str, str], test_user: User
-# ) -> None:
-#     global NEW_DOMAIN
-#     r = client.post(f"{base_domain_url}", json=data, headers=test_user_token_headers)
-#     assert r.status_code == 200
-#     res = r.json()
-#     assert res["error_code"] == ErrorCode.Success
-#     res = res["data"]
-#     NEW_DOMAIN = res
-#     assert res["id"]
-#     assert res["url"] == domain.url
-#     assert res["name"] == domain.name
-#     assert res["bulletin"] == domain.bulletin
-#     assert res["gravatar"] == domain.gravatar
-#     assert res["owner"] == str(test_user.id)
+@pytest.mark.asyncio
+@pytest.mark.depends(name="TestCreateDomain", on=["TestGetUser"])
+class TestCreateDomain:
+    @pytest.mark.parametrize(
+        "domain",
+        [
+            lazy_fixture("global_domain_1"),
+            # lazy_fixture("global_domain_1"),
+        ],
+    )
+    async def test_global_domains(self, domain: models.Domain) -> None:
+        pass
+
+    @pytest.mark.depends(on="test_global_domains")
+    async def test_no_url(
+        self, client: AsyncClient, global_root_user: models.User
+    ) -> None:
+        data = {"name": "test_domain_no_url"}
+        response = await create_test_domain(client, global_root_user, data)
+        validate_test_domain(response, global_root_user, data)
 
 
 # def test_list_domains(

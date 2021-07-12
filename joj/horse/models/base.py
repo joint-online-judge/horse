@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from bson import ObjectId
 from pydantic import BaseModel
-from umongo import data_objects
+from umongo import data_objects, fields
 from umongo.frameworks.motor_asyncio import AsyncIOMotorCursor, MotorAsyncIODocument
 
 from joj.horse.utils.errors import UnprocessableEntityError
@@ -14,8 +14,6 @@ if TYPE_CHECKING:
 
 class DocumentMixin:
     __slots__ = ()
-
-    id: ObjectId
 
     @classmethod
     async def find_by_id(cls: MotorAsyncIODocument, _id: str) -> Any:
@@ -63,7 +61,7 @@ class DocumentMixin:
         if "url" not in self._data.keys():
             return False
         try:
-            uuid.UUID(str(self._data["url"]))
+            uuid.UUID(str(self._data.get("url")))
         except ValueError:
             return False
         self.update({"url": str(self.id)})

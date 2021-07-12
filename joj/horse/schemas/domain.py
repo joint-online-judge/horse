@@ -3,10 +3,10 @@ from typing import Callable, List, Optional
 
 from bson import ObjectId
 from pydantic import Field, validator
-from pydantic.main import BaseModel
 from pydantic.typing import AnyCallable
 
 from joj.horse.schemas.base import (
+    BaseModel,
     BaseODMSchema,
     LongStr,
     LongText,
@@ -26,7 +26,7 @@ class DomainEdit(BaseModel):
 
 
 class DomainCreate(BaseModel):
-    url: UserInputURL = Field(None, description="(unique) url of the domain")
+    url: UserInputURL = Field("", description="(unique) url of the domain")
     name: LongStr = Field(..., description="displayed name of the domain")
     bulletin: LongText = Field("", description="bulletin of the domain")
     gravatar: LongStr = Field("", description="gravatar url of the domain")
