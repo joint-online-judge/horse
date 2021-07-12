@@ -30,7 +30,7 @@ python3 -m joj.horse # or just press F5 in VS Code
 ### For developers
 
 ```bash
-pip3 install -e .[dev]
+pip3 install -e ".[dev]"
 pre-commit install
 pytest -svv
 ```
