@@ -7,8 +7,7 @@ from fastapi import FastAPI
 from httpx import AsyncClient
 from pymongo import MongoClient
 
-from joj.horse import app as fastapi_app
-from joj.horse import models
+from joj.horse import app as fastapi_app, models
 from joj.horse.config import settings
 from joj.horse.models.permission import DefaultRole
 from joj.horse.tests.utils.utils import (
