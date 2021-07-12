@@ -16,8 +16,12 @@ from typing import (
 
 from bson import ObjectId
 from bson.errors import InvalidId
-from pydantic import BaseModel as PydanticBaseModel
-from pydantic import ConstrainedStr, create_model, validator
+from pydantic import (
+    BaseModel as PydanticBaseModel,
+    ConstrainedStr,
+    create_model,
+    validator,
+)
 from umongo.embedded_document import EmbeddedDocumentImplementation
 from umongo.frameworks.motor_asyncio import (
     AsyncIOMotorCursor,
