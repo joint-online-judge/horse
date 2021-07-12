@@ -4,11 +4,9 @@ from typing import Any, AsyncGenerator, Generator
 import pytest
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
-from fastapi_jwt_auth import AuthJWT
 from httpx import AsyncClient
 
-from joj.horse import app as fastapi_app
-from joj.horse import models
+from joj.horse import app as fastapi_app, models
 from joj.horse.models.permission import DefaultRole
 from joj.horse.tests.utils.utils import (
     create_test_domain,

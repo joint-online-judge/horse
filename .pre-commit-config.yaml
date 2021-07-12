@@ -25,10 +25,10 @@ repos:
   #   hooks:
   #   - id: bandit
   - repo: https://github.com/PyCQA/isort
-    rev: 5.7.0
+    rev: 5.9.2
     hooks:
       - id: isort
-        args: ["--profile", "black", "--filter-files"]
+        args: [ "--profile", "black", "--filter-files", "--combine-as" ]
   - repo: https://github.com/psf/black
     rev: 19.3b0
     hooks:
