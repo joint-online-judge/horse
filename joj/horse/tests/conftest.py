@@ -5,8 +5,10 @@ import pytest
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
 from httpx import AsyncClient
+from pymongo import MongoClient
 
 from joj.horse import app as fastapi_app, models
+from joj.horse.config import settings
 from joj.horse.models.permission import DefaultRole
 from joj.horse.tests.utils.utils import (
     create_test_domain,
@@ -64,3 +66,16 @@ async def global_domain_1(
     data = {"url": "test_domain_1", "name": "test_domain_1"}
     response = await create_test_domain(client, global_root_user, data)
     return validate_test_domain(response, global_root_user, data)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def prepare_db() -> None:
+    settings.db_name += "-test"
+    client = MongoClient(
+        host=settings.db_host,
+        port=settings.db_port,
+        username=settings.db_username,
+        password=settings.db_password,
+    )
+    db = client.get_database(settings.db_name)
+    client.drop_database(db)
