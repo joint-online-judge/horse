@@ -2,10 +2,8 @@ from joj.horse.models.domain import Domain as Domain
 from joj.horse.models.domain_invitation import DomainInvitation as DomainInvitation
 from joj.horse.models.domain_role import DomainRole as DomainRole
 from joj.horse.models.domain_user import DomainUser as DomainUser
-from joj.horse.models.permission import (
-    DomainPermission as DomainPermission,
-    SitePermission as SitePermission,
-)
+from joj.horse.models.permission import DomainPermission as DomainPermission
+from joj.horse.models.permission import SitePermission as SitePermission
 from joj.horse.models.problem import Problem as Problem
 from joj.horse.models.problem_config_mapping import (
     ProblemConfigMapping as ProblemConfigMapping,
