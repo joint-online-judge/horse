@@ -11,12 +11,7 @@ from joj.horse.schemas.domain_role import ListDomainRoles
 from joj.horse.schemas.domain_user import ListDomainUsers
 from joj.horse.schemas.misc import JWT
 from joj.horse.schemas.user import ListUsers
-from joj.horse.utils.auth import (
-    Authentication,
-    auth_jwt_decode,
-    auth_jwt_encode,
-    jwt_token_encode,
-)
+from joj.horse.utils.auth import Authentication
 from joj.horse.utils.errors import BizError, ErrorCode, ForbiddenError
 from joj.horse.utils.parser import parse_query, parse_uid
 from joj.horse.utils.router import MyRouter

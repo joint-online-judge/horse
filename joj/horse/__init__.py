@@ -6,7 +6,8 @@ from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from marshmallow.exceptions import ValidationError as MValidationError
-from pydantic.error_wrappers import ValidationError
+
+# from pydantic.error_wrappers import ValidationError
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.responses import JSONResponse, RedirectResponse
 from tenacity import RetryError

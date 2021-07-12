@@ -6,8 +6,6 @@ from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 from joj.horse.models.base import DocumentMixin
 from joj.horse.models.domain import Domain
 from joj.horse.models.problem_group import ProblemGroup
-
-# from joj.horse.models.problem_set import ProblemSet
 from joj.horse.models.user import User
 from joj.horse.utils.db import instance
 

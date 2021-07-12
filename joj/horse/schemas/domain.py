@@ -1,7 +1,6 @@
 import string
 from typing import Callable, List, Optional
 
-from bson import ObjectId
 from pydantic import Field, validator
 from pydantic.typing import AnyCallable
 

@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Dict, List, Optional
 
-from bson import ObjectId
 from fastapi import Body, Depends, Query
 from marshmallow.exceptions import ValidationError
 from uvicorn.config import logger
@@ -15,7 +14,6 @@ from joj.horse.models.permission import (
     Permission,
 )
 from joj.horse.schemas import Empty, StandardResponse
-from joj.horse.schemas.base import NoneEmptyLongStr
 from joj.horse.schemas.domain import ListDomains
 from joj.horse.schemas.domain_role import ListDomainRoles
 from joj.horse.schemas.domain_user import DomainUserAdd, ListDomainUsers
@@ -29,7 +27,6 @@ from joj.horse.utils.parser import (
     parse_query,
     parse_uid,
     parse_user_from_auth,
-    parse_user_from_body,
     parse_user_from_path_or_query,
 )
 from joj.horse.utils.router import MyRouter
@@ -140,7 +137,6 @@ async def delete_domain(
 async def update_domain(
     domain_edit: schemas.DomainEdit, domain: models.Domain = Depends(parse_domain)
 ) -> StandardResponse[schemas.Domain]:
-    print(domain_edit)
     domain.update_from_schema(domain_edit)
     await domain.commit()
     return StandardResponse(schemas.Domain.from_orm(domain))

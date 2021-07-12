@@ -6,7 +6,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi_jwt_auth import AuthJWT
 from httpx import AsyncClient, Response
 
-from joj.horse import apis, models, schemas
+from joj.horse import apis, models
 from joj.horse.utils.auth import auth_jwt_encode
 from joj.horse.utils.errors import ErrorCode
 

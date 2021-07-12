@@ -1,4 +1,4 @@
-import io
+from io import BytesIO
 from typing import Any, Optional
 
 from bson.objectid import ObjectId
@@ -70,7 +70,7 @@ async def get_record_code(record: models.Record = Depends(parse_record)) -> Any:
     gfs = AsyncIOMotorGridFSBucket(get_db())
     grid_out = await gfs.open_download_stream(record.code)
     return StreamingResponse(
-        io.BytesIO(await grid_out.read()), media_type=mime_types[record.code_type]
+        BytesIO(await grid_out.read()), media_type=mime_types[record.code_type]
     )
 
 

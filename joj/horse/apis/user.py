@@ -2,19 +2,18 @@ from typing import Union
 
 import aiohttp
 import jwt
-from fastapi import Cookie, Depends, HTTPException, Query, Request, status
+from fastapi import Cookie, Depends, Query, Request
 from fastapi_jwt_auth import AuthJWT
 from starlette.responses import JSONResponse, RedirectResponse
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.schemas import StandardResponse
-from joj.horse.schemas.domain import ListDomains
 from joj.horse.schemas.misc import RedirectModel
 from joj.horse.schemas.problem import ListProblems
 from joj.horse.utils.auth import Authentication, auth_jwt_encode
 from joj.horse.utils.errors import BadRequestError, BizError, ErrorCode
-from joj.horse.utils.oauth import jaccount
+from joj.horse.utils.oauth.jaccount import IDToken, get_client
 from joj.horse.utils.parser import parse_query
 from joj.horse.utils.router import MyRouter
 from joj.horse.utils.url import generate_url
@@ -64,7 +63,7 @@ async def jaccount_login(
         "you also need to set the cookies returned manually in ajax mode.",
     ),
 ) -> Union[RedirectResponse, JSONResponse]:
-    client = jaccount.get_client()
+    client = get_client()
     if client is None:
         raise BizError(ErrorCode.ApiNotImplementedError)
 
@@ -90,7 +89,7 @@ async def jaccount_auth(
     jaccount_state: str = Cookie(""),
     redirect_url: str = Cookie(generate_url()),
 ) -> RedirectResponse:
-    client = jaccount.get_client()
+    client = get_client()
     if client is None:
         raise BizError(ErrorCode.ApiNotImplementedError)
 
@@ -111,7 +110,7 @@ async def jaccount_auth(
                 parsed_data = jwt.decode(
                     data["id_token"], verify=False, options={"verify_signature": False}
                 )
-                id_token = jaccount.IDToken(**parsed_data)
+                id_token = IDToken(**parsed_data)
     except Exception as e:
         logger.exception("Jaccount auth error")
         raise BadRequestError(message="Jaccount authentication failed")
@@ -139,7 +138,7 @@ async def jaccount_auth(
 
 
 def get_jaccount_logout_url(redirect_url: str) -> str:
-    client = jaccount.get_client()
+    client = get_client()
     if client is None:
         raise BizError(ErrorCode.ApiNotImplementedError)
 

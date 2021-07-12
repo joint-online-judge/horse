@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import Body, Depends, Path, Query
+from fastapi import Depends, Path, Query
 from pydantic.types import conint
 
 from joj.horse import models
@@ -38,13 +38,6 @@ async def parse_user_from_path_or_query(
     return await parse_uid(user, auth)
 
 
-async def parse_user_from_body(
-    user: str = Body("me", description="'me' or ObjectId of the user"),
-    auth: Authentication = Depends(),
-) -> models.User:
-    return await parse_uid(user, auth)
-
-
 def parse_user_from_auth(
     auth: Authentication = Depends(Authentication),
 ) -> models.User:
@@ -53,12 +46,6 @@ def parse_user_from_auth(
 
 async def parse_domain(domain: models.Domain = Depends(get_domain)) -> models.Domain:
     return domain
-
-
-async def parse_domain_body(
-    domain: str = Body(..., description="url or ObjectId of the domain"),
-) -> models.Domain:
-    return await get_domain(domain)
 
 
 async def parse_domain_role(
@@ -99,16 +86,6 @@ async def parse_problems(
 
 async def parse_problem_set(
     problem_set: str = Path(..., description="url or ObjectId of the problem set"),
-    auth: Authentication = Depends(),
-) -> models.ProblemSet:
-    problem_set_model = await models.ProblemSet.find_by_id(problem_set)
-    if problem_set_model and problem_set_model.owner == auth.user:
-        return problem_set_model
-    raise BizError(ErrorCode.ProblemSetNotFoundError)
-
-
-async def parse_problem_set_body(
-    problem_set: str = Body(..., description="url or ObjectId of the problem set"),
     auth: Authentication = Depends(),
 ) -> models.ProblemSet:
     problem_set_model = await models.ProblemSet.find_by_id(problem_set)
