@@ -18,8 +18,8 @@ from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.base import NoneEmptyLongStr
 from joj.horse.schemas.domain import ListDomains
 from joj.horse.schemas.domain_role import ListDomainRoles
-from joj.horse.schemas.domain_user import ListDomainUsers
-from joj.horse.utils.auth import DomainAuthentication, ensure_permission
+from joj.horse.schemas.domain_user import DomainUserAdd, ListDomainUsers
+from joj.horse.utils.auth import Authentication, DomainAuthentication, ensure_permission
 from joj.horse.utils.db import instance
 from joj.horse.utils.errors import BizError, ErrorCode, ForbiddenError
 from joj.horse.utils.parser import (
@@ -165,11 +165,13 @@ async def list_domain_users(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def add_domain_user(
+    domain_user_add: DomainUserAdd,
     domain: models.Domain = Depends(parse_domain),
-    user: models.User = Depends(parse_user_from_body),
-    role: str = Body(DefaultRole.USER),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
+    auth: Authentication = Depends(),
 ) -> StandardResponse[schemas.DomainUser]:
+    role = domain_user_add.role
+    user = await parse_uid(domain_user_add.user, auth)
     if role == DefaultRole.ROOT:
         # only root can add root member
         if not domain_auth.auth.is_domain_root():

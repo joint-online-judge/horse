@@ -105,57 +105,57 @@ async def update_problem_set(
     return StandardResponse(schemas.ProblemSet.from_orm(problem_set))
 
 
-@router.post("/clone")
-async def clone_problem_set(
-    problem_set: models.ProblemSet = Depends(parse_problem_set_body),
-    domain: models.Domain = Depends(parse_domain),
-    url: NoneEmptyLongStr = Body(None, description="url of the cloned problem set"),
-    auth: Authentication = Depends(),
-) -> StandardResponse[schemas.ProblemSet]:
-    try:
-        async with instance.session() as session:
-            async with session.start_transaction():
-                if url is None:
-                    url = problem_set.url + "_" + str(time.time()).replace(".", "")
-                new_problem_set = schemas.ProblemSet(
-                    title=problem_set.title,
-                    content=problem_set.content,
-                    hidden=problem_set.hidden,
-                    url=url,
-                    domain=domain.id,
-                    owner=auth.user.id,
-                    scoreboard_hidden=problem_set.scoreboard_hidden,
-                    available_time=problem_set.available_time,
-                    due_time=problem_set.due_time,
-                )
-                new_problem_set = models.ProblemSet(**new_problem_set.to_model())
-                await new_problem_set.commit()
-                logger.info("problem set cloned: %s", new_problem_set)
-                problem: models.Problem
-                async for problem in models.Problem.find(
-                    {"problem_set": problem_set.id}
-                ):
-                    problem_group: models.ProblemGroup = (
-                        await problem.problem_group.fetch()
-                    )
-                    new_problem = schemas.Problem(
-                        domain=domain.id,
-                        owner=auth.user.id,
-                        title=problem.title,
-                        content=problem.content,
-                        data=problem.data,
-                        data_version=problem.data_version,
-                        languages=problem.languages,
-                        problem_group=problem_group.id,
-                        problem_set=problem_set.id,
-                    )
-                    new_problem = models.Problem(**new_problem.to_model())
-                    await new_problem.commit()
-                    logger.info("problem cloned: %s", new_problem)
-    except Exception as e:
-        logger.error("problem set clone to domain failed: %s %s", problem_set, domain)
-        raise e
-    return StandardResponse(schemas.ProblemSet.from_orm(new_problem_set))
+# @router.post("/clone")
+# async def clone_problem_set(
+#     problem_set: models.ProblemSet = Depends(parse_problem_set_body),
+#     domain: models.Domain = Depends(parse_domain),
+#     url: NoneEmptyLongStr = Body(None, description="url of the cloned problem set"),
+#     auth: Authentication = Depends(),
+# ) -> StandardResponse[schemas.ProblemSet]:
+#     try:
+#         async with instance.session() as session:
+#             async with session.start_transaction():
+#                 if url is None:
+#                     url = problem_set.url + "_" + str(time.time()).replace(".", "")
+#                 new_problem_set = schemas.ProblemSet(
+#                     title=problem_set.title,
+#                     content=problem_set.content,
+#                     hidden=problem_set.hidden,
+#                     url=url,
+#                     domain=domain.id,
+#                     owner=auth.user.id,
+#                     scoreboard_hidden=problem_set.scoreboard_hidden,
+#                     available_time=problem_set.available_time,
+#                     due_time=problem_set.due_time,
+#                 )
+#                 new_problem_set = models.ProblemSet(**new_problem_set.to_model())
+#                 await new_problem_set.commit()
+#                 logger.info("problem set cloned: %s", new_problem_set)
+#                 problem: models.Problem
+#                 async for problem in models.Problem.find(
+#                     {"problem_set": problem_set.id}
+#                 ):
+#                     problem_group: models.ProblemGroup = (
+#                         await problem.problem_group.fetch()
+#                     )
+#                     new_problem = schemas.Problem(
+#                         domain=domain.id,
+#                         owner=auth.user.id,
+#                         title=problem.title,
+#                         content=problem.content,
+#                         data=problem.data,
+#                         data_version=problem.data_version,
+#                         languages=problem.languages,
+#                         problem_group=problem_group.id,
+#                         problem_set=problem_set.id,
+#                     )
+#                     new_problem = models.Problem(**new_problem.to_model())
+#                     await new_problem.commit()
+#                     logger.info("problem cloned: %s", new_problem)
+#     except Exception as e:
+#         logger.error("problem set clone to domain failed: %s %s", problem_set, domain)
+#         raise e
+#     return StandardResponse(schemas.ProblemSet.from_orm(new_problem_set))
 
 
 @router.get("/{problem_set}/scoreboard")

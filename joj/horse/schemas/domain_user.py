@@ -1,10 +1,11 @@
 from datetime import datetime
 from typing import Any, Callable, List, Optional
 
-from pydantic import validator
+from pydantic import Field, validator
 from pydantic.main import BaseModel
 from pydantic.typing import AnyCallable
 
+from joj.horse.models.permission import DefaultRole
 from joj.horse.schemas.base import (
     BaseODMSchema,
     ReferenceSchema,
@@ -35,3 +36,8 @@ class DomainUser(BaseODMSchema):
 
 class ListDomainUsers(BaseModel):
     results: List[DomainUser]
+
+
+class DomainUserAdd(BaseModel):
+    role: DefaultRole = Field(DefaultRole.USER)
+    user: str = Field(..., description="'me' or ObjectId of the user")
