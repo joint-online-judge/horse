@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
 from bson.objectid import ObjectId
 from fastapi import Body, Depends, File, Form, Query, UploadFile
@@ -11,7 +11,7 @@ from joj.horse.apis import records
 from joj.horse.models.permission import Permission
 from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.base import PydanticObjectId
-from joj.horse.schemas.problem import ListProblems
+from joj.horse.schemas.problem import ListProblems, ProblemClone
 from joj.horse.tasks import celery_app
 from joj.horse.utils.auth import Authentication, ensure_permission
 from joj.horse.utils.db import get_db, instance
@@ -142,12 +142,14 @@ async def update_problem_config(
     dependencies=[Depends(ensure_permission(Permission.DomainProblem.view_config))],
 )
 async def clone_problem(
-    problems: List[models.Problem] = Depends(parse_problems),
-    problem_set: models.ProblemSet = Depends(parse_problem_set_body),
-    new_group: bool = Body(False, description="whether to create new problem group"),
+    problem_clone: ProblemClone,
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_auth),
+    auth: Authentication = Depends(),
 ) -> StandardResponse[ListProblems]:
+    problems = [await parse_problem(oid, auth) for oid in problem_clone.problems]
+    problem_set = await parse_problem_set(problem_clone.problem_set, auth)
+    new_group = problem_clone.new_group
     try:
         async with instance.session() as session:
             async with session.start_transaction():

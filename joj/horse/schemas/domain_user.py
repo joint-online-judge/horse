@@ -40,4 +40,4 @@ class ListDomainUsers(BaseModel):
 
 class DomainUserAdd(BaseModel):
     role: DefaultRole = Field(DefaultRole.USER)
-    user: str = Field("me", description="'me' or ObjectId of the user")
+    user: str = Field(..., description="'me' or ObjectId of the user")

@@ -165,13 +165,13 @@ async def list_domain_users(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def add_domain_user(
-    role_user: DomainUserAdd,
+    domain_user_add: DomainUserAdd,
     domain: models.Domain = Depends(parse_domain),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
     auth: Authentication = Depends(),
 ) -> StandardResponse[schemas.DomainUser]:
-    role = role_user.role
-    user = await parse_uid(role_user.user, auth)
+    role = domain_user_add.role
+    user = await parse_uid(domain_user_add.user, auth)
     if role == DefaultRole.ROOT:
         # only root can add root member
         if not domain_auth.auth.is_domain_root():

@@ -12,13 +12,7 @@ from joj.horse.apis import problems as problems
 from joj.horse.apis import records as records
 from joj.horse.apis import user as user
 from joj.horse.apis import users as users
-from joj.horse.apis.domains import add_domain_user
-from joj.horse.apis.problem_sets import clone_problem_set
-from joj.horse.apis.problems import (
-    clone_problem,
-    submit_solution_to_problem,
-    update_problem_config,
-)
+from joj.horse.apis.problems import submit_solution_to_problem, update_problem_config
 
 
 def include_router(module: Any) -> None:
@@ -65,6 +59,4 @@ def update_schema_name(
 
 
 update_schema_name(app, submit_solution_to_problem, "ProblemSolutionSubmit")
-update_schema_name(app, clone_problem_set, "ProblemSetClone")
-update_schema_name(app, clone_problem, "ProblemClone")
 update_schema_name(app, update_problem_config, "ProblemConfigEdit")
