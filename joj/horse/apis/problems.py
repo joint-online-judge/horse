@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from bson.objectid import ObjectId
-from fastapi import Body, Depends, File, Form, Query, UploadFile
+from fastapi import Depends, File, Form, Query, UploadFile
 from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 from uvicorn.config import logger
 
@@ -20,8 +20,6 @@ from joj.horse.utils.parser import (
     parse_domain,
     parse_problem,
     parse_problem_set,
-    parse_problem_set_body,
-    parse_problems,
     parse_query,
     parse_user_from_auth,
 )

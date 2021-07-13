@@ -1,17 +1,16 @@
-import time
 from datetime import datetime, timedelta
 from typing import List
 
-import pymongo
 from bson.objectid import ObjectId
-from fastapi import Body, Depends, Query
+from fastapi import Depends
 from marshmallow.exceptions import ValidationError
+from pymongo import DESCENDING
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.models.permission import Permission
 from joj.horse.schemas import Empty, StandardResponse
-from joj.horse.schemas.base import NoneEmptyLongStr, PydanticObjectId
+from joj.horse.schemas.base import PydanticObjectId
 from joj.horse.schemas.problem_set import ListProblemSets
 from joj.horse.schemas.record import RecordStatus
 from joj.horse.schemas.score import Score, ScoreBoard, UserScore
@@ -20,9 +19,7 @@ from joj.horse.utils.db import instance
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
     parse_domain,
-    parse_domain_body,
     parse_problem_set,
-    parse_problem_set_body,
     parse_problem_set_with_time,
     parse_query,
     parse_user_from_auth,
@@ -105,59 +102,6 @@ async def update_problem_set(
     return StandardResponse(schemas.ProblemSet.from_orm(problem_set))
 
 
-# @router.post("/clone")
-# async def clone_problem_set(
-#     problem_set: models.ProblemSet = Depends(parse_problem_set_body),
-#     domain: models.Domain = Depends(parse_domain),
-#     url: NoneEmptyLongStr = Body(None, description="url of the cloned problem set"),
-#     auth: Authentication = Depends(),
-# ) -> StandardResponse[schemas.ProblemSet]:
-#     try:
-#         async with instance.session() as session:
-#             async with session.start_transaction():
-#                 if url is None:
-#                     url = problem_set.url + "_" + str(time.time()).replace(".", "")
-#                 new_problem_set = schemas.ProblemSet(
-#                     title=problem_set.title,
-#                     content=problem_set.content,
-#                     hidden=problem_set.hidden,
-#                     url=url,
-#                     domain=domain.id,
-#                     owner=auth.user.id,
-#                     scoreboard_hidden=problem_set.scoreboard_hidden,
-#                     available_time=problem_set.available_time,
-#                     due_time=problem_set.due_time,
-#                 )
-#                 new_problem_set = models.ProblemSet(**new_problem_set.to_model())
-#                 await new_problem_set.commit()
-#                 logger.info("problem set cloned: %s", new_problem_set)
-#                 problem: models.Problem
-#                 async for problem in models.Problem.find(
-#                     {"problem_set": problem_set.id}
-#                 ):
-#                     problem_group: models.ProblemGroup = (
-#                         await problem.problem_group.fetch()
-#                     )
-#                     new_problem = schemas.Problem(
-#                         domain=domain.id,
-#                         owner=auth.user.id,
-#                         title=problem.title,
-#                         content=problem.content,
-#                         data=problem.data,
-#                         data_version=problem.data_version,
-#                         languages=problem.languages,
-#                         problem_group=problem_group.id,
-#                         problem_set=problem_set.id,
-#                     )
-#                     new_problem = models.Problem(**new_problem.to_model())
-#                     await new_problem.commit()
-#                     logger.info("problem cloned: %s", new_problem)
-#     except Exception as e:
-#         logger.error("problem set clone to domain failed: %s %s", problem_set, domain)
-#         raise e
-#     return StandardResponse(schemas.ProblemSet.from_orm(new_problem_set))
-
-
 @router.get("/{problem_set}/scoreboard")
 async def get_scoreboard(
     problem_set: models.ProblemSet = Depends(parse_problem_set_with_time),
@@ -188,7 +132,7 @@ async def get_scoreboard(
                     "submit_at": {"$gte": problem_set.available_time},
                     "status": {"$nin": [RecordStatus.waiting, RecordStatus.judging]},
                 },
-                sort=[("submit_at", pymongo.DESCENDING)],
+                sort=[("submit_at", DESCENDING)],
             )
             tried = record_model is not None
             record = schemas.Record.from_orm(record_model) if record_model else None

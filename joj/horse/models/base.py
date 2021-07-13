@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from bson import ObjectId
 from pydantic import BaseModel
-from umongo import data_objects, fields
+from umongo import data_objects
 from umongo.frameworks.motor_asyncio import AsyncIOMotorCursor, MotorAsyncIODocument
 
 from joj.horse.utils.errors import UnprocessableEntityError

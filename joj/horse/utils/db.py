@@ -2,8 +2,8 @@ from enum import Enum
 from functools import lru_cache
 from typing import List, Type
 
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorGridFSBucket
-from motor.motor_gridfs import AgnosticDatabase, AgnosticGridFSBucket
+from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_gridfs import AgnosticDatabase
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument, MotorAsyncIOInstance
 from uvicorn.config import logger
 

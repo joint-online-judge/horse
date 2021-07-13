@@ -4,7 +4,6 @@ import jwt
 from fastapi import Depends, Path
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi_jwt_auth import AuthJWT
-from starlette.types import Message
 from typing_extensions import Literal
 
 from joj.horse.config import settings

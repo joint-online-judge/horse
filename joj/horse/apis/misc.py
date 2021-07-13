@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 
 from joj.horse.schemas.misc import JWT, Version
 from joj.horse.utils.auth import Authentication, jwt_token_encode

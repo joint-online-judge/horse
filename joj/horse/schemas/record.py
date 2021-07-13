@@ -2,7 +2,6 @@ from datetime import datetime
 from enum import IntEnum
 from typing import Callable, List, Optional
 
-from pydantic import validator
 from pydantic.typing import AnyCallable
 
 from joj.horse.schemas import BaseModel

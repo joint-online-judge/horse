@@ -1,5 +1,3 @@
-import bson
-from bson import ObjectId
 from pymongo import ASCENDING, IndexModel
 from umongo import fields
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
