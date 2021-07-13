@@ -38,15 +38,15 @@ BUILD_PATH = "build2"
 
 
 @pytest.mark.asyncio
-@pytest.mark.depends(name="TestCreateUser")
-class TestCreateUser:
+@pytest.mark.depends(name="TestUserCreate")
+class TestUserCreate:
     async def test_root_user(self, global_root_user: User) -> None:
         assert global_root_user.role == DefaultRole.ROOT
 
 
 @pytest.mark.asyncio
-@pytest.mark.depends(name="TestGetUser", on=["TestCreateUser"])
-class TestGetUser:
+@pytest.mark.depends(name="TestUserGet", on=["TestUserCreate"])
+class TestUserGet:
     @pytest.mark.parametrize(
         "user",
         [
