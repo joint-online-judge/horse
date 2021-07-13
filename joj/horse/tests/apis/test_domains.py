@@ -1,16 +1,12 @@
 import pytest
-from bson import ObjectId
-from fastapi.encoders import jsonable_encoder
-from fastapi.testclient import TestClient
 from httpx import AsyncClient
 from pytest_lazyfixture import lazy_fixture
 
-from joj.horse import apis, models, schemas
+from joj.horse import apis, models
 from joj.horse.tests.utils.utils import (
     create_test_domain,
     generate_auth_headers,
     get_base_url,
-    random_lower_string,
     validate_test_domain,
 )
 from joj.horse.utils.errors import ErrorCode
@@ -36,8 +32,8 @@ base_domain_url = get_base_url(apis.domains)
 
 
 @pytest.mark.asyncio
-@pytest.mark.depends(name="TestCreateDomain", on=["TestGetUser"])
-class TestCreateDomain:
+@pytest.mark.depends(name="TestDomainCreate", on=["TestUserGet"])
+class TestDomainCreate:
     @pytest.mark.parametrize(
         "domain",
         [
@@ -55,6 +51,41 @@ class TestCreateDomain:
         data = {"name": "test_domain_no_url"}
         response = await create_test_domain(client, global_root_user, data)
         validate_test_domain(response, global_root_user, data)
+
+    @pytest.mark.depends(on="test_global_domains")
+    async def test_no_name(
+        self, client: AsyncClient, global_root_user: models.User
+    ) -> None:
+        data = {"url": "test_domain_no_name"}
+        response = await create_test_domain(client, global_root_user, data)
+        assert response.status_code == 422
+
+
+@pytest.mark.asyncio
+@pytest.mark.depends(name="TestDomainGet", on=["TestDomainCreate"])
+class TestDomainGet:
+    @pytest.mark.parametrize(
+        "user,domain",
+        [(lazy_fixture("global_root_user"), lazy_fixture("global_domain_1"))],
+    )
+    async def test_global_domains(
+        self, client: AsyncClient, user: models.User, domain: models.Domain
+    ) -> None:
+        headers = generate_auth_headers(user)
+        for domain_path in [domain.url, domain.pk]:
+            r = await client.get(f"{base_domain_url}/{domain_path}", headers=headers)
+            assert r.status_code == 200
+            res = r.json()
+            assert res["error_code"] == ErrorCode.Success
+            res = res["data"]
+            assert res["url"] == domain.url
+            assert res["name"] == domain.name
+            assert res["bulletin"] == domain.bulletin
+            assert res["gravatar"] == domain.gravatar
+            if isinstance(res["owner"], str):
+                assert res["owner"] == domain.owner.pk
+            else:
+                assert res["owner"]["id"] == domain.owner.pk
 
 
 # def test_list_domains(
