@@ -3,9 +3,9 @@ from enum import IntEnum
 from typing import Callable, List, Optional
 
 from pydantic import validator
-from pydantic.main import BaseModel
 from pydantic.typing import AnyCallable
 
+from joj.horse.schemas import BaseModel
 from joj.horse.schemas.base import (
     BaseODMSchema,
     PydanticObjectId,

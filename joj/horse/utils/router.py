@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING, Any, Callable, get_type_hints
 
 from fastapi import APIRouter
-from pydantic import BaseModel
+
+from joj.horse.schemas import BaseModel
 
 
 class Detail(BaseModel):

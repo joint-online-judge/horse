@@ -1,10 +1,10 @@
 from enum import Enum
 from typing import Optional, Type, TypeVar
 
-from pydantic import BaseModel
 from umongo import fields
 from umongo.embedded_document import EmbeddedDocumentImplementation
 
+from joj.horse.schemas import BaseModel
 from joj.horse.utils.base import StrEnumMixin
 from joj.horse.utils.db import instance
 

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic.main import BaseModel
+from joj.horse.schemas import BaseModel
 
 
 class User(BaseModel):

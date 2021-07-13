@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from joj.horse.schemas import BaseModel
 
 
 class Version(BaseModel):
