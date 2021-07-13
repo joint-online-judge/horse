@@ -1,14 +1,13 @@
-from typing import Dict
-
 import pytest
 from fastapi.encoders import jsonable_encoder
 from httpx import AsyncClient, Response
 from pytest_lazyfixture import lazy_fixture
 
-from joj.horse import apis, models
+from joj.horse import apis, app, models
 from joj.horse.models.permission import DefaultRole
 from joj.horse.tests.utils.utils import (
     create_test_domain,
+    do_api_request,
     generate_auth_headers,
     get_base_url,
     get_path_by_url_type,
@@ -75,6 +74,8 @@ class TestDomainCreate:
 @pytest.mark.asyncio
 @pytest.mark.depends(name="TestDomainGet", on=["TestDomainCreate"])
 class TestDomainGet:
+    url_base = "get_domain"
+
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
     @pytest.mark.parametrize(
         "domain",
@@ -92,30 +93,16 @@ class TestDomainGet:
         domain: models.Domain,
         url_type: str,
     ) -> None:
-        headers = generate_auth_headers(user)
         domain_path = get_path_by_url_type(domain, url_type)
-        response = await client.get(f"{base_domain_url}/{domain_path}", headers=headers)
+        url = app.url_path_for(self.url_base, domain=domain_path)
+        response = await do_api_request(client, "GET", url, user)
         validate_test_domain(response, user, domain)
 
 
 @pytest.mark.asyncio
 @pytest.mark.depends(name="TestDomainUpdate", on=["TestDomainGet"])
 class TestDomainUpdate:
-    @staticmethod
-    async def api_helper(
-        client: AsyncClient,
-        user: models.User,
-        domain: models.Domain,
-        data: Dict[str, str],
-    ) -> Response:
-        domain_path = get_path_by_url_type(domain, "url")
-        headers = generate_auth_headers(user)
-        response = await client.patch(
-            f"{base_domain_url}/{domain_path}",
-            json=jsonable_encoder(data),
-            headers=headers,
-        )
-        return response
+    url_base = "update_domain"
 
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
     @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_with_url")])
@@ -128,7 +115,8 @@ class TestDomainUpdate:
         data = {}
         for field in ["url", "name", "bulletin", "gravatar"]:
             data[field] = f"{user.uname}-{field}-update-all"
-        response = await self.api_helper(client, user, domain, data)
+        url = app.url_path_for(self.url_base, domain=domain.url)
+        response = await do_api_request(client, "PATCH", url, user, data=data)
         domain.update(data)
         validate_test_domain(response, user, domain)
 
@@ -143,7 +131,8 @@ class TestDomainUpdate:
         field: str,
     ) -> None:
         data = {field: f"{user.uname}-{field}-update-one"}
-        response = await self.api_helper(client, user, domain, data)
+        url = app.url_path_for(self.url_base, domain=domain.url)
+        response = await do_api_request(client, "PATCH", url, user, data=data)
         domain.update(data)
         validate_test_domain(response, user, domain)
 
@@ -156,8 +145,9 @@ class TestDomainUpdate:
         global_domain_with_all: models.Domain,
     ) -> None:
         data = {"url": global_domain_with_all.url}
-        response = await self.api_helper(
-            client, global_root_user, global_domain_with_url, data
+        url = app.url_path_for(self.url_base, domain=global_domain_with_url.url)
+        response = await do_api_request(
+            client, "PATCH", url, global_root_user, data=data
         )
         assert response.status_code == 200
         res = response.json()
@@ -167,21 +157,7 @@ class TestDomainUpdate:
 @pytest.mark.asyncio
 @pytest.mark.depends(name="TestDomainUserAdd", on=["TestDomainGet"])
 class TestDomainUserAdd:
-    @staticmethod
-    async def api_helper(
-        client: AsyncClient,
-        user: models.User,
-        domain: models.Domain,
-        data: Dict[str, str],
-    ) -> Response:
-        domain_path = get_path_by_url_type(domain, "url")
-        headers = generate_auth_headers(user)
-        response = await client.post(
-            f"{base_domain_url}/{domain_path}/users",
-            json=jsonable_encoder(data),
-            headers=headers,
-        )
-        return response
+    url_base = "add_domain_user"
 
     async def api_test_helper(
         self,
@@ -194,8 +170,8 @@ class TestDomainUserAdd:
         data = {"user": str(added_user.id)}
         if role:
             data["role"] = role
-        response = await self.api_helper(client, user, domain, data)
-        print(response.json())
+        url = app.url_path_for(self.url_base, domain=domain.url)
+        response = await do_api_request(client, "POST", url, user, data=data)
         return response
 
     @staticmethod
@@ -280,6 +256,27 @@ class TestDomainUserAdd:
         assert response.status_code == 200
         res = response.json()
         assert res["error_code"] == ErrorCode.UserAlreadyInDomainBadRequestError
+
+
+@pytest.mark.asyncio
+@pytest.mark.depends(name="TestDomainUserRemove", on=["TestDomainUserAdd"])
+class TestDomainUserRemove:
+    url_base = "remove_domain_user"
+
+    async def test_site_root_remove_domain_root(
+        self,
+        client: AsyncClient,
+        global_root_user: models.User,
+        global_domain_root_user: models.User,
+        global_domain_with_url: models.Domain,
+    ) -> None:
+        url = app.url_path_for(
+            self.url_base,
+            domain=global_domain_with_url.url,
+            user=global_domain_root_user.id,
+        )
+        response = await do_api_request(client, "DELETE", url, global_root_user)
+        assert response.status_code == 200
 
 
 # def test_list_domains(
