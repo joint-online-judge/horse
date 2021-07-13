@@ -1,6 +1,6 @@
 import random
 import string
-from typing import Any, Dict
+from typing import Any, Dict, Union
 
 from fastapi.encoders import jsonable_encoder
 from fastapi_jwt_auth import AuthJWT
@@ -32,6 +32,22 @@ def generate_auth_headers(user: models.User) -> Dict[str, str]:
     return {"Authorization": f"Bearer {access_jwt}"}
 
 
+def get_path_by_url_type(model: Any, url_type: str) -> str:
+    if url_type == "url":
+        return model.url
+    elif url_type == "id" or url_type == "pk":
+        return model.pk
+    assert False
+
+
+def get_id_helper(data: Union[str, Dict[str, str]]) -> str:
+    if isinstance(data, str):
+        return data
+    elif isinstance(data, dict):
+        return data["id"]
+    assert False
+
+
 def data_to_mongo(data: Dict[str, str]) -> Dict[str, str]:
     if "id" in data:
         data["_id"] = data["id"]
@@ -59,13 +75,23 @@ async def create_test_domain(
 
 
 def validate_test_domain(
-    response: Response, owner: models.User, data: Dict[str, str]
+    response: Response,
+    owner: models.User,
+    domain: Union[Dict[str, str], models.Domain],
 ) -> models.Domain:
     assert response.status_code == 200
     res = response.json()
     assert res["error_code"] == ErrorCode.Success
     res = res["data"]
     assert res["id"]
+
+    if isinstance(domain, dict):
+        data = domain
+    elif isinstance(domain, models.Domain):
+        data = domain.dump()
+    else:
+        assert False
+
     if "url" in data:
         assert res["url"] == data["url"]
     else:
@@ -73,8 +99,15 @@ def validate_test_domain(
     assert res["name"] == data["name"]
     assert res["bulletin"] == data.get("bulletin", "")
     assert res["gravatar"] == data.get("gravatar", "")
-    assert res["owner"] == str(owner.id)
-    return models.Domain.build_from_mongo(data_to_mongo(res))
+
+    if isinstance(domain, dict):
+        assert get_id_helper(res["owner"]) == str(owner.id)
+    elif isinstance(domain, models.Domain):
+        assert get_id_helper(res["owner"]) == get_id_helper(data["owner"])
+
+    if isinstance(domain, dict):
+        domain = models.Domain.build_from_mongo(data_to_mongo(res))
+    return domain
 
 
 def get_base_url(module: Any) -> str:
