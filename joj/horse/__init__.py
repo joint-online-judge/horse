@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any
+from typing import Any, Dict
 
 import sentry_sdk
 from fastapi import FastAPI, Request, status
@@ -68,10 +68,24 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException) -> JSONRe
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
 
 
+def business_exception_response(exc: BizError) -> JSONResponse:
+    return JSONResponse(
+        jsonable_encoder(
+            {"error_code": exc.error_code, "error_msg": exc.error_msg, "data": {}}
+        ),
+        status_code=status.HTTP_200_OK,
+    )
+
+
 @app.exception_handler(MValidationError)
 async def marshmallow_validation_exception_handler(
     request: Request, exc: MValidationError
 ) -> JSONResponse:
+    if (
+        isinstance(exc.messages, Dict)
+        and exc.messages.get("url") == "Field value must be unique."
+    ):
+        return business_exception_response(BizError(ErrorCode.UrlNotUniqueError))
     return JSONResponse(
         content=jsonable_encoder({"detail": exc.messages}),
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -80,12 +94,7 @@ async def marshmallow_validation_exception_handler(
 
 @app.exception_handler(BizError)
 async def business_exception_handler(request: Request, exc: BizError) -> JSONResponse:
-    return JSONResponse(
-        jsonable_encoder(
-            {"error_code": exc.error_code, "error_msg": exc.error_msg, "data": {}}
-        ),
-        status_code=status.HTTP_200_OK,
-    )
+    return business_exception_response(exc)
 
 
 async def catch_exceptions_middleware(request: Request, call_next: Any) -> JSONResponse:

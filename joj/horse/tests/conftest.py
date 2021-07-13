@@ -60,10 +60,33 @@ async def global_guest_user(app: FastAPI) -> models.User:
 
 
 @pytest.fixture(scope="session")
-async def global_domain_1(
+async def global_domain_no_url(
     client: AsyncClient, global_root_user: models.User
 ) -> models.Domain:
-    data = {"url": "test_domain_1", "name": "test_domain_1"}
+    data = {"name": "test_domain_no_url"}
+    response = await create_test_domain(client, global_root_user, data)
+    return validate_test_domain(response, global_root_user, data)
+
+
+@pytest.fixture(scope="session")
+async def global_domain_with_url(
+    client: AsyncClient, global_root_user: models.User
+) -> models.Domain:
+    data = {"url": "test_domain_with_url", "name": "test_domain_with_url"}
+    response = await create_test_domain(client, global_root_user, data)
+    return validate_test_domain(response, global_root_user, data)
+
+
+@pytest.fixture(scope="session")
+async def global_domain_with_all(
+    client: AsyncClient, global_root_user: models.User
+) -> models.Domain:
+    data = {
+        "url": "test_domain_with_all",
+        "name": "test_domain_with_all",
+        "gravatar": "gravatar",
+        "bulletin": "bulletin",
+    }
     response = await create_test_domain(client, global_root_user, data)
     return validate_test_domain(response, global_root_user, data)
 

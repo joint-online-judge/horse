@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from fastapi import Body, Depends, Query
 from marshmallow.exceptions import ValidationError
