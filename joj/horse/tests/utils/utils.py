@@ -1,6 +1,6 @@
 import random
 import string
-from typing import Any, Dict, Union
+from typing import Any, Dict, Optional, Union
 
 from fastapi.encoders import jsonable_encoder
 from fastapi_jwt_auth import AuthJWT
@@ -53,6 +53,26 @@ def data_to_mongo(data: Dict[str, str]) -> Dict[str, str]:
         data["_id"] = data["id"]
         data.pop("id")
     return data
+
+
+async def do_api_request(
+    client: AsyncClient,
+    method: str,
+    url: str,
+    user: models.User,
+    query: Optional[Dict[str, str]] = None,
+    data: Optional[Dict[str, str]] = None,
+) -> Response:
+    headers = generate_auth_headers(user)
+    response = await client.request(
+        method=method,
+        url=url,
+        params=query,
+        json=jsonable_encoder(data),
+        headers=headers,
+    )
+    print(response.json())
+    return response
 
 
 async def create_test_user() -> models.User:
