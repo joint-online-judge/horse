@@ -3,9 +3,9 @@ from datetime import datetime
 from typing import Any, Dict, List
 
 from pydantic import EmailStr, validator
-from pydantic.main import BaseModel
 
 from joj.horse.models.permission import DefaultRole
+from joj.horse.schemas import BaseModel
 from joj.horse.schemas.base import BaseODMSchema
 
 UID_RE = re.compile(r"-?\d+")

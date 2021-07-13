@@ -3,9 +3,9 @@ from typing import Callable, List, Optional
 
 from joj.elephant.schemas import Config as ProblemConfig
 from pydantic import Field
-from pydantic.main import BaseModel
 from pydantic.typing import AnyCallable
 
+from joj.horse.schemas import BaseModel
 from joj.horse.schemas.base import (
     BaseODMSchema,
     LongText,
@@ -36,7 +36,7 @@ class ProblemEdit(BaseModel):
 
 
 class ProblemCreate(BaseModel):
-    url: UserInputURL = Field(None, description="(unique in domain) url of the problem")
+    url: UserInputURL = Field("", description="(unique in domain) url of the problem")
     title: NoneEmptyStr = Field(..., description="title of the problem")
     content: LongText = Field("", description="content of the problem")
     # this field can be induced from the config file

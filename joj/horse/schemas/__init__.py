@@ -1,4 +1,8 @@
-from joj.horse.schemas.base import Empty as Empty, StandardResponse as StandardResponse
+from joj.horse.schemas.base import (
+    BaseModel as BaseModel,
+    Empty as Empty,
+    StandardResponse as StandardResponse,
+)
 from joj.horse.schemas.domain import (
     Domain as Domain,
     DomainCreate as DomainCreate,

@@ -2,9 +2,9 @@ from functools import lru_cache
 from typing import Optional
 
 import oauth_jaccount
-from pydantic import BaseModel
 
 from joj.horse.config import settings
+from joj.horse.schemas import BaseModel
 
 
 @lru_cache()
