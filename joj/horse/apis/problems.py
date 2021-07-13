@@ -87,7 +87,7 @@ async def create_problem(
                 await problem_model.set_url_from_id()
                 logger.info("problem created: %s", problem_model)
     except Exception as e:
-        logger.error("problem creation failed: %s", problem.title)
+        logger.exception("problem creation failed: %s", problem.title)
         raise e
     return StandardResponse(schemas.Problem.from_orm(problem_model))
 
@@ -176,7 +176,7 @@ async def clone_problem(
                     res.append(schemas.Problem.from_orm(new_problem))
                     logger.info("problem cloned: %s", new_problem)
     except Exception as e:
-        logger.error("problems clone to problem set failed: %s", problem_set)
+        logger.exception("problems clone to problem set failed: %s", problem_set)
         raise e
     return StandardResponse(ListProblems(results=res))
 
@@ -218,7 +218,7 @@ async def submit_solution_to_problem(
         await problem.commit()
         logger.info("problem submitted with record: %s", record_model.id)
     except Exception as e:
-        logger.error("problem submission failed: %s", problem.id)
+        logger.exception("problem submission failed: %s", problem.id)
         raise e
     record_schema = schemas.Record.from_orm(record_model)
     http_url = generate_url(

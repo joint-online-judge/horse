@@ -69,7 +69,7 @@ async def create_problem_set(
     except ValidationError:
         raise BizError(ErrorCode.UrlNotUniqueError)
     except Exception as e:
-        logger.error("problem set creation failed: %s", problem_set.title)
+        logger.exception("problem set creation failed: %s", problem_set.title)
         raise e
     return StandardResponse(schemas.ProblemSet.from_orm(problem_set_model))
 
