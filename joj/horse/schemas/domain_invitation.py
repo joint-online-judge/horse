@@ -1,10 +1,11 @@
 from datetime import datetime
 from typing import Callable, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import Field, validator
 from pydantic.typing import AnyCallable
 
 from joj.horse.models.permission import DefaultRole
+from joj.horse.schemas import BaseModel
 from joj.horse.schemas.base import (
     BaseODMSchema,
     LongStr,

@@ -4,7 +4,6 @@ import jwt
 from fastapi import Depends, Path
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi_jwt_auth import AuthJWT
-from pydantic import BaseModel
 from typing_extensions import Literal
 
 from joj.horse.config import settings
@@ -21,6 +20,7 @@ from joj.horse.models.permission import (
     SitePermission,
 )
 from joj.horse.models.user import User
+from joj.horse.schemas import BaseModel
 from joj.horse.utils.errors import (
     BizError,
     ErrorCode,

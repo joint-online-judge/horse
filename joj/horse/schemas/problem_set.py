@@ -2,9 +2,9 @@ from datetime import datetime, timedelta
 from typing import Callable, List, Optional
 
 from pydantic import Field
-from pydantic.main import BaseModel
 from pydantic.typing import AnyCallable
 
+from joj.horse.schemas import BaseModel
 from joj.horse.schemas.base import (
     BaseODMSchema,
     LongText,
@@ -30,7 +30,7 @@ class ProblemSetEdit(BaseModel):
 class ProblemSetCreate(BaseModel):
     # domain: LongStr = Field(..., description="url or the id of the domain")
     url: UserInputURL = Field(
-        None, description="(unique in domain) url of the problem set"
+        "", description="(unique in domain) url of the problem set"
     )
     title: NoneEmptyLongStr = Field(..., description="title of the problem set")
     content: LongText = Field("", description="content of the problem set")

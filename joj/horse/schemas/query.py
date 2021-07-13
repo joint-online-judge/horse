@@ -1,8 +1,9 @@
 from enum import IntEnum
 from typing import Optional
 
-from pydantic import BaseModel
 from pymongo import ASCENDING, DESCENDING
+
+from joj.horse.schemas import BaseModel
 
 
 class SortEnum(IntEnum):
