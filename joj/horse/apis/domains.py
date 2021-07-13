@@ -95,6 +95,7 @@ async def create_domain(
             and e.messages.get("url") == "Field value must be unique."
         ):
             raise BizError(ErrorCode.UrlNotUniqueError)
+        logger.exception(f"domain creation failed: {domain.url}")
         raise e
     except Exception as e:
         logger.exception(f"domain creation failed: {domain.url}")

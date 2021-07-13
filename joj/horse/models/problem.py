@@ -27,6 +27,7 @@ class Problem(DocumentMixin, MotorAsyncIODocument):
     problem_group = fields.ReferenceField(ProblemGroup, required=True)
     # problem_set = fields.ReferenceField(ProblemSet, required=True)
 
+    url = fields.StringField(required=True)
     title = fields.StringField(required=True)
     content = fields.StringField(default="")
     hidden = fields.BooleanField(default=False)
