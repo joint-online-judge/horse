@@ -29,7 +29,5 @@ class DomainRole(DocumentMixin, MotorAsyncIODocument):
 
     @classmethod
     async def ensure_exists(cls, domain: ObjectId, role: str) -> None:
-        if role == DefaultRole.ROOT or await DomainRole.find_one(
-            {"domain": domain, "role": role}
-        ):
+        if await DomainRole.find_one({"domain": domain, "role": role}) is None:
             raise BizError(ErrorCode.DomainRoleNotFoundError)
