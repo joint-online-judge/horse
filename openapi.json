@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 8535fdf@2021-07-12 18:45:32",
+    "description": "Git version: 8b0b7bc@2021-07-13 03:31:53",
     "version": "0.0.0"
   },
   "paths": {
@@ -4310,7 +4310,7 @@
             "title": "Updated At",
             "type": "string",
             "format": "date-time",
-            "default": "2021-07-12T18:46:01.451030"
+            "default": "2021-07-13T03:32:21.089626"
           },
           "domain": {
             "title": "Domain",
@@ -4347,7 +4347,7 @@
             "title": "Updated At",
             "type": "string",
             "format": "date-time",
-            "default": "2021-07-12T18:46:01.451030"
+            "default": "2021-07-13T03:32:21.089626"
           }
         }
       },
@@ -5041,7 +5041,8 @@
           "url": {
             "title": "Url",
             "type": "string",
-            "description": "(unique in domain) url of the problem"
+            "description": "(unique in domain) url of the problem",
+            "default": ""
           },
           "title": {
             "title": "Title",
@@ -5166,14 +5167,14 @@
             "type": "string",
             "description": "the problem set is available from",
             "format": "date-time",
-            "default": "2021-07-12T18:46:01.464873"
+            "default": "2021-07-13T03:32:21.105466"
           },
           "due_time": {
             "title": "Due Time",
             "type": "string",
             "description": "the problem set is due at",
             "format": "date-time",
-            "default": "2021-07-19T18:46:01.464878"
+            "default": "2021-07-20T03:32:21.105471"
           },
           "domain": {
             "title": "Domain",
@@ -5234,7 +5235,8 @@
           "url": {
             "title": "Url",
             "type": "string",
-            "description": "(unique in domain) url of the problem set"
+            "description": "(unique in domain) url of the problem set",
+            "default": ""
           },
           "title": {
             "title": "Title",
@@ -5267,14 +5269,14 @@
             "type": "string",
             "description": "the problem set is available from",
             "format": "date-time",
-            "default": "2021-07-12T18:46:01.464873"
+            "default": "2021-07-13T03:32:21.105466"
           },
           "due_time": {
             "title": "Due Time",
             "type": "string",
             "description": "the problem set is due at",
             "format": "date-time",
-            "default": "2021-07-19T18:46:01.464878"
+            "default": "2021-07-20T03:32:21.105471"
           }
         }
       },
