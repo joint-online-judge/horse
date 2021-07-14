@@ -259,7 +259,16 @@ class TestDomainUserAdd:
 
 
 @pytest.mark.asyncio
-@pytest.mark.depends(name="TestDomainUserRemove", on=["TestDomainUserAdd"])
+@pytest.mark.depends(name="TestDomainUserGet", on=["TestDomainUserAdd"])
+class TestDomainUserGet:
+    url_base = "get_domain_user"
+
+    async def test_global_users(self) -> None:
+        pass
+
+
+@pytest.mark.asyncio
+@pytest.mark.depends(name="TestDomainUserRemove", on=["TestDomainUserGet"])
 class TestDomainUserRemove:
     url_base = "remove_domain_user"
 
@@ -277,6 +286,18 @@ class TestDomainUserRemove:
         )
         response = await do_api_request(client, "DELETE", url, global_root_user)
         assert response.status_code == 200
+        res = response.json()
+        assert res["error_code"] == ErrorCode.Success
+
+        url = app.url_path_for(
+            TestDomainUserGet.url_base,
+            domain=global_domain_with_url.url,
+            user=global_domain_root_user.id,
+        )
+        response = await do_api_request(client, "GET", url, global_root_user)
+        assert response.status_code == 200
+        res = response.json()
+        assert res["error_code"] == ErrorCode.DomainUserNotFoundError
 
 
 # def test_list_domains(

@@ -220,7 +220,16 @@ class Authentication:
         return self.site_role == DefaultRole.ROOT
 
     def is_domain_root(self) -> bool:
-        return self.is_root() or self.domain_role == DefaultRole.ROOT
+        return (
+            self.is_root()
+            or self.domain_role == DefaultRole.ROOT
+            or self.is_domain_owner()
+        )
+
+    def is_domain_owner(self) -> bool:
+        if self.domain is None:
+            return False
+        return self.domain.owner.pk == self.user.id
 
 
 class DomainAuthentication:
