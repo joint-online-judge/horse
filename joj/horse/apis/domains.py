@@ -143,6 +143,32 @@ async def update_domain(
     return StandardResponse(schemas.Domain.from_orm(domain))
 
 
+@router.put(
+    "/{domain}/transfer",
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
+)
+async def transfer_domain(
+    domain: models.Domain = Depends(parse_domain),
+    user: models.User = Depends(parse_user_from_auth),
+    target_user: str = Body(..., description="'me' or ObjectId of the user"),
+    auth: Authentication = Depends(),
+) -> StandardResponse[schemas.Domain]:
+    target_user_model = await parse_uid(target_user, auth)
+    if user.id != domain.owner.pk:
+        raise BizError(ErrorCode.DomainNotOwnerError)
+    if domain.owner == target_user_model.id:
+        raise BizError(ErrorCode.DomainTransferError)
+    domain_user = await models.DomainUser.find_one(
+        {"domain": domain.id, "user": target_user_model.id}
+    )
+    # can only transfer to a root user in the domain
+    if not domain_user or domain_user.role != DefaultRole.ROOT:
+        raise BizError(ErrorCode.DomainTransferError)
+    domain.owner = target_user_model.id
+    await domain.commit()
+    return StandardResponse(schemas.Domain.from_orm(domain))
+
+
 @router.get(
     "/{domain}/users",
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
@@ -165,14 +191,13 @@ async def add_domain_user(
     domain_user_add: DomainUserAdd,
     domain: models.Domain = Depends(parse_domain),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
-    auth: Authentication = Depends(),
 ) -> StandardResponse[schemas.DomainUser]:
     role = domain_user_add.role
-    user = await parse_uid(domain_user_add.user, auth)
-    if role == DefaultRole.ROOT:
-        # only root can add root member
-        if not domain_auth.auth.is_domain_root():
-            raise ForbiddenError()
+    user = await parse_uid(domain_user_add.user, domain_auth.auth)
+
+    # only root member (or site root) can add root member
+    if role == DefaultRole.ROOT and not domain_auth.auth.is_domain_root():
+        raise BizError(ErrorCode.DomainNotRootError)
 
     # add member
     domain_user_model = await models.DomainUser.add_domain_user(
@@ -192,6 +217,8 @@ async def get_domain_user(
     domain_user = await models.DomainUser.find_one(
         {"domain": domain.id, "user": user.id}
     )
+    if domain_user is None:
+        raise BizError(ErrorCode.DomainUserNotFoundError)
     return StandardResponse(schemas.DomainUser.from_orm(domain_user))
 
 
@@ -202,15 +229,22 @@ async def get_domain_user(
 async def remove_domain_user(
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_path_or_query),
+    domain_auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> StandardResponse[Empty]:
     domain_user = await models.DomainUser.find_one(
         {"domain": domain.id, "user": user.id}
     )
     if not domain_user:
         raise BizError(ErrorCode.DomainUserNotFoundError)
-    # can not remove root member
-    if domain_user.role == DefaultRole.ROOT:
-        raise BizError(ErrorCode.DomainUserRootError)
+
+    # nobody (including domain owner himself) can remove domain owner
+    if user.id == domain.owner.pk:
+        raise BizError(ErrorCode.DomainNotOwnerError)
+
+    # only root member (or site root) can remove root member
+    if domain_user.role == DefaultRole.ROOT and not domain_auth.auth.is_domain_root():
+        raise BizError(ErrorCode.DomainNotRootError)
+
     await domain_user.delete()
     return StandardResponse()
 
@@ -225,10 +259,13 @@ async def update_domain_user(
     role: str = Body(DefaultRole.USER),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> StandardResponse[schemas.DomainUser]:
-    if role == DefaultRole.ROOT:
-        # only root can add fixed roles
-        if not domain_auth.auth.is_domain_root():
-            raise ForbiddenError()
+    # domain owner must be root member
+    if role != DefaultRole.ROOT and domain_auth.auth.is_domain_owner():
+        raise BizError(ErrorCode.DomainNotRootError)
+
+    # only root member (or site root) can add root member
+    if role == DefaultRole.ROOT and not domain_auth.auth.is_domain_root():
+        raise BizError(ErrorCode.DomainNotRootError)
 
     # update member
     domain_user_model = await models.DomainUser.update_domain_user(

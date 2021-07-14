@@ -25,12 +25,14 @@ class ErrorCode(str, Enum):
     ProblemSetBeforeAvailableError = "ProblemSetBeforeAvailableError"
     ProblemSetAfterDueError = "ProblemSetAfterDueError"
     UserNotJudgerError = "UserNotJudgerError"
+    DomainTransferError = "DomainTransferError"
+    DomainNotOwnerError = "DomainNotOwnerError"
+    DomainNotRootError = "DomainNotRootError"
     DomainRoleNotFoundError = "DomainRoleNotFoundError"
     DomainRoleNotUniqueError = "DomainRoleNotUniqueError"
     DomainRoleReadOnlyError = "DomainRoleReadOnlyError"
     DomainRoleUsedError = "DomainRoleUsedError"
     DomainUserNotFoundError = "DomainUserNotFoundError"
-    DomainUserRootError = "DomainUserRootError"
 
 
 class BizError(Exception):
