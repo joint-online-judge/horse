@@ -38,6 +38,10 @@ class DomainCreate(BaseModel):
         return v
 
 
+class DomainTransfer(BaseModel):
+    target_user: str = Field(..., description="'me' or ObjectId of the user")
+
+
 class Domain(DomainCreate, BaseODMSchema):
     url: NoneEmptyLongStr
     owner: ReferenceSchema[UserBase]

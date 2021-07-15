@@ -3,6 +3,8 @@ from typing import List, Optional
 
 from fastapi import Body, Depends, Query
 from marshmallow.exceptions import ValidationError
+
+# from pydantic import Field
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
@@ -148,25 +150,25 @@ async def update_domain(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
 )
 async def transfer_domain(
+    domain_transfer: schemas.DomainTransfer,
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_auth),
-    target_user: str = Body(..., description="'me' or ObjectId of the user"),
     auth: Authentication = Depends(),
 ) -> StandardResponse[schemas.Domain]:
-    target_user_model = await parse_uid(target_user, auth)
+    target_user = await parse_uid(domain_transfer.target_user, auth)
     # only domain owner (or site root) can transfer the domain
     if user.id != domain.owner.pk and not auth.is_root():
         raise BizError(ErrorCode.DomainNotOwnerError)
     # can not transfer to self
-    if domain.owner == target_user_model.id:
+    if domain.owner == target_user.id:
         raise BizError(ErrorCode.DomainTransferError)
     domain_user = await models.DomainUser.find_one(
-        {"domain": domain.id, "user": target_user_model.id}
+        {"domain": domain.id, "user": target_user.id}
     )
     # can only transfer the domain to a root user in the domain
     if not domain_user or domain_user.role != DefaultRole.ROOT:
         raise BizError(ErrorCode.DomainTransferError)
-    domain.owner = target_user_model.id
+    domain.owner = target_user.id
     await domain.commit()
     return StandardResponse(schemas.Domain.from_orm(domain))
 
