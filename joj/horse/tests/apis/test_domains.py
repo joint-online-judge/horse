@@ -344,7 +344,7 @@ class TestDomainTransfer:
         target_user_model: models.User = request.getfixturevalue(target_user)
         url = app.url_path_for(self.url_base, domain=domain.url)
         data = {"target_user": str(target_user_model.id)}
-        response = await do_api_request(client, "PUT", url, user_model, data=data)
+        response = await do_api_request(client, "POST", url, user_model, data=data)
         if error_code == ErrorCode.Success:
             domain.owner = target_user_model.id
             validate_test_domain(response, target_user_model, domain)

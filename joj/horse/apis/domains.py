@@ -90,15 +90,6 @@ async def create_domain(
                     )
                     await domain_role_model.commit()
                     logger.info("domain role created: %s", domain_user_model)
-
-    except ValidationError as e:
-        if (
-            isinstance(e.messages, Dict)
-            and e.messages.get("url") == "Field value must be unique."
-        ):
-            raise BizError(ErrorCode.UrlNotUniqueError)
-        logger.exception(f"domain creation failed: {domain.url}")
-        raise e
     except Exception as e:
         logger.exception(f"domain creation failed: {domain.url}")
         raise e
@@ -145,7 +136,7 @@ async def update_domain(
     return StandardResponse(schemas.Domain.from_orm(domain))
 
 
-@router.put(
+@router.post(
     "/{domain}/transfer",
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
 )
