@@ -160,14 +160,14 @@ async def transfer_domain(
     if user.id != domain.owner.pk and not auth.is_root():
         raise BizError(ErrorCode.DomainNotOwnerError)
     # can not transfer to self
-    if domain.owner == target_user.id:
-        raise BizError(ErrorCode.DomainTransferError)
+    if domain.owner.pk == target_user.id:
+        raise BizError(ErrorCode.DomainNotOwnerError)
     domain_user = await models.DomainUser.find_one(
         {"domain": domain.id, "user": target_user.id}
     )
     # can only transfer the domain to a root user in the domain
     if not domain_user or domain_user.role != DefaultRole.ROOT:
-        raise BizError(ErrorCode.DomainTransferError)
+        raise BizError(ErrorCode.DomainNotRootError)
     domain.owner = target_user.id
     await domain.commit()
     return StandardResponse(schemas.Domain.from_orm(domain))

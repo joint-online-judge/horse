@@ -305,7 +305,7 @@ class TestDomainUserRemove:
 class TestDomainTransfer:
     url_base = "transfer_domain"
 
-    async def test_basic(
+    async def test_transfer(
         self,
         client: AsyncClient,
         global_root_user: models.User,
@@ -317,6 +317,58 @@ class TestDomainTransfer:
         response = await do_api_request(client, "PUT", url, global_root_user, data=data)
         global_domain_with_all.owner = global_domain_root_user.id
         validate_test_domain(response, global_domain_root_user, global_domain_with_all)
+
+    @pytest.mark.depends(on="test_transfer")
+    async def test_site_root(
+        self,
+        client: AsyncClient,
+        global_root_user: models.User,
+        global_domain_with_all: models.Domain,
+    ) -> None:
+        url = app.url_path_for(self.url_base, domain=global_domain_with_all.url)
+        data = {"target_user": str(global_root_user.id)}
+        response = await do_api_request(client, "PUT", url, global_root_user, data=data)
+        global_domain_with_all.owner = global_root_user.id
+        validate_test_domain(response, global_root_user, global_domain_with_all)
+
+    @pytest.mark.parametrize(
+        "user,target_user,error_code",
+        [
+            (
+                # only domain owner (or site root) can transfer the domain
+                lazy_fixture("global_domain_user"),
+                lazy_fixture("global_domain_root_user"),
+                ErrorCode.DomainNotOwnerError,
+            ),
+            (
+                # can not transfer to self
+                lazy_fixture("global_root_user"),
+                lazy_fixture("global_root_user"),
+                ErrorCode.DomainNotOwnerError,
+            ),
+            (
+                # can only transfer the domain to a root user in the domain
+                lazy_fixture("global_root_user"),
+                lazy_fixture("global_domain_user"),
+                ErrorCode.DomainNotRootError,
+            ),
+        ],
+    )
+    @pytest.mark.depends(on="test_site_root")
+    async def test_errors(
+        self,
+        client: AsyncClient,
+        user: models.User,
+        target_user: models.User,
+        global_domain_with_all: models.Domain,
+        error_code: ErrorCode,
+    ) -> None:
+        url = app.url_path_for(self.url_base, domain=global_domain_with_all.url)
+        data = {"target_user": str(target_user.id)}
+        response = await do_api_request(client, "PUT", url, user, data=data)
+        assert response.status_code == 200
+        res = response.json()
+        assert res["error_code"] == error_code
 
 
 # def test_list_domains(
