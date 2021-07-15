@@ -300,6 +300,25 @@ class TestDomainUserRemove:
         assert res["error_code"] == ErrorCode.DomainUserNotFoundError
 
 
+@pytest.mark.asyncio
+@pytest.mark.depends(name="TestDomainTransfer", on=["TestDomainUserGet"])
+class TestDomainTransfer:
+    url_base = "transfer_domain"
+
+    async def test_basic(
+        self,
+        client: AsyncClient,
+        global_root_user: models.User,
+        global_domain_root_user: models.User,
+        global_domain_with_all: models.Domain,
+    ) -> None:
+        url = app.url_path_for(self.url_base, domain=global_domain_with_all.url)
+        data = {"target_user": str(global_domain_root_user.id)}
+        response = await do_api_request(client, "PUT", url, global_root_user, data=data)
+        global_domain_with_all.owner = global_domain_root_user.id
+        validate_test_domain(response, global_domain_root_user, global_domain_with_all)
+
+
 # def test_list_domains(
 #     client: TestClient, test_user_token_headers: Dict[str, str], test_user: User
 # ) -> None:

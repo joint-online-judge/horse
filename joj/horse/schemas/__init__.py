@@ -7,6 +7,7 @@ from joj.horse.schemas.domain import (
     Domain as Domain,
     DomainCreate as DomainCreate,
     DomainEdit as DomainEdit,
+    DomainTransfer as DomainTransfer,
 )
 from joj.horse.schemas.domain_invitation import (
     DomainInvitation as DomainInvitation,
