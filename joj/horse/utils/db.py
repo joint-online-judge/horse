@@ -4,6 +4,7 @@ from typing import List, Type
 
 from motor.motor_asyncio import AsyncIOMotorClient
 from motor.motor_gridfs import AgnosticDatabase
+from pymongo.errors import CollectionInvalid
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument, MotorAsyncIOInstance
 from uvicorn.config import logger
 
@@ -53,6 +54,13 @@ collections: List[Type[MotorAsyncIODocument]] = [
 
 
 async def ensure_indexes() -> None:
+    db = get_db()
     for model in collections:
-        logger.info('Ensure indexes for "%s".' % model.opts.collection_name)
+        collection_name = model.opts.collection_name
+        try:
+            await db.create_collection(collection_name)
+            logger.info(f'Create "{collection_name}".')
+        except CollectionInvalid:
+            pass
         await model.ensure_indexes()
+        logger.info(f'Ensure indexes for "{collection_name}".')
