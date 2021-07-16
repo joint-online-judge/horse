@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 8fbec78@2021-07-16 09:35:08",
+    "description": "Git version: 8a4e1ee@2021-07-16 09:35:37",
     "version": "0.0.0"
   },
   "paths": {
@@ -746,6 +746,76 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DomainUserResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/users/{user}/permission": {
+      "get": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "Get Domain User Permission",
+        "operationId": "get_domain_user_permission_api_v1_domains__domain__users__user__permission_get",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "'me' or ObjectId of the user",
+            "required": true,
+            "schema": {
+              "title": "User",
+              "type": "string",
+              "description": "'me' or ObjectId of the user"
+            },
+            "name": "user",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DomainUserPermissionResp"
                 }
               }
             }
@@ -4379,7 +4449,7 @@
             "title": "Updated At",
             "type": "string",
             "format": "date-time",
-            "default": "2021-07-16T09:35:34.349124"
+            "default": "2021-07-16T09:36:02.380178"
           },
           "domain": {
             "title": "Domain",
@@ -4416,7 +4486,7 @@
             "title": "Updated At",
             "type": "string",
             "format": "date-time",
-            "default": "2021-07-16T09:35:34.349124"
+            "default": "2021-07-16T09:36:02.380178"
           }
         }
       },
@@ -4537,6 +4607,77 @@
             "title": "User",
             "type": "string",
             "description": "'me' or ObjectId of the user"
+          }
+        }
+      },
+      "DomainUserPermission": {
+        "title": "DomainUserPermission",
+        "required": [
+          "domain",
+          "user",
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "domain": {
+            "title": "Domain",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/Domain"
+              }
+            ]
+          },
+          "user": {
+            "title": "User",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/UserBase"
+              }
+            ]
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "join_at": {
+            "title": "Join At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "permission": {
+            "title": "Permission",
+            "type": "object",
+            "default": {}
+          }
+        }
+      },
+      "DomainUserPermissionResp": {
+        "title": "DomainUserPermissionResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DomainUserPermission"
           }
         }
       },
@@ -5251,14 +5392,14 @@
             "type": "string",
             "description": "the problem set is available from",
             "format": "date-time",
-            "default": "2021-07-16T09:35:34.364673"
+            "default": "2021-07-16T09:36:02.395242"
           },
           "due_time": {
             "title": "Due Time",
             "type": "string",
             "description": "the problem set is due at",
             "format": "date-time",
-            "default": "2021-07-23T09:35:34.364679"
+            "default": "2021-07-23T09:36:02.395248"
           },
           "domain": {
             "title": "Domain",
@@ -5353,14 +5494,14 @@
             "type": "string",
             "description": "the problem set is available from",
             "format": "date-time",
-            "default": "2021-07-16T09:35:34.364673"
+            "default": "2021-07-16T09:36:02.395242"
           },
           "due_time": {
             "title": "Due Time",
             "type": "string",
             "description": "the problem set is due at",
             "format": "date-time",
-            "default": "2021-07-23T09:35:34.364679"
+            "default": "2021-07-23T09:36:02.395248"
           }
         }
       },
