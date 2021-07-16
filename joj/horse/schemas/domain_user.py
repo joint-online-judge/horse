@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from pydantic import Field, validator
 from pydantic.typing import AnyCallable
@@ -13,6 +13,8 @@ from joj.horse.schemas.base import (
 )
 from joj.horse.schemas.domain import Domain
 from joj.horse.schemas.user import UserBase
+
+# from joj.horse.schemas.domain_role import DomainPermission
 
 
 class DomainUser(BaseODMSchema):
@@ -32,6 +34,10 @@ class DomainUser(BaseODMSchema):
     _validator_user: Callable[[AnyCallable], classmethod] = reference_schema_validator(
         "user", UserBase
     )
+
+
+class DomainUserPermission(DomainUser):
+    permission: Dict[str, Any] = {}
 
 
 class ListDomainUsers(BaseModel):

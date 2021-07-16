@@ -89,7 +89,7 @@ async def create_domain(
                         **domain_role_schema.to_model()
                     )
                     await domain_role_model.commit()
-                    logger.info("domain role created: %s", domain_user_model)
+                    logger.info("domain role created: %s", domain_role_model)
     except Exception as e:
         logger.exception(f"domain creation failed: {domain.url}")
         raise e
@@ -260,6 +260,29 @@ async def update_domain_user(
         domain=domain.id, user=user.id, role=role
     )
     return StandardResponse(schemas.DomainUser.from_orm(domain_user_model))
+
+
+@router.get(
+    "/{domain}/users/{user}/permission",
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
+)
+async def get_domain_user_permission(
+    domain: models.Domain = Depends(parse_domain),
+    user: models.User = Depends(parse_user_from_path_or_query),
+) -> StandardResponse[schemas.DomainUserPermission]:
+    domain_user = await models.DomainUser.find_one(
+        {"domain": domain.id, "user": user.id}
+    )
+    if domain_user is None:
+        raise BizError(ErrorCode.DomainUserNotFoundError)
+    domain_role = await models.DomainRole.find_one(
+        {"domain": domain.id, "role": domain_user.role}
+    )
+    if domain_role is None:
+        raise BizError(ErrorCode.DomainRoleNotFoundError)
+    result = schemas.DomainUserPermission.from_orm(domain_user)
+    result.permission = domain_role.permission.dump()
+    return StandardResponse(result)
 
 
 @router.get(

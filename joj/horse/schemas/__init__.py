@@ -19,7 +19,10 @@ from joj.horse.schemas.domain_role import (
     DomainRoleCreate as DomainRoleCreate,
     DomainRoleEdit as DomainRoleEdit,
 )
-from joj.horse.schemas.domain_user import DomainUser as DomainUser
+from joj.horse.schemas.domain_user import (
+    DomainUser as DomainUser,
+    DomainUserPermission as DomainUserPermission,
+)
 from joj.horse.schemas.problem import (
     Problem as Problem,
     ProblemCreate as ProblemCreate,
