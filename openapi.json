@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 335bcde@2021-07-15 17:24:35",
+    "description": "Git version: 9e94d56@2021-07-16 06:38:54",
     "version": "0.0.0"
   },
   "paths": {
@@ -322,6 +322,75 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/DomainEdit"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DomainResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/transfer": {
+      "post": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "Transfer Domain",
+        "operationId": "transfer_domain_api_v1_domains__domain__transfer_post",
+        "parameters": [
+          {
+            "description": "url or ObjectId of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or ObjectId of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DomainTransfer"
               }
             }
           },
@@ -4310,7 +4379,7 @@
             "title": "Updated At",
             "type": "string",
             "format": "date-time",
-            "default": "2021-07-15T17:25:22.195644"
+            "default": "2021-07-16T06:39:25.586050"
           },
           "domain": {
             "title": "Domain",
@@ -4347,7 +4416,7 @@
             "title": "Updated At",
             "type": "string",
             "format": "date-time",
-            "default": "2021-07-15T17:25:22.195644"
+            "default": "2021-07-16T06:39:25.586050"
           }
         }
       },
@@ -4386,6 +4455,20 @@
           },
           "data": {
             "$ref": "#/components/schemas/DomainRole"
+          }
+        }
+      },
+      "DomainTransfer": {
+        "title": "DomainTransfer",
+        "required": [
+          "target_user"
+        ],
+        "type": "object",
+        "properties": {
+          "target_user": {
+            "title": "Target User",
+            "type": "string",
+            "description": "'me' or ObjectId of the user"
           }
         }
       },
@@ -4524,12 +4607,13 @@
           "ProblemSetBeforeAvailableError",
           "ProblemSetAfterDueError",
           "UserNotJudgerError",
+          "DomainNotOwnerError",
+          "DomainNotRootError",
           "DomainRoleNotFoundError",
           "DomainRoleNotUniqueError",
           "DomainRoleReadOnlyError",
           "DomainRoleUsedError",
-          "DomainUserNotFoundError",
-          "DomainUserRootError"
+          "DomainUserNotFoundError"
         ],
         "type": "string",
         "description": "An enumeration."
@@ -5167,14 +5251,14 @@
             "type": "string",
             "description": "the problem set is available from",
             "format": "date-time",
-            "default": "2021-07-15T17:25:22.212236"
+            "default": "2021-07-16T06:39:25.599596"
           },
           "due_time": {
             "title": "Due Time",
             "type": "string",
             "description": "the problem set is due at",
             "format": "date-time",
-            "default": "2021-07-22T17:25:22.212243"
+            "default": "2021-07-23T06:39:25.599601"
           },
           "domain": {
             "title": "Domain",
@@ -5269,14 +5353,14 @@
             "type": "string",
             "description": "the problem set is available from",
             "format": "date-time",
-            "default": "2021-07-15T17:25:22.212236"
+            "default": "2021-07-16T06:39:25.599596"
           },
           "due_time": {
             "title": "Due Time",
             "type": "string",
             "description": "the problem set is due at",
             "format": "date-time",
-            "default": "2021-07-22T17:25:22.212243"
+            "default": "2021-07-23T06:39:25.599601"
           }
         }
       },
