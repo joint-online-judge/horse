@@ -48,7 +48,7 @@ async def startup_event() -> None:
 @app.get("/api")
 @app.get("/")
 async def redirect_to_docs() -> RedirectResponse:
-    redirect_url = generate_url("/api/v1")
+    redirect_url = generate_url("/api/v1?docExpansion=none")
     return RedirectResponse(redirect_url)
 
 
