@@ -25,10 +25,13 @@ class PathTruncatingFormatter(DefaultFormatter):
 
     def format(self, record: Any) -> str:
         if "pathname" in record.__dict__ and "lineno" in record.__dict__:
-            relative_path = os.path.relpath(
-                record.pathname, PathTruncatingFormatter.MODULE_DIR
-            )
-            if not relative_path.startswith(".."):
+            try:
+                relative_path = os.path.relpath(
+                    record.pathname, PathTruncatingFormatter.MODULE_DIR
+                )
+            except ValueError:
+                relative_path = ""
+            if relative_path and not relative_path.startswith(".."):
                 record.pathname = "%s:%d" % (relative_path, record.lineno)
             else:
                 record.pathname = "(uvicorn)"
