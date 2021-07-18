@@ -24,12 +24,12 @@ class Settings(BaseSettings):
 
     session_ttl: int = 14 * 24 * 60 * 60  # 14 days, in seconds
 
-    # mongodb config
+    # postgresql config
     db_host: str = "localhost"
-    db_port: int = 27017
+    db_port: int = 5432
+    db_user: str = "postgres"
+    db_password: str = "pass"
     db_name: str = "horse-production"
-    db_username: str = ""
-    db_password: str = ""
 
     # redis config
     redis_host: str = "localhost"

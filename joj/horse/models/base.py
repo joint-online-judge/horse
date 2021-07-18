@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from bson import ObjectId
 from pydantic import BaseModel
+from tortoise import fields, models
 from umongo import data_objects
 from umongo.frameworks.motor_asyncio import AsyncIOMotorCursor, MotorAsyncIODocument
 
@@ -124,3 +125,17 @@ class DocumentMixin:
     ) -> AsyncIOMotorCursor:
         pipeline = cls.generate_join_pipeline(field, condition, query, collection)
         return cls.aggregate(pipeline)
+
+
+class BaseORMModel(models.Model):
+    class Meta:
+        abstract = True
+
+    id = fields.UUIDField(pk=True)
+
+    created_at = fields.DatetimeField(null=True, auto_now_add=True)
+    updated_at = fields.DatetimeField(null=True, auto_now=True)
+
+
+class URLMixin:
+    url = fields.CharField(max_length=255, unique=True)

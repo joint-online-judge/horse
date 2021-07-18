@@ -6,17 +6,18 @@ from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from marshmallow.exceptions import ValidationError as MValidationError
-
-# from pydantic.error_wrappers import ValidationError
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.responses import JSONResponse, RedirectResponse
 from tenacity import RetryError
+
+# from pydantic.error_wrappers import ValidationError
+from tortoise import Tortoise
 from uvicorn.config import logger
 
 from joj.horse.config import settings
 
 # from joj.horse.utils.cache import test_cache
-from joj.horse.utils.db import ensure_indexes, get_db
+from joj.horse.utils.db import init_tortoise
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.url import generate_url
 from joj.horse.utils.version import get_git_version, get_version
@@ -35,13 +36,17 @@ app = FastAPI(
 async def startup_event() -> None:
     try:
         logger.info("Using %s." % asyncio.get_running_loop().__module__)
-        # await test_cache()
-        get_db()
-        await ensure_indexes()
+        await init_tortoise()
     except RetryError as e:
         logger.error("Initialization failed, exiting.")
         logger.disabled = True
         exit(-1)
+
+
+@app.on_event("shutdown")
+async def shutdown_event() -> None:
+    await Tortoise.close_connections()
+    logger.info("Tortoise-ORM shutdown")
 
 
 # we temporarily redirect "/" and "/api" to "/api/v1" for debugging

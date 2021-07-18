@@ -1,14 +1,21 @@
+from tortoise import BaseDBAsyncClient, fields, models, signals
 from umongo import fields
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 
-from joj.horse.models.base import DocumentMixin
+from joj.horse.models.base import BaseORMModel, DocumentMixin
+from joj.horse.models.domain import Domain
 from joj.horse.utils.db import instance
 
 
-@instance.register
-class ProblemGroup(DocumentMixin, MotorAsyncIODocument):
+class ProblemGroup(BaseORMModel):
     class Meta:
-        collection_name = "problem.groups"
-        strict = False
+        table = "problem_groups"
 
-    moss_results = fields.ListField(fields.StringField(), default=[])
+
+# @instance.register
+# class ProblemGroup(DocumentMixin, MotorAsyncIODocument):
+#     class Meta:
+#         collection_name = "problem.groups"
+#         strict = False
+#
+#     moss_results = fields.ListField(fields.StringField(), default=[])
