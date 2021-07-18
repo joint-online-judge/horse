@@ -4,7 +4,7 @@ from typing import Any, Callable, Dict, List, Optional
 from pydantic import Field, validator
 from pydantic.typing import AnyCallable
 
-from joj.horse.models.permission import DomainPermission
+# from joj.horse.models.permission import DomainPermission
 from joj.horse.schemas import BaseModel
 from joj.horse.schemas.base import (
     BaseODMSchema,
@@ -28,11 +28,11 @@ class DomainRoleCreate(BaseModel):
     permission: Dict[str, Any] = {}
     updated_at: datetime = datetime.utcnow()
 
-    @validator("permission", pre=True, always=True)
-    def default_permission(
-        cls, v: Any, *, values: Any, **kwargs: Any
-    ) -> Dict[str, Any]:
-        return v or DomainPermission().dump()
+    # @validator("permission", pre=True, always=True)
+    # def default_permission(
+    #     cls, v: Any, *, values: Any, **kwargs: Any
+    # ) -> Dict[str, Any]:
+    #     return v or DomainPermission().dump()
 
     @validator("updated_at", pre=True, always=True)
     def default_updated_at(cls, v: datetime, *, values: Any, **kwargs: Any) -> datetime:

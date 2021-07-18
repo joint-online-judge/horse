@@ -7,17 +7,16 @@ from fastapi import Body, Depends, Query
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
-from joj.horse.models.permission import (
-    DEFAULT_DOMAIN_PERMISSION,
-    FIXED_ROLES,
-    READONLY_ROLES,
-    DefaultRole,
-    Permission,
-)
+from joj.horse.models.permission import FIXED_ROLES, READONLY_ROLES
 from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.domain import ListDomains
 from joj.horse.schemas.domain_role import ListDomainRoles
 from joj.horse.schemas.domain_user import DomainUserAdd, ListDomainUsers
+from joj.horse.schemas.permission import (
+    DEFAULT_DOMAIN_PERMISSION,
+    DefaultRole,
+    Permission,
+)
 from joj.horse.utils.auth import Authentication, DomainAuthentication, ensure_permission
 from joj.horse.utils.db import instance
 from joj.horse.utils.errors import BizError, ErrorCode
