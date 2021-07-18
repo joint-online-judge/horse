@@ -117,7 +117,7 @@ async def get_scoreboard(
     results: List[UserScore] = []
     problem_ids: List[PydanticObjectId] = []
     firstUser = True
-    for i, user in enumerate(users):
+    for user in users:
         scores: List[Score] = []
         total_score = 0
         total_time_spent = timedelta(0)

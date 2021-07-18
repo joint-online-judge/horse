@@ -4,6 +4,7 @@ from pydantic import BaseSettings
 
 
 class Settings(BaseSettings):
+
     """
     Define the settings (config) of the website.
 

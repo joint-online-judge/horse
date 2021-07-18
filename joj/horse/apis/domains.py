@@ -43,9 +43,7 @@ async def list_domains(
     query: schemas.BaseQuery = Depends(parse_query),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[ListDomains]:
-    """
-    List all domains that the current user has a role.
-    """
+    """List all domains that the current user has a role."""
     cursor = models.DomainUser.cursor_find_user_domains(user, role, query)
     domain_users = await schemas.DomainUser.to_list(cursor)
     results = [x.domain for x in domain_users]

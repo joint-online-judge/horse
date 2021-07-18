@@ -38,16 +38,16 @@ async def list_records(
     user: models.User = Depends(parse_uid_or_none),
     auth: Authentication = Depends(),
 ) -> StandardResponse[ListRecords]:
-    filter = {}
+    condition = {}
     if user:
-        filter["user"] = auth.user.id
+        condition["user"] = auth.user.id
     if domain is not None:
-        filter["domain"] = ObjectId(domain)
+        condition["domain"] = ObjectId(domain)
     if problem_set is not None:
-        filter["problem_set"] = ObjectId(problem_set)
+        condition["problem_set"] = ObjectId(problem_set)
     if problem is not None:
-        filter["problem"] = ObjectId(problem)
-    cursor = models.Record.cursor_find(filter, query)
+        condition["problem"] = ObjectId(problem)
+    cursor = models.Record.cursor_find(condition, query)
     res = await schemas.Record.to_list(cursor)
     return StandardResponse(ListRecords(results=res))
 
