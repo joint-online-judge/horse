@@ -142,7 +142,7 @@ async def get_domain_role(
     domain: Domain = Depends(get_domain),
 ) -> str:
     if user:
-        domain_user = await DomainUser.find_one({"domain": domain.id, "user": user.id})
+        domain_user = await DomainUser.get_or_none(domain=domain.id, user=user.id)
         if domain_user:
             return domain_user.role
     # the default site role is guest
@@ -155,9 +155,7 @@ async def get_domain_permission(
     if domain_role == DefaultRole.ROOT:
         return DEFAULT_DOMAIN_PERMISSION[DefaultRole.ROOT]
     if domain:
-        _domain_role = await DomainRole.find_one(
-            {"domain": domain.id, "role": domain_role}
-        )
+        _domain_role = await DomainRole.get_or_none(domain=domain.id, role=domain_role)
     else:
         _domain_role = None
     if _domain_role:
@@ -188,12 +186,12 @@ class Authentication:
         self.jwt: Optional[JWTToken] = jwt_decoded
         self.user: User = user
         self.site_role: str = site_role
-        self.site_permission: SitePermission = site_permission.dump()
+        self.site_permission: SitePermission = site_permission
         self.domain: Optional[Domain] = None
         self.domain_role: str = DefaultRole.GUEST
         self.domain_permission: DomainPermission = DEFAULT_DOMAIN_PERMISSION[
             DefaultRole.GUEST
-        ].dump()
+        ]
 
     def check(self, scope: ScopeType, permission: PermissionType) -> bool:
         def _check(permissions: Optional[Dict[str, Any]]) -> bool:
@@ -208,10 +206,14 @@ class Authentication:
         if self.domain_role == DefaultRole.ROOT and is_domain_permission(scope):
             return True
         # grant permission if site permission found
-        if self.site_permission and _check(self.site_permission.get(scope, None)):
+        if self.site_permission and _check(
+            self.site_permission.dict().get(scope, None)
+        ):
             return True
         # grant permission if domain permission found
-        if self.domain_permission and _check(self.domain_permission.get(scope, None)):
+        if self.domain_permission and _check(
+            self.domain_permission.dict().get(scope, None)
+        ):
             return True
         # permission denied if every check failed
         return False
@@ -243,7 +245,7 @@ class DomainAuthentication:
         self.auth = auth
         self.auth.domain = domain
         self.auth.domain_role = domain_role
-        self.auth.domain_permission = domain_permission.dump()
+        self.auth.domain_permission = domain_permission
 
 
 class PermKey(NamedTuple):

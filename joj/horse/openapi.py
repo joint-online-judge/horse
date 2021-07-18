@@ -2,9 +2,9 @@
 Generate the openapi schema
 """
 
-import json
+import rapidjson
 
 from joj.horse import app
 
-openapi_json = json.dumps(app.openapi(), indent=2)
+openapi_json = rapidjson.dumps(app.openapi(), indent=2)
 print(openapi_json)

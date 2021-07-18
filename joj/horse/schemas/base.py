@@ -1,4 +1,3 @@
-import uuid
 from functools import lru_cache
 from typing import (
     TYPE_CHECKING,
@@ -30,6 +29,7 @@ from umongo.frameworks.motor_asyncio import (
 )
 
 from joj.horse.models.base import DocumentMixin
+from joj.horse.utils.base import is_uuid
 from joj.horse.utils.errors import ErrorCode
 
 if TYPE_CHECKING:
@@ -63,18 +63,12 @@ class UserInputURL(str):
         yield cls.validate
 
     @classmethod
-    def validate(cls, v: Optional[str]) -> NoneEmptyLongStr:
+    def validate(cls, v: Optional[str]) -> LongStr:
         if not v:
-            return NoneEmptyLongStr(uuid.uuid4())
-        if ObjectId.is_valid(v):
-            raise ValueError("url can not be ObjectId")
-        try:
-            uuid.UUID(v)
-        except ValueError:
-            pass
-        else:
+            return LongStr("")
+        if is_uuid(v):
             raise ValueError("url can not be uuid")
-        return NoneEmptyLongStr(v)
+        return LongStr(v)
 
 
 class LongText(ConstrainedStr):

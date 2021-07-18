@@ -1,19 +1,12 @@
 import string
-from typing import Callable, List, Optional
+from typing import List, Optional
 
 from pydantic import Field, validator
-from pydantic.typing import AnyCallable
+from tortoise.contrib.pydantic import pydantic_model_creator
 
-from joj.horse.schemas.base import (
-    BaseModel,
-    BaseODMSchema,
-    LongStr,
-    LongText,
-    NoneEmptyLongStr,
-    ReferenceSchema,
-    UserInputURL,
-    reference_schema_validator,
-)
+from joj.horse.models.base import init_models
+from joj.horse.models.domain import Domain as DomainModel
+from joj.horse.schemas.base import BaseModel, LongStr, LongText, UserInputURL
 from joj.horse.schemas.user import UserBase
 
 
@@ -42,13 +35,22 @@ class DomainTransfer(BaseModel):
     target_user: str = Field(..., description="'me' or ObjectId of the user")
 
 
-class Domain(DomainCreate, BaseODMSchema):
-    url: NoneEmptyLongStr
-    owner: ReferenceSchema[UserBase]
+# class Domain(DomainCreate, BaseODMSchema):
+#     url: NoneEmptyLongStr
+#     owner: ReferenceSchema[UserBase]
+#
+#     _validate_owner: Callable[[AnyCallable], classmethod] = reference_schema_validator(
+#         "owner", UserBase
+#     )
 
-    _validate_owner: Callable[[AnyCallable], classmethod] = reference_schema_validator(
-        "owner", UserBase
-    )
+init_models()
+DomainGenerated = pydantic_model_creator(
+    DomainModel, name="Domain", exclude_readonly=True
+)
+
+
+class Domain(DomainGenerated):  # type: ignore
+    owner: Optional[UserBase] = None
 
 
 class ListDomains(BaseModel):

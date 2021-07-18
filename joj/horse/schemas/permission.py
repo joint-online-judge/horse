@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, Type, TypeVar
+from typing import Dict, Optional, Type, TypeVar
 
 from joj.horse.models.permission import (
     DefaultRole as DefaultRole,
@@ -109,7 +109,7 @@ class SitePermission(DomainPermission):
         )
 
 
-DEFAULT_DOMAIN_PERMISSION = {
+DEFAULT_DOMAIN_PERMISSION: Dict[str, DomainPermission] = {
     DefaultRole.ROOT: DomainPermission.get_default(True),
     DefaultRole.ADMIN: DomainPermission.get_default(True),
     DefaultRole.USER: DomainPermission.get_default(None),

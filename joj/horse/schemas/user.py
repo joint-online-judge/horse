@@ -19,6 +19,7 @@ UserBase = pydantic_model_creator(
     UserModel,
     name="UserBase",
     include=(
+        "id",
         "scope",
         "uname",
         "mail",
