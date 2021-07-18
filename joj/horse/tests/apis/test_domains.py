@@ -104,6 +104,18 @@ class TestDomainGet:
 class TestDomainUpdate:
     url_base = "update_domain"
 
+    async def validate_update(
+        self,
+        client: AsyncClient,
+        user: models.User,
+        domain: models.Domain,
+        data: Dict[str, str],
+    ) -> None:
+        url = app.url_path_for(self.url_base, domain=domain.url)
+        response = await do_api_request(client, "PATCH", url, user, data=data)
+        domain.update(data)
+        validate_test_domain(response, user, domain)
+
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
     @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_with_url")])
     async def test_update_all(
@@ -115,10 +127,7 @@ class TestDomainUpdate:
         data = {}
         for field in ["url", "name", "bulletin", "gravatar"]:
             data[field] = f"{user.uname}-{field}-update-all"
-        url = app.url_path_for(self.url_base, domain=domain.url)
-        response = await do_api_request(client, "PATCH", url, user, data=data)
-        domain.update(data)
-        validate_test_domain(response, user, domain)
+        await self.validate_update(client, user, domain, data)
 
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
     @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_with_url")])
@@ -131,10 +140,7 @@ class TestDomainUpdate:
         field: str,
     ) -> None:
         data = {field: f"{user.uname}-{field}-update-one"}
-        url = app.url_path_for(self.url_base, domain=domain.url)
-        response = await do_api_request(client, "PATCH", url, user, data=data)
-        domain.update(data)
-        validate_test_domain(response, user, domain)
+        await self.validate_update(client, user, domain, data)
 
     @pytest.mark.depends(on=["test_update_all", "test_update_one"])
     async def test_url_duplicate(
