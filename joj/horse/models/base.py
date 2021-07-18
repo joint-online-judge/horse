@@ -141,6 +141,11 @@ class BaseORMModel(models.Model):
     def __str__(self) -> str:
         return str({k: v for k, v in self.__dict__.items() if not k.startswith("_")})
 
+    def update_from_schema(self: "BaseORMModel", schema: BaseModel) -> None:
+        self.update_from_dict(
+            {k: v for k, v in schema.__dict__.items() if v is not None}
+        )
+
 
 BaseORMModelType = TypeVar("BaseORMModelType", bound=BaseORMModel)
 
