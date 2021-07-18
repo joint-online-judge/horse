@@ -33,7 +33,7 @@ class DomainCreate(BaseModel):
     @validator("url")
     def validate_url(cls, v: str) -> str:
         for c in v:
-            if not c in string.ascii_letters + string.digits + "_-":
+            if c not in string.ascii_letters + string.digits + "_-":
                 raise ValueError("url")
         return v
 

@@ -1,7 +1,6 @@
 from typing import Any, Dict, Tuple
 
 import pytest
-from fastapi.encoders import jsonable_encoder
 from httpx import AsyncClient, Response
 from pytest_lazyfixture import lazy_fixture
 
@@ -10,7 +9,6 @@ from joj.horse.models.permission import DefaultRole
 from joj.horse.tests.utils.utils import (
     create_test_domain,
     do_api_request,
-    generate_auth_headers,
     get_base_url,
     get_path_by_url_type,
     validate_test_domain,

@@ -111,7 +111,7 @@ async def jaccount_auth(
                     data["id_token"], verify=False, options={"verify_signature": False}
                 )
                 id_token = IDToken(**parsed_data)
-    except Exception as e:
+    except Exception:
         logger.exception("Jaccount auth error")
         raise BadRequestError(message="Jaccount authentication failed")
 

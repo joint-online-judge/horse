@@ -37,7 +37,7 @@ async def startup_event() -> None:
     try:
         logger.info("Using %s." % asyncio.get_running_loop().__module__)
         await init_tortoise()
-    except RetryError as e:
+    except RetryError:
         logger.error("Initialization failed, exiting.")
         logger.disabled = True
         exit(-1)

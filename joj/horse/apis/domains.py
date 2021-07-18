@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import List, Optional
 
 from fastapi import Body, Depends, Query
-from marshmallow.exceptions import ValidationError
 
 # from pydantic import Field
 from uvicorn.config import logger
@@ -21,7 +20,7 @@ from joj.horse.schemas.domain_role import ListDomainRoles
 from joj.horse.schemas.domain_user import DomainUserAdd, ListDomainUsers
 from joj.horse.utils.auth import Authentication, DomainAuthentication, ensure_permission
 from joj.horse.utils.db import instance
-from joj.horse.utils.errors import BizError, ErrorCode, ForbiddenError
+from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
     parse_domain,
     parse_domain_invitation,

@@ -1,14 +1,7 @@
-from bson import ObjectId
-from pymongo import ASCENDING, IndexModel
-from tortoise import BaseDBAsyncClient, fields, models, signals
-from umongo import fields
-from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
+from tortoise import fields
 
-from joj.horse.models.base import BaseORMModel, DocumentMixin
+from joj.horse.models.base import BaseORMModel
 from joj.horse.models.domain import Domain
-from joj.horse.models.permission import DefaultRole, DomainPermission
-from joj.horse.utils.db import instance
-from joj.horse.utils.errors import BizError, ErrorCode
 
 
 class DomainRole(BaseORMModel):

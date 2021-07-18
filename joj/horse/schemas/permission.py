@@ -1,4 +1,3 @@
-from joj.horse.models.permission import DefaultRole, PermissionType, ScopeType
 from joj.horse.schemas.base import BaseModel
 
 
