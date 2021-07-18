@@ -1,8 +1,8 @@
-import jwt
-from fastapi.testclient import TestClient
+# import jwt
+# from fastapi.testclient import TestClient
 
-from joj.horse.apis.misc import router_prefix
-from joj.horse.utils.version import get_git_version, get_version
+# from joj.horse.apis.misc import router_prefix
+# from joj.horse.utils.version import get_git_version, get_version
 
 # def test_version(client: TestClient) -> None:
 #     r = client.get(f"{router_prefix}/version")

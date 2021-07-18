@@ -1,18 +1,11 @@
 import pytest
-from bson import ObjectId
-from fastapi.encoders import jsonable_encoder
 from httpx import AsyncClient
 from pytest_lazyfixture import lazy_fixture
 
-from joj.horse import apis, schemas
+from joj.horse import apis
 from joj.horse.models.permission import DefaultRole
 from joj.horse.models.user import User
-from joj.horse.tests.utils.utils import (
-    generate_auth_headers,
-    get_base_url,
-    random_bool,
-    random_lower_string,
-)
+from joj.horse.tests.utils.utils import generate_auth_headers, get_base_url
 from joj.horse.utils.errors import ErrorCode
 
 base_user_url = get_base_url(apis.user)

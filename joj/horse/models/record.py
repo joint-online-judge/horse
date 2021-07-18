@@ -1,12 +1,8 @@
-from pymongo import ASCENDING, DESCENDING, IndexModel
-from umongo import fields
+from tortoise import fields
 from umongo.embedded_document import EmbeddedDocumentImplementation
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 
 from joj.horse.models.base import DocumentMixin
-from joj.horse.models.domain import Domain
-from joj.horse.models.problem import Problem
-from joj.horse.models.user import User
 from joj.horse.utils.db import instance
 
 

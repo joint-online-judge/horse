@@ -195,7 +195,9 @@ def reference_schema_validator(
 
 
 def embedded_dict_schema_validator(field: str, each_item: bool = False) -> Any:
-    def wrapped(v: EmbeddedDocumentImplementation,) -> Dict[str, Any]:
+    def wrapped(
+        v: EmbeddedDocumentImplementation,
+    ) -> Dict[str, Any]:
         if isinstance(v, EmbeddedDocumentImplementation):
             return v.dump()
         return v
@@ -208,7 +210,7 @@ BT = TypeVar("BT", bound=BaseModel)
 
 @lru_cache()
 def get_standard_response_model(
-    cls: Type[PydanticBaseModel]
+    cls: Type[PydanticBaseModel],
 ) -> Type[PydanticBaseModel]:
     name = cls.__name__
     return create_model(

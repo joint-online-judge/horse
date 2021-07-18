@@ -1,8 +1,8 @@
 import re
 from typing import List
 
-from pydantic import BaseModel, EmailStr, validator
-from tortoise.contrib.pydantic import pydantic_model_creator, pydantic_queryset_creator
+from pydantic import BaseModel
+from tortoise.contrib.pydantic import pydantic_model_creator
 
 # from joj.horse.models.permission import DefaultRole
 from joj.horse.models.user import User as UserModel

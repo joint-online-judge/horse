@@ -1,10 +1,4 @@
-from tortoise import BaseDBAsyncClient, fields, models, signals
-from umongo import fields
-from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
-
-from joj.horse.models.base import BaseORMModel, DocumentMixin
-from joj.horse.models.domain import Domain
-from joj.horse.utils.db import instance
+from joj.horse.models.base import BaseORMModel
 
 
 class ProblemGroup(BaseORMModel):

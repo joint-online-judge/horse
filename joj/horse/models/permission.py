@@ -1,11 +1,8 @@
 from enum import Enum
 from typing import Optional, Type, TypeVar
 
-from tortoise import fields, models
-from umongo import fields
+from tortoise import fields
 from umongo.embedded_document import EmbeddedDocumentImplementation
-
-from joj.horse.models.base import BaseORMModel
 
 # from joj.horse.schemas.base import BaseModel
 from joj.horse.utils.base import StrEnumMixin

@@ -1,13 +1,9 @@
-from pymongo import ASCENDING, IndexModel
-from tortoise import BaseDBAsyncClient, fields, models, signals
-from umongo import fields
-from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
+from tortoise import fields
 
-from joj.horse.models.base import BaseORMModel, DocumentMixin, URLMixin
+from joj.horse.models.base import BaseORMModel, URLMixin
 from joj.horse.models.domain import Domain
 from joj.horse.models.problem import Problem
 from joj.horse.models.user import User
-from joj.horse.utils.db import instance
 
 
 class ProblemSet(URLMixin, BaseORMModel):

@@ -93,7 +93,7 @@ def auth_jwt_decode(
     if payload:
         try:
             return JWTToken(**payload)
-        except:
+        except Exception:
             raise UnauthorizedError(message="JWT Format Error")
     return None
 

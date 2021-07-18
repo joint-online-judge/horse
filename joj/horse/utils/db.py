@@ -2,13 +2,10 @@ from enum import Enum
 from functools import lru_cache
 from typing import Optional
 
-from motor.motor_asyncio import AsyncIOMotorClient
 from motor.motor_gridfs import AgnosticDatabase
-from pymongo.errors import CollectionInvalid
 from tortoise import Tortoise
-from tortoise.contrib.fastapi import HTTPNotFoundError, register_tortoise
-from tortoise.exceptions import DoesNotExist, IntegrityError, OperationalError
-from umongo.frameworks.motor_asyncio import MotorAsyncIODocument, MotorAsyncIOInstance
+from tortoise.exceptions import OperationalError
+from umongo.frameworks.motor_asyncio import MotorAsyncIOInstance
 from uvicorn.config import logger
 
 from joj.horse.config import settings
