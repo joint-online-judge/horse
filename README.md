@@ -1,5 +1,6 @@
 # JOJ Horse
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/654a1ed8af8a498fa80b3e7940d985fa)](https://app.codacy.com/gh/joint-online-judge/horse?utm_source=github.com&utm_medium=referral&utm_content=joint-online-judge/horse&utm_campaign=Badge_Grade_Settings)
 [![CI/CD](https://github.com/joint-online-judge/horse/actions/workflows/cicd.yml/badge.svg?branch=master)](https://github.com/joint-online-judge/horse/actions/workflows/cicd.yml)
 
 The new generation of JOJ Backend. "Horse" is related to speed, an excellent feature of the backend server. It is also a homophonic name in Chinese, aka, "后(horse)端"
