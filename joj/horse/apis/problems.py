@@ -8,9 +8,9 @@ from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.apis import records
-from joj.horse.models.permission import Permission
 from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.base import PydanticObjectId
+from joj.horse.schemas.permission import Permission
 from joj.horse.schemas.problem import ListProblems, ProblemClone
 from joj.horse.tasks import celery_app
 from joj.horse.utils.auth import Authentication, ensure_permission

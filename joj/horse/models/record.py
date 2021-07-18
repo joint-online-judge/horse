@@ -1,4 +1,3 @@
-from tortoise import fields
 from umongo.embedded_document import EmbeddedDocumentImplementation
 from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
 
@@ -8,13 +7,14 @@ from joj.horse.utils.db import instance
 
 @instance.register
 class RecordCase(EmbeddedDocumentImplementation):
-    status = fields.IntegerField(default=0)
-    score = fields.IntegerField(default=0)
-    time_ms = fields.IntegerField(default=0)
-    memory_kb = fields.IntegerField(default=0)
-    execute_status = fields.IntegerField(default=0)
-    stdout = fields.StringField(default="")
-    stderr = fields.StringField(default="")
+    pass
+    # status = fields.IntegerField(default=0)
+    # score = fields.IntegerField(default=0)
+    # time_ms = fields.IntegerField(default=0)
+    # memory_kb = fields.IntegerField(default=0)
+    # execute_status = fields.IntegerField(default=0)
+    # stdout = fields.StringField(default="")
+    # stderr = fields.StringField(default="")
 
 
 @instance.register

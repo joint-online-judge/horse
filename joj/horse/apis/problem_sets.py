@@ -8,9 +8,9 @@ from pymongo import DESCENDING
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
-from joj.horse.models.permission import Permission
 from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.base import PydanticObjectId
+from joj.horse.schemas.permission import Permission
 from joj.horse.schemas.problem_set import ListProblemSets
 from joj.horse.schemas.record import RecordStatus
 from joj.horse.schemas.score import Score, ScoreBoard, UserScore
