@@ -127,7 +127,7 @@ async def jaccount_auth(
 
     access_jwt = auth_jwt_encode(auth_jwt=auth_jwt, user=user, channel="jaccount")
 
-    logger.info(user)
+    logger.info(schemas.User.from_orm(user))
     logger.info("jwt=%s", access_jwt)
 
     response = RedirectResponse(redirect_url)

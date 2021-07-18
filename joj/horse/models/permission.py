@@ -1,14 +1,17 @@
 from enum import Enum
 from typing import Optional, Type, TypeVar
 
+from tortoise import fields, models
 from umongo import fields
 from umongo.embedded_document import EmbeddedDocumentImplementation
 
-from joj.horse.schemas import BaseModel
+from joj.horse.models.base import BaseORMModel
+
+# from joj.horse.schemas.base import BaseModel
 from joj.horse.utils.base import StrEnumMixin
 from joj.horse.utils.db import instance
 
-BaseModelType = TypeVar("BaseModelType", bound=BaseModel)
+# BaseModelType = TypeVar("BaseModelType", bound=BaseModel)
 
 
 class DefaultRole(StrEnumMixin, Enum):
@@ -72,59 +75,59 @@ def wrap_permission(scope: ScopeType, cls: T) -> T:
 
 @instance.register
 class GeneralPermission(EmbeddedDocumentImplementation):
-    view = fields.BoolField(default=True)
-    edit_permission = fields.BoolField(default=False)
-    view_mod_badge = fields.BoolField(default=True)  # what's this?
-    edit = fields.BoolField(default=False)
-    unlimited_quota = fields.BoolField(default=False)
+    view = fields.BooleanField(default=True)
+    edit_permission = fields.BooleanField(default=False)
+    view_mod_badge = fields.BooleanField(default=True)  # what's this?
+    edit = fields.BooleanField(default=False)
+    unlimited_quota = fields.BooleanField(default=False)
 
 
 @instance.register
 class ProblemPermission(EmbeddedDocumentImplementation):
-    create = fields.BoolField(default=False)
-    view = fields.BoolField(default=True)
-    view_hidden = fields.BoolField(default=False)
-    submit = fields.BoolField(default=True)
+    create = fields.BooleanField(default=False)
+    view = fields.BooleanField(default=True)
+    view_hidden = fields.BooleanField(default=False)
+    submit = fields.BooleanField(default=True)
 
-    edit = fields.BoolField(default=False)
-    view_config = fields.BoolField(default=False)
+    edit = fields.BooleanField(default=False)
+    view_config = fields.BooleanField(default=False)
 
 
 @instance.register
 class ProblemSetPermission(EmbeddedDocumentImplementation):
-    create = fields.BoolField(default=False)
-    view = fields.BoolField(default=True)
-    view_hidden = fields.BoolField(default=False)
-    claim = fields.BoolField(default=True)
+    create = fields.BooleanField(default=False)
+    view = fields.BooleanField(default=True)
+    view_hidden = fields.BooleanField(default=False)
+    claim = fields.BooleanField(default=True)
 
-    scoreboard = fields.BoolField(default=False)
-    manage = fields.BoolField(default=False)
+    scoreboard = fields.BooleanField(default=False)
+    manage = fields.BooleanField(default=False)
 
-    edit = fields.BoolField(default=False)
-    view_config = fields.BoolField(default=False)
+    edit = fields.BooleanField(default=False)
+    view_config = fields.BooleanField(default=False)
 
 
 @instance.register
 class RecordPermission(EmbeddedDocumentImplementation):
-    view = fields.BoolField(default=True)
-    detail = fields.BoolField(default=False)
-    code = fields.BoolField(default=False)
-    judge = fields.BoolField(default=False)
-    rejudge = fields.BoolField(default=False)
+    view = fields.BooleanField(default=True)
+    detail = fields.BooleanField(default=False)
+    code = fields.BooleanField(default=False)
+    judge = fields.BooleanField(default=False)
+    rejudge = fields.BooleanField(default=False)
 
 
 @instance.register
 class UserSpecificPermission(EmbeddedDocumentImplementation):
-    view = fields.BoolField(default=True)
-    view_hidden = fields.BoolField(default=False)
+    view = fields.BooleanField(default=True)
+    view_hidden = fields.BooleanField(default=False)
 
 
 @instance.register
 class DomainSpecificPermission(EmbeddedDocumentImplementation):
-    create = fields.BoolField(default=False)
-    edit = fields.BoolField(default=False)
-    delete = fields.BoolField(default=False)
-    view_hidden = fields.BoolField(default=False)
+    create = fields.BooleanField(default=False)
+    edit = fields.BooleanField(default=False)
+    delete = fields.BooleanField(default=False)
+    view_hidden = fields.BooleanField(default=False)
 
 
 @instance.register
