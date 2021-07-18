@@ -1,12 +1,14 @@
 import uuid
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from functools import lru_cache
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, TypeVar
 
 from bson import ObjectId
 from pydantic import BaseModel
-from tortoise import fields, models
+from tortoise import BaseDBAsyncClient, Tortoise, fields, models
 from umongo import data_objects
 from umongo.frameworks.motor_asyncio import AsyncIOMotorCursor, MotorAsyncIODocument
 
+from joj.horse.utils.base import is_uuid
 from joj.horse.utils.errors import UnprocessableEntityError
 
 if TYPE_CHECKING:
@@ -136,6 +138,38 @@ class BaseORMModel(models.Model):
     created_at = fields.DatetimeField(null=True, auto_now_add=True)
     updated_at = fields.DatetimeField(null=True, auto_now=True)
 
+    def __str__(self) -> str:
+        return str({k: v for k, v in self.__dict__.items() if not k.startswith("_")})
 
-class URLMixin:
+
+BaseORMModelType = TypeVar("BaseORMModelType", bound=BaseORMModel)
+
+
+class URLMixin(BaseORMModel):
     url = fields.CharField(max_length=255, unique=True)
+
+    @classmethod
+    async def find_by_url_or_id(
+        cls: Type["BaseORMModelType"], url_or_id: str
+    ) -> Optional["BaseORMModelType"]:
+        if is_uuid(url_or_id):
+            return await cls.get_or_none(id=url_or_id)
+        else:
+            return await cls.get_or_none(url=url_or_id)
+
+
+async def url_pre_save(
+    sender: "Type[URLMixin]",
+    instance: "URLMixin",
+    using_db: "Optional[BaseDBAsyncClient]",
+    update_fields: List[str],
+) -> None:
+    if not instance.id:
+        instance.id = uuid.uuid4()
+    if not instance.url:
+        instance.url = str(instance.id)
+
+
+@lru_cache()
+def init_models() -> None:
+    Tortoise.init_models(["joj.horse.models"], "models")

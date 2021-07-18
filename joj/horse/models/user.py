@@ -39,7 +39,7 @@ class User(BaseORMModel):
     login_ip = fields.CharField(default="0.0.0.0", max_length=255)
 
     @classmethod
-    async def find_by_uname(cls, scope: str, uname: str) -> "User":
+    async def find_by_uname(cls, scope: str, uname: str) -> Optional["User"]:
         return await User.get_or_none(scope=scope, uname_lower=uname.strip().lower())
 
     @classmethod

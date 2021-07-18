@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from fastapi import Body, Depends, Query
+from tortoise import transactions
 
 # from pydantic import Field
 from uvicorn.config import logger
@@ -52,44 +53,31 @@ async def list_domains(
 
 @router.post("", dependencies=[Depends(ensure_permission())])
 async def create_domain(
-    domain: schemas.DomainCreate, user: models.User = Depends(parse_user_from_auth)
+    domain_create: schemas.DomainCreate,
+    user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.Domain]:
-    # use transaction for multiple operations
     try:
-        async with instance.session() as session:
-            async with session.start_transaction():
-                domain_schema = schemas.Domain(**domain.dict(), owner=user.id)
-                domain_model = models.Domain(**domain_schema.to_model())
-                await domain_model.commit()
-                await domain_model.set_url_from_id()
-                logger.info("domain created: %s", domain_model)
-                # create domain user for creator
-                domain_user_schema = schemas.DomainUser(
-                    domain=domain_model.id, user=user.id, role=DefaultRole.ROOT
+        async with transactions.in_transaction():
+            domain = await models.Domain.create(**domain_create.dict(), owner=user)
+            logger.info("domain created: %s", domain)
+            domain_user = await models.DomainUser.create(
+                domain=domain, user=user, role=DefaultRole.ROOT
+            )
+            logger.info("domain user created: %s", domain_user)
+            for role in DefaultRole:
+                # skip fixed roles (judge)
+                if role in FIXED_ROLES:
+                    continue
+                domain_role = await models.DomainRole.create(
+                    domain=domain,
+                    role=role,
+                    permission=DEFAULT_DOMAIN_PERMISSION[role].dict(),
                 )
-                domain_user_model = models.DomainUser(**domain_user_schema.to_model())
-                await domain_user_model.commit()
-                logger.info("domain user created: %s", domain_user_model)
-                # create domain roles (root, admin, user, guest)
-                for role in DefaultRole:
-                    # skip fixed roles (judge)
-                    if role in FIXED_ROLES:
-                        continue
-                    domain_role_schema = schemas.DomainRole(
-                        domain=domain_model.id,
-                        role=role,
-                        permission=DEFAULT_DOMAIN_PERMISSION[role],
-                        updated_at=datetime.utcnow(),
-                    )
-                    domain_role_model = models.DomainRole(
-                        **domain_role_schema.to_model()
-                    )
-                    await domain_role_model.commit()
-                    logger.info("domain role created: %s", domain_role_model)
+                logger.info("domain role created: %s", domain_role)
     except Exception as e:
-        logger.exception(f"domain creation failed: {domain.url}")
+        logger.exception(f"domain creation failed: {domain_create.url}")
         raise e
-    return StandardResponse(schemas.Domain.from_orm(domain_model))
+    return StandardResponse(schemas.Domain.from_orm(domain))
 
 
 @router.get(
@@ -99,8 +87,11 @@ async def create_domain(
 async def get_domain(
     domain: models.Domain = Depends(parse_domain),
 ) -> StandardResponse[schemas.Domain]:
-    await domain.owner.fetch()
-    return StandardResponse(schemas.Domain.from_orm(domain, unfetch_all=False))
+    # await domain.owner.fetch()
+    await domain.fetch_related("owner")
+    print(domain)
+    print(domain.owner)
+    return StandardResponse(schemas.Domain.from_orm(domain))
 
 
 @router.delete(

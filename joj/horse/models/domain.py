@@ -1,6 +1,6 @@
-from tortoise import fields
+from tortoise import fields, signals
 
-from joj.horse.models.base import BaseORMModel, URLMixin
+from joj.horse.models.base import BaseORMModel, URLMixin, url_pre_save
 from joj.horse.models.user import User
 
 
@@ -19,6 +19,8 @@ class Domain(URLMixin, BaseORMModel):
     gravatar = fields.CharField(max_length=255, default="")
     bulletin = fields.TextField(default="")
 
+
+signals.pre_save(Domain)(url_pre_save)
 
 # @instance.register
 # class Domain(DocumentMixin, MotorAsyncIODocument):
