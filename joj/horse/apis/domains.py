@@ -88,10 +88,7 @@ async def get_domain(
     domain: models.Domain = Depends(parse_domain),
 ) -> StandardResponse[schemas.Domain]:
     # await domain.owner.fetch()
-    await domain.fetch_related("owner")
-    print(domain)
-    print(domain.owner)
-    return StandardResponse(schemas.Domain.from_orm(domain))
+    return StandardResponse(await schemas.Domain.from_tortoise_orm(domain))
 
 
 @router.delete(
@@ -119,8 +116,8 @@ async def update_domain(
     domain_edit: schemas.DomainEdit, domain: models.Domain = Depends(parse_domain)
 ) -> StandardResponse[schemas.Domain]:
     domain.update_from_schema(domain_edit)
-    await domain.commit()
-    return StandardResponse(schemas.Domain.from_orm(domain))
+    await domain.save()
+    return StandardResponse(await schemas.Domain.from_tortoise_orm(domain))
 
 
 @router.post(
