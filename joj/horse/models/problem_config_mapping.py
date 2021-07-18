@@ -50,12 +50,14 @@ class ProblemConfigMapping(DocumentMixin, MotorAsyncIODocument):
             await self._try_remove_digest(old_digest)
 
     async def move(
-        self, path: Optional[str] = None, type: Optional[Union[str, FileType]] = None
+        self,
+        path: Optional[str] = None,
+        file_type: Optional[Union[str, FileType]] = None,
     ) -> None:
         if path is None and type is None:
             return
         if type is not None:
-            self.type = str(type)
+            self.type = str(file_type)
         if path is not None:
             self.path = path
         await self.commit()

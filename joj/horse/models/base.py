@@ -31,11 +31,11 @@ class DocumentMixin:
     @classmethod
     def update_many(
         cls: MotorAsyncIODocument,
-        filter: Dict[str, Any],
+        condition: Dict[str, Any],
         update: Dict[str, Any],
         **kwargs: Any
     ) -> AsyncIOMotorCursor:
-        return cls.collection.update_many(filter, update, **kwargs)
+        return cls.collection.update_many(condition, update, **kwargs)
 
     def unfetch_all(self: MotorAsyncIODocument) -> None:
         for field in self._data.values():

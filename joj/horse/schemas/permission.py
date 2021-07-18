@@ -97,7 +97,7 @@ class SitePermission(DomainPermission):
     domain: DomainSpecificPermission = DomainSpecificPermission()
 
     @classmethod
-    def get_default(
+    def get_default_site_permission(
         cls: Type["SitePermission"],
         value1: Optional[bool] = None,
         value2: Optional[bool] = None,
@@ -117,17 +117,17 @@ DEFAULT_DOMAIN_PERMISSION = {
 }
 
 # set permission for judge
-__DEFAULT_JUDGE_PERMISSION = SitePermission.get_default(False, False)
+__DEFAULT_JUDGE_PERMISSION = SitePermission.get_default_site_permission(False, False)
 __DEFAULT_JUDGE_PERMISSION.record.code = True
 __DEFAULT_JUDGE_PERMISSION.record.judge = True
 __DEFAULT_JUDGE_PERMISSION.problem.view_config = True
 __DEFAULT_JUDGE_PERMISSION.problem_set.view_config = True
 
 DEFAULT_SITE_PERMISSION = {
-    DefaultRole.ROOT: SitePermission.get_default(True, True),
-    DefaultRole.ADMIN: SitePermission.get_default(None, True),
-    DefaultRole.USER: SitePermission.get_default(False, None),
-    DefaultRole.GUEST: SitePermission.get_default(False, False),
+    DefaultRole.ROOT: SitePermission.get_default_site_permission(True, True),
+    DefaultRole.ADMIN: SitePermission.get_default_site_permission(None, True),
+    DefaultRole.USER: SitePermission.get_default_site_permission(False, None),
+    DefaultRole.GUEST: SitePermission.get_default_site_permission(False, False),
     DefaultRole.JUDGE: __DEFAULT_JUDGE_PERMISSION,
 }
 
