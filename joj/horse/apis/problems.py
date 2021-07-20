@@ -3,7 +3,7 @@ from typing import Optional
 
 from bson.objectid import ObjectId
 from fastapi import Depends, File, Form, Query, UploadFile
-from motor.motor_asyncio import AsyncIOMotorGridFSBucket
+from tortoise import transactions
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
@@ -14,7 +14,6 @@ from joj.horse.schemas.permission import Permission
 from joj.horse.schemas.problem import ListProblems, ProblemClone
 from joj.horse.tasks import celery_app
 from joj.horse.utils.auth import Authentication, ensure_permission
-from joj.horse.utils.db import get_db, instance
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
     parse_domain,
@@ -66,26 +65,25 @@ async def create_problem(
     #     problem.problem_set
     # )
     try:
-        async with instance.session() as session:
-            async with session.start_transaction():
-                problem_group = schemas.ProblemGroup()
-                problem_group = models.ProblemGroup(**problem_group.to_model())
-                await problem_group.commit()
-                problem_schema = schemas.Problem(
-                    **problem.dict(),
-                    domain=domain.id,
-                    # title=problem.title,
-                    # content=problem.content,
-                    # data_version=problem.data_version,
-                    # languages=problem.languages,
-                    # problem_set=problem_set.id,
-                    owner=user.id,
-                    problem_group=problem_group.id,
-                )
-                problem_model = models.Problem(**problem_schema.to_model())
-                await problem_model.commit()
-                await problem_model.set_url_from_id()
-                logger.info("problem created: %s", problem_model)
+        async with transactions.in_transaction():
+            problem_group = schemas.ProblemGroup()
+            problem_group = models.ProblemGroup(**problem_group.to_model())
+            await problem_group.commit()
+            problem_schema = schemas.Problem(
+                **problem.dict(),
+                domain=domain.id,
+                # title=problem.title,
+                # content=problem.content,
+                # data_version=problem.data_version,
+                # languages=problem.languages,
+                # problem_set=problem_set.id,
+                owner=user.id,
+                problem_group=problem_group.id,
+            )
+            problem_model = models.Problem(**problem_schema.to_model())
+            await problem_model.commit()
+            await problem_model.set_url_from_id()
+            logger.info("problem created: %s", problem_model)
     except Exception as e:
         logger.exception("problem creation failed: %s", problem.title)
         raise e
@@ -149,32 +147,31 @@ async def clone_problem(
     problem_set = await parse_problem_set(problem_clone.problem_set, auth)
     new_group = problem_clone.new_group
     try:
-        async with instance.session() as session:
-            async with session.start_transaction():
-                res = []
-                for problem in problems:
-                    if new_group:
-                        problem_group = models.ProblemGroup(
-                            **schemas.ProblemGroup().to_model()
-                        )
-                        await problem_group.commit()
-                    else:
-                        problem_group = await problem.problem_group.fetch()
-                    new_problem = schemas.Problem(
-                        domain=domain.id,
-                        owner=user.id,
-                        title=problem.title,
-                        content=problem.content,
-                        data=problem.data,
-                        data_version=problem.data_version,
-                        languages=problem.languages,
-                        problem_group=problem_group.id,
-                        problem_set=problem_set.id,
+        async with transactions.in_transaction():
+            res = []
+            for problem in problems:
+                if new_group:
+                    problem_group = models.ProblemGroup(
+                        **schemas.ProblemGroup().to_model()
                     )
-                    new_problem = models.Problem(**new_problem.to_model())
-                    await new_problem.commit()
-                    res.append(schemas.Problem.from_orm(new_problem))
-                    logger.info("problem cloned: %s", new_problem)
+                    await problem_group.commit()
+                else:
+                    problem_group = await problem.problem_group.fetch()
+                new_problem = schemas.Problem(
+                    domain=domain.id,
+                    owner=user.id,
+                    title=problem.title,
+                    content=problem.content,
+                    data=problem.data,
+                    data_version=problem.data_version,
+                    languages=problem.languages,
+                    problem_group=problem_group.id,
+                    problem_set=problem_set.id,
+                )
+                new_problem = models.Problem(**new_problem.to_model())
+                await new_problem.commit()
+                res.append(schemas.Problem.from_orm(new_problem))
+                logger.info("problem cloned: %s", new_problem)
     except Exception as e:
         logger.exception("problems clone to problem set failed: %s", problem_set)
         raise e
@@ -196,12 +193,9 @@ async def submit_solution_to_problem(
         # TODO: test whether problem.domain is object id and add other error code
         raise BizError(ErrorCode.ProblemNotFoundError)
     try:
-        gfs = AsyncIOMotorGridFSBucket(get_db())
-        file_id = await gfs.upload_from_stream(
-            filename=file.filename,
-            source=await file.read(),
-            metadata={"contentType": file.content_type, "compressed": True},
-        )
+        # gfs = AsyncIOMotorGridFSBucket(get_db())
+        #
+        file_id = None
         record = schemas.Record(
             domain=problem.domain,
             problem=problem.id,

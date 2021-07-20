@@ -1,21 +1,16 @@
 from datetime import datetime, timedelta
-from typing import Callable, List, Optional
+from typing import List, Optional
 
 from pydantic import Field
-from pydantic.typing import AnyCallable
 
 from joj.horse.schemas import BaseModel
-from joj.horse.schemas.base import (
-    BaseODMSchema,
-    LongText,
-    NoneEmptyLongStr,
-    ReferenceSchema,
-    UserInputURL,
-    reference_schema_validator,
-)
-from joj.horse.schemas.domain import Domain
-from joj.horse.schemas.problem import Problem
-from joj.horse.schemas.user import UserBase
+from joj.horse.schemas.base import LongText, NoneEmptyLongStr, UserInputURL
+
+# from pydantic.typing import AnyCallable
+
+# from joj.horse.schemas.domain import Domain
+# from joj.horse.schemas.problem import Problem
+# from joj.horse.schemas.user import UserBase
 
 
 class ProblemSetEdit(BaseModel):
@@ -46,29 +41,33 @@ class ProblemSetCreate(BaseModel):
     )
 
 
-class ProblemSet(ProblemSetCreate, BaseODMSchema):
-    domain: ReferenceSchema[Domain]
-    owner: ReferenceSchema[UserBase]
+class ProblemSet(BaseModel):
+    pass
 
-    url: NoneEmptyLongStr
-    num_submit: int = 0
-    num_accept: int = 0
 
-    # scoreboard_hidden: bool
-    # available_time: datetime
-    # due_time: datetime
-
-    problems: List[ReferenceSchema[Problem]] = []
-
-    _validate_domain: Callable[[AnyCallable], classmethod] = reference_schema_validator(
-        "domain", Domain
-    )
-    _validate_owner: Callable[[AnyCallable], classmethod] = reference_schema_validator(
-        "owner", UserBase
-    )
-    _validate_problems: Callable[
-        [AnyCallable], classmethod
-    ] = reference_schema_validator("problems", Problem, each_item=True)
+# class ProblemSet(ProblemSetCreate, BaseODMSchema):
+#     domain: ReferenceSchema[Domain]
+#     owner: ReferenceSchema[UserBase]
+#
+#     url: NoneEmptyLongStr
+#     num_submit: int = 0
+#     num_accept: int = 0
+#
+#     # scoreboard_hidden: bool
+#     # available_time: datetime
+#     # due_time: datetime
+#
+#     problems: List[ReferenceSchema[Problem]] = []
+#
+#     _validate_domain: Callable[[AnyCallable], classmethod] = reference_schema_validator(
+#         "domain", Domain
+#     )
+#     _validate_owner: Callable[[AnyCallable], classmethod] = reference_schema_validator(
+#         "owner", UserBase
+#     )
+#     _validate_problems: Callable[
+#         [AnyCallable], classmethod
+#     ] = reference_schema_validator("problems", Problem, each_item=True)
 
 
 class ListProblemSets(BaseModel):

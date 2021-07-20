@@ -1,12 +1,4 @@
-from umongo.embedded_document import EmbeddedDocumentImplementation
-from umongo.frameworks.motor_asyncio import MotorAsyncIODocument
-
-from joj.horse.models.base import DocumentMixin
-from joj.horse.utils.db import instance
-
-
-@instance.register
-class RecordCase(EmbeddedDocumentImplementation):
+class RecordCase:
     pass
     # status = fields.IntegerField(default=0)
     # score = fields.IntegerField(default=0)
@@ -17,8 +9,7 @@ class RecordCase(EmbeddedDocumentImplementation):
     # stderr = fields.StringField(default="")
 
 
-@instance.register
-class Record(DocumentMixin, MotorAsyncIODocument):
+class Record:
     pass
     # class Meta:
     #     collection_name = "records"

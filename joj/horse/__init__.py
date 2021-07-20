@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Dict
+from typing import Any
 
 import sentry_sdk
 from fastapi import FastAPI, Request, status
@@ -82,19 +82,11 @@ def business_exception_response(exc: BizError) -> JSONResponse:
     )
 
 
-@app.exception_handler(MValidationError)
-async def marshmallow_validation_exception_handler(
-    request: Request, exc: MValidationError
+@app.exception_handler(tortoise_exceptions.IntegrityError)
+async def tortoise_integrity_error_handler(
+    request: Request, exc: tortoise_exceptions.IntegrityError
 ) -> JSONResponse:
-    if (
-        isinstance(exc.messages, Dict)
-        and exc.messages.get("url") == "Field value must be unique."
-    ):
-        return business_exception_response(BizError(ErrorCode.UrlNotUniqueError))
-    return JSONResponse(
-        content=jsonable_encoder({"detail": exc.messages}),
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-    )
+    return business_exception_response(BizError(ErrorCode.IntegrityError, str(exc)))
 
 
 @app.exception_handler(tortoise_exceptions.FieldError)

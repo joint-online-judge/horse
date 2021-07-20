@@ -1,19 +1,15 @@
 from datetime import datetime
 from enum import IntEnum
-from typing import Callable, List, Optional
-
-from pydantic.typing import AnyCallable
+from typing import List
 
 from joj.horse.schemas import BaseModel
-from joj.horse.schemas.base import (
-    BaseODMSchema,
-    PydanticObjectId,
-    ReferenceSchema,
-    reference_schema_validator,
-)
-from joj.horse.schemas.domain import Domain
-from joj.horse.schemas.problem import Problem
-from joj.horse.schemas.user import UserBase
+
+# from pydantic.typing import AnyCallable
+
+# from joj.horse.schemas.base import PydanticObjectId
+# from joj.horse.schemas.domain import Domain
+# from joj.horse.schemas.problem import Problem
+# from joj.horse.schemas.user import UserBase
 
 
 class RecordStatus(IntEnum):
@@ -57,39 +53,43 @@ class RecordCase(BaseModel):
     stderr: str = ""
 
 
-class Record(BaseODMSchema):
-    status: RecordStatus = RecordStatus.waiting
-    score: int = 0
-    time_ms: int = 0
-    memory_kb: int = 0
-    domain: ReferenceSchema[Domain]
-    problem: ReferenceSchema[Problem]
-    problem_data: int = 0
-    user: ReferenceSchema[UserBase]
-    code_type: RecordCodeType
-    code: PydanticObjectId
-    judge_category: List[str]
+class Record(BaseModel):
+    pass
 
-    submit_at: datetime
-    judge_at: Optional[datetime]
 
-    judge_user: Optional[ReferenceSchema[UserBase]]
-
-    compiler_texts: str = ""
-    cases: List[RecordCase] = []
-
-    _validate_domain: Callable[[AnyCallable], classmethod] = reference_schema_validator(
-        "domain", Domain
-    )
-    _validate_user: Callable[[AnyCallable], classmethod] = reference_schema_validator(
-        "user", UserBase
-    )
-    _validate_judge_user: Callable[
-        [AnyCallable], classmethod
-    ] = reference_schema_validator("judge_user", UserBase)
-    _validate_problem: Callable[
-        [AnyCallable], classmethod
-    ] = reference_schema_validator("problem", Problem)
+# class Record(BaseODMSchema):
+#     status: RecordStatus = RecordStatus.waiting
+#     score: int = 0
+#     time_ms: int = 0
+#     memory_kb: int = 0
+#     domain: ReferenceSchema[Domain]
+#     problem: ReferenceSchema[Problem]
+#     problem_data: int = 0
+#     user: ReferenceSchema[UserBase]
+#     code_type: RecordCodeType
+#     code: PydanticObjectId
+#     judge_category: List[str]
+#
+#     submit_at: datetime
+#     judge_at: Optional[datetime]
+#
+#     judge_user: Optional[ReferenceSchema[UserBase]]
+#
+#     compiler_texts: str = ""
+#     cases: List[RecordCase] = []
+#
+#     _validate_domain: Callable[[AnyCallable], classmethod] = reference_schema_validator(
+#         "domain", Domain
+#     )
+#     _validate_user: Callable[[AnyCallable], classmethod] = reference_schema_validator(
+#         "user", UserBase
+#     )
+#     _validate_judge_user: Callable[
+#         [AnyCallable], classmethod
+#     ] = reference_schema_validator("judge_user", UserBase)
+#     _validate_problem: Callable[
+#         [AnyCallable], classmethod
+#     ] = reference_schema_validator("problem", Problem)
 
 
 class ListRecords(BaseModel):

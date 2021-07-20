@@ -1,11 +1,8 @@
-from io import BytesIO
 from typing import Any, Optional
 
 from bson.objectid import ObjectId
 from fastapi import Depends
 from fastapi.param_functions import Query
-from fastapi.responses import StreamingResponse
-from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
@@ -13,7 +10,6 @@ from joj.horse.models.permission import DefaultRole
 from joj.horse.schemas.base import Empty, PydanticObjectId, StandardResponse
 from joj.horse.schemas.record import ListRecords, RecordCaseResult, RecordResult
 from joj.horse.utils.auth import Authentication
-from joj.horse.utils.db import get_db
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
     parse_pagination_query,
@@ -61,17 +57,18 @@ async def get_record(
 
 @router.get("/{record}/code")
 async def get_record_code(record: models.Record = Depends(parse_record)) -> Any:
-    mime_types = [
-        "text/plain",
-        "application/x-tar",
-        "application/zip",
-        "application/vnd.rar",
-    ]
-    gfs = AsyncIOMotorGridFSBucket(get_db())
-    grid_out = await gfs.open_download_stream(record.code)
-    return StreamingResponse(
-        BytesIO(await grid_out.read()), media_type=mime_types[record.code_type]
-    )
+    pass
+    # mime_types = [
+    #     "text/plain",
+    #     "application/x-tar",
+    #     "application/zip",
+    #     "application/vnd.rar",
+    # ]
+    # gfs = AsyncIOMotorGridFSBucket(get_db())
+    # grid_out = await gfs.open_download_stream(record.code)
+    # return StreamingResponse(
+    #     BytesIO(await grid_out.read()), media_type=mime_types[record.code_type]
+    # )
 
 
 # @router.websocket("/{record}/ws")

@@ -56,7 +56,7 @@ async def create_domain(
             domain = await models.Domain.create(**domain_create.dict(), owner=user)
             logger.info("domain created: %s", domain)
             domain_user = await models.DomainUser.create(
-                domain=domain, user=user, role=DefaultRole.ROOT
+                domain=domain, user=user, role=str(DefaultRole.ROOT)
             )
             logger.info("domain user created: %s", domain_user)
             for role in DefaultRole:
