@@ -3,7 +3,6 @@ from typing import List
 
 from bson.objectid import ObjectId
 from fastapi import Depends
-from marshmallow.exceptions import ValidationError
 from tortoise import transactions
 from uvicorn.config import logger
 
@@ -64,8 +63,6 @@ async def create_problem_set(
             await problem_set_model.commit()
             await problem_set_model.set_url_from_id()
             logger.info("problem set created: %s", problem_set_model)
-    except ValidationError:
-        raise BizError(ErrorCode.IntegrityError)
     except Exception as e:
         logger.exception("problem set creation failed: %s", problem_set.title)
         raise e
