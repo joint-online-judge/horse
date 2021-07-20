@@ -5,18 +5,13 @@ import sentry_sdk
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi_jwt_auth.exceptions import AuthJWTException
-from marshmallow.exceptions import ValidationError as MValidationError
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.responses import JSONResponse, RedirectResponse
 from tenacity import RetryError
-
-# from pydantic.error_wrappers import ValidationError
 from tortoise import Tortoise, exceptions as tortoise_exceptions
 from uvicorn.config import logger
 
 from joj.horse.config import settings
-
-# from joj.horse.utils.cache import test_cache
 from joj.horse.utils.db import init_tortoise
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.url import generate_url
@@ -55,16 +50,6 @@ async def shutdown_event() -> None:
 async def redirect_to_docs() -> RedirectResponse:
     redirect_url = generate_url("/api/v1?docExpansion=none")
     return RedirectResponse(redirect_url)
-
-
-# @app.exception_handler(ValidationError)
-# async def validation_exception_handler(
-#     request: Request, exc: ValidationError
-# ) -> JSONResponse:
-#     return JSONResponse(
-#         content=jsonable_encoder({"detail": exc.errors()}),
-#         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-#     )
 
 
 @app.exception_handler(AuthJWTException)
