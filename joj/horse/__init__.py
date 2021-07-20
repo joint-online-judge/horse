@@ -12,7 +12,7 @@ from tortoise import Tortoise, exceptions as tortoise_exceptions
 from uvicorn.config import logger
 
 from joj.horse.config import settings
-from joj.horse.utils.db import init_tortoise
+from joj.horse.utils.db import try_init_db
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.url import generate_url
 from joj.horse.utils.version import get_git_version, get_version
@@ -31,7 +31,7 @@ app = FastAPI(
 async def startup_event() -> None:
     try:
         logger.info("Using %s." % asyncio.get_running_loop().__module__)
-        await init_tortoise()
+        await try_init_db()
     except RetryError:
         logger.error("Initialization failed, exiting.")
         logger.disabled = True
