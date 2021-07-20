@@ -95,7 +95,7 @@ async def global_domain_with_all(
 def prepare_db(request: Any) -> None:
     settings.db_name += "-test"
     db_url = "postgres://{}:{}@{}:{}/{}".format(
-        settings.db_user,
+        settings.db_username,
         settings.db_password,
         settings.db_host,
         settings.db_port,
