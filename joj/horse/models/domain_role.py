@@ -2,6 +2,7 @@ from tortoise import fields
 
 from joj.horse.models.base import BaseORMModel
 from joj.horse.models.domain import Domain
+from joj.horse.utils.errors import BizError, ErrorCode
 
 
 class DomainRole(BaseORMModel):
@@ -19,6 +20,11 @@ class DomainRole(BaseORMModel):
     )
     role = fields.CharField(max_length=255)
     permission = fields.JSONField()
+
+    @classmethod
+    async def ensure_exists(cls, domain: Domain, role: str) -> None:
+        if await DomainRole.get_or_none(domain=domain, role=role) is None:
+            raise BizError(ErrorCode.DomainRoleNotFoundError)
 
 
 # @instance.register
@@ -38,7 +44,3 @@ class DomainRole(BaseORMModel):
 #
 #     updated_at = fields.DateTimeField(required=True)
 #
-#     @classmethod
-#     async def ensure_exists(cls, domain: ObjectId, role: str) -> None:
-#         if await DomainRole.find_one({"domain": domain, "role": role}) is None:
-#             raise BizError(ErrorCode.DomainRoleNotFoundError)

@@ -1,6 +1,6 @@
-import uuid
 from enum import Enum
 from typing import Any
+from uuid import UUID
 
 
 class StrEnumMixin(str, Enum):
@@ -10,7 +10,7 @@ class StrEnumMixin(str, Enum):
 
 def is_uuid(s: Any) -> bool:
     try:
-        uuid.UUID(str(s))
+        UUID(str(s))
     except ValueError:
         return False
     return True

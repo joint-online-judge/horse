@@ -18,7 +18,7 @@ async def parse_uid(
     if uid == "me":
         return auth.user
     else:
-        user = await models.User.find_by_id(uid)
+        user = await models.User.get_or_none(id=uid)
         if user:
             return user
         raise BizError(ErrorCode.UserNotFoundError)

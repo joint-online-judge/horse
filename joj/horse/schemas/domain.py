@@ -44,9 +44,7 @@ class DomainTransfer(BaseModel):
 #     )
 
 init_models()
-DomainGenerated = pydantic_model_creator(
-    DomainModel, name="Domain", exclude_readonly=True
-)
+DomainGenerated = pydantic_model_creator(DomainModel, name="Domain")
 
 
 class Domain(DomainGenerated):  # type: ignore
