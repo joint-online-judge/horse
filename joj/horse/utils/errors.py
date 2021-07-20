@@ -10,11 +10,11 @@ class ErrorCode(str, Enum):
     InternalServerError = "InternalServerError"
     UnknownFieldError = "UnknownFieldError"
     IllegalFieldError = "IllegalFieldError"
+    IntegrityError = "IntegrityError"
 
     ApiNotImplementedError = "ApiNotImplementedError"
     UserNotFoundError = "UserNotFoundError"
     DomainNotFoundError = "DomainNotFoundError"
-    UrlNotUniqueError = "UrlNotUniqueError"
     InvalidUrlError = "InvalidUrlError"
     ProblemNotFoundError = "ProblemNotFoundError"
     ProblemSetNotFoundError = "ProblemSetNotFoundError"

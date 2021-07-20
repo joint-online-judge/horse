@@ -5,7 +5,7 @@ import pytest
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
 from httpx import AsyncClient
-from pymongo import MongoClient
+from tortoise.contrib.test import finalizer, initializer
 
 from joj.horse import app as fastapi_app, models
 from joj.horse.config import settings
@@ -19,9 +19,9 @@ from joj.horse.tests.utils.utils import (
 
 @pytest.yield_fixture(scope="session")
 def event_loop(request: Any) -> Generator[asyncio.AbstractEventLoop, Any, Any]:
-    loop = asyncio.get_event_loop_policy().new_event_loop()
+    loop = asyncio.get_event_loop_policy().get_event_loop()
     yield loop
-    loop.close()
+    # loop.close()
 
 
 @pytest.fixture(scope="session")
@@ -40,7 +40,7 @@ async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, Any]:
 async def global_root_user(app: FastAPI) -> models.User:
     user = await create_test_user()
     user.role = DefaultRole.ROOT
-    await user.commit()
+    await user.save()
     return user
 
 
@@ -65,7 +65,7 @@ async def global_domain_no_url(
 ) -> models.Domain:
     data = {"name": "test_domain_no_url"}
     response = await create_test_domain(client, global_root_user, data)
-    return validate_test_domain(response, global_root_user, data)
+    return await validate_test_domain(response, global_root_user, data)
 
 
 @pytest.fixture(scope="session")
@@ -74,7 +74,7 @@ async def global_domain_with_url(
 ) -> models.Domain:
     data = {"url": "test_domain_with_url", "name": "test_domain_with_url"}
     response = await create_test_domain(client, global_root_user, data)
-    return validate_test_domain(response, global_root_user, data)
+    return await validate_test_domain(response, global_root_user, data)
 
 
 @pytest.fixture(scope="session")
@@ -88,17 +88,18 @@ async def global_domain_with_all(
         "bulletin": "bulletin",
     }
     response = await create_test_domain(client, global_root_user, data)
-    return validate_test_domain(response, global_root_user, data)
+    return await validate_test_domain(response, global_root_user, data)
 
 
 @pytest.fixture(scope="session", autouse=True)
-def prepare_db() -> None:
+def prepare_db(request: Any) -> None:
     settings.db_name += "-test"
-    client = MongoClient(
-        host=settings.db_host,
-        port=settings.db_port,
-        username=settings.db_username,
-        password=settings.db_password,
+    db_url = "postgres://{}:{}@{}:{}/{}".format(
+        settings.db_user,
+        settings.db_password,
+        settings.db_host,
+        settings.db_port,
+        settings.db_name,
     )
-    db = client.get_database(settings.db_name)
-    client.drop_database(db)
+    initializer(["joj.horse.models"], db_url=db_url, app_label="models")
+    request.addfinalizer(finalizer)

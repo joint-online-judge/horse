@@ -60,7 +60,7 @@ class TestDomainCreate:
         response = await create_test_domain(client, global_root_user, data)
         assert response.status_code == 200
         res = response.json()
-        assert res["error_code"] == ErrorCode.UrlNotUniqueError
+        assert res["error_code"] == ErrorCode.IntegrityError
 
     @pytest.mark.depends(on="test_global_domains")
     async def test_no_name(
@@ -96,7 +96,7 @@ class TestDomainGet:
         domain_path = get_path_by_url_type(domain, url_type)
         url = app.url_path_for(self.url_base, domain=domain_path)
         response = await do_api_request(client, "GET", url, user)
-        validate_test_domain(response, user, domain)
+        await validate_test_domain(response, user, domain)
 
 
 @pytest.mark.asyncio
@@ -113,8 +113,8 @@ class TestDomainUpdate:
     ) -> None:
         url = app.url_path_for(self.url_base, domain=domain.url)
         response = await do_api_request(client, "PATCH", url, user, data=data)
-        domain.update(data)
-        validate_test_domain(response, user, domain)
+        domain.update_from_dict(data)
+        await validate_test_domain(response, user, domain)
 
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
     @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_with_url")])
@@ -157,7 +157,7 @@ class TestDomainUpdate:
         )
         assert response.status_code == 200
         res = response.json()
-        assert res["error_code"] == ErrorCode.UrlNotUniqueError
+        assert res["error_code"] == ErrorCode.IntegrityError
 
 
 @pytest.mark.asyncio
@@ -188,10 +188,9 @@ class TestDomainUserAdd:
         res = response.json()
         assert res["error_code"] == ErrorCode.Success
         res = res["data"]
-        assert res["domain"] == str(domain.id)
-        assert res["user"] == str(user.id)
+        assert res["domain_id"] == str(domain.id)
+        assert res["user_id"] == str(user.id)
         assert res["role"] == role
-        assert res["join_at"]
 
     @pytest.mark.parametrize(
         "domain",
@@ -350,8 +349,8 @@ class TestDomainTransfer:
         data = {"target_user": str(target_user_model.id)}
         response = await do_api_request(client, "POST", url, user_model, data=data)
         if error_code == ErrorCode.Success:
-            domain.owner = target_user_model.id
-            validate_test_domain(response, target_user_model, domain)
+            domain.owner_id = target_user_model.id
+            await validate_test_domain(response, target_user_model, domain)
         else:
             assert response.status_code == 200
             res = response.json()

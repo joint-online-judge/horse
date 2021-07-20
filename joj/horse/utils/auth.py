@@ -159,7 +159,7 @@ async def get_domain_permission(
     else:
         _domain_role = None
     if _domain_role:
-        return _domain_role.permission
+        return DomainPermission(**_domain_role.permission)
     elif domain_role in DEFAULT_DOMAIN_PERMISSION:
         return DEFAULT_DOMAIN_PERMISSION[DefaultRole(domain_role)]
     else:

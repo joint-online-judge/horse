@@ -1,8 +1,11 @@
+from typing import Union
+
 from tortoise import fields
 
 from joj.horse.models.base import BaseORMModel
 from joj.horse.models.domain import Domain
 from joj.horse.models.domain_role import DomainRole
+from joj.horse.models.permission import DefaultRole
 from joj.horse.models.user import User
 from joj.horse.utils.errors import BizError, ErrorCode
 
@@ -30,8 +33,9 @@ class DomainUser(BaseORMModel):
 
     @classmethod
     async def add_domain_user(
-        cls, domain: Domain, user: User, role: str
+        cls, domain: Domain, user: User, role: Union[str, DefaultRole]
     ) -> "DomainUser":
+        role = str(role)
         # check domain user
         if await DomainUser.get_or_none(domain=domain, user=user):
             raise BizError(ErrorCode.UserAlreadyInDomainBadRequestError)
@@ -43,8 +47,9 @@ class DomainUser(BaseORMModel):
 
     @classmethod
     async def update_domain_user(
-        cls, domain: Domain, user: User, role: str
+        cls, domain: Domain, user: User, role: Union[str, DefaultRole]
     ) -> "DomainUser":
+        role = str(role)
         # check domain user
         domain_user = await DomainUser.get_or_none(domain=domain, user=user)
         if domain_user is None:

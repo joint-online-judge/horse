@@ -6,7 +6,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi_jwt_auth import AuthJWT
 from httpx import AsyncClient, Response
 
-from joj.horse import apis, models
+from joj.horse import apis, models, schemas
 from joj.horse.utils.auth import auth_jwt_encode
 from joj.horse.utils.errors import ErrorCode
 
@@ -94,7 +94,7 @@ async def create_test_domain(
     return response
 
 
-def validate_test_domain(
+async def validate_test_domain(
     response: Response,
     owner: models.User,
     domain: Union[Dict[str, str], models.Domain],
@@ -108,7 +108,8 @@ def validate_test_domain(
     if isinstance(domain, dict):
         data = domain
     elif isinstance(domain, models.Domain):
-        data = domain.dump()
+        await domain.fetch_related("owner")
+        data = schemas.Domain.from_orm(domain).dict()
     else:
         assert False
 
@@ -121,12 +122,12 @@ def validate_test_domain(
     assert res["gravatar"] == data.get("gravatar", "")
 
     if isinstance(domain, dict):
-        assert get_id_helper(res["owner"]) == str(owner.id)
+        assert res["owner_id"] == str(owner.id)
     elif isinstance(domain, models.Domain):
-        assert get_id_helper(res["owner"]) == get_id_helper(data["owner"])
+        assert res["owner_id"] == str(data["owner_id"])
 
     if isinstance(domain, dict):
-        domain = models.Domain.build_from_mongo(data_to_mongo(res))
+        domain = await models.Domain.get_or_none(id=res["id"])
     return domain
 
 

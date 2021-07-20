@@ -4,7 +4,7 @@ from typing import List
 from bson.objectid import ObjectId
 from fastapi import Depends
 from marshmallow.exceptions import ValidationError
-from pymongo import DESCENDING
+from tortoise import transactions
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
@@ -15,7 +15,6 @@ from joj.horse.schemas.problem_set import ListProblemSets
 from joj.horse.schemas.record import RecordStatus
 from joj.horse.schemas.score import Score, ScoreBoard, UserScore
 from joj.horse.utils.auth import Authentication, ensure_permission
-from joj.horse.utils.db import instance
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
     parse_domain,
@@ -57,17 +56,16 @@ async def create_problem_set(
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.ProblemSet]:
     try:
-        async with instance.session() as session:
-            async with session.start_transaction():
-                problem_set_schema = schemas.ProblemSet(
-                    **problem_set.dict(), domain=domain.id, owner=user.id
-                )
-                problem_set_model = models.ProblemSet(**problem_set_schema.to_model())
-                await problem_set_model.commit()
-                await problem_set_model.set_url_from_id()
-                logger.info("problem set created: %s", problem_set_model)
+        async with transactions.in_transaction():
+            problem_set_schema = schemas.ProblemSet(
+                **problem_set.dict(), domain=domain.id, owner=user.id
+            )
+            problem_set_model = models.ProblemSet(**problem_set_schema.to_model())
+            await problem_set_model.commit()
+            await problem_set_model.set_url_from_id()
+            logger.info("problem set created: %s", problem_set_model)
     except ValidationError:
-        raise BizError(ErrorCode.UrlNotUniqueError)
+        raise BizError(ErrorCode.IntegrityError)
     except Exception as e:
         logger.exception("problem set creation failed: %s", problem_set.title)
         raise e
@@ -132,7 +130,7 @@ async def get_scoreboard(
                     "submit_at": {"$gte": problem_set.available_time},
                     "status": {"$nin": [RecordStatus.waiting, RecordStatus.judging]},
                 },
-                sort=[("submit_at", DESCENDING)],
+                sort=[("submit_at", "DESCENDING")],
             )
             tried = record_model is not None
             record = schemas.Record.from_orm(record_model) if record_model else None

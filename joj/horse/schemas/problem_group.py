@@ -3,10 +3,9 @@ from typing import List
 from pydantic import HttpUrl
 
 from joj.horse.schemas import BaseModel
-from joj.horse.schemas.base import BaseODMSchema
 
 
-class ProblemGroup(BaseODMSchema):
+class ProblemGroup(BaseModel):
     moss_results: List[HttpUrl] = []
 
 
