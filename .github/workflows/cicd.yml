@@ -153,9 +153,6 @@ jobs:
           pip install -e git+https://github.com/joint-online-judge/elephant@master#egg=joj-elephant
       - name: Test
         run: pytest -svv
-        env:
-          DB_HOST: postgres
-          REDIS_HOST: redis
   remote-ssh-command:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/master')
     needs: build
