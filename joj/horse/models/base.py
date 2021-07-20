@@ -4,7 +4,7 @@ from uuid import UUID, uuid4
 
 from bson import ObjectId
 from pydantic import BaseModel
-from tortoise import BaseDBAsyncClient, Tortoise, fields, models
+from tortoise import BaseDBAsyncClient, Tortoise, fields, models, queryset
 from umongo import data_objects
 from umongo.frameworks.motor_asyncio import AsyncIOMotorCursor, MotorAsyncIODocument
 
@@ -12,7 +12,7 @@ from joj.horse.utils.base import is_uuid
 from joj.horse.utils.errors import UnprocessableEntityError
 
 if TYPE_CHECKING:
-    from joj.horse.schemas.query import BaseQuery
+    from joj.horse.schemas.query import OrderingQuery, PaginationQuery
 
 
 class DocumentMixin:
@@ -35,7 +35,7 @@ class DocumentMixin:
         cls: MotorAsyncIODocument,
         condition: Dict[str, Any],
         update: Dict[str, Any],
-        **kwargs: Any
+        **kwargs: Any,
     ) -> AsyncIOMotorCursor:
         return cls.collection.update_many(condition, update, **kwargs)
 
@@ -75,7 +75,7 @@ class DocumentMixin:
     def generate_join_pipeline(
         field: str,
         condition: Dict[str, Any],
-        query: Optional["BaseQuery"] = None,
+        query: Optional["PaginationQuery"] = None,
         collection: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         if collection is None:
@@ -105,7 +105,7 @@ class DocumentMixin:
     def cursor_find(
         cls: MotorAsyncIODocument,
         condition: Dict[str, Any],
-        query: Optional["BaseQuery"] = None,
+        query: Optional["PaginationQuery"] = None,
     ) -> AsyncIOMotorCursor:
         cursor = cls.find(condition)
         if query is not None:
@@ -122,7 +122,7 @@ class DocumentMixin:
         cls,
         field: str,
         condition: Dict[str, Any],
-        query: Optional["BaseQuery"] = None,
+        query: Optional["PaginationQuery"] = None,
         collection: Optional[str] = None,
     ) -> AsyncIOMotorCursor:
         pipeline = cls.generate_join_pipeline(field, condition, query, collection)
@@ -148,6 +148,33 @@ class BaseORMModel(models.Model):
         self.update_from_dict(
             {k: v for k, v in schema.__dict__.items() if v is not None}
         )
+
+    @staticmethod
+    def apply_ordering(
+        query_set: queryset.QuerySet,
+        ordering: Optional["OrderingQuery"],
+        prefix: str = "",
+    ) -> queryset.QuerySet:
+        def add_prefix(x: str) -> str:
+            if x.startswith("-"):
+                return f"-{prefix}{x[1:]}"
+            return f"{prefix}{x}"
+
+        if ordering is not None and ordering.orderings:
+            if prefix:
+                orderings = [add_prefix(x) for x in ordering.orderings]
+            else:
+                orderings = ordering.orderings
+            query_set = query_set.order_by(*orderings)
+        return query_set
+
+    @staticmethod
+    def apply_pagination(
+        query_set: queryset.QuerySet, pagination: Optional["PaginationQuery"]
+    ) -> queryset.QuerySet:
+        if pagination is not None:
+            query_set = query_set.offset(pagination.offset).limit(pagination.limit)
+        return query_set
 
 
 BaseORMModelType = TypeVar("BaseORMModelType", bound=BaseORMModel)

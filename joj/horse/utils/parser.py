@@ -1,12 +1,11 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Callable, List, Optional, Set
 
 from fastapi import Depends, Path, Query
-from pydantic.types import conint
 
 from joj.horse import models
-from joj.horse.schemas.base import NoneEmptyLongStr
-from joj.horse.schemas.query import BaseQuery, SortEnum
+from joj.horse.schemas.base import NoneEmptyLongStr, NoneNegativeInt, PaginationLimit
+from joj.horse.schemas.query import OrderingQuery, PaginationQuery
 from joj.horse.utils.auth import Authentication, get_domain
 from joj.horse.utils.errors import BizError, ErrorCode
 
@@ -129,9 +128,42 @@ async def parse_record_judger(
     raise BizError(ErrorCode.RecordNotFoundError)
 
 
-def parse_query(
-    sort: Optional[SortEnum] = Query(None),
-    skip: Optional[conint(ge=0)] = Query(None),  # type: ignore
-    limit: Optional[conint(ge=1)] = Query(None),  # type: ignore
-) -> BaseQuery:
-    return BaseQuery(sort=sort, skip=skip, limit=limit)
+class OrderingQueryParser:
+    def __init__(self, ordering_fields: Optional[Set[str]] = None):
+        self.ordering_fields = ordering_fields
+
+    def __call__(
+        self,
+        ordering: str = Query(
+            "",
+            description="Comma seperated list of ordering the results.\n"
+            "You may also specify reverse orderings by prefixing the field name with '-'.",
+            example="-name,created_at",
+        ),
+    ) -> OrderingQuery:
+        orderings = list(filter(None, ordering.split(",")))
+        if self.ordering_fields is not None:
+            for x in orderings:
+                name = x.startswith("-") and x[1:] or x
+                if name not in self.ordering_fields:
+                    raise BizError(
+                        ErrorCode.IllegalFieldError,
+                        f"{x} is not available in ordering fields",
+                    )
+        return OrderingQuery(orderings=orderings)
+
+
+def parse_ordering_query(
+    ordering_fields: Optional[List[str]] = None,
+) -> Callable[..., OrderingQuery]:
+    if ordering_fields is None:
+        return OrderingQueryParser()
+    else:
+        return OrderingQueryParser(set(ordering_fields))
+
+
+def parse_pagination_query(
+    offset: NoneNegativeInt = Query(0),
+    limit: PaginationLimit = Query(100),
+) -> PaginationQuery:
+    return PaginationQuery(offset=offset, limit=limit)

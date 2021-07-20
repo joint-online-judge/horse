@@ -14,7 +14,7 @@ from joj.horse.schemas.problem import ListProblems
 from joj.horse.utils.auth import Authentication, auth_jwt_encode
 from joj.horse.utils.errors import BadRequestError, BizError, ErrorCode
 from joj.horse.utils.oauth.jaccount import IDToken, get_client
-from joj.horse.utils.parser import parse_query
+from joj.horse.utils.parser import parse_pagination_query
 from joj.horse.utils.router import MyRouter
 from joj.horse.utils.url import generate_url
 
@@ -152,7 +152,8 @@ async def get_user(auth: Authentication = Depends()) -> StandardResponse[schemas
 
 @router.get("/problems")
 async def get_user_problems(
-    query: schemas.BaseQuery = Depends(parse_query), auth: Authentication = Depends()
+    query: schemas.PaginationQuery = Depends(parse_pagination_query),
+    auth: Authentication = Depends(),
 ) -> StandardResponse[ListProblems]:
     condition = {"owner": auth.user.id}
     cursor = models.Problem.cursor_find(condition, query)

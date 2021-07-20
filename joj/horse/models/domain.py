@@ -7,7 +7,7 @@ from joj.horse.models.base import BaseORMModel, URLMixin, url_pre_save
 from joj.horse.models.user import User
 
 if TYPE_CHECKING:
-    from joj.horse.models import DomainRole
+    from joj.horse.models import DomainRole, DomainUser
 
 
 class Domain(URLMixin, BaseORMModel):
@@ -28,6 +28,7 @@ class Domain(URLMixin, BaseORMModel):
     if TYPE_CHECKING:
         owner_id: UUID
         roles: queryset.QuerySet[DomainRole]
+        users: queryset.QuerySet[DomainUser]
 
 
 signals.pre_save(Domain)(url_pre_save)

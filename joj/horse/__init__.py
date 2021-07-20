@@ -11,7 +11,7 @@ from starlette.responses import JSONResponse, RedirectResponse
 from tenacity import RetryError
 
 # from pydantic.error_wrappers import ValidationError
-from tortoise import Tortoise
+from tortoise import Tortoise, exceptions as tortoise_exceptions
 from uvicorn.config import logger
 
 from joj.horse.config import settings
@@ -95,6 +95,13 @@ async def marshmallow_validation_exception_handler(
         content=jsonable_encoder({"detail": exc.messages}),
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
     )
+
+
+@app.exception_handler(tortoise_exceptions.FieldError)
+async def tortoise_field_error_handler(
+    request: Request, exc: tortoise_exceptions.FieldError
+) -> JSONResponse:
+    return business_exception_response(BizError(ErrorCode.UnknownFieldError, str(exc)))
 
 
 @app.exception_handler(BizError)

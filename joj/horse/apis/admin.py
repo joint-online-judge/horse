@@ -13,7 +13,7 @@ from joj.horse.schemas.misc import JWT
 from joj.horse.schemas.user import ListUsers
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.errors import BizError, ErrorCode, ForbiddenError
-from joj.horse.utils.parser import parse_query, parse_uid
+from joj.horse.utils.parser import parse_pagination_query, parse_uid
 from joj.horse.utils.router import MyRouter
 
 router = MyRouter()
@@ -24,7 +24,8 @@ router_prefix = "/api/v1"
 
 @router.get("/users")
 async def list_users(
-    query: schemas.BaseQuery = Depends(parse_query), auth: Authentication = Depends()
+    query: schemas.PaginationQuery = Depends(parse_pagination_query),
+    auth: Authentication = Depends(),
 ) -> StandardResponse[ListUsers]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
@@ -62,7 +63,8 @@ async def delete_user(
 
 @router.get("/domain_users")
 async def list_domain_users(
-    query: schemas.BaseQuery = Depends(parse_query), auth: Authentication = Depends()
+    query: schemas.PaginationQuery = Depends(parse_pagination_query),
+    auth: Authentication = Depends(),
 ) -> StandardResponse[ListDomainUsers]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
@@ -73,7 +75,8 @@ async def list_domain_users(
 
 @router.get("/domain_roles")
 async def list_domain_roles(
-    query: schemas.BaseQuery = Depends(parse_query), auth: Authentication = Depends()
+    query: schemas.PaginationQuery = Depends(parse_pagination_query),
+    auth: Authentication = Depends(),
 ) -> StandardResponse[ListDomainRoles]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
@@ -84,7 +87,8 @@ async def list_domain_roles(
 
 @router.get("/judgers")
 async def list_judgers(
-    query: schemas.BaseQuery = Depends(parse_query), auth: Authentication = Depends()
+    query: schemas.PaginationQuery = Depends(parse_pagination_query),
+    auth: Authentication = Depends(),
 ) -> StandardResponse[ListUsers]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()

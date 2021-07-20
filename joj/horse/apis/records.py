@@ -16,7 +16,7 @@ from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import get_db
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
-    parse_query,
+    parse_pagination_query,
     parse_record,
     parse_record_judger,
     parse_uid_or_none,
@@ -34,7 +34,7 @@ async def list_records(
     domain: Optional[PydanticObjectId] = Query(None),
     problem_set: Optional[PydanticObjectId] = Query(None),
     problem: Optional[PydanticObjectId] = Query(None),
-    query: schemas.BaseQuery = Depends(parse_query),
+    query: schemas.PaginationQuery = Depends(parse_pagination_query),
     user: models.User = Depends(parse_uid_or_none),
     auth: Authentication = Depends(),
 ) -> StandardResponse[ListRecords]:

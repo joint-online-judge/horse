@@ -19,9 +19,9 @@ from joj.horse.utils.db import instance
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
     parse_domain,
+    parse_pagination_query,
     parse_problem_set,
     parse_problem_set_with_time,
-    parse_query,
     parse_user_from_auth,
 )
 from joj.horse.utils.router import MyRouter
@@ -37,7 +37,7 @@ router_prefix = "/api/v1"
 )
 async def list_problem_sets(
     domain: models.Domain = Depends(parse_domain),
-    query: schemas.BaseQuery = Depends(parse_query),
+    query: schemas.PaginationQuery = Depends(parse_pagination_query),
     auth: Authentication = Depends(),
 ) -> StandardResponse[ListProblemSets]:
     condition = {"owner": auth.user.id}

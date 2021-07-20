@@ -1,18 +1,14 @@
 from datetime import datetime
-from typing import Callable, Optional
+from typing import Optional
 
 from pydantic import Field, validator
-from pydantic.typing import AnyCallable
+from tortoise.contrib.pydantic import pydantic_model_creator
 
+from joj.horse.models.base import init_models
+from joj.horse.models.domain_invitation import DomainInvitation as DomainInvitationModel
 from joj.horse.models.permission import DefaultRole
 from joj.horse.schemas import BaseModel
-from joj.horse.schemas.base import (
-    BaseODMSchema,
-    LongStr,
-    ReferenceSchema,
-    reference_schema_validator,
-)
-from joj.horse.schemas.domain import Domain
+from joj.horse.schemas.base import LongStr
 
 
 class DomainInvitationEdit(BaseModel):
@@ -26,16 +22,16 @@ class DomainInvitationCreate(BaseModel):
     expire_at: datetime = Field(datetime.max, description="expire time of invitation")
     role: str = Field(DefaultRole.USER, description="domain role after invitation")
 
-
-class DomainInvitation(DomainInvitationCreate, BaseODMSchema):
-    domain: ReferenceSchema[Domain]
-
     @validator("role", pre=True)
-    def validate_uname(cls, v: str) -> str:
+    def validate_role(cls, v: str) -> str:
         if v == DefaultRole.ROOT:
             raise ValueError("role can not be root")
         return v
 
-    _validator_domain: Callable[
-        [AnyCallable], classmethod
-    ] = reference_schema_validator("domain", Domain)
+
+init_models()
+DomainInvitation = pydantic_model_creator(
+    DomainInvitationModel,
+    name="DomainInvitation",
+    exclude=("domain",),
+)

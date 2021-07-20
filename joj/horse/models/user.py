@@ -1,11 +1,15 @@
-from typing import List, Optional, Type
+from typing import TYPE_CHECKING, List, Optional, Type
 
 from pydantic import EmailStr
-from tortoise import BaseDBAsyncClient, fields, signals, timezone
+from tortoise import BaseDBAsyncClient, fields, queryset, signals, timezone
 from uvicorn.config import logger
 
 from joj.horse.models.base import BaseORMModel
 from joj.horse.models.permission import DefaultRole
+
+if TYPE_CHECKING:
+    from joj.horse.models import Domain, DomainUser
+    from joj.horse.schemas.query import OrderingQuery, PaginationQuery
 
 
 class User(BaseORMModel):
@@ -38,9 +42,31 @@ class User(BaseORMModel):
     login_at = fields.DatetimeField(auto_now_add=True)
     login_ip = fields.CharField(default="0.0.0.0", max_length=255)
 
+    if TYPE_CHECKING:
+        domains: queryset.QuerySet[DomainUser]
+
     @classmethod
     async def find_by_uname(cls, scope: str, uname: str) -> Optional["User"]:
         return await User.get_or_none(scope=scope, uname_lower=uname.strip().lower())
+
+    async def find_domains(
+        self,
+        role: Optional[List[str]],
+        ordering: Optional["OrderingQuery"] = None,
+        pagination: Optional["PaginationQuery"] = None,
+    ) -> List["Domain"]:
+        if self.role != "root":
+            # TODO: root user can view all domains
+            pass
+        query_set = self.domains.all()
+        if role is not None:
+            query_set = query_set.filter(role__in=role)
+        query_set = query_set.select_related("domain", "domain__owner")
+        query_set = self.apply_ordering(query_set, ordering, prefix="domain__")
+        query_set = self.apply_pagination(query_set, pagination)
+        domain_users = await query_set
+        domains = [domain_user.domain for domain_user in domain_users]
+        return domains
 
     @classmethod
     async def login_by_jaccount(

@@ -73,17 +73,3 @@ class DomainUser(BaseORMModel):
 #     role = fields.StringField(required=True)
 #
 #     join_at = fields.DateTimeField(required=True)
-#
-#     @classmethod
-#     def cursor_find_user_domains(
-#         cls, user: User, role: Optional[List[str]], query: Optional[BaseQuery] = None
-#     ) -> AsyncIOMotorCursor:
-#         condition = {}
-#         if user.role != "root":
-#             condition["user"] = user.id
-#         if role is not None:
-#             condition["role"] = {"$in": role}
-#         return cls.cursor_join(field="domain", condition=condition, query=query)
-#
-
-#
