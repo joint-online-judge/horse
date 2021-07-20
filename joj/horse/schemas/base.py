@@ -18,6 +18,7 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from pydantic import (
     BaseModel as PydanticBaseModel,
+    ConstrainedInt,
     ConstrainedStr,
     create_model,
     validator,
@@ -42,6 +43,18 @@ if TYPE_CHECKING:
 class BaseModel(PydanticBaseModel):
     class Config:
         validate_all = True
+
+
+class NoneNegativeInt(ConstrainedInt):
+    ge = 0
+
+
+class PositiveInt(ConstrainedInt):
+    gt = 0
+
+
+class PaginationLimit(PositiveInt):
+    le = 500
 
 
 class LongStr(ConstrainedStr):
@@ -200,10 +213,10 @@ def embedded_dict_schema_validator(field: str, each_item: bool = False) -> Any:
     return validator(field, pre=True, allow_reuse=True, each_item=each_item)(wrapped)
 
 
-BT = TypeVar("BT", bound=BaseModel)
+BT = TypeVar("BT", bound=PydanticBaseModel)
 
 
-@lru_cache()
+@lru_cache(maxsize=128)
 def get_standard_list_response_sub_model(
     cls: Type[PydanticBaseModel],
 ) -> Type[PydanticBaseModel]:
@@ -215,7 +228,7 @@ def get_standard_list_response_sub_model(
     )
 
 
-@lru_cache()
+@lru_cache(maxsize=256)
 def get_standard_response_model(
     cls: Type[PydanticBaseModel], is_list: bool = False
 ) -> Tuple[Type[PydanticBaseModel], Optional[Type[PydanticBaseModel]]]:

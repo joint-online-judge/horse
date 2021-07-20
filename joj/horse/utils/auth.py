@@ -333,7 +333,7 @@ class DomainPermissionChecker(PermissionChecker):
 
 def ensure_permission(
     arg1: PermArg1 = None, arg2: PermArg2 = None  # type: ignore
-) -> Optional[Callable[..., Any]]:
+) -> Optional[Callable[..., None]]:
     """
     Returns a permission check dependency in fastapi.
     Support flexible formats:

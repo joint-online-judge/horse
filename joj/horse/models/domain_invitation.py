@@ -1,3 +1,6 @@
+from typing import TYPE_CHECKING
+from uuid import UUID
+
 from tortoise import fields
 
 from joj.horse.models.base import BaseORMModel
@@ -21,6 +24,9 @@ class DomainInvitation(BaseORMModel):
     role = fields.CharField(max_length=255)
 
     expire_at = fields.DatetimeField()
+
+    if TYPE_CHECKING:
+        domain_id: UUID
 
 
 # @instance.register

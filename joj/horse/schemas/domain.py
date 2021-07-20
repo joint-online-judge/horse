@@ -44,11 +44,11 @@ class DomainTransfer(BaseModel):
 #     )
 
 init_models()
-DomainGenerated = pydantic_model_creator(DomainModel, name="Domain")
+DomainGenerated = pydantic_model_creator(DomainModel, name="Domain", exclude=("owner",))
 
 
 class Domain(DomainGenerated):  # type: ignore
-    owner: Optional[UserBase] = None
+    owner: UserBase
 
 
 class ListDomains(BaseModel):

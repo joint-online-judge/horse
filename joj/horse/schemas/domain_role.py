@@ -1,7 +1,6 @@
-from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from pydantic import Field, validator
+from pydantic import Field
 from tortoise.contrib.pydantic import pydantic_model_creator
 
 from joj.horse.models.base import init_models
@@ -22,33 +21,7 @@ class DomainRoleEdit(BaseModel):
 
 class DomainRoleCreate(BaseModel):
     role: NoneEmptyLongStr
-    permission: Dict[str, Any] = {}
-    updated_at: datetime = datetime.utcnow()
-
-    # @validator("permission", pre=True, always=True)
-    # def default_permission(
-    #     cls, v: Any, *, values: Any, **kwargs: Any
-    # ) -> Dict[str, Any]:
-    #     return v or DomainPermission().dump()
-
-    @validator("updated_at", pre=True, always=True)
-    def default_updated_at(cls, v: datetime, *, values: Any, **kwargs: Any) -> datetime:
-        return v or datetime.utcnow()
-
-
-# class DomainRole(DomainRoleCreate, BaseODMSchema):
-#     domain: ReferenceSchema[Domain]
-#     role: str
-#
-#     _validator_domain: Callable[
-#         [AnyCallable], classmethod
-#     ] = reference_schema_validator("domain", Domain)
-#
-#     _validator_permission: Callable[
-#         [AnyCallable], classmethod
-#     ] = embedded_dict_schema_validator("permission")
-#
-#
+    permission: DomainPermission = DomainPermission()
 
 
 init_models()

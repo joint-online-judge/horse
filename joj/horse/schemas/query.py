@@ -1,17 +1,13 @@
-from enum import IntEnum
-from typing import Optional
-
-from pymongo import ASCENDING, DESCENDING
+from typing import List
 
 from joj.horse.schemas import BaseModel
+from joj.horse.schemas.base import NoneNegativeInt, PaginationLimit
 
 
-class SortEnum(IntEnum):
-    asc = ASCENDING
-    des = DESCENDING
+class OrderingQuery(BaseModel):
+    orderings: List[str]
 
 
-class BaseQuery(BaseModel):
-    sort: Optional[SortEnum]
-    skip: Optional[int]
-    limit: Optional[int]
+class PaginationQuery(BaseModel):
+    offset: NoneNegativeInt
+    limit: PaginationLimit

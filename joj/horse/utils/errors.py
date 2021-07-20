@@ -8,6 +8,8 @@ class ErrorCode(str, Enum):
     Success = "Success"
     Error = "Error"
     InternalServerError = "InternalServerError"
+    UnknownFieldError = "UnknownFieldError"
+    IllegalFieldError = "IllegalFieldError"
 
     ApiNotImplementedError = "ApiNotImplementedError"
     UserNotFoundError = "UserNotFoundError"

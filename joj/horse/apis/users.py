@@ -7,7 +7,7 @@ from joj.horse.schemas import StandardResponse
 from joj.horse.schemas.domain_user import ListDomainUsers
 from joj.horse.schemas.problem import ListProblems
 from joj.horse.utils.auth import Authentication
-from joj.horse.utils.parser import parse_query, parse_uid
+from joj.horse.utils.parser import parse_pagination_query, parse_uid
 from joj.horse.utils.router import MyRouter
 
 router = MyRouter()
@@ -27,7 +27,7 @@ async def get_user(
 async def get_user_domains(
     user: models.User = Depends(parse_uid),
     role: List[str] = Query([]),
-    query: schemas.BaseQuery = Depends(parse_query),
+    query: schemas.PaginationQuery = Depends(parse_pagination_query),
 ) -> StandardResponse[ListDomainUsers]:
     cursor = models.DomainUser.cursor_find_user_domains(user.id, role, query)
     results = await schemas.DomainUser.to_list(cursor)
@@ -37,7 +37,7 @@ async def get_user_domains(
 @router.get("/{uid}/problems")
 async def get_user_problems(
     user: models.User = Depends(parse_uid),
-    query: schemas.BaseQuery = Depends(parse_query),
+    query: schemas.PaginationQuery = Depends(parse_pagination_query),
 ) -> StandardResponse[ListProblems]:
     condition = {"owner": user.id}
     cursor = models.Problem.cursor_find(condition, query)

@@ -22,6 +22,7 @@ from joj.horse.schemas.domain_role import (
 )
 from joj.horse.schemas.domain_user import (
     DomainUser as DomainUser,
+    DomainUserAdd as DomainUserAdd,
     DomainUserPermission as DomainUserPermission,
 )
 from joj.horse.schemas.permission import DomainPermission as DomainPermission
@@ -36,7 +37,10 @@ from joj.horse.schemas.problem_set import (
     ProblemSetCreate as ProblemSetCreate,
     ProblemSetEdit as ProblemSetEdit,
 )
-from joj.horse.schemas.query import BaseQuery as BaseQuery
+from joj.horse.schemas.query import (
+    OrderingQuery as OrderingQuery,
+    PaginationQuery as PaginationQuery,
+)
 from joj.horse.schemas.record import (
     Record as Record,
     RecordCase as RecordCase,
