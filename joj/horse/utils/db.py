@@ -13,7 +13,7 @@ async def init_tortoise() -> None:
                 "credentials": {
                     "host": settings.db_host,
                     "port": settings.db_port,
-                    "user": settings.db_user,
+                    "user": settings.db_username,
                     "password": settings.db_password,
                     "database": settings.db_name,
                 },

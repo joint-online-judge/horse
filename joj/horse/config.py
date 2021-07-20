@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     # postgresql config
     db_host: str = "localhost"
     db_port: int = 5432
-    db_user: str = "postgres"
+    db_username: str = "postgres"
     db_password: str = "pass"
     db_name: str = "horse-production"
 
