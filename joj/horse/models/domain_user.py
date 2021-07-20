@@ -2,7 +2,9 @@ from tortoise import fields
 
 from joj.horse.models.base import BaseORMModel
 from joj.horse.models.domain import Domain
+from joj.horse.models.domain_role import DomainRole
 from joj.horse.models.user import User
+from joj.horse.utils.errors import BizError, ErrorCode
 
 
 class DomainUser(BaseORMModel):
@@ -25,6 +27,34 @@ class DomainUser(BaseORMModel):
         index=True,
     )
     role = fields.CharField(max_length=255)
+
+    @classmethod
+    async def add_domain_user(
+        cls, domain: Domain, user: User, role: str
+    ) -> "DomainUser":
+        # check domain user
+        if await DomainUser.get_or_none(domain=domain, user=user):
+            raise BizError(ErrorCode.UserAlreadyInDomainBadRequestError)
+        # check domain role
+        await DomainRole.ensure_exists(domain=domain, role=role)
+        # add member
+        domain_user = await DomainUser.create(domain=domain, user=user, role=role)
+        return domain_user
+
+    @classmethod
+    async def update_domain_user(
+        cls, domain: Domain, user: User, role: str
+    ) -> "DomainUser":
+        # check domain user
+        domain_user = await DomainUser.get_or_none(domain=domain, user=user)
+        if domain_user is None:
+            raise BizError(ErrorCode.UserAlreadyInDomainBadRequestError)
+        # check domain role
+        await DomainRole.ensure_exists(domain=domain, role=role)
+        # update role
+        domain_user.role = role
+        await domain_user.save()
+        return domain_user
 
 
 # @instance.register
@@ -55,32 +85,5 @@ class DomainUser(BaseORMModel):
 #             condition["role"] = {"$in": role}
 #         return cls.cursor_join(field="domain", condition=condition, query=query)
 #
-#     @classmethod
-#     async def add_domain_user(
-#         cls, domain: ObjectId, user: ObjectId, role: str
-#     ) -> "DomainUser":
-#         # check domain user
-#         if await DomainUser.find_one({"domain": domain, "user": user}):
-#             raise BizError(ErrorCode.UserAlreadyInDomainBadRequestError)
-#         # check domain role
-#         await DomainRole.ensure_exists(domain=domain, role=role)
-#         # add member
-#         domain_user_schema = DomainUserSchema(domain=domain, user=user, role=role)
-#         domain_user_model = DomainUser(**domain_user_schema.to_model())
-#         await domain_user_model.commit()
-#         return domain_user_model
+
 #
-#     @classmethod
-#     async def update_domain_user(
-#         cls, domain: ObjectId, user: ObjectId, role: str
-#     ) -> "DomainUser":
-#         # check domain user
-#         domain_user_model = await DomainUser.find_one({"domain": domain, "user": user})
-#         if domain_user_model is None:
-#             raise BizError(ErrorCode.UserAlreadyInDomainBadRequestError)
-#         # check domain role
-#         await DomainRole.ensure_exists(domain=domain, role=role)
-#         # update role
-#         domain_user_model.role = role
-#         await domain_user_model.commit()
-#         return domain_user_model

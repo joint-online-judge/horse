@@ -3,15 +3,13 @@ from typing import List, Optional
 
 from fastapi import Body, Depends, Query
 from tortoise import transactions
-
-# from pydantic import Field
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.models.permission import FIXED_ROLES, READONLY_ROLES
-from joj.horse.schemas import Empty, StandardResponse
+from joj.horse.schemas import Empty, StandardListResponse, StandardResponse
 from joj.horse.schemas.domain import ListDomains
-from joj.horse.schemas.domain_role import ListDomainRoles
+from joj.horse.schemas.domain_role import DomainRole
 from joj.horse.schemas.domain_user import DomainUserAdd, ListDomainUsers
 from joj.horse.schemas.permission import (
     DEFAULT_DOMAIN_PERMISSION,
@@ -132,19 +130,17 @@ async def transfer_domain(
 ) -> StandardResponse[schemas.Domain]:
     target_user = await parse_uid(domain_transfer.target_user, auth)
     # only domain owner (or site root) can transfer the domain
-    if user.id != domain.owner.pk and not auth.is_root():
+    if user.id != domain.owner_id and not auth.is_root():
         raise BizError(ErrorCode.DomainNotOwnerError)
     # can not transfer to self
-    if domain.owner.pk == target_user.id:
+    if domain.owner_id == target_user.id:
         raise BizError(ErrorCode.DomainNotOwnerError)
-    domain_user = await models.DomainUser.find_one(
-        {"domain": domain.id, "user": target_user.id}
-    )
+    domain_user = await models.DomainUser.get_or_none(domain=domain, user=target_user)
     # can only transfer the domain to a root user in the domain
     if not domain_user or domain_user.role != DefaultRole.ROOT:
         raise BizError(ErrorCode.DomainNotRootError)
-    domain.owner = target_user.id
-    await domain.commit()
+    domain.owner = target_user
+    await domain.save()
     return StandardResponse(schemas.Domain.from_orm(domain))
 
 
@@ -177,10 +173,10 @@ async def add_domain_user(
     if role == DefaultRole.ROOT and not domain_auth.auth.is_domain_root():
         raise BizError(ErrorCode.DomainNotRootError)
     # add member
-    domain_user_model = await models.DomainUser.add_domain_user(
-        domain=domain.id, user=user.id, role=role
+    domain_user = await models.DomainUser.add_domain_user(
+        domain=domain, user=user, role=role
     )
-    return StandardResponse(schemas.DomainUser.from_orm(domain_user_model))
+    return StandardResponse(schemas.DomainUser.from_orm(domain_user))
 
 
 @router.get(
@@ -191,9 +187,7 @@ async def get_domain_user(
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_path_or_query),
 ) -> StandardResponse[schemas.DomainUser]:
-    domain_user = await models.DomainUser.find_one(
-        {"domain": domain.id, "user": user.id}
-    )
+    domain_user = await models.DomainUser.get_or_none(domain=domain, user=user)
     if domain_user is None:
         raise BizError(ErrorCode.DomainUserNotFoundError)
     return StandardResponse(schemas.DomainUser.from_orm(domain_user))
@@ -208,13 +202,11 @@ async def remove_domain_user(
     user: models.User = Depends(parse_user_from_path_or_query),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> StandardResponse[Empty]:
-    domain_user = await models.DomainUser.find_one(
-        {"domain": domain.id, "user": user.id}
-    )
+    domain_user = await models.DomainUser.get_or_none(domain=domain, user=user)
     if not domain_user:
         raise BizError(ErrorCode.DomainUserNotFoundError)
     # nobody (including domain owner himself) can remove domain owner
-    if user.id == domain.owner.pk:
+    if domain_user.id == domain.owner_id:
         raise BizError(ErrorCode.DomainNotOwnerError)
     # only root member (or site root) can remove root member
     if domain_user.role == DefaultRole.ROOT and not domain_auth.auth.is_domain_root():
@@ -241,7 +233,7 @@ async def update_domain_user(
         raise BizError(ErrorCode.DomainNotRootError)
     # update member
     domain_user_model = await models.DomainUser.update_domain_user(
-        domain=domain.id, user=user.id, role=role
+        domain=domain, user=user, role=role
     )
     return StandardResponse(schemas.DomainUser.from_orm(domain_user_model))
 
@@ -254,18 +246,20 @@ async def get_domain_user_permission(
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_path_or_query),
 ) -> StandardResponse[schemas.DomainUserPermission]:
-    domain_user = await models.DomainUser.find_one(
-        {"domain": domain.id, "user": user.id}
-    )
+    domain_user = await models.DomainUser.get_or_none(domain=domain, user=user)
     if domain_user is None:
         raise BizError(ErrorCode.DomainUserNotFoundError)
-    domain_role = await models.DomainRole.find_one(
-        {"domain": domain.id, "role": domain_user.role}
+    domain_role = await models.DomainRole.get_or_none(
+        domain=domain, role=domain_user.role
     )
     if domain_role is None:
         raise BizError(ErrorCode.DomainRoleNotFoundError)
-    result = schemas.DomainUserPermission.from_orm(domain_user)
-    result.permission = domain_role.permission.dump()
+
+    domain_user_schema = schemas.DomainUser.from_orm(domain_user)
+    permission = schemas.DomainPermission(**domain_role.permission)
+    result = schemas.DomainUserPermission(
+        **domain_user_schema.dict(), permission=permission
+    )
     return StandardResponse(result)
 
 
@@ -275,11 +269,10 @@ async def get_domain_user_permission(
 )
 async def list_domain_roles(
     domain: models.Domain = Depends(parse_domain),
-) -> StandardResponse[ListDomainRoles]:
-    condition = {"domain": domain.id}
-    cursor = models.DomainRole.cursor_find(condition)
-    results = await schemas.DomainRole.to_list(cursor)
-    return StandardResponse(ListDomainRoles(results=results))
+) -> StandardListResponse[DomainRole]:
+    roles = await domain.roles.all()
+    roles = [DomainRole.from_orm(role) for role in roles]
+    return StandardListResponse(roles)
 
 
 @router.post(

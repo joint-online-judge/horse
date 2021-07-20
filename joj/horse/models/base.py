@@ -1,6 +1,6 @@
-import uuid
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, TypeVar
+from uuid import UUID, uuid4
 
 from bson import ObjectId
 from pydantic import BaseModel
@@ -64,7 +64,7 @@ class DocumentMixin:
         if "url" not in self._data.keys():
             return False
         try:
-            uuid.UUID(str(self._data.get("url")))
+            UUID(str(self._data.get("url")))
         except ValueError:
             return False
         self.update({"url": str(self.id)})
@@ -133,6 +133,9 @@ class BaseORMModel(models.Model):
     class Meta:
         abstract = True
 
+    class PydanticMeta:
+        backward_relations = False
+
     id = fields.UUIDField(pk=True)
 
     created_at = fields.DatetimeField(null=True, auto_now_add=True)
@@ -170,7 +173,7 @@ async def url_pre_save(
     update_fields: List[str],
 ) -> None:
     if not instance.id:
-        instance.id = uuid.uuid4()
+        instance.id = uuid4()
     if not instance.url:
         instance.url = str(instance.id)
 

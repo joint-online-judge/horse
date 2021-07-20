@@ -1,19 +1,16 @@
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import Field, validator
-from pydantic.typing import AnyCallable
+from tortoise.contrib.pydantic import pydantic_model_creator
+
+from joj.horse.models.base import init_models
+from joj.horse.models.domain_role import DomainRole as DomainRoleModel
 
 # from joj.horse.models.permission import DomainPermission
 from joj.horse.schemas import BaseModel
-from joj.horse.schemas.base import (
-    BaseODMSchema,
-    NoneEmptyLongStr,
-    ReferenceSchema,
-    embedded_dict_schema_validator,
-    reference_schema_validator,
-)
-from joj.horse.schemas.domain import Domain
+from joj.horse.schemas.base import NoneEmptyLongStr
+from joj.horse.schemas.permission import DomainPermission
 
 
 class DomainRoleEdit(BaseModel):
@@ -39,17 +36,31 @@ class DomainRoleCreate(BaseModel):
         return v or datetime.utcnow()
 
 
-class DomainRole(DomainRoleCreate, BaseODMSchema):
-    domain: ReferenceSchema[Domain]
-    role: str
+# class DomainRole(DomainRoleCreate, BaseODMSchema):
+#     domain: ReferenceSchema[Domain]
+#     role: str
+#
+#     _validator_domain: Callable[
+#         [AnyCallable], classmethod
+#     ] = reference_schema_validator("domain", Domain)
+#
+#     _validator_permission: Callable[
+#         [AnyCallable], classmethod
+#     ] = embedded_dict_schema_validator("permission")
+#
+#
 
-    _validator_domain: Callable[
-        [AnyCallable], classmethod
-    ] = reference_schema_validator("domain", Domain)
 
-    _validator_permission: Callable[
-        [AnyCallable], classmethod
-    ] = embedded_dict_schema_validator("permission")
+init_models()
+DomainRoleGenerated = pydantic_model_creator(
+    DomainRoleModel,
+    name="DomainRole",
+    exclude=("domain",),
+)
+
+
+class DomainRole(DomainRoleGenerated):  # type: ignore
+    permission: DomainPermission
 
 
 class ListDomainRoles(BaseModel):

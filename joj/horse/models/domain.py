@@ -1,7 +1,13 @@
-from tortoise import fields, signals
+from typing import TYPE_CHECKING
+from uuid import UUID
+
+from tortoise import fields, queryset, signals
 
 from joj.horse.models.base import BaseORMModel, URLMixin, url_pre_save
 from joj.horse.models.user import User
+
+if TYPE_CHECKING:
+    from joj.horse.models import DomainRole
 
 
 class Domain(URLMixin, BaseORMModel):
@@ -18,6 +24,10 @@ class Domain(URLMixin, BaseORMModel):
 
     gravatar = fields.CharField(max_length=255, default="")
     bulletin = fields.TextField(default="")
+
+    if TYPE_CHECKING:
+        owner_id: UUID
+        roles: queryset.QuerySet[DomainRole]
 
 
 signals.pre_save(Domain)(url_pre_save)
