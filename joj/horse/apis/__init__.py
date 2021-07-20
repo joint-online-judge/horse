@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 from fastapi import FastAPI
 
@@ -54,10 +54,11 @@ def update_schema_name(
         function: The function object to modify.
         name: The new name of the schema.
     """
-    for route in app.routes:
-        if route.endpoint is function:
-            route.body_field.type_.__name__ = name
-            break
+    if not TYPE_CHECKING:
+        for route in app.routes:
+            if route.endpoint is function:
+                route.body_field.type_.__name__ = name
+                break
 
 
 update_schema_name(app, submit_solution_to_problem, "ProblemSolutionSubmit")
