@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: b209977@2021-07-17 02:38:22",
+    "description": "Git version: 7a3f584@2021-07-21 04:28:13",
     "version": "0.0.0"
   },
   "paths": {
@@ -60,29 +60,37 @@
             "in": "query"
           },
           {
+            "description": "Comma seperated list of ordering the results.\nYou may also specify reverse orderings by prefixing the field name with '-'.",
             "required": false,
             "schema": {
-              "$ref": "#/components/schemas/SortEnum"
+              "title": "Ordering",
+              "type": "string",
+              "description": "Comma seperated list of ordering the results.\nYou may also specify reverse orderings by prefixing the field name with '-'.",
+              "default": ""
             },
-            "name": "sort",
+            "example": "-name,created_at",
+            "name": "ordering",
             "in": "query"
           },
           {
             "required": false,
             "schema": {
-              "title": "Skip",
+              "title": "Offset",
               "minimum": 0.0,
-              "type": "integer"
+              "type": "integer",
+              "default": 0
             },
-            "name": "skip",
+            "name": "offset",
             "in": "query"
           },
           {
             "required": false,
             "schema": {
               "title": "Limit",
-              "minimum": 1.0,
-              "type": "integer"
+              "maximum": 500.0,
+              "exclusiveMinimum": 0.0,
+              "type": "integer",
+              "default": 100
             },
             "name": "limit",
             "in": "query"
@@ -94,7 +102,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListDomainsResp"
+                  "$ref": "#/components/schemas/DomainListResp"
                 }
               }
             }
@@ -461,7 +469,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListDomainUsersResp"
+                  "$ref": "#/components/schemas/DomainUserListResp"
                 }
               }
             }
@@ -874,7 +882,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListDomainRolesResp"
+                  "$ref": "#/components/schemas/DomainRoleListResp"
                 }
               }
             }
@@ -1433,27 +1441,22 @@
           {
             "required": false,
             "schema": {
-              "$ref": "#/components/schemas/SortEnum"
-            },
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Skip",
+              "title": "Offset",
               "minimum": 0.0,
-              "type": "integer"
+              "type": "integer",
+              "default": 0
             },
-            "name": "skip",
+            "name": "offset",
             "in": "query"
           },
           {
             "required": false,
             "schema": {
               "title": "Limit",
-              "minimum": 1.0,
-              "type": "integer"
+              "maximum": 500.0,
+              "exclusiveMinimum": 0.0,
+              "type": "integer",
+              "default": 100
             },
             "name": "limit",
             "in": "query"
@@ -1888,27 +1891,22 @@
           {
             "required": false,
             "schema": {
-              "$ref": "#/components/schemas/SortEnum"
-            },
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Skip",
+              "title": "Offset",
               "minimum": 0.0,
-              "type": "integer"
+              "type": "integer",
+              "default": 0
             },
-            "name": "skip",
+            "name": "offset",
             "in": "query"
           },
           {
             "required": false,
             "schema": {
               "title": "Limit",
-              "minimum": 1.0,
-              "type": "integer"
+              "maximum": 500.0,
+              "exclusiveMinimum": 0.0,
+              "type": "integer",
+              "default": 100
             },
             "name": "limit",
             "in": "query"
@@ -2491,27 +2489,22 @@
           {
             "required": false,
             "schema": {
-              "$ref": "#/components/schemas/SortEnum"
-            },
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Skip",
+              "title": "Offset",
               "minimum": 0.0,
-              "type": "integer"
+              "type": "integer",
+              "default": 0
             },
-            "name": "skip",
+            "name": "offset",
             "in": "query"
           },
           {
             "required": false,
             "schema": {
               "title": "Limit",
-              "minimum": 1.0,
-              "type": "integer"
+              "maximum": 500.0,
+              "exclusiveMinimum": 0.0,
+              "type": "integer",
+              "default": 100
             },
             "name": "limit",
             "in": "query"
@@ -2827,27 +2820,22 @@
           {
             "required": false,
             "schema": {
-              "$ref": "#/components/schemas/SortEnum"
-            },
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Skip",
+              "title": "Offset",
               "minimum": 0.0,
-              "type": "integer"
+              "type": "integer",
+              "default": 0
             },
-            "name": "skip",
+            "name": "offset",
             "in": "query"
           },
           {
             "required": false,
             "schema": {
               "title": "Limit",
-              "minimum": 1.0,
-              "type": "integer"
+              "maximum": 500.0,
+              "exclusiveMinimum": 0.0,
+              "type": "integer",
+              "default": 100
             },
             "name": "limit",
             "in": "query"
@@ -3159,27 +3147,22 @@
           {
             "required": false,
             "schema": {
-              "$ref": "#/components/schemas/SortEnum"
-            },
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Skip",
+              "title": "Offset",
               "minimum": 0.0,
-              "type": "integer"
+              "type": "integer",
+              "default": 0
             },
-            "name": "skip",
+            "name": "offset",
             "in": "query"
           },
           {
             "required": false,
             "schema": {
               "title": "Limit",
-              "minimum": 1.0,
-              "type": "integer"
+              "maximum": 500.0,
+              "exclusiveMinimum": 0.0,
+              "type": "integer",
+              "default": 100
             },
             "name": "limit",
             "in": "query"
@@ -3314,27 +3297,22 @@
           {
             "required": false,
             "schema": {
-              "$ref": "#/components/schemas/SortEnum"
-            },
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Skip",
+              "title": "Offset",
               "minimum": 0.0,
-              "type": "integer"
+              "type": "integer",
+              "default": 0
             },
-            "name": "skip",
+            "name": "offset",
             "in": "query"
           },
           {
             "required": false,
             "schema": {
               "title": "Limit",
-              "minimum": 1.0,
-              "type": "integer"
+              "maximum": 500.0,
+              "exclusiveMinimum": 0.0,
+              "type": "integer",
+              "default": 100
             },
             "name": "limit",
             "in": "query"
@@ -3399,27 +3377,22 @@
           {
             "required": false,
             "schema": {
-              "$ref": "#/components/schemas/SortEnum"
-            },
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Skip",
+              "title": "Offset",
               "minimum": 0.0,
-              "type": "integer"
+              "type": "integer",
+              "default": 0
             },
-            "name": "skip",
+            "name": "offset",
             "in": "query"
           },
           {
             "required": false,
             "schema": {
               "title": "Limit",
-              "minimum": 1.0,
-              "type": "integer"
+              "maximum": 500.0,
+              "exclusiveMinimum": 0.0,
+              "type": "integer",
+              "default": 100
             },
             "name": "limit",
             "in": "query"
@@ -3545,7 +3518,7 @@
               "application/json": {
                 "schema": {
                   "title": "Response Test Sentry Api V1 Test Sentry Get",
-                  "type": "string"
+                  "type": "null"
                 }
               }
             }
@@ -3574,27 +3547,22 @@
           {
             "required": false,
             "schema": {
-              "$ref": "#/components/schemas/SortEnum"
-            },
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Skip",
+              "title": "Offset",
               "minimum": 0.0,
-              "type": "integer"
+              "type": "integer",
+              "default": 0
             },
-            "name": "skip",
+            "name": "offset",
             "in": "query"
           },
           {
             "required": false,
             "schema": {
               "title": "Limit",
-              "minimum": 1.0,
-              "type": "integer"
+              "maximum": 500.0,
+              "exclusiveMinimum": 0.0,
+              "type": "integer",
+              "default": 100
             },
             "name": "limit",
             "in": "query"
@@ -3789,27 +3757,22 @@
           {
             "required": false,
             "schema": {
-              "$ref": "#/components/schemas/SortEnum"
-            },
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Skip",
+              "title": "Offset",
               "minimum": 0.0,
-              "type": "integer"
+              "type": "integer",
+              "default": 0
             },
-            "name": "skip",
+            "name": "offset",
             "in": "query"
           },
           {
             "required": false,
             "schema": {
               "title": "Limit",
-              "minimum": 1.0,
-              "type": "integer"
+              "maximum": 500.0,
+              "exclusiveMinimum": 0.0,
+              "type": "integer",
+              "default": 100
             },
             "name": "limit",
             "in": "query"
@@ -3865,27 +3828,22 @@
           {
             "required": false,
             "schema": {
-              "$ref": "#/components/schemas/SortEnum"
-            },
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Skip",
+              "title": "Offset",
               "minimum": 0.0,
-              "type": "integer"
+              "type": "integer",
+              "default": 0
             },
-            "name": "skip",
+            "name": "offset",
             "in": "query"
           },
           {
             "required": false,
             "schema": {
               "title": "Limit",
-              "minimum": 1.0,
-              "type": "integer"
+              "maximum": 500.0,
+              "exclusiveMinimum": 0.0,
+              "type": "integer",
+              "default": 100
             },
             "name": "limit",
             "in": "query"
@@ -3941,27 +3899,22 @@
           {
             "required": false,
             "schema": {
-              "$ref": "#/components/schemas/SortEnum"
-            },
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Skip",
+              "title": "Offset",
               "minimum": 0.0,
-              "type": "integer"
+              "type": "integer",
+              "default": 0
             },
-            "name": "skip",
+            "name": "offset",
             "in": "query"
           },
           {
             "required": false,
             "schema": {
               "title": "Limit",
-              "minimum": 1.0,
-              "type": "integer"
+              "maximum": 500.0,
+              "exclusiveMinimum": 0.0,
+              "type": "integer",
+              "default": 100
             },
             "name": "limit",
             "in": "query"
@@ -4131,29 +4084,6 @@
   },
   "components": {
     "schemas": {
-      "Config": {
-        "title": "Config",
-        "type": "object",
-        "properties": {
-          "files": {
-            "title": "Files",
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/File"
-            },
-            "default": {}
-          }
-        }
-      },
-      "DataVersion": {
-        "title": "DataVersion",
-        "enum": [
-          1,
-          2
-        ],
-        "type": "integer",
-        "description": "An enumeration."
-      },
       "DefaultRole": {
         "title": "DefaultRole",
         "enum": [
@@ -4184,52 +4114,61 @@
         "required": [
           "url",
           "name",
+          "owner_id",
           "owner"
         ],
         "type": "object",
         "properties": {
           "id": {
             "title": "Id",
-            "type": "string"
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
           },
           "url": {
             "title": "Url",
-            "maxLength": 256,
-            "minLength": 1,
+            "maxLength": 255,
             "type": "string"
           },
           "name": {
             "title": "Name",
-            "maxLength": 256,
-            "type": "string",
-            "description": "displayed name of the domain"
-          },
-          "bulletin": {
-            "title": "Bulletin",
-            "maxLength": 65536,
-            "type": "string",
-            "description": "bulletin of the domain",
-            "default": ""
+            "maxLength": 255,
+            "type": "string"
           },
           "gravatar": {
             "title": "Gravatar",
-            "maxLength": 256,
+            "maxLength": 255,
             "type": "string",
-            "description": "gravatar url of the domain",
             "default": ""
           },
+          "bulletin": {
+            "title": "Bulletin",
+            "type": "string",
+            "default": ""
+          },
+          "owner_id": {
+            "title": "Owner Id",
+            "type": "string",
+            "format": "uuid"
+          },
           "owner": {
-            "title": "Owner",
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/UserBase"
-              }
-            ]
+            "$ref": "#/components/schemas/UserBase"
           }
-        }
+        },
+        "additionalProperties": false
       },
       "DomainCreate": {
         "title": "DomainCreate",
@@ -4294,46 +4233,54 @@
       "DomainInvitation": {
         "title": "DomainInvitation",
         "required": [
-          "domain"
+          "code",
+          "role",
+          "expire_at",
+          "domain_id"
         ],
         "type": "object",
         "properties": {
           "id": {
             "title": "Id",
-            "type": "string"
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
           },
           "code": {
             "title": "Code",
-            "maxLength": 256,
-            "type": "string",
-            "description": "invitation code",
-            "default": ""
+            "maxLength": 255,
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "maxLength": 255,
+            "type": "string"
           },
           "expire_at": {
             "title": "Expire At",
             "type": "string",
-            "description": "expire time of invitation",
-            "format": "date-time",
-            "default": "9999-12-31T23:59:59.999999"
+            "format": "date-time"
           },
-          "role": {
-            "title": "Role",
+          "domain_id": {
+            "title": "Domain Id",
             "type": "string",
-            "description": "domain role after invitation",
-            "default": "user"
-          },
-          "domain": {
-            "title": "Domain",
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/Domain"
-              }
-            ]
+            "format": "uuid"
           }
-        }
+        },
+        "additionalProperties": false
       },
       "DomainInvitationCreate": {
         "title": "DomainInvitationCreate",
@@ -4404,6 +4351,116 @@
           }
         }
       },
+      "DomainList": {
+        "title": "DomainList",
+        "type": "object",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer",
+            "default": 0
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Domain"
+            },
+            "default": []
+          }
+        }
+      },
+      "DomainListResp": {
+        "title": "DomainListResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DomainList"
+          }
+        }
+      },
+      "DomainPermission": {
+        "title": "DomainPermission",
+        "type": "object",
+        "properties": {
+          "general": {
+            "title": "General",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeneralPermission"
+              }
+            ],
+            "default": {
+              "view": true,
+              "edit_permission": false,
+              "view_mod_badge": true,
+              "edit": false,
+              "unlimited_quota": false
+            }
+          },
+          "problem": {
+            "title": "Problem",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProblemPermission"
+              }
+            ],
+            "default": {
+              "create": false,
+              "view": true,
+              "view_hidden": false,
+              "submit": true,
+              "edit": false,
+              "view_config": false
+            }
+          },
+          "problem_set": {
+            "title": "Problem Set",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProblemSetPermission"
+              }
+            ],
+            "default": {
+              "create": false,
+              "view": true,
+              "view_hidden": false,
+              "claim": true,
+              "scoreboard": false,
+              "manage": false,
+              "edit": false,
+              "view_config": false
+            }
+          },
+          "record": {
+            "title": "Record",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RecordPermission"
+              }
+            ],
+            "default": {
+              "view": true,
+              "detail": false,
+              "code": false,
+              "judge": false,
+              "rejudge": false
+            }
+          }
+        },
+        "description": "All permissions in a domain"
+      },
       "DomainResp": {
         "title": "DomainResp",
         "required": [
@@ -4428,41 +4485,50 @@
         "title": "DomainRole",
         "required": [
           "role",
-          "domain"
+          "permission",
+          "domain_id"
         ],
         "type": "object",
         "properties": {
           "id": {
             "title": "Id",
-            "type": "string"
+            "type": "string",
+            "format": "uuid"
           },
-          "role": {
-            "title": "Role",
-            "type": "string"
-          },
-          "permission": {
-            "title": "Permission",
-            "type": "object",
-            "default": {}
+          "created_at": {
+            "title": "Created At",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
           },
           "updated_at": {
             "title": "Updated At",
             "type": "string",
             "format": "date-time",
-            "default": "2021-07-17T02:38:47.030754"
+            "nullable": true,
+            "readOnly": true
           },
-          "domain": {
-            "title": "Domain",
-            "anyOf": [
+          "role": {
+            "title": "Role",
+            "maxLength": 255,
+            "type": "string"
+          },
+          "permission": {
+            "title": "Permission",
+            "allOf": [
               {
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/Domain"
+                "$ref": "#/components/schemas/DomainPermission"
               }
             ]
+          },
+          "domain_id": {
+            "title": "Domain Id",
+            "type": "string",
+            "format": "uuid"
           }
-        }
+        },
+        "additionalProperties": false
       },
       "DomainRoleCreate": {
         "title": "DomainRoleCreate",
@@ -4479,14 +4545,45 @@
           },
           "permission": {
             "title": "Permission",
-            "type": "object",
-            "default": {}
-          },
-          "updated_at": {
-            "title": "Updated At",
-            "type": "string",
-            "format": "date-time",
-            "default": "2021-07-17T02:38:47.030754"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DomainPermission"
+              }
+            ],
+            "default": {
+              "general": {
+                "view": true,
+                "edit_permission": false,
+                "view_mod_badge": true,
+                "edit": false,
+                "unlimited_quota": false
+              },
+              "problem": {
+                "create": false,
+                "view": true,
+                "view_hidden": false,
+                "submit": true,
+                "edit": false,
+                "view_config": false
+              },
+              "problem_set": {
+                "create": false,
+                "view": true,
+                "view_hidden": false,
+                "claim": true,
+                "scoreboard": false,
+                "manage": false,
+                "edit": false,
+                "view_config": false
+              },
+              "record": {
+                "view": true,
+                "detail": false,
+                "code": false,
+                "judge": false,
+                "rejudge": false
+              }
+            }
           }
         }
       },
@@ -4505,6 +4602,45 @@
             "title": "Permission",
             "type": "object",
             "description": "The permission which needs to be updated"
+          }
+        }
+      },
+      "DomainRoleList": {
+        "title": "DomainRoleList",
+        "type": "object",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer",
+            "default": 0
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DomainRole"
+            },
+            "default": []
+          }
+        }
+      },
+      "DomainRoleListResp": {
+        "title": "DomainRoleListResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DomainRoleList"
           }
         }
       },
@@ -4545,48 +4681,48 @@
       "DomainUser": {
         "title": "DomainUser",
         "required": [
-          "domain",
-          "user",
-          "role"
+          "role",
+          "domain_id",
+          "user_id"
         ],
         "type": "object",
         "properties": {
           "id": {
             "title": "Id",
-            "type": "string"
+            "type": "string",
+            "format": "uuid"
           },
-          "domain": {
-            "title": "Domain",
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/Domain"
-              }
-            ]
+          "created_at": {
+            "title": "Created At",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
           },
-          "user": {
-            "title": "User",
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/UserBase"
-              }
-            ]
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
           },
           "role": {
             "title": "Role",
+            "maxLength": 255,
             "type": "string"
           },
-          "join_at": {
-            "title": "Join At",
+          "domain_id": {
+            "title": "Domain Id",
             "type": "string",
-            "format": "date-time"
+            "format": "uuid"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "string",
+            "format": "uuid"
           }
-        }
+        },
+        "additionalProperties": false
       },
       "DomainUserAdd": {
         "title": "DomainUserAdd",
@@ -4610,56 +4746,94 @@
           }
         }
       },
+      "DomainUserList": {
+        "title": "DomainUserList",
+        "type": "object",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer",
+            "default": 0
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DomainUser"
+            },
+            "default": []
+          }
+        }
+      },
+      "DomainUserListResp": {
+        "title": "DomainUserListResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DomainUserList"
+          }
+        }
+      },
       "DomainUserPermission": {
         "title": "DomainUserPermission",
         "required": [
-          "domain",
-          "user",
-          "role"
+          "role",
+          "domain_id",
+          "user_id",
+          "permission"
         ],
         "type": "object",
         "properties": {
           "id": {
             "title": "Id",
-            "type": "string"
+            "type": "string",
+            "format": "uuid"
           },
-          "domain": {
-            "title": "Domain",
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/Domain"
-              }
-            ]
+          "created_at": {
+            "title": "Created At",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
           },
-          "user": {
-            "title": "User",
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/UserBase"
-              }
-            ]
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
           },
           "role": {
             "title": "Role",
+            "maxLength": 255,
             "type": "string"
           },
-          "join_at": {
-            "title": "Join At",
+          "domain_id": {
+            "title": "Domain Id",
             "type": "string",
-            "format": "date-time"
+            "format": "uuid"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "string",
+            "format": "uuid"
           },
           "permission": {
-            "title": "Permission",
-            "type": "object",
-            "default": {}
+            "$ref": "#/components/schemas/DomainPermission"
           }
-        }
+        },
+        "additionalProperties": false
       },
       "DomainUserPermissionResp": {
         "title": "DomainUserPermissionResp",
@@ -4732,10 +4906,12 @@
           "Success",
           "Error",
           "InternalServerError",
+          "UnknownFieldError",
+          "IllegalFieldError",
+          "IntegrityError",
           "ApiNotImplementedError",
           "UserNotFoundError",
           "DomainNotFoundError",
-          "UrlNotUniqueError",
           "InvalidUrlError",
           "ProblemNotFoundError",
           "ProblemSetNotFoundError",
@@ -4759,39 +4935,36 @@
         "type": "string",
         "description": "An enumeration."
       },
-      "File": {
-        "title": "File",
-        "required": [
-          "type",
-          "path",
-          "digest"
-        ],
+      "GeneralPermission": {
+        "title": "GeneralPermission",
         "type": "object",
         "properties": {
-          "type": {
-            "$ref": "#/components/schemas/FileType"
+          "view": {
+            "title": "View",
+            "type": "boolean",
+            "default": true
           },
-          "path": {
-            "title": "Path",
-            "type": "string",
-            "format": "path"
+          "edit_permission": {
+            "title": "Edit Permission",
+            "type": "boolean",
+            "default": false
           },
-          "digest": {
-            "title": "Digest",
-            "type": "string"
+          "view_mod_badge": {
+            "title": "View Mod Badge",
+            "type": "boolean",
+            "default": true
+          },
+          "edit": {
+            "title": "Edit",
+            "type": "boolean",
+            "default": false
+          },
+          "unlimited_quota": {
+            "title": "Unlimited Quota",
+            "type": "boolean",
+            "default": false
           }
         }
-      },
-      "FileType": {
-        "title": "FileType",
-        "enum": [
-          "compile",
-          "runtime",
-          "testcase",
-          "judge"
-        ],
-        "type": "string",
-        "description": "An enumeration."
       },
       "HTTPValidationError": {
         "title": "HTTPValidationError",
@@ -4888,42 +5061,6 @@
           },
           "data": {
             "$ref": "#/components/schemas/ListDomainUsers"
-          }
-        }
-      },
-      "ListDomains": {
-        "title": "ListDomains",
-        "required": [
-          "results"
-        ],
-        "type": "object",
-        "properties": {
-          "results": {
-            "title": "Results",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Domain"
-            }
-          }
-        }
-      },
-      "ListDomainsResp": {
-        "title": "ListDomainsResp",
-        "required": [
-          "error_code",
-          "error_msg"
-        ],
-        "type": "object",
-        "properties": {
-          "error_code": {
-            "$ref": "#/components/schemas/ErrorCode"
-          },
-          "error_msg": {
-            "title": "Error Msg",
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/ListDomains"
           }
         }
       },
@@ -5109,110 +5246,8 @@
       },
       "Problem": {
         "title": "Problem",
-        "required": [
-          "url",
-          "title",
-          "domain",
-          "owner",
-          "problem_group"
-        ],
         "type": "object",
-        "properties": {
-          "id": {
-            "title": "Id",
-            "type": "string"
-          },
-          "url": {
-            "title": "Url",
-            "maxLength": 256,
-            "minLength": 1,
-            "type": "string"
-          },
-          "title": {
-            "title": "Title",
-            "minLength": 1,
-            "type": "string",
-            "description": "title of the problem"
-          },
-          "content": {
-            "title": "Content",
-            "maxLength": 65536,
-            "type": "string",
-            "description": "content of the problem",
-            "default": ""
-          },
-          "domain": {
-            "title": "Domain",
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/Domain"
-              }
-            ]
-          },
-          "owner": {
-            "title": "Owner",
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/UserBase"
-              }
-            ]
-          },
-          "problem_group": {
-            "title": "Problem Group",
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/ProblemGroup"
-              }
-            ]
-          },
-          "config": {
-            "title": "Config",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Config"
-              }
-            ],
-            "default": {
-              "files": {}
-            }
-          },
-          "num_submit": {
-            "title": "Num Submit",
-            "type": "integer",
-            "default": 0
-          },
-          "num_accept": {
-            "title": "Num Accept",
-            "type": "integer",
-            "default": 0
-          },
-          "data": {
-            "title": "Data",
-            "type": "integer"
-          },
-          "total_score": {
-            "title": "Total Score",
-            "type": "integer",
-            "default": 0
-          },
-          "data_version": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/DataVersion"
-              }
-            ],
-            "default": 2
-          }
-        }
+        "properties": {}
       },
       "ProblemClone": {
         "title": "ProblemClone",
@@ -5304,10 +5339,6 @@
         "title": "ProblemGroup",
         "type": "object",
         "properties": {
-          "id": {
-            "title": "Id",
-            "type": "string"
-          },
           "moss_results": {
             "title": "Moss Results",
             "type": "array",
@@ -5318,6 +5349,42 @@
               "format": "uri"
             },
             "default": []
+          }
+        }
+      },
+      "ProblemPermission": {
+        "title": "ProblemPermission",
+        "type": "object",
+        "properties": {
+          "create": {
+            "title": "Create",
+            "type": "boolean",
+            "default": false
+          },
+          "view": {
+            "title": "View",
+            "type": "boolean",
+            "default": true
+          },
+          "view_hidden": {
+            "title": "View Hidden",
+            "type": "boolean",
+            "default": false
+          },
+          "submit": {
+            "title": "Submit",
+            "type": "boolean",
+            "default": true
+          },
+          "edit": {
+            "title": "Edit",
+            "type": "boolean",
+            "default": false
+          },
+          "view_config": {
+            "title": "View Config",
+            "type": "boolean",
+            "default": false
           }
         }
       },
@@ -5343,112 +5410,8 @@
       },
       "ProblemSet": {
         "title": "ProblemSet",
-        "required": [
-          "url",
-          "title",
-          "domain",
-          "owner"
-        ],
         "type": "object",
-        "properties": {
-          "id": {
-            "title": "Id",
-            "type": "string"
-          },
-          "url": {
-            "title": "Url",
-            "maxLength": 256,
-            "minLength": 1,
-            "type": "string"
-          },
-          "title": {
-            "title": "Title",
-            "maxLength": 256,
-            "minLength": 1,
-            "type": "string",
-            "description": "title of the problem set"
-          },
-          "content": {
-            "title": "Content",
-            "maxLength": 65536,
-            "type": "string",
-            "description": "content of the problem set",
-            "default": ""
-          },
-          "hidden": {
-            "title": "Hidden",
-            "type": "boolean",
-            "description": "whether the problem set is hidden",
-            "default": false
-          },
-          "scoreboard_hidden": {
-            "title": "Scoreboard Hidden",
-            "type": "boolean",
-            "description": "whether the scoreboard of the problem set is hidden",
-            "default": false
-          },
-          "available_time": {
-            "title": "Available Time",
-            "type": "string",
-            "description": "the problem set is available from",
-            "format": "date-time",
-            "default": "2021-07-17T02:38:47.048173"
-          },
-          "due_time": {
-            "title": "Due Time",
-            "type": "string",
-            "description": "the problem set is due at",
-            "format": "date-time",
-            "default": "2021-07-24T02:38:47.048180"
-          },
-          "domain": {
-            "title": "Domain",
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/Domain"
-              }
-            ]
-          },
-          "owner": {
-            "title": "Owner",
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/UserBase"
-              }
-            ]
-          },
-          "num_submit": {
-            "title": "Num Submit",
-            "type": "integer",
-            "default": 0
-          },
-          "num_accept": {
-            "title": "Num Accept",
-            "type": "integer",
-            "default": 0
-          },
-          "problems": {
-            "title": "Problems",
-            "type": "array",
-            "items": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              ]
-            },
-            "default": []
-          }
-        }
+        "properties": {}
       },
       "ProblemSetCreate": {
         "title": "ProblemSetCreate",
@@ -5494,14 +5457,14 @@
             "type": "string",
             "description": "the problem set is available from",
             "format": "date-time",
-            "default": "2021-07-17T02:38:47.048173"
+            "default": "2021-07-21T04:28:43.168324"
           },
           "due_time": {
             "title": "Due Time",
             "type": "string",
             "description": "the problem set is due at",
             "format": "date-time",
-            "default": "2021-07-24T02:38:47.048180"
+            "default": "2021-07-28T04:28:43.168331"
           }
         }
       },
@@ -5537,6 +5500,52 @@
             "title": "Due Time",
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "ProblemSetPermission": {
+        "title": "ProblemSetPermission",
+        "type": "object",
+        "properties": {
+          "create": {
+            "title": "Create",
+            "type": "boolean",
+            "default": false
+          },
+          "view": {
+            "title": "View",
+            "type": "boolean",
+            "default": true
+          },
+          "view_hidden": {
+            "title": "View Hidden",
+            "type": "boolean",
+            "default": false
+          },
+          "claim": {
+            "title": "Claim",
+            "type": "boolean",
+            "default": true
+          },
+          "scoreboard": {
+            "title": "Scoreboard",
+            "type": "boolean",
+            "default": false
+          },
+          "manage": {
+            "title": "Manage",
+            "type": "boolean",
+            "default": false
+          },
+          "edit": {
+            "title": "Edit",
+            "type": "boolean",
+            "default": false
+          },
+          "view_config": {
+            "title": "View Config",
+            "type": "boolean",
+            "default": false
           }
         }
       },
@@ -5580,131 +5589,8 @@
       },
       "Record": {
         "title": "Record",
-        "required": [
-          "domain",
-          "problem",
-          "user",
-          "code_type",
-          "code",
-          "judge_category",
-          "submit_at"
-        ],
         "type": "object",
-        "properties": {
-          "id": {
-            "title": "Id",
-            "type": "string"
-          },
-          "status": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/RecordStatus"
-              }
-            ],
-            "default": 0
-          },
-          "score": {
-            "title": "Score",
-            "type": "integer",
-            "default": 0
-          },
-          "time_ms": {
-            "title": "Time Ms",
-            "type": "integer",
-            "default": 0
-          },
-          "memory_kb": {
-            "title": "Memory Kb",
-            "type": "integer",
-            "default": 0
-          },
-          "domain": {
-            "title": "Domain",
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/Domain"
-              }
-            ]
-          },
-          "problem": {
-            "title": "Problem",
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/Problem"
-              }
-            ]
-          },
-          "problem_data": {
-            "title": "Problem Data",
-            "type": "integer",
-            "default": 0
-          },
-          "user": {
-            "title": "User",
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/UserBase"
-              }
-            ]
-          },
-          "code_type": {
-            "$ref": "#/components/schemas/RecordCodeType"
-          },
-          "code": {
-            "title": "Code",
-            "type": "string"
-          },
-          "judge_category": {
-            "title": "Judge Category",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "submit_at": {
-            "title": "Submit At",
-            "type": "string",
-            "format": "date-time"
-          },
-          "judge_at": {
-            "title": "Judge At",
-            "type": "string",
-            "format": "date-time"
-          },
-          "judge_user": {
-            "title": "Judge User",
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/UserBase"
-              }
-            ]
-          },
-          "compiler_texts": {
-            "title": "Compiler Texts",
-            "type": "string",
-            "default": ""
-          },
-          "cases": {
-            "title": "Cases",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RecordCase"
-            },
-            "default": []
-          }
-        }
+        "properties": {}
       },
       "RecordCase": {
         "title": "RecordCase",
@@ -5777,6 +5663,37 @@
         ],
         "type": "integer",
         "description": "An enumeration."
+      },
+      "RecordPermission": {
+        "title": "RecordPermission",
+        "type": "object",
+        "properties": {
+          "view": {
+            "title": "View",
+            "type": "boolean",
+            "default": true
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "boolean",
+            "default": false
+          },
+          "code": {
+            "title": "Code",
+            "type": "boolean",
+            "default": false
+          },
+          "judge": {
+            "title": "Judge",
+            "type": "boolean",
+            "default": false
+          },
+          "rejudge": {
+            "title": "Rejudge",
+            "type": "boolean",
+            "default": false
+          }
+        }
       },
       "RecordResp": {
         "title": "RecordResp",
@@ -5942,157 +5859,180 @@
           }
         }
       },
-      "SortEnum": {
-        "title": "SortEnum",
-        "enum": [
-          1,
-          -1
-        ],
-        "type": "integer",
-        "description": "An enumeration."
-      },
       "User": {
         "title": "User",
         "required": [
           "scope",
           "uname",
           "mail",
-          "register_timestamp",
-          "login_timestamp"
+          "uname_lower",
+          "mail_lower",
+          "gravatar",
+          "login_at"
         ],
         "type": "object",
         "properties": {
           "id": {
             "title": "Id",
-            "type": "string"
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
           },
           "scope": {
             "title": "Scope",
+            "maxLength": 255,
             "type": "string"
           },
           "uname": {
             "title": "Uname",
+            "maxLength": 255,
             "type": "string"
           },
           "mail": {
             "title": "Mail",
-            "type": "string",
-            "format": "email"
+            "maxLength": 255,
+            "type": "string"
           },
           "uname_lower": {
             "title": "Uname Lower",
-            "type": "string",
-            "default": ""
+            "maxLength": 255,
+            "type": "string"
           },
           "mail_lower": {
             "title": "Mail Lower",
-            "type": "string",
-            "default": ""
+            "maxLength": 255,
+            "type": "string"
           },
           "gravatar": {
             "title": "Gravatar",
-            "type": "string",
-            "default": ""
+            "maxLength": 255,
+            "type": "string"
           },
           "student_id": {
             "title": "Student Id",
+            "maxLength": 255,
             "type": "string",
             "default": ""
           },
           "real_name": {
             "title": "Real Name",
+            "maxLength": 255,
             "type": "string",
             "default": ""
           },
           "salt": {
             "title": "Salt",
+            "maxLength": 255,
             "type": "string",
             "default": ""
           },
           "hash": {
             "title": "Hash",
+            "maxLength": 255,
             "type": "string",
             "default": ""
           },
           "role": {
             "title": "Role",
+            "maxLength": 255,
             "type": "string",
             "default": "user"
           },
           "register_ip": {
             "title": "Register Ip",
+            "maxLength": 255,
             "type": "string",
             "default": "0.0.0.0"
+          },
+          "login_at": {
+            "title": "Login At",
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
           },
           "login_ip": {
             "title": "Login Ip",
+            "maxLength": 255,
             "type": "string",
             "default": "0.0.0.0"
-          },
-          "register_timestamp": {
-            "title": "Register Timestamp",
-            "type": "string",
-            "format": "date-time"
-          },
-          "login_timestamp": {
-            "title": "Login Timestamp",
-            "type": "string",
-            "format": "date-time"
           }
-        }
+        },
+        "additionalProperties": false
       },
       "UserBase": {
         "title": "UserBase",
         "required": [
           "scope",
           "uname",
-          "mail"
+          "mail",
+          "uname_lower",
+          "mail_lower",
+          "gravatar"
         ],
         "type": "object",
         "properties": {
           "id": {
             "title": "Id",
-            "type": "string"
+            "type": "string",
+            "format": "uuid"
           },
           "scope": {
             "title": "Scope",
+            "maxLength": 255,
             "type": "string"
           },
           "uname": {
             "title": "Uname",
+            "maxLength": 255,
             "type": "string"
           },
           "mail": {
             "title": "Mail",
-            "type": "string",
-            "format": "email"
+            "maxLength": 255,
+            "type": "string"
           },
           "uname_lower": {
             "title": "Uname Lower",
-            "type": "string",
-            "default": ""
+            "maxLength": 255,
+            "type": "string"
           },
           "mail_lower": {
             "title": "Mail Lower",
-            "type": "string",
-            "default": ""
+            "maxLength": 255,
+            "type": "string"
           },
           "gravatar": {
             "title": "Gravatar",
-            "type": "string",
-            "default": ""
+            "maxLength": 255,
+            "type": "string"
           },
           "student_id": {
             "title": "Student Id",
+            "maxLength": 255,
             "type": "string",
             "default": ""
           },
           "real_name": {
             "title": "Real Name",
+            "maxLength": 255,
             "type": "string",
             "default": ""
           }
-        }
+        },
+        "additionalProperties": false
       },
       "UserBaseResp": {
         "title": "UserBaseResp",
