@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Optional, Type
+from typing import TYPE_CHECKING, List, Optional, Tuple, Type
 
 from pydantic import EmailStr
 from tortoise import BaseDBAsyncClient, fields, queryset, signals, timezone
@@ -54,7 +54,7 @@ class User(BaseORMModel):
         role: Optional[List[str]],
         ordering: Optional["OrderingQuery"] = None,
         pagination: Optional["PaginationQuery"] = None,
-    ) -> List["Domain"]:
+    ) -> Tuple[List["Domain"], int]:
         if self.role != "root":
             # TODO: root user can view all domains
             pass
@@ -63,10 +63,11 @@ class User(BaseORMModel):
             query_set = query_set.filter(role__in=role)
         query_set = query_set.select_related("domain", "domain__owner")
         query_set = self.apply_ordering(query_set, ordering, prefix="domain__")
+        count = await query_set.count()
         query_set = self.apply_pagination(query_set, pagination)
         domain_users = await query_set
         domains = [domain_user.domain for domain_user in domain_users]
-        return domains
+        return domains, count
 
     @classmethod
     async def login_by_jaccount(

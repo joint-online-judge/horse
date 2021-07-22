@@ -1,12 +1,12 @@
 from tortoise import fields
 
-from joj.horse.models.base import BaseORMModel, URLMixin
+from joj.horse.models.base import BaseORMModel, DomainURLMixin
 from joj.horse.models.domain import Domain
 from joj.horse.models.problem_group import ProblemGroup
 from joj.horse.models.user import User
 
 
-class Problem(URLMixin, BaseORMModel):
+class Problem(DomainURLMixin, BaseORMModel):
     class Meta:
         table = "problems"
 

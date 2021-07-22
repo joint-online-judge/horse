@@ -8,6 +8,7 @@ from tortoise import BaseDBAsyncClient, Tortoise, fields, models, queryset
 from joj.horse.utils.base import is_uuid
 
 if TYPE_CHECKING:
+    from joj.horse.models.domain import Domain
     from joj.horse.schemas.query import OrderingQuery, PaginationQuery
 
 
@@ -187,6 +188,20 @@ class URLMixin(BaseORMModel):
             return await cls.get_or_none(id=url_or_id)
         else:
             return await cls.get_or_none(url=url_or_id)
+
+
+class DomainURLMixin(URLMixin):
+    if TYPE_CHECKING:
+        domain: fields.ForeignKeyRelation["Domain"]
+
+    @classmethod
+    async def find_by_domain_url_or_id(
+        cls: Type["BaseORMModelType"], domain: "Domain", url_or_id: str
+    ) -> Optional["BaseORMModelType"]:
+        if is_uuid(url_or_id):
+            return await cls.get_or_none(domain=domain, id=url_or_id)
+        else:
+            return await cls.get_or_none(domain=domain, url=url_or_id)
 
 
 async def url_pre_save(
