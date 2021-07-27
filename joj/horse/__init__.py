@@ -37,8 +37,12 @@ async def startup_event() -> None:
     try:
         logger.info("Using %s." % asyncio.get_running_loop().__module__)
         await try_init_db()
-        try_init_lakefs()
-        examine_lakefs_buckets()
+
+        if settings.lakefs_host:
+            try_init_lakefs()
+            examine_lakefs_buckets()
+        else:
+            logger.warning("LakeFS not configured! All file features will be disabled.")
 
     except (RetryError, LakeFSApiException) as e:
         logger.error("Initialization failed, exiting.")

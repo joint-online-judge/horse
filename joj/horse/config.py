@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     s3_password: str = ""
 
     # lakefs config
-    lakefs_host: str = "localhost"
+    lakefs_host: str = ""
     lakefs_port: int = 34766
     lakefs_username: str = "lakefs"
     lakefs_password: str = "lakefs"
