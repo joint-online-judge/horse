@@ -131,7 +131,6 @@ jobs:
           --health-retries 5
         ports:
           - 6379:6379
-
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.9
@@ -153,6 +152,10 @@ jobs:
           pip install -e git+https://github.com/joint-online-judge/elephant@master#egg=joj-elephant
       - name: Test
         run: pytest -svv
+      - name: "Upload coverage to Codecov"
+        uses: codecov/codecov-action@v1
+        with:
+          fail_ci_if_error: true
   remote-ssh-command:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/master')
     needs: build
