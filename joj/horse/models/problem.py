@@ -1,6 +1,9 @@
-from tortoise import fields
+from typing import TYPE_CHECKING
+from uuid import UUID
 
-from joj.horse.models.base import BaseORMModel, DomainURLMixin
+from tortoise import fields, signals
+
+from joj.horse.models.base import BaseORMModel, DomainURLMixin, url_pre_save
 from joj.horse.models.domain import Domain
 from joj.horse.models.problem_group import ProblemGroup
 from joj.horse.models.user import User
@@ -25,8 +28,7 @@ class Problem(DomainURLMixin, BaseORMModel):
     problem_group: fields.ForeignKeyRelation[ProblemGroup] = fields.ForeignKeyField(
         "models.ProblemGroup",
         related_name="problems",
-        on_delete=fields.SET_NULL,
-        null=True,
+        on_delete=fields.RESTRICT,
         index=True,
     )
 
@@ -38,6 +40,12 @@ class Problem(DomainURLMixin, BaseORMModel):
 
     data_version = fields.IntField(default=2)
     languages = fields.TextField(default="[]")
+
+    if TYPE_CHECKING:
+        problem_group_id: UUID
+
+
+signals.pre_save(Problem)(url_pre_save)
 
 
 # @instance.register

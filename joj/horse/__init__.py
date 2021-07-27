@@ -14,6 +14,11 @@ from uvicorn.config import logger
 from joj.horse.config import settings
 from joj.horse.utils.db import try_init_db
 from joj.horse.utils.errors import BizError, ErrorCode
+from joj.horse.utils.lakefs import (
+    LakeFSApiException,
+    examine_lakefs_buckets,
+    try_init_lakefs,
+)
 from joj.horse.utils.url import generate_url
 from joj.horse.utils.version import get_git_version, get_version
 
@@ -32,8 +37,12 @@ async def startup_event() -> None:
     try:
         logger.info("Using %s." % asyncio.get_running_loop().__module__)
         await try_init_db()
-    except RetryError:
+        try_init_lakefs()
+        examine_lakefs_buckets()
+
+    except (RetryError, LakeFSApiException) as e:
         logger.error("Initialization failed, exiting.")
+        logger.error(e)
         logger.disabled = True
         exit(-1)
 

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from fastapi import Depends, File, Form, Query, UploadFile
+from fastapi import BackgroundTasks, Depends, File, Form, Query, UploadFile
 from tortoise import transactions
 from uvicorn.config import logger
 
@@ -14,6 +14,7 @@ from joj.horse.schemas.problem import ListProblems, ProblemClone
 from joj.horse.tasks import celery_app
 from joj.horse.utils.auth import Authentication, ensure_permission
 from joj.horse.utils.errors import BizError, ErrorCode
+from joj.horse.utils.lakefs import LakeFSProblemConfig
 from joj.horse.utils.parser import (
     parse_domain,
     parse_ordering_query,
@@ -59,6 +60,7 @@ async def list_problems(
 )
 async def create_problem(
     problem_create: schemas.ProblemCreate,
+    background_tasks: BackgroundTasks,
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.Problem]:
@@ -74,8 +76,10 @@ async def create_problem(
             )
             logger.info("problem created: %s", problem)
     except Exception as e:
-        logger.exception("problem creation failed: %s", problem)
+        logger.exception("problem creation failed: %s", problem_create)
         raise e
+    lakefs_problem_config = LakeFSProblemConfig(problem)
+    background_tasks.add_task(lakefs_problem_config.ensure_branch)
     return StandardResponse(schemas.Problem.from_orm(problem))
 
 
