@@ -104,7 +104,7 @@ async def business_exception_handler(request: Request, exc: BizError) -> JSONRes
 async def catch_exceptions_middleware(request: Request, call_next: Any) -> JSONResponse:
     try:
         return await call_next(request)
-    except Exception as e:  # pragma: no cover
+    except Exception as e:
         logger.exception(f"Unexcepted Error: {e.__class__.__name__}")
         return JSONResponse(
             jsonable_encoder(

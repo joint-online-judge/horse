@@ -60,7 +60,7 @@ async def try_init_db() -> None:
     attempt_number = try_init_db.retry.statistics["attempt_number"]
     try:
         await init_tortoise()
-    except Exception as e:  # pragma: no cover
+    except Exception as e:
         max_attempt_number = try_init_db.retry.stop.max_attempt_number
         msg = "Tortoise-ORM: initialization failed ({}/{})".format(
             attempt_number, max_attempt_number
