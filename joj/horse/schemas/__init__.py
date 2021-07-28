@@ -28,6 +28,7 @@ from joj.horse.schemas.domain_user import (
     DomainUserPermission as DomainUserPermission,
     DomainUserUpdate as DomainUserUpdate,
 )
+from joj.horse.schemas.lakefs import LakeFSReset as LakeFSReset
 from joj.horse.schemas.misc import (
     AuthTokens as AuthTokens,
     OAuth2Client as OAuth2Client,
@@ -41,6 +42,10 @@ from joj.horse.schemas.problem import (
     ProblemDetail as ProblemDetail,
     ProblemEdit as ProblemEdit,
     ProblemSolutionSubmit as ProblemSolutionSubmit,
+)
+from joj.horse.schemas.problem_config import (
+    ProblemConfig as ProblemConfig,
+    ProblemConfigCommit as ProblemConfigCommit,
 )
 from joj.horse.schemas.problem_group import ProblemGroup as ProblemGroup
 from joj.horse.schemas.problem_set import (

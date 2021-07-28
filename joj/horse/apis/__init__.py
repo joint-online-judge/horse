@@ -8,6 +8,7 @@ from joj.horse.apis import (
     auth as auth,
     domains as domains,
     misc as misc,
+    problem_configs as problem_configs,
     problem_groups as problem_groups,
     problem_sets as problem_sets,
     problems as problems,
@@ -33,8 +34,9 @@ def include_router(module: Any) -> None:
 include_router(domains)
 include_router(problem_sets)
 include_router(problems)
-include_router(records)
+# include_router(problem_configs)
 include_router(problem_groups)
+# include_router(records)
 include_router(user)
 include_router(users)
 include_router(auth)

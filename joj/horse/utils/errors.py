@@ -23,6 +23,12 @@ class ErrorCode(str, Enum):
     ProblemNotFoundError = "ProblemNotFoundError"
     ProblemSetNotFoundError = "ProblemSetNotFoundError"
     ProblemGroupNotFoundError = "ProblemGroupNotFoundError"
+
+    ProblemConfigNotFoundError = "ProblemConfigNotFoundError"
+    ProblemConfigValidationError = "ProblemConfigValidationError"
+    ProblemConfigUpdateError = "ProblemConfigUpdateError"
+    ProblemConfigDownloadError = "ProblemConfigDownloadError"
+
     RecordNotFoundError = "RecordNotFoundError"
 
     DeleteProblemBadRequestError = "DeleteProblemBadRequestError"
@@ -39,6 +45,8 @@ class ErrorCode(str, Enum):
     DomainRoleReadOnlyError = "DomainRoleReadOnlyError"
     DomainRoleUsedError = "DomainRoleUsedError"
     DomainUserNotFoundError = "DomainUserNotFoundError"
+
+    FileSystemError = "FileSystemError"
 
 
 class BizError(Exception):

@@ -2,7 +2,7 @@ from datetime import datetime
 from functools import lru_cache
 from typing import Any, Callable, Coroutine, List, Optional
 
-from fastapi import Depends, Path, Query
+from fastapi import Depends, File, Path, Query, UploadFile
 from sqlalchemy.orm import subqueryload
 
 from joj.horse import models, schemas
@@ -119,6 +119,25 @@ async def parse_problem(
     ):
         return problem
     raise BizError(ErrorCode.ProblemNotFoundError)
+
+
+async def parse_problem_config(
+    config: str = Path(..., description="'latest' or id of the config"),
+    problem: models.Problem = Depends(parse_problem),
+) -> models.ProblemConfig:
+    if config == "latest":
+        config_model = (
+            await models.ProblemConfig.filter(problem=problem)
+            .order_by("-created_at")
+            .first()
+        )
+    else:
+        config_model = await models.ProblemConfig.get_or_none(
+            problem=problem, id=config
+        )
+    if config_model:
+        return config_model
+    raise BizError(ErrorCode.ProblemConfigNotFoundError)
 
 
 async def parse_problems(
@@ -249,3 +268,16 @@ def parse_pagination_query(
     limit: PaginationLimit = Query(100),
 ) -> PaginationQuery:
     return PaginationQuery(offset=offset, limit=limit)
+
+
+def parse_file_path(
+    path: str = Path(...),
+) -> str:
+    path = path.strip()
+    if not path or path.startswith(".") or path.startswith("/"):
+        raise BizError(ErrorCode.FileSystemError, "Illegal file path format.")
+    return path
+
+
+def parse_file_path_from_upload(file: UploadFile = File(...)) -> str:
+    return parse_file_path(file.filename)

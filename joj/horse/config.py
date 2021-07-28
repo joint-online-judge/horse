@@ -79,6 +79,7 @@ class ObjectStorageSettings(BaseModel):
     s3_password: str = ""
 
     # lakefs config
+    lakefs_s3_domain: str = "s3.lakefs.example.com"
     lakefs_host: str = ""
     lakefs_port: int = 34766
     lakefs_username: str = "lakefs"

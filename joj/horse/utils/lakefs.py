@@ -1,6 +1,14 @@
-from typing import TYPE_CHECKING, Optional
+from io import BytesIO
+from pathlib import Path
+from tempfile import TemporaryFile
+from typing import TYPE_CHECKING, Any, BinaryIO, Dict, Optional, Tuple
 
 import boto3
+import rapidjson
+from joj.elephant.errors import ElephantError
+from joj.elephant.manager import Manager
+from joj.elephant.schemas import ArchiveType, FileInfo
+from joj.elephant.storage import ArchiveStorage, LakeFSStorage, Storage
 from lakefs_client import Configuration, __version__ as lakefs_client_version, models
 from lakefs_client.client import LakeFSClient
 from lakefs_client.exceptions import ApiException as LakeFSApiException
@@ -10,24 +18,37 @@ from tenacity.stop import stop_after_attempt
 from tenacity.wait import wait_exponential
 
 from joj.horse.config import settings
+from joj.horse.utils.errors import BizError, ErrorCode
+from joj.horse.utils.monkey_patch import (
+    SpooledTemporaryFile,
+    SpooledTemporaryFileIOBase,
+)
 
 if TYPE_CHECKING:
     from joj.horse.models import Problem, Record
+    from joj.horse.schemas.lakefs import LakeFSReset
+
 
 __client: Optional[LakeFSClient] = None
 
 
-def init_lakefs() -> None:
+def get_lakefs_client() -> LakeFSClient:
     global __client
-    configuration = Configuration(
-        host=f"{settings.lakefs_host}:{settings.lakefs_port}",
-        username=settings.lakefs_username,
-        password=settings.lakefs_password,
-    )
-    client = LakeFSClient(configuration)
+    if __client is None:
+        configuration = Configuration(
+            host=f"{settings.lakefs_host}:{settings.lakefs_port}",
+            username=settings.lakefs_username,
+            password=settings.lakefs_password,
+        )
+        __client = LakeFSClient(configuration)
+    return __client
+
+
+def init_lakefs() -> None:
+    client = get_lakefs_client()
+    logger.info(client)
     response: models.VersionConfig = client.config.get_lake_fs_version()
     server_version = response["version"]
-    __client = client
     logger.info(
         f"LakeFS connected: client version {lakefs_client_version}, "
         f"server version {server_version}."
@@ -51,12 +72,6 @@ def try_init_lakefs() -> None:
         logger.error(e)
         logger.warning(msg)
         raise e
-
-
-def get_lakefs_client() -> LakeFSClient:
-    if __client is None:
-        raise NotImplementedError("LakeFS not connected!")
-    return __client
 
 
 def create_bucket(bucket: str) -> None:
@@ -140,6 +155,28 @@ class LakeFSBase:
         self.branch_name: str = f"{self.branch_name_prefix}{self.branch_id}"
         self.repo: Optional[models.Repository] = None
         self.branch: Optional[models.Ref] = None
+        self._storage: Optional[LakeFSStorage] = None
+
+    def _get_storage(self, ref: Optional[str] = None) -> "Storage":
+        if ref is None:
+            ref = self.branch_name
+        return LakeFSStorage(
+            endpoint_url=f"http://{settings.lakefs_s3_domain}:{settings.lakefs_port}",
+            repo_name=self.repo_name,
+            branch_name=ref,
+            username=settings.lakefs_username,
+            password=settings.lakefs_password,
+        )
+
+    @property
+    def storage(self) -> "Storage":
+        if self._storage is None:
+            self._storage = self._get_storage()
+        return self._storage
+
+    @property
+    def path(self) -> str:
+        return f"lakefs:{self.repo_name}/{self.branch_name}/"
 
     def ensure_repo(self) -> None:
         if self.repo is not None:
@@ -181,6 +218,122 @@ class LakeFSBase:
                 repository=self.repo_name, branch_creation=new_branch
             )
             logger.info(f"LakeFS create branch: {self.branch}")
+
+    def get_file_info(self, file_path: Path, ref: Optional[str] = None) -> FileInfo:
+        try:
+            if ref is None:
+                storage = self.storage
+            else:
+                storage = self._get_storage(ref)
+            return storage.getinfo(file_path)
+        except ElephantError as e:
+            raise BizError(ErrorCode.ProblemConfigDownloadError, str(e))
+
+    def download_file(self, file_path: Path, ref: Optional[str] = None) -> BinaryIO:
+        try:
+            if ref is None:
+                storage = self.storage
+            else:
+                storage = self._get_storage(ref)
+            file = BytesIO()
+            storage.download(file_path, file)
+            file.seek(0)
+            return file
+        except ElephantError as e:
+            raise BizError(ErrorCode.ProblemConfigDownloadError, str(e))
+
+    def upload_file(self, file_path: Path, file: BinaryIO) -> FileInfo:
+        try:
+            return self.storage.upload(file_path, file)
+        except ElephantError as e:
+            raise BizError(ErrorCode.ProblemConfigUpdateError, str(e))
+
+    def delete_file(self, file_path: Path) -> FileInfo:
+        try:
+            return self.storage.delete(file_path)
+        except ElephantError as e:
+            raise BizError(ErrorCode.ProblemConfigUpdateError, str(e))
+
+    def delete_directory(self, file_path: Path, recursive: bool) -> FileInfo:
+        try:
+            if recursive:
+                return self.storage.delete_tree(file_path)
+            else:
+                return self.storage.delete_dir(file_path)
+        except ElephantError as e:
+            raise BizError(ErrorCode.ProblemConfigUpdateError, str(e))
+
+    def upload_archive(self, filename: str, file: SpooledTemporaryFile) -> None:
+        try:
+            fd = SpooledTemporaryFileIOBase(file)
+            archive = ArchiveStorage(filename=filename, fd=fd)
+            manager = Manager(logger, archive, self.storage)
+            manager.sync_without_validation()
+        except ElephantError as e:
+            raise BizError(ErrorCode.ProblemConfigUpdateError, str(e))
+
+    def download_archive(
+        self, archive_type: ArchiveType
+    ) -> Tuple[SpooledTemporaryFile, str]:
+        try:
+            file = TemporaryFile()
+            filename = "config"
+            # filename = self.problem.title or "config"
+            if archive_type == ArchiveType.zip:
+                filename += ".zip"
+            elif archive_type == ArchiveType.tar:
+                filename += ".tar.gz"
+            else:
+                raise BizError(
+                    ErrorCode.ProblemConfigDownloadError,
+                    "archive type not supported!",
+                )
+            archive = ArchiveStorage(filename=filename, fd=file, write=True)
+            manager = Manager(logger, self.storage, archive)
+            manager.sync_without_validation()
+            archive.close()
+            file.seek(0)
+            return file, filename
+        except ElephantError as e:
+            raise BizError(ErrorCode.ProblemConfigDownloadError, str(e))
+
+    def get_config(self, ref: str) -> Dict[str, Any]:
+        try:
+            result = self.download_file(Path("config.json"), ref)
+            return rapidjson.load(result)
+        except ElephantError:
+            raise BizError(
+                ErrorCode.ProblemConfigValidationError,
+                "config.json not found in problem config.",
+            )
+
+    def commit(self, message: str) -> models.Commit:
+        try:
+            client = get_lakefs_client()
+            commit_creation = models.CommitCreation(message=message)
+            result: models.Commit = client.commits.commit(
+                repository=self.repo_name,
+                branch=self.branch_name,
+                commit_creation=commit_creation,
+            )
+            return result
+        except LakeFSApiException as e:
+            raise BizError(ErrorCode.ProblemConfigUpdateError, str(e))
+
+    def reset(self, lakefs_reset: "LakeFSReset") -> None:
+        try:
+            client = get_lakefs_client()
+            reset_creation = models.ResetCreation(
+                type=lakefs_reset.get_lakefs_type(),
+                path=lakefs_reset.path,
+            )
+            client.branches.reset_branch(
+                repository=self.repo_name,
+                branch=self.branch_name,
+                reset_creation=reset_creation,
+            )
+        except LakeFSApiException as e:
+            raise BizError(ErrorCode.ProblemConfigUpdateError, str(e))
 
 
 class LakeFSProblemConfig(LakeFSBase):

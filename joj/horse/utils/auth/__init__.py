@@ -378,7 +378,7 @@ class Authentication:
         def _check(permissions: Optional[Dict[str, Any]]) -> bool:
             if permissions is None:
                 return False
-            return permissions.get(permission, False)
+            return bool(permissions.get(permission, False))
 
         # grant site root with all permissions
         if self.site_role == DefaultRole.ROOT:
@@ -441,6 +441,7 @@ class PermCompose(BaseModel):
     action: Literal["AND", "OR"] = "AND"
 
 
+PermCompose.update_forward_refs()
 PermKeyTuple = Tuple[ScopeType, PermissionType]
 PermComposeIterable = List[  # type: ignore
     Union[PermKey, PermCompose, PermKeyTuple, "PermComposeTuple"]  # type: ignore
