@@ -38,7 +38,6 @@ class TestMisc:
         assert res_jwt_dict["name"] == header_jwt_dict["name"]
         assert res_jwt_dict["scope"] == header_jwt_dict["scope"]
         assert res_jwt_dict["channel"] == header_jwt_dict["channel"]
-        assert res_jwt_dict.get("csrf") == header_jwt_dict.get("csrf")
 
     async def test_jwt_unauthorized(self, client: AsyncClient) -> None:
         url = app.url_path_for("jwt")
