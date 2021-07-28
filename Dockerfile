@@ -16,9 +16,9 @@ ARG PYPI_MIRROR
 
 RUN test ! -z "$PYPI_MIRROR" && pip config set global.index-url $PYPI_MIRROR || :
 
-COPY requirements.txt setup.py setup.cfg README.md .git /root/
+COPY requirements.txt setup.py setup.cfg README.md /root/
 RUN mkdir -p /root/joj/horse
-RUN --mount=type=cache,target=/root/.cache/pip pip install .[test]
+RUN --mount=type=cache,target=/root/.cache/pip PBR_VERSION=0.0.0 pip install .[test]
 
 COPY . /root
 RUN --mount=type=cache,target=/root/.cache/pip pip install .
