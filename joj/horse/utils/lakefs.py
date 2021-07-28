@@ -141,7 +141,7 @@ class LakeFSProblemConfig:
             )
             logger.info("LakeFS get repo: %s", self.repo)
         except LakeFSApiException:
-            namespace = f"{settings.lakefs_bucket_config}/{self.repo_id}"
+            namespace = f"{settings.bucket_config}/{self.repo_id}"
             new_repo = models.RepositoryCreation(
                 storage_namespace=namespace,
                 name=self.repo_name,

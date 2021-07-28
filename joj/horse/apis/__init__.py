@@ -14,7 +14,7 @@ from joj.horse.apis import (
     user as user,
     users as users,
 )
-from joj.horse.apis.problems import submit_solution_to_problem, update_problem_config
+from joj.horse.apis.problems import update_problem_config
 
 
 def include_router(module: Any) -> None:
@@ -61,5 +61,5 @@ def update_schema_name(
                 break
 
 
-update_schema_name(app, submit_solution_to_problem, "ProblemSolutionSubmit")
+# update_schema_name(app, submit_solution_to_problem, "ProblemSolutionSubmit")
 update_schema_name(app, update_problem_config, "ProblemConfigEdit")

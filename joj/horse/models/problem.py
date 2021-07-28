@@ -39,7 +39,7 @@ class Problem(DomainURLMixin, BaseORMModel):
     num_accept = fields.IntField(default=0)
 
     data_version = fields.IntField(default=2)
-    languages = fields.TextField(default="[]")
+    languages = fields.JSONField(default="[]")
 
     if TYPE_CHECKING:
         problem_group_id: UUID

@@ -258,6 +258,7 @@ class PermCompose(BaseModel):
     action: Literal["AND", "OR"] = "AND"
 
 
+PermCompose.update_forward_refs()
 PermKeyTuple = Tuple[ScopeType, PermissionType]
 PermComposeIterable = List[  # type: ignore
     Union[PermKey, PermCompose, PermKeyTuple, "PermComposeTuple"]  # type: ignore

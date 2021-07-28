@@ -57,6 +57,9 @@ class NoneEmptyLongStr(LongStr, NoneEmptyStr):
     pass
 
 
+URL_RE = re.compile(r"[\w-]+", flags=re.ASCII)
+
+
 class UserInputURL(str):
     URL_RE = re.compile(r"[\w-]+", flags=re.ASCII)
 

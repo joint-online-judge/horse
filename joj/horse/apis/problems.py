@@ -1,19 +1,21 @@
-from datetime import datetime
 from typing import Optional
 
-from fastapi import BackgroundTasks, Depends, File, Form, Query, UploadFile
+from fastapi import BackgroundTasks, Depends, File, Query, UploadFile
 from tortoise import transactions
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
-from joj.horse.apis import records
+
+# from joj.horse.apis import records
 from joj.horse.schemas import Empty, StandardListResponse, StandardResponse
 from joj.horse.schemas.base import PydanticObjectId
 from joj.horse.schemas.permission import Permission
 from joj.horse.schemas.problem import ListProblems, ProblemClone
-from joj.horse.tasks import celery_app
+
+# from joj.horse.tasks import celery_app
 from joj.horse.utils.auth import Authentication, ensure_permission
-from joj.horse.utils.errors import BizError, ErrorCode
+
+# from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.lakefs import LakeFSProblemConfig
 from joj.horse.utils.parser import (
     parse_domain,
@@ -25,7 +27,8 @@ from joj.horse.utils.parser import (
     parse_view_hidden_problem,
 )
 from joj.horse.utils.router import MyRouter
-from joj.horse.utils.url import generate_url
+
+# from joj.horse.utils.url import generate_url
 
 router = MyRouter()
 router_name = "domains/{domain}/problems"
@@ -116,9 +119,18 @@ async def update_problem(
     return StandardResponse(schemas.Problem.from_orm(problem))
 
 
-@router.patch(
+@router.put(
     "/{problem}/config",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblem.view_config))],
+    dependencies=[
+        Depends(
+            ensure_permission(
+                [
+                    Permission.DomainProblem.view_config,
+                    Permission.DomainProblem.edit,
+                ]
+            )
+        )
+    ],
 )
 async def update_problem_config(
     config: UploadFile = File(...), problem: models.Problem = Depends(parse_problem)
@@ -171,45 +183,45 @@ async def clone_problem(
     return StandardResponse(ListProblems(results=res))
 
 
-@router.post(
-    "/{problem}",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblem.submit))],
-)
-async def submit_solution_to_problem(
-    code_type: schemas.RecordCodeType = Form(...),
-    file: UploadFile = File(...),
-    problem: models.Problem = Depends(parse_problem),
-    domain: models.Domain = Depends(parse_domain),
-    user: models.User = Depends(parse_user_from_auth),
-) -> StandardResponse[schemas.Record]:
-    if domain.id != problem.domain:
-        # TODO: test whether problem.domain is object id and add other error code
-        raise BizError(ErrorCode.ProblemNotFoundError)
-    try:
-        # gfs = AsyncIOMotorGridFSBucket(get_db())
-        #
-        file_id = None
-        record = schemas.Record(
-            domain=problem.domain,
-            problem=problem.id,
-            user=user.id,
-            code_type=code_type,
-            code=file_id,
-            judge_category=[],
-            submit_at=datetime.utcnow(),
-            cases=[schemas.RecordCase() for i in range(10)],  # TODO: modify later
-        )
-        record_model = models.Record(**record.to_model())
-        await record_model.commit()
-        problem.num_submit += 1
-        await problem.commit()
-        logger.info("problem submitted with record: %s", record_model.id)
-    except Exception as e:
-        logger.exception("problem submission failed: %s", problem.id)
-        raise e
-    record_schema = schemas.Record.from_orm(record_model)
-    http_url = generate_url(
-        records.router_prefix, records.router_name, record_schema.id
-    )
-    celery_app.send_task("joj.tiger.compile", args=[record_schema.dict(), http_url])
-    return StandardResponse(record_schema)
+# @router.post(
+#     "/{problem}",
+#     dependencies=[Depends(ensure_permission(Permission.DomainProblem.submit))],
+# )
+# async def submit_solution_to_problem(
+#     code_type: schemas.RecordCodeType = Form(...),
+#     file: UploadFile = File(...),
+#     problem: models.Problem = Depends(parse_problem),
+#     domain: models.Domain = Depends(parse_domain),
+#     user: models.User = Depends(parse_user_from_auth),
+# ) -> StandardResponse[schemas.Record]:
+#     if domain.id != problem.domain:
+#         # TODO: test whether problem.domain is object id and add other error code
+#         raise BizError(ErrorCode.ProblemNotFoundError)
+#     try:
+#         # gfs = AsyncIOMotorGridFSBucket(get_db())
+#         #
+#         file_id = None
+#         record = schemas.Record(
+#             domain=problem.domain,
+#             problem=problem.id,
+#             user=user.id,
+#             code_type=code_type,
+#             code=file_id,
+#             judge_category=[],
+#             submit_at=datetime.utcnow(),
+#             cases=[schemas.RecordCase() for i in range(10)],  # TODO: modify later
+#         )
+#         record_model = models.Record(**record.to_model())
+#         await record_model.commit()
+#         problem.num_submit += 1
+#         await problem.commit()
+#         logger.info("problem submitted with record: %s", record_model.id)
+#     except Exception as e:
+#         logger.exception("problem submission failed: %s", problem.id)
+#         raise e
+#     record_schema = schemas.Record.from_orm(record_model)
+#     http_url = generate_url(
+#         records.router_prefix, records.router_name, record_schema.id
+#     )
+#     celery_app.send_task("joj.tiger.compile", args=[record_schema.dict(), http_url])
+#     return StandardResponse(record_schema)
