@@ -15,10 +15,6 @@ def random_lower_string(length: int = 32) -> str:
     return "".join(random.choices(string.ascii_lowercase, k=length))
 
 
-def random_bool() -> bool:
-    return bool(random.randint(0, 1))
-
-
 def random_student_id() -> str:
     return f"5{random.randint(0,99):02}370910{random.randint(0,999):03}"
 
@@ -37,14 +33,6 @@ def get_path_by_url_type(model: Any, url_type: str) -> str:
         return model.url
     elif url_type == "id" or url_type == "pk":
         return model.pk
-    assert False
-
-
-def get_id_helper(data: Union[str, Dict[str, str]]) -> str:
-    if isinstance(data, str):
-        return data
-    elif isinstance(data, dict):
-        return data["id"]
     assert False
 
 

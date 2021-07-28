@@ -70,20 +70,6 @@ class ForbiddenError(BaseError):
         )
 
 
-class NotFoundError(BaseError):
-    def __init__(self, message: str = "", args: Any = None) -> None:
-        super().__init__(
-            status_code=status.HTTP_404_NOT_FOUND, message=message, args=args
-        )
-
-
-class UnprocessableEntityError(BaseError):
-    def __init__(self, message: str = "", args: Any = None) -> None:
-        super().__init__(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, message=message, args=args
-        )
-
-
 class InternalServerError(BaseError):
     def __init__(self, message: str = "", args: Any = None) -> None:
         super().__init__(
