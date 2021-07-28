@@ -57,10 +57,7 @@ class TestDomainCreate:
             "url": "test_domain_with_url",
             "name": "test_domain_with_url_duplicate",
         }
-        try:
-            response = await create_test_domain(client, global_root_user, data)
-        except Exception:
-            pass
+        response = await create_test_domain(client, global_root_user, data)
         assert response.status_code == 200
         res = response.json()
         assert res["error_code"] == ErrorCode.IntegrityError
