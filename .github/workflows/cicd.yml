@@ -201,18 +201,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-#      - name: Extract metadata (tags, labels) for Docker
-#        uses: docker/metadata-action@v3
-#        id: meta
-#        with:
-#          images: joint-online-judge/horse
       - name: Pull docker image
         run: |
           echo ${{ needs.build.outputs.tag }}
           docker pull ${{ needs.build.outputs.tag }}
       - name: Test and Generate coverage report
         run: |
-          docker run ${{ needs.build.outputs.tag }} -v ./coverage.xml:/root/coverage.xml pytest --cov=./ --cov-report=xml
+          docker run --network host -v "$(pwd)":/root ${{ needs.build.outputs.tag }} pytest --cov=./ --cov-report=xml
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
