@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 7a3f584@2021-07-21 04:28:13",
+    "description": "Git version: 50e8fbb@2021-07-28 13:34:13",
     "version": "0.0.0"
   },
   "paths": {
@@ -1889,6 +1889,19 @@
             "in": "query"
           },
           {
+            "description": "Comma seperated list of ordering the results.\nYou may also specify reverse orderings by prefixing the field name with '-'.",
+            "required": false,
+            "schema": {
+              "title": "Ordering",
+              "type": "string",
+              "description": "Comma seperated list of ordering the results.\nYou may also specify reverse orderings by prefixing the field name with '-'.",
+              "default": ""
+            },
+            "example": "-name,created_at",
+            "name": "ordering",
+            "in": "query"
+          },
+          {
             "required": false,
             "schema": {
               "title": "Offset",
@@ -1918,7 +1931,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListProblemsResp"
+                  "$ref": "#/components/schemas/ProblemListResp"
                 }
               }
             }
@@ -5246,8 +5259,98 @@
       },
       "Problem": {
         "title": "Problem",
+        "required": [
+          "url",
+          "title",
+          "domain_id",
+          "owner_id",
+          "problem_group_id"
+        ],
         "type": "object",
-        "properties": {}
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
+          },
+          "url": {
+            "title": "Url",
+            "maxLength": 255,
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "maxLength": 255,
+            "type": "string"
+          },
+          "content": {
+            "title": "Content",
+            "maxLength": 255,
+            "type": "string",
+            "default": ""
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "default": false
+          },
+          "num_submit": {
+            "title": "Num Submit",
+            "maximum": 2147483647.0,
+            "minimum": -2147483648.0,
+            "type": "integer",
+            "default": 0
+          },
+          "num_accept": {
+            "title": "Num Accept",
+            "maximum": 2147483647.0,
+            "minimum": -2147483648.0,
+            "type": "integer",
+            "default": 0
+          },
+          "data_version": {
+            "title": "Data Version",
+            "maximum": 2147483647.0,
+            "minimum": -2147483648.0,
+            "type": "integer",
+            "default": 2
+          },
+          "languages": {
+            "title": "Languages",
+            "type": "string",
+            "default": "[]"
+          },
+          "domain_id": {
+            "title": "Domain Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "owner_id": {
+            "title": "Owner Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "problem_group_id": {
+            "title": "Problem Group Id",
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
       },
       "ProblemClone": {
         "title": "ProblemClone",
@@ -5316,6 +5419,12 @@
             "type": "string",
             "description": "content of the problem",
             "default": ""
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "is the problem hidden",
+            "default": false
           }
         }
       },
@@ -5323,6 +5432,10 @@
         "title": "ProblemEdit",
         "type": "object",
         "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
           "title": {
             "title": "Title",
             "minLength": 1,
@@ -5332,6 +5445,10 @@
             "title": "Content",
             "maxLength": 65536,
             "type": "string"
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean"
           }
         }
       },
@@ -5349,6 +5466,45 @@
               "format": "uri"
             },
             "default": []
+          }
+        }
+      },
+      "ProblemList": {
+        "title": "ProblemList",
+        "type": "object",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer",
+            "default": 0
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Problem"
+            },
+            "default": []
+          }
+        }
+      },
+      "ProblemListResp": {
+        "title": "ProblemListResp",
+        "required": [
+          "error_code",
+          "error_msg"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProblemList"
           }
         }
       },
@@ -5457,14 +5613,14 @@
             "type": "string",
             "description": "the problem set is available from",
             "format": "date-time",
-            "default": "2021-07-21T04:28:43.168324"
+            "default": "2021-07-28T13:35:45.487459"
           },
           "due_time": {
             "title": "Due Time",
             "type": "string",
             "description": "the problem set is due at",
             "format": "date-time",
-            "default": "2021-07-28T04:28:43.168331"
+            "default": "2021-08-04T13:35:45.487464"
           }
         }
       },
