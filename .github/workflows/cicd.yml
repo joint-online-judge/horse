@@ -118,9 +118,7 @@ jobs:
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          env_vars: OS,PYTHON
           fail_ci_if_error: true
-          verbose: true
   swagger-codegen:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/master')
     needs: build
