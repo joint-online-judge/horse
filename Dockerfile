@@ -14,7 +14,7 @@ RUN pip install git+https://github.com/joint-online-judge/elephant@master#egg=jo
 
 ARG PYPI_MIRROR
 
-RUN test ! -z "$PYPI_MIRROR" && pip config set global.index-url $PYPI_MIRROR || :
+RUN if [[ ! -z "$PYPI_MIRROR" ]]; then pip config set global.index-url $PYPI_MIRROR; fi
 
 COPY requirements.txt setup.py setup.cfg README.md /root/
 RUN mkdir -p /root/joj/horse
