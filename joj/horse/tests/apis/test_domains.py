@@ -409,6 +409,30 @@ class TestDomainTransfer:
         await self.api_test_helper(request, client, global_domain_with_all, name)
 
 
+@pytest.mark.asyncio
+class TestDomainList:
+    @pytest.mark.parametrize(
+        "domain",
+        [
+            lazy_fixture("global_domain_no_url"),
+            lazy_fixture("global_domain_with_url"),
+            lazy_fixture("global_domain_with_all"),
+        ],
+    )
+    async def test_global_domains(self, domain: models.Domain) -> None:
+        pass
+
+    @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
+    @pytest.mark.depends(on="test_global_domains")
+    async def test_list_domain(self, client: AsyncClient, user: models.User) -> None:
+        url = app.url_path_for("list_domains")
+        response = await do_api_request(client, "GET", url, user)
+        assert response.status_code == 200
+        res = response.json()
+        assert res["data"]["count"] == 3
+        assert len(res["data"]["results"]) == 3
+
+
 # def test_list_domains(
 #     client: TestClient, test_user_token_headers: Dict[str, str], test_user: User
 # ) -> None:
