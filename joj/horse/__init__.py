@@ -39,12 +39,12 @@ async def startup_event() -> None:
         await try_init_db()
 
         if settings.lakefs_host:
-            try_init_lakefs()
-            examine_lakefs_buckets()
+            try_init_lakefs()  # pragma: no cover
+            examine_lakefs_buckets()  # pragma: no cover
         else:
             logger.warning("LakeFS not configured! All file features will be disabled.")
 
-    except (RetryError, LakeFSApiException) as e:
+    except (RetryError, LakeFSApiException) as e:  # pragma: no cover
         logger.error("Initialization failed, exiting.")
         logger.error(e)
         logger.disabled = True
@@ -61,14 +61,16 @@ async def shutdown_event() -> None:
 @app.get("/api")
 @app.get("/")
 async def redirect_to_docs() -> RedirectResponse:
-    redirect_url = generate_url("/api/v1?docExpansion=none")
-    return RedirectResponse(redirect_url)
+    redirect_url = generate_url("/api/v1?docExpansion=none")  # pragma: no cover
+    return RedirectResponse(redirect_url)  # pragma: no cover
 
 
 @app.exception_handler(AuthJWTException)
 def authjwt_exception_handler(request: Request, exc: AuthJWTException) -> JSONResponse:
     # noinspection PyUnresolvedReferences
-    return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
+    return JSONResponse(
+        status_code=exc.status_code, content={"detail": exc.message}
+    )  # pragma: no cover
 
 
 def business_exception_response(exc: BizError) -> JSONResponse:
@@ -91,7 +93,9 @@ async def tortoise_integrity_error_handler(
 async def tortoise_field_error_handler(
     request: Request, exc: tortoise_exceptions.FieldError
 ) -> JSONResponse:
-    return business_exception_response(BizError(ErrorCode.UnknownFieldError, str(exc)))
+    return business_exception_response(
+        BizError(ErrorCode.UnknownFieldError, str(exc))
+    )  # pragma: no cover
 
 
 @app.exception_handler(BizError)
@@ -102,8 +106,10 @@ async def business_exception_handler(request: Request, exc: BizError) -> JSONRes
 async def catch_exceptions_middleware(request: Request, call_next: Any) -> JSONResponse:
     try:
         return await call_next(request)
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
+        # pragma: no cover
         logger.exception(f"Unexcepted Error: {e.__class__.__name__}")
+        # pragma: no cover
         return JSONResponse(
             jsonable_encoder(
                 {
