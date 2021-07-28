@@ -1,6 +1,5 @@
 from typing import Any, Optional
 
-from bson.objectid import ObjectId
 from fastapi import Depends
 from fastapi.param_functions import Query
 from uvicorn.config import logger
@@ -38,11 +37,11 @@ async def list_records(
     if user:
         condition["user"] = auth.user.id
     if domain is not None:
-        condition["domain"] = ObjectId(domain)
+        condition["domain"] = str(domain)
     if problem_set is not None:
-        condition["problem_set"] = ObjectId(problem_set)
+        condition["problem_set"] = str(problem_set)
     if problem is not None:
-        condition["problem"] = ObjectId(problem)
+        condition["problem"] = str(problem)
     cursor = models.Record.cursor_find(condition, query)
     res = await schemas.Record.to_list(cursor)
     return StandardResponse(ListRecords(results=res))

@@ -13,8 +13,6 @@ from typing import (
     Union,
 )
 
-from bson import ObjectId
-from bson.errors import InvalidId
 from pydantic import (
     BaseModel as PydanticBaseModel,
     ConstrainedInt,
@@ -79,22 +77,25 @@ class LongText(ConstrainedStr):
 
 
 class PydanticObjectId(str):
-    @classmethod
-    def __get_validators__(
-        cls,
-    ) -> Generator[Callable[[Union[str, Any]], str], None, None]:
-        yield cls.validate
+    pass
 
-    @classmethod
-    def validate(cls, v: Union[str, ObjectId]) -> str:
-        try:
-            if isinstance(v, str):
-                v = ObjectId(v)
-            elif not isinstance(v, ObjectId):
-                raise InvalidId() from None
-        except InvalidId:
-            raise TypeError("ObjectId required")
-        return str(v)
+
+#     @classmethod
+#     def __get_validators__(
+#         cls,
+#     ) -> Generator[Callable[[Union[str, Any]], str], None, None]:
+#         yield cls.validate
+#
+#     @classmethod
+#     def validate(cls, v: Union[str, ObjectId]) -> str:
+#         try:
+#             if isinstance(v, str):
+#                 v = ObjectId(v)
+#             elif not isinstance(v, ObjectId):
+#                 raise InvalidId() from None
+#         except InvalidId:
+#             raise TypeError("ObjectId required")
+#         return str(v)
 
 
 # class BaseODMSchema(BaseModel):

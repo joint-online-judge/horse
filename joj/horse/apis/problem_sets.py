@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from typing import List
 
-from bson.objectid import ObjectId
 from fastapi import Depends
 from tortoise import transactions
 from uvicorn.config import logger
@@ -40,7 +39,7 @@ async def list_problem_sets(
 ) -> StandardResponse[ListProblemSets]:
     condition = {"owner": auth.user.id}
     if domain is not None:
-        condition["domain"] = ObjectId(domain.id)
+        condition["domain"] = str(domain.id)
     cursor = models.ProblemSet.cursor_find(condition, query)
     res = await schemas.ProblemSet.to_list(cursor)
     return StandardResponse(ListProblemSets(results=res))
@@ -122,7 +121,7 @@ async def get_scoreboard(
                 problem_ids.append(problem.id)
             record_model: models.Record = await models.Record.find_one(
                 {
-                    "user": ObjectId(user.id),
+                    "user": str(user.id),
                     "problem": problem.id,
                     "submit_at": {"$gte": problem_set.available_time},
                     "status": {"$nin": [RecordStatus.waiting, RecordStatus.judging]},

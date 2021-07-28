@@ -210,7 +210,16 @@ jobs:
         run: |
           echo ${{ needs.build.outputs.tag }}
           docker pull ${{ needs.build.outputs.tag }}
-
+      - name: Test and Generate coverage report
+        run: |
+          docker run ${{ needs.build.outputs.tag }} -v ./coverage.xml:/root/coverage.xml pytest --cov=./ --cov-report=xml
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          env_vars: OS,PYTHON
+          fail_ci_if_error: true
+          verbose: true
 #      - name: Set up Python 3.9
 #        uses: actions/setup-python@v2
 #        with:

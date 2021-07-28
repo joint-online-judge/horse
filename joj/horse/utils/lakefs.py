@@ -82,10 +82,8 @@ def create_bucket(bucket: str) -> None:
         raise e
 
 
-def examine_lakefs_buckets() -> None:
-    """
-    Test whether the lakefs with storage backend is working.
-    """
+def examine_bucket(bucket: str) -> None:
+    client = get_lakefs_client()
 
     def delete_test_repo(_repo_name: str) -> None:
         try:
@@ -93,24 +91,30 @@ def examine_lakefs_buckets() -> None:
         except LakeFSApiException:
             pass
 
-    client = get_lakefs_client()
+    repo_name = "joj-generated-for-test-do-not-edit"
+    namespace = f"{bucket}/{repo_name}"
+    logger.info("LakeFS: examine bucket %s.", bucket)
+    # delete the test repo if exists
+    delete_test_repo(repo_name)
+    # create the test repo
+    new_repo = models.RepositoryCreation(storage_namespace=namespace, name=repo_name)
+    client.repositories.create_repository(new_repo)
+    # delete the test repo again
+    delete_test_repo(repo_name)
+    logger.info("LakeFS: examine bucket %s succeeded.", bucket)
+
+
+def examine_lakefs_buckets() -> None:
+    """
+    Test whether the lakefs with storage backend is working.
+    """
     for bucket in {settings.bucket_config, settings.bucket_submission}:
         try:
-            repo_name = "joj-generated-for-test-do-not-edit"
-            namespace = f"{bucket}/{repo_name}"
-            logger.info("LakeFS: examine bucket %s.", bucket)
-            # delete the test repo if exists
-            delete_test_repo(repo_name)
-            # create the test repo
-            new_repo = models.RepositoryCreation(
-                storage_namespace=namespace, name=repo_name
-            )
-            client.repositories.create_repository(new_repo)
-            # delete the test repo again
-            delete_test_repo(repo_name)
+            examine_bucket(bucket)
         except LakeFSApiException:
             logger.warning("LakeFS: examine bucket %s failed.", bucket)
             create_bucket(bucket)
+            examine_bucket(bucket)
 
 
 def get_problem_submission_repo_name(problem: "Problem") -> str:
