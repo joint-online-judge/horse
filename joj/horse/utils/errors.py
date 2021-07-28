@@ -49,11 +49,11 @@ class BaseError(HTTPException):
         super().__init__(status_code=status_code, detail=message.format(*args))
 
 
-class BadRequestError(BaseError):
+class BadRequestError(BaseError):  # pragma: no cover
     def __init__(self, message: str = "", args: Any = None) -> None:
         super().__init__(
             status_code=status.HTTP_400_BAD_REQUEST, message=message, args=args
-        )  # pragma: no cover
+        )
 
 
 class UnauthorizedError(BaseError):
@@ -70,10 +70,10 @@ class ForbiddenError(BaseError):
         )
 
 
-class InternalServerError(BaseError):
+class InternalServerError(BaseError):  # pragma: no cover
     def __init__(self, message: str = "", args: Any = None) -> None:
         super().__init__(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             message=message,
             args=args,
-        )  # pragma: no cover
+        )

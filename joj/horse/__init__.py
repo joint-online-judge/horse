@@ -38,9 +38,9 @@ async def startup_event() -> None:
         logger.info("Using %s." % asyncio.get_running_loop().__module__)
         await try_init_db()
 
-        if settings.lakefs_host:
-            try_init_lakefs()  # pragma: no cover
-            examine_lakefs_buckets()  # pragma: no cover
+        if settings.lakefs_host:  # pragma: no cover
+            try_init_lakefs()
+            examine_lakefs_buckets()
         else:
             logger.warning("LakeFS not configured! All file features will be disabled.")
 
@@ -60,17 +60,17 @@ async def shutdown_event() -> None:
 # we temporarily redirect "/" and "/api" to "/api/v1" for debugging
 @app.get("/api")
 @app.get("/")
-async def redirect_to_docs() -> RedirectResponse:
-    redirect_url = generate_url("/api/v1?docExpansion=none")  # pragma: no cover
-    return RedirectResponse(redirect_url)  # pragma: no cover
+async def redirect_to_docs() -> RedirectResponse:  # pragma: no cover
+    redirect_url = generate_url("/api/v1?docExpansion=none")
+    return RedirectResponse(redirect_url)
 
 
 @app.exception_handler(AuthJWTException)
-def authjwt_exception_handler(request: Request, exc: AuthJWTException) -> JSONResponse:
+def authjwt_exception_handler(
+    request: Request, exc: AuthJWTException
+) -> JSONResponse:  # pragma: no cover
     # noinspection PyUnresolvedReferences
-    return JSONResponse(
-        status_code=exc.status_code, content={"detail": exc.message}
-    )  # pragma: no cover
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
 
 
 def business_exception_response(exc: BizError) -> JSONResponse:
@@ -92,10 +92,8 @@ async def tortoise_integrity_error_handler(
 @app.exception_handler(tortoise_exceptions.FieldError)
 async def tortoise_field_error_handler(
     request: Request, exc: tortoise_exceptions.FieldError
-) -> JSONResponse:
-    return business_exception_response(
-        BizError(ErrorCode.UnknownFieldError, str(exc))
-    )  # pragma: no cover
+) -> JSONResponse:  # pragma: no cover
+    return business_exception_response(BizError(ErrorCode.UnknownFieldError, str(exc)))
 
 
 @app.exception_handler(BizError)
@@ -107,9 +105,7 @@ async def catch_exceptions_middleware(request: Request, call_next: Any) -> JSONR
     try:
         return await call_next(request)
     except Exception as e:  # pragma: no cover
-        # pragma: no cover
         logger.exception(f"Unexcepted Error: {e.__class__.__name__}")
-        # pragma: no cover
         return JSONResponse(
             jsonable_encoder(
                 {
