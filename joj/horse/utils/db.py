@@ -44,15 +44,15 @@ async def init_tortoise() -> None:
     tortoise_config = get_tortoise_config()
     try:
         await Tortoise.init(config=tortoise_config, _create_db=True, use_tz=True)
-        logger.info("Database %s created.", settings.db_name)
+        logger.info("Database %s created.", settings.db_name)  # pragma: no cover
     except OperationalError:
         await Tortoise.init(config=tortoise_config, use_tz=True)
         logger.info("Database %s exists.", settings.db_name)
 
     logger.info("Tortoise-ORM connected.")
-    if settings.debug:
-        logger.info("Tortoise-ORM generating schema.")
-        await Tortoise.generate_schemas()
+    if settings.debug:  # pragma: no cover
+        logger.info("Tortoise-ORM generating schema.")  # pragma: no cover
+        await Tortoise.generate_schemas()  # pragma: no cover
 
 
 @retry(stop=stop_after_attempt(5), wait=wait_exponential(2))
@@ -60,15 +60,19 @@ async def try_init_db() -> None:
     attempt_number = try_init_db.retry.statistics["attempt_number"]
     try:
         await init_tortoise()
-    except Exception as e:
-        max_attempt_number = try_init_db.retry.stop.max_attempt_number
+    except Exception as e:  # pragma: no cover
+        max_attempt_number = (
+            try_init_db.retry.stop.max_attempt_number
+        )  # pragma: no cover
         msg = "Tortoise-ORM: initialization failed ({}/{})".format(
             attempt_number, max_attempt_number
-        )
-        if attempt_number < max_attempt_number:
-            msg += ", trying again after {} second.".format(2 ** attempt_number)
-        else:
-            msg += "."
-        logger.error(e)
-        logger.warning(msg)
-        raise e
+        )  # pragma: no cover
+        if attempt_number < max_attempt_number:  # pragma: no cover
+            msg += ", trying again after {} second.".format(
+                2 ** attempt_number
+            )  # pragma: no cover
+        else:  # pragma: no cover
+            msg += "."  # pragma: no cover
+        logger.error(e)  # pragma: no cover
+        logger.warning(msg)  # pragma: no cover
+        raise e  # pragma: no cover
