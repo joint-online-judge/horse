@@ -269,6 +269,7 @@ class TestDomainUserAdd:
         res = response.json()
         assert res["error_code"] == ErrorCode.UserAlreadyInDomainBadRequestError
 
+    # TODO: test update user
     @pytest.mark.parametrize(
         "domain",
         [lazy_fixture("global_domain_with_url")],

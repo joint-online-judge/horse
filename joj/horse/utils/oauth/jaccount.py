@@ -8,7 +8,7 @@ from joj.horse.schemas import BaseModel
 
 
 @lru_cache()
-def get_client() -> Optional[oauth_jaccount.JaccountClient]:
+def get_client() -> Optional[oauth_jaccount.JaccountClient]:  # pragma: no cover
     if not settings.oauth_jaccount:
         return None
     return oauth_jaccount.JaccountClient(
