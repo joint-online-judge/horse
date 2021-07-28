@@ -156,16 +156,16 @@ class StandardListResponse(Generic[BT]):
         results: Optional[List[Union[BT, Type[BT], Empty]]] = None,
         count: Optional[int] = None,
     ) -> "StandardListResponse[BT]":
-        if results is None:
+        if results is None:  # pragma: no cover
             results = []
         data_type = len(results) and type(results[0]) or Empty
         response_type, sub_model_type = get_standard_response_model(
             data_type, True  # type: ignore
         )
-        if count is None:
+        if count is None:  # pragma: no cover
             count = len(results)
         response_data: PydanticBaseModel
-        if sub_model_type is None:
+        if sub_model_type is None:  # pragma: no cover
             response_data = Empty()
         else:
             response_data = sub_model_type(count=count, results=results)
