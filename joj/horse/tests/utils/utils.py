@@ -48,13 +48,6 @@ def get_id_helper(data: Union[str, Dict[str, str]]) -> str:
     assert False
 
 
-def data_to_mongo(data: Dict[str, str]) -> Dict[str, str]:
-    if "id" in data:
-        data["_id"] = data["id"]
-        data.pop("id")
-    return data
-
-
 async def do_api_request(
     client: AsyncClient,
     method: str,
