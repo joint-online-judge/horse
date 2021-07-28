@@ -53,7 +53,7 @@ class BadRequestError(BaseError):
     def __init__(self, message: str = "", args: Any = None) -> None:
         super().__init__(
             status_code=status.HTTP_400_BAD_REQUEST, message=message, args=args
-        )
+        )  # pragma: no cover
 
 
 class UnauthorizedError(BaseError):
@@ -76,4 +76,4 @@ class InternalServerError(BaseError):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             message=message,
             args=args,
-        )
+        )  # pragma: no cover
