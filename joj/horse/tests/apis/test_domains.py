@@ -1,3 +1,4 @@
+import uuid
 from typing import Any, Dict, Tuple
 
 import pytest
@@ -51,6 +52,28 @@ class TestDomainCreate:
         self, client: AsyncClient, global_root_user: models.User
     ) -> None:
         data = {"url": "test_domain_no_name"}
+        response = await create_test_domain(client, global_root_user, data)
+        assert response.status_code == 422
+
+    @pytest.mark.depends(on="test_global_domains")
+    async def test_url_uuid(
+        self, client: AsyncClient, global_root_user: models.User
+    ) -> None:
+        data = {
+            "url": uuid.uuid1(),
+            "name": uuid.uuid1(),
+        }
+        response = await create_test_domain(client, global_root_user, data)
+        assert response.status_code == 422
+
+    @pytest.mark.depends(on="test_global_domains")
+    async def test_url_invalid(
+        self, client: AsyncClient, global_root_user: models.User
+    ) -> None:
+        data = {
+            "url": "test_domain_invalid_url_@",
+            "name": uuid.uuid1(),
+        }
         response = await create_test_domain(client, global_root_user, data)
         assert response.status_code == 422
 
