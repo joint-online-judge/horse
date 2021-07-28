@@ -4,9 +4,10 @@ from typing import Callable, List, Optional, Set
 from fastapi import Depends, Path, Query
 
 from joj.horse import models
+from joj.horse.models.permission import PermissionType, ScopeType
 from joj.horse.schemas.base import NoneEmptyLongStr, NoneNegativeInt, PaginationLimit
 from joj.horse.schemas.query import OrderingQuery, PaginationQuery
-from joj.horse.utils.auth import Authentication, get_domain
+from joj.horse.utils.auth import Authentication, DomainAuthentication, get_domain
 from joj.horse.utils.errors import BizError, ErrorCode
 
 
@@ -69,11 +70,17 @@ async def parse_domain_invitation(
 
 
 async def parse_problem(
-    problem: str, auth: Authentication = Depends()
+    problem: str,
+    domain_auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> models.Problem:
-    problem_model = await models.Problem.find_by_id(problem)
-    if problem_model and problem_model.owner == auth.user:
-        return problem_model
+    problem_model = await models.Problem.find_by_domain_url_or_id(
+        domain_auth.auth.domain, problem
+    )
+    if problem_model:
+        if not problem_model.hidden or domain_auth.auth.check(
+            ScopeType.DOMAIN_PROBLEM, PermissionType.view_hidden
+        ):
+            return problem_model
     raise BizError(ErrorCode.ProblemNotFoundError)
 
 
@@ -126,6 +133,20 @@ async def parse_record_judger(
     if record_model:
         return record_model
     raise BizError(ErrorCode.RecordNotFoundError)
+
+
+def parse_view_hidden_problem(
+    domain_auth: DomainAuthentication = Depends(DomainAuthentication),
+) -> bool:
+    return domain_auth.auth.check(ScopeType.DOMAIN_PROBLEM, PermissionType.view_hidden)
+
+
+def parse_view_hidden_problem_set(
+    domain_auth: DomainAuthentication = Depends(DomainAuthentication),
+) -> bool:
+    return domain_auth.auth.check(
+        ScopeType.DOMAIN_PROBLEM_SET, PermissionType.view_hidden
+    )
 
 
 class OrderingQueryParser:

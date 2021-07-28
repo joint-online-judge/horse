@@ -3,7 +3,10 @@ from typing import List, Optional
 
 # from joj.elephant.schemas import Config as ProblemConfig
 from pydantic import Field
+from tortoise.contrib.pydantic import pydantic_model_creator
 
+from joj.horse.models.base import init_models
+from joj.horse.models.problem import Problem as ProblemModel
 from joj.horse.schemas import BaseModel
 from joj.horse.schemas.base import (  # NoneEmptyLongStr,
     LongText,
@@ -26,8 +29,10 @@ class DataVersion(IntEnum):
 
 
 class ProblemEdit(BaseModel):
+    url: Optional[UserInputURL]
     title: Optional[NoneEmptyStr]
     content: Optional[LongText]
+    hidden: Optional[bool]
     # data: Optional[int]
     # data_version: Optional[DataVersion]
     # languages: Optional[List[LongStr]]
@@ -37,6 +42,7 @@ class ProblemCreate(BaseModel):
     url: UserInputURL = Field("", description="(unique in domain) url of the problem")
     title: NoneEmptyStr = Field(..., description="title of the problem")
     content: LongText = Field("", description="content of the problem")
+    hidden: bool = Field(False, description="is the problem hidden")
     # this field can be induced from the config file
     # data_version: DataVersion = Field(DataVersion.v2)
     # languages: List[LongStr] = Field(
@@ -45,8 +51,17 @@ class ProblemCreate(BaseModel):
     # problem_set: LongStr = Field(..., description="problem set it belongs to")
 
 
-class Problem(BaseModel):
-    pass
+#
+# class Problem(BaseModel):
+#     pass
+
+
+init_models()
+Problem = pydantic_model_creator(
+    ProblemModel,
+    name="Problem",
+    exclude=("domain", "owner", "problem_group", "problem_sets"),
+)
 
 
 # class Problem(ProblemCreate, BaseODMSchema):
@@ -80,7 +95,7 @@ class Problem(BaseModel):
 
 
 class ListProblems(BaseModel):
-    results: List[Problem]
+    results: List[Problem]  # type: ignore
 
 
 class ProblemClone(BaseModel):

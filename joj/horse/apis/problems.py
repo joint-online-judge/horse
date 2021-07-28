@@ -1,26 +1,28 @@
 from datetime import datetime
 from typing import Optional
 
-from bson.objectid import ObjectId
-from fastapi import Depends, File, Form, Query, UploadFile
+from fastapi import BackgroundTasks, Depends, File, Form, Query, UploadFile
 from tortoise import transactions
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.apis import records
-from joj.horse.schemas import Empty, StandardResponse
+from joj.horse.schemas import Empty, StandardListResponse, StandardResponse
 from joj.horse.schemas.base import PydanticObjectId
 from joj.horse.schemas.permission import Permission
 from joj.horse.schemas.problem import ListProblems, ProblemClone
 from joj.horse.tasks import celery_app
 from joj.horse.utils.auth import Authentication, ensure_permission
 from joj.horse.utils.errors import BizError, ErrorCode
+from joj.horse.utils.lakefs import LakeFSProblemConfig
 from joj.horse.utils.parser import (
     parse_domain,
+    parse_ordering_query,
     parse_pagination_query,
     parse_problem,
     parse_problem_set,
     parse_user_from_auth,
+    parse_view_hidden_problem,
 )
 from joj.horse.utils.router import MyRouter
 from joj.horse.utils.url import generate_url
@@ -38,56 +40,47 @@ async def list_problems(
     domain: models.Domain = Depends(parse_domain),
     problem_set: Optional[PydanticObjectId] = Query(None),
     problem_group: Optional[PydanticObjectId] = Query(None),
-    query: schemas.PaginationQuery = Depends(parse_pagination_query),
-    user: models.User = Depends(parse_user_from_auth),
-) -> StandardResponse[ListProblems]:
-    condition = {"owner": user.id}
-    if domain is not None:
-        condition["domain"] = domain.id
-    if problem_set is not None:
-        condition["problem_set"] = ObjectId(problem_set)
-    if problem_group is not None:
-        condition["problem_group"] = ObjectId(problem_group)
-    cursor = models.Problem.cursor_find(condition, query)
-    res = await schemas.Problem.to_list(cursor)
-    return StandardResponse(ListProblems(results=res))
+    ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
+    pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
+    include_hidden: bool = Depends(parse_view_hidden_problem),
+) -> StandardListResponse[schemas.Problem]:
+    problems, count = await domain.find_problems(
+        include_hidden=include_hidden,
+        problem_set=problem_set,
+        problem_group=problem_group,
+        ordering=ordering,
+        pagination=pagination,
+    )
+    problems = [schemas.Problem.from_orm(problem) for problem in problems]
+    return StandardListResponse(problems, count)
 
 
 @router.post(
     "", dependencies=[Depends(ensure_permission(Permission.DomainProblem.create))]
 )
 async def create_problem(
-    problem: schemas.ProblemCreate,
+    problem_create: schemas.ProblemCreate,
+    background_tasks: BackgroundTasks,
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.Problem]:
-    # problem_set: models.ProblemSet = await models.ProblemSet.find_by_id(
-    #     problem.problem_set
-    # )
     try:
         async with transactions.in_transaction():
-            problem_group = schemas.ProblemGroup()
-            problem_group = models.ProblemGroup(**problem_group.to_model())
-            await problem_group.commit()
-            problem_schema = schemas.Problem(
-                **problem.dict(),
-                domain=domain.id,
-                # title=problem.title,
-                # content=problem.content,
-                # data_version=problem.data_version,
-                # languages=problem.languages,
-                # problem_set=problem_set.id,
-                owner=user.id,
-                problem_group=problem_group.id,
+            problem_group = await models.ProblemGroup.create()
+            logger.info("problem group created: %s", problem_group)
+            problem = await models.Problem.create(
+                **problem_create.dict(),
+                domain=domain,
+                owner=user,
+                problem_group=problem_group,
             )
-            problem_model = models.Problem(**problem_schema.to_model())
-            await problem_model.commit()
-            await problem_model.set_url_from_id()
-            logger.info("problem created: %s", problem_model)
+            logger.info("problem created: %s", problem)
     except Exception as e:
-        logger.exception("problem creation failed: %s", problem.title)
+        logger.exception("problem creation failed: %s", problem_create)
         raise e
-    return StandardResponse(schemas.Problem.from_orm(problem_model))
+    lakefs_problem_config = LakeFSProblemConfig(problem)
+    background_tasks.add_task(lakefs_problem_config.ensure_branch)
+    return StandardResponse(schemas.Problem.from_orm(problem))
 
 
 @router.get(
@@ -119,7 +112,7 @@ async def update_problem(
     edit_problem: schemas.ProblemEdit, problem: models.Problem = Depends(parse_problem)
 ) -> StandardResponse[schemas.Problem]:
     problem.update_from_schema(edit_problem)
-    await problem.commit()
+    await problem.save()
     return StandardResponse(schemas.Problem.from_orm(problem))
 
 

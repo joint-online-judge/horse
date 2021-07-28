@@ -41,9 +41,9 @@ async def list_domains(
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardListResponse[schemas.Domain]:
     """List all domains that the current user has a role."""
-    domains = await user.find_domains(role, ordering, pagination)
+    domains, count = await user.find_domains(role, ordering, pagination)
     domains = [schemas.Domain.from_orm(domain) for domain in domains]
-    return StandardListResponse(domains)
+    return StandardListResponse(domains, count)
 
 
 @router.post("", dependencies=[Depends(ensure_permission())])

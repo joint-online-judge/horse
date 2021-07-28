@@ -36,6 +36,22 @@ class Settings(BaseSettings):
     redis_host: str = "localhost"
     redis_port: int = 6379
 
+    # s3 config (any s3 compatible service)
+    s3_host: str = ""
+    s3_port: int = 80
+    s3_username: str = ""
+    s3_password: str = ""
+
+    # lakefs config
+    lakefs_host: str = ""
+    lakefs_port: int = 34766
+    lakefs_username: str = "lakefs"
+    lakefs_password: str = "lakefs"
+
+    # buckets
+    bucket_config: str = "s3://joj-config"
+    bucket_submission: str = "s3://joj-submission"
+
     # jwt config
     jwt_secret: str = "secret"
     jwt_algorithm: str = "HS256"

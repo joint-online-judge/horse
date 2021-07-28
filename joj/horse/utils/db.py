@@ -49,7 +49,7 @@ async def init_tortoise() -> None:
         await Tortoise.init(config=tortoise_config, use_tz=True)
         logger.info("Database %s exists.", settings.db_name)
 
-    logger.info("Tortoise-ORM started, %s, %s.", Tortoise._connections, Tortoise.apps)
+    logger.info("Tortoise-ORM connected.")
     if settings.debug:
         logger.info("Tortoise-ORM generating schema.")
         await Tortoise.generate_schemas()

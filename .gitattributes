@@ -1,2 +1,2 @@
 # Dockerfile make the repo not pure python
-Dockerfile -linguist-vendored
+Dockerfile linguist-vendored
