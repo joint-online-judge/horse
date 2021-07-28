@@ -1,3 +1,4 @@
+import re
 from functools import lru_cache
 from typing import (
     TYPE_CHECKING,
@@ -57,6 +58,8 @@ class NoneEmptyLongStr(LongStr, NoneEmptyStr):
 
 
 class UserInputURL(str):
+    URL_RE = re.compile(r"[\w-]+", flags=re.ASCII)
+
     @classmethod
     def __get_validators__(
         cls,
@@ -69,6 +72,8 @@ class UserInputURL(str):
             return LongStr("")
         if is_uuid(v):
             raise ValueError("url can not be uuid")
+        if not UserInputURL.URL_RE.fullmatch(v):
+            raise ValueError("url can only contains [a-zA-Z0-9_+]")
         return LongStr(v)
 
 

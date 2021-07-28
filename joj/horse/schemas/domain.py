@@ -1,7 +1,6 @@
-import string
 from typing import List, Optional
 
-from pydantic import Field, validator
+from pydantic import Field
 from tortoise.contrib.pydantic import pydantic_model_creator
 
 from joj.horse.models.base import init_models
@@ -22,13 +21,6 @@ class DomainCreate(BaseModel):
     name: LongStr = Field(..., description="displayed name of the domain")
     bulletin: LongText = Field("", description="bulletin of the domain")
     gravatar: LongStr = Field("", description="gravatar url of the domain")
-
-    @validator("url")
-    def validate_url(cls, v: str) -> str:
-        for c in v:
-            if c not in string.ascii_letters + string.digits + "_-":
-                raise ValueError("url")
-        return v
 
 
 class DomainTransfer(BaseModel):

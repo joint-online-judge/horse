@@ -12,21 +12,6 @@ base_user_url = get_base_url(apis.user)
 base_domain_url = get_base_url(apis.domains)
 base_problems_url = get_base_url(apis.problems)
 
-# domain = schemas.DomainCreate(
-#     url=random_lower_string(),
-#     name=random_lower_string(),
-#     bulletin=random_lower_string(),
-#     gravatar=random_lower_string(),
-# )
-# problem = schemas.ProblemCreate(
-#     domain=domain.url,
-#     title=random_lower_string(),
-#     content=random_lower_string(length=64),
-#     data_version=2,
-#     languages=[],
-# )
-# NEW_DOMAIN = {}
-
 BUILD_PATH = "build2"
 
 
