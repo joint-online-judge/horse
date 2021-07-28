@@ -57,7 +57,10 @@ class TestDomainCreate:
             "url": "test_domain_with_url",
             "name": "test_domain_with_url_duplicate",
         }
-        response = await create_test_domain(client, global_root_user, data)
+        try:
+            response = await create_test_domain(client, global_root_user, data)
+        except Exception:
+            pass
         assert response.status_code == 200
         res = response.json()
         assert res["error_code"] == ErrorCode.IntegrityError
@@ -261,6 +264,23 @@ class TestDomainUserAdd:
         assert response.status_code == 200
         res = response.json()
         assert res["error_code"] == ErrorCode.UserAlreadyInDomainBadRequestError
+
+    @pytest.mark.parametrize(
+        "domain",
+        [lazy_fixture("global_domain_with_url")],
+    )
+    @pytest.mark.depends(on="test_add_domain_default_user")
+    async def test_not_exist_role(
+        self,
+        client: AsyncClient,
+        global_root_user: models.User,
+        global_domain_root_user: models.User,
+        domain: models.Domain,
+    ) -> None:
+        response = await self.api_test_helper(
+            client, global_root_user, global_domain_root_user, domain, "not_exist_role"
+        )
+        assert response.status_code == 422
 
 
 @pytest.mark.asyncio
