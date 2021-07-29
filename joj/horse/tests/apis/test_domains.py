@@ -1,5 +1,5 @@
-import uuid
 from typing import Any, Dict, Tuple
+from uuid import uuid4
 
 import pytest
 from httpx import AsyncClient, Response
@@ -60,8 +60,8 @@ class TestDomainCreate:
         self, client: AsyncClient, global_root_user: models.User
     ) -> None:
         data = {
-            "url": uuid.uuid1(),
-            "name": uuid.uuid1(),
+            "url": uuid4(),
+            "name": uuid4(),
         }
         response = await create_test_domain(client, global_root_user, data)
         assert response.status_code == 422
@@ -72,7 +72,7 @@ class TestDomainCreate:
     ) -> None:
         data = {
             "url": "test_domain_invalid_url_@",
-            "name": uuid.uuid1(),
+            "name": uuid4(),
         }
         response = await create_test_domain(client, global_root_user, data)
         assert response.status_code == 422
