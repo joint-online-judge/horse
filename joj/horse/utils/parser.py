@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Callable, List, Optional, Set
 
 from fastapi import Depends, Path, Query
+from tortoise.exceptions import OperationalError
 
 from joj.horse import models
 from joj.horse.models.permission import PermissionType, ScopeType
@@ -18,7 +19,10 @@ async def parse_uid(
     if uid == "me":
         return auth.user
     else:
-        user = await models.User.get_or_none(id=uid)
+        try:
+            user = await models.User.get_or_none(id=uid)
+        except OperationalError:
+            raise BizError(ErrorCode.UserNotFoundError)
         if user:
             return user
         raise BizError(ErrorCode.UserNotFoundError)

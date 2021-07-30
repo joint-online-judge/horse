@@ -231,7 +231,7 @@ class Authentication:
     def is_domain_owner(self) -> bool:
         if self.domain is None:
             return False
-        return self.domain.owner.pk == self.user.id
+        return self.domain.owner_id == self.user.id
 
 
 class DomainAuthentication:

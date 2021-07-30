@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from fastapi import Body, Depends, Query
 from tortoise import transactions
+from tortoise.exceptions import IntegrityError
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
@@ -69,6 +70,8 @@ async def create_domain(
                     permission=DEFAULT_DOMAIN_PERMISSION[role].dict(),
                 )
                 logger.info("domain role created: %s", domain_role)
+    except IntegrityError as e:
+        raise e
     except Exception as e:
         logger.exception(f"domain creation failed: {domain_create.url}")
         raise e
@@ -218,10 +221,11 @@ async def update_domain_user(
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_path_or_query),
     role: str = Body(DefaultRole.USER),
-    domain_auth: DomainAuthentication = Depends(DomainAuthentication),
+    domain_auth: DomainAuthentication = Depends(),
 ) -> StandardResponse[schemas.DomainUser]:
     # domain owner must be root member
-    if role != DefaultRole.ROOT and domain_auth.auth.is_domain_owner():
+    domain_user = await models.DomainUser.get_or_none(domain=domain, user=user)
+    if role != DefaultRole.ROOT and domain_user.id == domain.owner_id:
         raise BizError(ErrorCode.DomainNotRootError)
     # only root member (or site root) can add root member
     if role == DefaultRole.ROOT and not domain_auth.auth.is_domain_root():
