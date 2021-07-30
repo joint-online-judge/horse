@@ -168,6 +168,24 @@ class TestDomainUpdate:
 
 
 @pytest.mark.asyncio
+@pytest.mark.depends(name="TestDomainDelete", on=["TestDomainCreate"])
+class TestDomainDelete:
+    @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_with_url")])
+    @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
+    async def test_delete(
+        self,
+        client: AsyncClient,
+        user: models.User,
+        domain: models.Domain,
+    ) -> None:
+        url = app.url_path_for("delete_domain", domain=domain.url)
+        response = await do_api_request(client, "DELETE", url, user)
+        assert response.status_code == 200
+        res = response.json()
+        assert res["error_code"] == ErrorCode.ApiNotImplementedError
+
+
+@pytest.mark.asyncio
 @pytest.mark.depends(name="TestDomainUserAdd", on=["TestDomainGet"])
 class TestDomainUserAdd:
     url_base = "add_domain_user"
