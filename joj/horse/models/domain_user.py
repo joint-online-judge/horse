@@ -45,22 +45,6 @@ class DomainUser(BaseORMModel):
         domain_user = await DomainUser.create(domain=domain, user=user, role=role)
         return domain_user
 
-    @classmethod
-    async def update_domain_user(
-        cls, domain: Domain, user: User, role: Union[str, DefaultRole]
-    ) -> "DomainUser":
-        role = str(role)
-        # check domain user
-        domain_user = await DomainUser.get_or_none(domain=domain, user=user)
-        if domain_user is None:
-            raise BizError(ErrorCode.UserAlreadyInDomainBadRequestError)
-        # check domain role
-        await DomainRole.ensure_exists(domain=domain, role=role)
-        # update role
-        domain_user.role = role
-        await domain_user.save()
-        return domain_user
-
 
 # @instance.register
 # class DomainUser(DocumentMixin, MotorAsyncIODocument):

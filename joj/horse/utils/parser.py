@@ -52,6 +52,16 @@ async def parse_domain(domain: models.Domain = Depends(get_domain)) -> models.Do
     return domain
 
 
+async def parse_domain_user(
+    domain: models.Domain = Depends(parse_domain),
+    user: models.User = Depends(parse_user_from_path_or_query),
+) -> models.Domain:
+    domain_user = await models.DomainUser.get_or_none(domain=domain, user=user)
+    if domain_user is None:
+        raise BizError(ErrorCode.DomainUserNotFoundError)
+    return domain_user
+
+
 async def parse_domain_role(
     role: NoneEmptyLongStr = Path(..., description="name of the domain role"),
     domain: models.Domain = Depends(parse_domain),

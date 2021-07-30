@@ -20,6 +20,7 @@ from joj.horse.utils.parser import (
     parse_domain,
     parse_domain_invitation,
     parse_domain_role,
+    parse_domain_user,
     parse_ordering_query,
     parse_pagination_query,
     parse_uid,
@@ -184,10 +185,8 @@ async def add_domain_user(
 async def get_domain_user(
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_path_or_query),
+    domain_user: models.DomainUser = Depends(parse_domain_user),
 ) -> StandardResponse[schemas.DomainUser]:
-    domain_user = await models.DomainUser.get_or_none(domain=domain, user=user)
-    if domain_user is None:
-        raise BizError(ErrorCode.DomainUserNotFoundError)
     return StandardResponse(schemas.DomainUser.from_orm(domain_user))
 
 
@@ -197,12 +196,9 @@ async def get_domain_user(
 )
 async def remove_domain_user(
     domain: models.Domain = Depends(parse_domain),
-    user: models.User = Depends(parse_user_from_path_or_query),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
+    domain_user: models.DomainUser = Depends(parse_domain_user),
 ) -> StandardResponse[Empty]:
-    domain_user = await models.DomainUser.get_or_none(domain=domain, user=user)
-    if not domain_user:
-        raise BizError(ErrorCode.DomainUserNotFoundError)
     # nobody (including domain owner himself) can remove domain owner
     if domain_user.id == domain.owner_id:
         raise BizError(ErrorCode.DomainNotOwnerError)
@@ -219,22 +215,21 @@ async def remove_domain_user(
 )
 async def update_domain_user(
     domain: models.Domain = Depends(parse_domain),
-    user: models.User = Depends(parse_user_from_path_or_query),
     role: str = Body(DefaultRole.USER),
     domain_auth: DomainAuthentication = Depends(),
+    domain_user: models.DomainUser = Depends(parse_domain_user),
 ) -> StandardResponse[schemas.DomainUser]:
     # domain owner must be root member
-    domain_user = await models.DomainUser.get_or_none(domain=domain, user=user)
     if role != DefaultRole.ROOT and domain_user.id == domain.owner_id:
         raise BizError(ErrorCode.DomainNotRootError)
     # only root member (or site root) can add root member
     if role == DefaultRole.ROOT and not domain_auth.auth.is_domain_root():
         raise BizError(ErrorCode.DomainNotRootError)
+    await models.DomainRole.ensure_exists(domain=domain, role=role)
     # update member
-    domain_user_model = await models.DomainUser.update_domain_user(
-        domain=domain, user=user, role=role
-    )
-    return StandardResponse(schemas.DomainUser.from_orm(domain_user_model))
+    domain_user.role = role
+    await domain_user.save()
+    return StandardResponse(schemas.DomainUser.from_orm(domain_user))
 
 
 @router.get(
@@ -243,11 +238,8 @@ async def update_domain_user(
 )
 async def get_domain_user_permission(
     domain: models.Domain = Depends(parse_domain),
-    user: models.User = Depends(parse_user_from_path_or_query),
+    domain_user: models.DomainUser = Depends(parse_domain_user),
 ) -> StandardResponse[schemas.DomainUserPermission]:
-    domain_user = await models.DomainUser.get_or_none(domain=domain, user=user)
-    if domain_user is None:
-        raise BizError(ErrorCode.DomainUserNotFoundError)
     domain_role = await models.DomainRole.get_or_none(
         domain=domain, role=domain_user.role
     )
