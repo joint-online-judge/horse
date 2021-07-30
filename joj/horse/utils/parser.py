@@ -159,7 +159,7 @@ class OrderingQueryParser:
             "",
             description="Comma seperated list of ordering the results.\n"
             "You may also specify reverse orderings by prefixing the field name with '-'.",
-            example="-name,created_at",
+            example="-name",
         ),
     ) -> OrderingQuery:
         orderings = list(filter(None, ordering.split(",")))

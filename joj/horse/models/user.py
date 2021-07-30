@@ -76,7 +76,7 @@ class User(BaseORMModel):
         scope = "sjtu"
         try:
             user = await cls.find_by_uname(scope=scope, uname=jaccount_name)
-            if user:  # pragma: no cover
+            if user:
                 user.login_at = timezone.now()
                 user.login_ip = ip
             else:
