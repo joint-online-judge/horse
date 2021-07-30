@@ -321,6 +321,28 @@ class TestDomainUserGet:
     url_base = "get_domain_user"
 
     @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_with_url")])
+    async def test_get_user(
+        self,
+        client: AsyncClient,
+        global_root_user: models.User,
+        global_domain_root_user: models.User,
+        domain: models.Domain,
+    ) -> None:
+        url = app.url_path_for(
+            self.url_base,
+            domain=domain.url,
+            user=str(global_domain_root_user.id),
+        )
+        response = await do_api_request(client, "GET", url, global_root_user)
+        assert response.status_code == 200
+        res = response.json()
+        assert res["error_code"] == ErrorCode.Success
+        res = res["data"]
+        assert res["role"] == global_root_user.role
+        assert res["domain_id"] == str(domain.id)
+        assert res["user_id"] == str(global_domain_root_user.id)
+
+    @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_with_url")])
     async def test_not_exist_user(
         self,
         client: AsyncClient,
