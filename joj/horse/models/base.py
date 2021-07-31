@@ -1,6 +1,5 @@
 from functools import lru_cache
 from typing import TYPE_CHECKING, List, Optional, Type, TypeVar
-from uuid import uuid4
 
 from pydantic import BaseModel
 from tortoise import BaseDBAsyncClient, Tortoise, fields, models, queryset
@@ -24,7 +23,7 @@ class BaseORMModel(models.Model):
     created_at = fields.DatetimeField(null=True, auto_now_add=True)
     updated_at = fields.DatetimeField(null=True, auto_now=True)
 
-    def __str__(self) -> str:
+    def __str__(self) -> str:  # pragma: no cover
         return str({k: v for k, v in self.__dict__.items() if not k.startswith("_")})
 
     def update_from_schema(self: "BaseORMModel", schema: BaseModel) -> None:
@@ -96,8 +95,6 @@ async def url_pre_save(
     using_db: "Optional[BaseDBAsyncClient]",
     update_fields: List[str],
 ) -> None:
-    if not instance.id:
-        instance.id = uuid4()
     if not instance.url:
         instance.url = str(instance.id)
 

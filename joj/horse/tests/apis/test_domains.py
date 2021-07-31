@@ -191,11 +191,18 @@ class TestDomainList:
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
     async def test_list_domain(self, client: AsyncClient, user: models.User) -> None:
         url = app.url_path_for("list_domains")
-        response = await do_api_request(client, "GET", url, user)
+        response = await do_api_request(client, "GET", url, user, {"ordering": "-name"})
         assert response.status_code == 200
         res = response.json()
-        assert res["data"]["count"] == 3
-        assert len(res["data"]["results"]) == 3
+        res = res["data"]
+        assert res["count"] == 3
+        assert len(res["results"]) == 3
+        response = await do_api_request(client, "GET", url, user, {"ordering": "name"})
+        assert response.status_code == 200
+        res = response.json()
+        res = res["data"]
+        assert res["count"] == 3
+        assert len(res["results"]) == 3
 
 
 @pytest.mark.asyncio
@@ -316,7 +323,30 @@ class TestDomainUserAdd:
 
 
 @pytest.mark.asyncio
-@pytest.mark.depends(name="TestDomainUserGet", on=["TestDomainUserAdd"])
+@pytest.mark.depends(name="TestDomainUserList", on=["TestDomainUserAdd"])
+class TestDomainUserList:
+    @pytest.mark.parametrize(
+        "domain",
+        [
+            lazy_fixture("global_domain_with_url"),
+            lazy_fixture("global_domain_with_all"),
+        ],
+    )
+    @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
+    async def test_list_domain_user(
+        self, client: AsyncClient, domain: models.Domain, user: models.User
+    ) -> None:
+        url = app.url_path_for("list_domain_users", domain=domain.id)
+        response = await do_api_request(client, "GET", url, user)
+        assert response.status_code == 200
+        res = response.json()
+        res = res["data"]
+        assert res["count"] == 3
+        assert len(res["results"]) == 3
+
+
+@pytest.mark.asyncio
+@pytest.mark.depends(name="TestDomainUserGet", on=["TestDomainUserList"])
 class TestDomainUserGet:
     url_base = "get_domain_user"
 

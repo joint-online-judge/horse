@@ -52,7 +52,7 @@ class TestUserGet:
 
 
 @pytest.mark.asyncio
-class TestErrorUserGet:
+class TestUserGetError:
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
     async def test_scope_error_user(self, client: AsyncClient, user: User) -> None:
         user_copy = copy(user)

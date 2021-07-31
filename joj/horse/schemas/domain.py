@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import Field
 from tortoise.contrib.pydantic import pydantic_model_creator
@@ -41,7 +41,3 @@ DomainGenerated = pydantic_model_creator(DomainModel, name="Domain", exclude=("o
 
 class Domain(DomainGenerated):  # type: ignore
     owner: UserBase
-
-
-class ListDomains(BaseModel):
-    results: List[Domain]
