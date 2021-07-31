@@ -7,13 +7,7 @@ from joj.horse.models.base import BaseORMModel, URLMixin, url_pre_save
 from joj.horse.models.user import User
 
 if TYPE_CHECKING:
-    from joj.horse.models import (
-        DomainRole,
-        DomainUser,
-        Problem,
-        ProblemGroup,
-        ProblemSet,
-    )
+    from joj.horse.models import DomainRole, DomainUser, Problem
     from joj.horse.schemas.query import OrderingQuery, PaginationQuery
 
 
@@ -38,27 +32,25 @@ class Domain(URLMixin, BaseORMModel):
         users: queryset.QuerySet[DomainUser]
         problems: queryset.QuerySet[Problem]
 
-    async def find_problems(
-        self,
-        include_hidden: bool = False,
-        problem_set: Optional["ProblemSet"] = None,
-        problem_group: Optional["ProblemGroup"] = None,
+    @classmethod
+    async def find_by_user(
+        cls,
+        user: User,
+        role: Optional[List[str]] = None,
         ordering: Optional["OrderingQuery"] = None,
         pagination: Optional["PaginationQuery"] = None,
-    ) -> Tuple[List["Problem"], int]:
-        if problem_set:
-            query_set = problem_set.problems.filter(domain=self)
-        else:
-            query_set = self.problems.all()
-        if not include_hidden:
-            query_set = query_set.filter(hidden=False)
-        if problem_group:
-            query_set = query_set.filter(problem_group=problem_group)
-        query_set = self.apply_ordering(query_set, ordering)
+    ) -> Tuple[List["Domain"], int]:
+        if user.role != "root":
+            # TODO: root user can view all domains
+            pass
+        query_set = user.domains.all()
+        if role is not None:
+            query_set = query_set.filter(role__in=role)
+        query_set = query_set.select_related("domain", "domain__owner")
+        query_set = cls.apply_ordering(query_set, ordering, prefix="domain__")
         count = await query_set.count()
-        query_set = self.apply_pagination(query_set, pagination)
-        problems = await query_set
-        return problems, count
+        query_set = cls.apply_pagination(query_set, pagination)
+        return [domain_user.domain for domain_user in await query_set], count
 
 
 signals.pre_save(Domain)(url_pre_save)

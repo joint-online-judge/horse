@@ -47,7 +47,8 @@ async def list_problems(
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     include_hidden: bool = Depends(parse_view_hidden_problem),
 ) -> StandardListResponse[schemas.Problem]:
-    problems, count = await domain.find_problems(
+    problems, count = await models.Problem.find_by_domain(
+        domain,
         include_hidden=include_hidden,
         problem_set=problem_set,
         problem_group=problem_group,

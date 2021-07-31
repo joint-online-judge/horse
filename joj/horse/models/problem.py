@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional, Tuple
 from uuid import UUID
 
 from tortoise import fields, signals
@@ -7,6 +7,10 @@ from joj.horse.models.base import BaseORMModel, DomainURLMixin, url_pre_save
 from joj.horse.models.domain import Domain
 from joj.horse.models.problem_group import ProblemGroup
 from joj.horse.models.user import User
+
+if TYPE_CHECKING:
+    from joj.horse.models.problem_set import ProblemSet
+    from joj.horse.schemas.query import OrderingQuery, PaginationQuery
 
 
 class Problem(DomainURLMixin, BaseORMModel):
@@ -43,6 +47,29 @@ class Problem(DomainURLMixin, BaseORMModel):
 
     if TYPE_CHECKING:
         problem_group_id: UUID
+
+    @classmethod
+    async def find_by_domain(
+        cls,
+        domain: Domain,
+        include_hidden: bool = False,
+        problem_set: Optional["ProblemSet"] = None,
+        problem_group: Optional["ProblemGroup"] = None,
+        ordering: Optional["OrderingQuery"] = None,
+        pagination: Optional["PaginationQuery"] = None,
+    ) -> Tuple[List["Problem"], int]:
+        if problem_set:
+            query_set = problem_set.problems.filter(domain=domain)
+        else:
+            query_set = domain.problems.all()
+        if not include_hidden:
+            query_set = query_set.filter(hidden=False)
+        if problem_group:
+            query_set = query_set.filter(problem_group=problem_group)
+        query_set = cls.apply_ordering(query_set, ordering)
+        count = await query_set.count()
+        query_set = cls.apply_pagination(query_set, pagination)
+        return await query_set, count
 
 
 signals.pre_save(Problem)(url_pre_save)

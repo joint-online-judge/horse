@@ -43,7 +43,9 @@ async def list_domains(
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardListResponse[schemas.Domain]:
     """List all domains that the current user has a role."""
-    domains, count = await user.find_domains(role, ordering, pagination)
+    domains, count = await models.Domain.find_by_user(
+        user, role=role, ordering=ordering, pagination=pagination
+    )
     domains = [schemas.Domain.from_orm(domain) for domain in domains]
     return StandardListResponse(domains, count)
 
