@@ -105,6 +105,20 @@ class TestDomainGet:
         response = await do_api_request(client, "GET", url, user)
         await validate_test_domain(response, user, domain)
 
+    @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
+    @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_with_url")])
+    async def test_domain_not_exist(
+        self,
+        client: AsyncClient,
+        user: models.User,
+        domain: models.Domain,
+    ) -> None:
+        url = app.url_path_for(self.url_base, domain=domain.url + "_not_exist")
+        response = await do_api_request(client, "GET", url, user)
+        assert response.status_code == 200
+        res = response.json()
+        assert res["error_code"] == ErrorCode.DomainNotFoundError
+
 
 @pytest.mark.asyncio
 @pytest.mark.depends(name="TestDomainUpdate", on=["TestDomainGet"])

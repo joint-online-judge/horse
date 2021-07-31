@@ -118,14 +118,13 @@ def get_site_role(user: Optional[User] = Depends(get_current_user)) -> str:
     if user:
         return user.role
     # the default site role is guest
-    return DefaultRole.GUEST
+    return DefaultRole.GUEST  # pragma: no cover
 
 
 def get_site_permission(site_role: str = Depends(get_site_role)) -> SitePermission:
     if site_role in DEFAULT_SITE_PERMISSION:
         return DEFAULT_SITE_PERMISSION[DefaultRole(site_role)]
-    else:
-        return DEFAULT_SITE_PERMISSION[DefaultRole.GUEST]
+    return DEFAULT_SITE_PERMISSION[DefaultRole.GUEST]  # pragma: no cover
 
 
 async def get_domain(
@@ -146,7 +145,7 @@ async def get_domain_role(
         if domain_user:
             return domain_user.role
     # the default site role is guest
-    return DefaultRole.GUEST
+    return DefaultRole.GUEST  # pragma: no cover
 
 
 async def get_domain_permission(
@@ -154,16 +153,12 @@ async def get_domain_permission(
 ) -> DomainPermission:
     if domain_role == DefaultRole.ROOT:
         return DEFAULT_DOMAIN_PERMISSION[DefaultRole.ROOT]
-    if domain:
-        _domain_role = await DomainRole.get_or_none(domain=domain.id, role=domain_role)
-    else:
-        _domain_role = None
+    _domain_role = await DomainRole.get_or_none(domain=domain.id, role=domain_role)
     if _domain_role:
         return DomainPermission(**_domain_role.permission)
-    elif domain_role in DEFAULT_DOMAIN_PERMISSION:
+    elif domain_role in DEFAULT_DOMAIN_PERMISSION:  # pragma: no cover
         return DEFAULT_DOMAIN_PERMISSION[DefaultRole(domain_role)]
-    else:
-        return DEFAULT_DOMAIN_PERMISSION[DefaultRole.GUEST]
+    return DEFAULT_DOMAIN_PERMISSION[DefaultRole.GUEST]  # pragma: no cover
 
 
 def is_domain_permission(scope: ScopeType) -> bool:
@@ -289,7 +284,9 @@ class PermissionChecker:
         if not isinstance(self.perm, PermKey) and not isinstance(
             self.perm, PermCompose
         ):
-            raise InternalServerError(message="Permission Definition Error!")
+            raise InternalServerError(
+                message="Permission Definition Error!"
+            )  # pragma: no cover
         result = self.check(auth, perm)
         if result is not None:
             raise ForbiddenError(
