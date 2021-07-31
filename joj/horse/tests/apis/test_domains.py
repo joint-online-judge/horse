@@ -202,21 +202,44 @@ class TestDomainDelete:
 @pytest.mark.asyncio
 @pytest.mark.depends(on=["TestDomainCreate"])
 class TestDomainList:
+    url = app.url_path_for("list_domains")
+
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
-    async def test_list_domain(self, client: AsyncClient, user: models.User) -> None:
-        url = app.url_path_for("list_domains")
-        response = await do_api_request(client, "GET", url, user, {"ordering": "-name"})
+    async def test_list_domain_asc(
+        self, client: AsyncClient, user: models.User
+    ) -> None:
+        response = await do_api_request(
+            client, "GET", self.url, user, {"ordering": "-name"}
+        )
         assert response.status_code == 200
         res = response.json()
         res = res["data"]
         assert res["count"] == 3
         assert len(res["results"]) == 3
-        response = await do_api_request(client, "GET", url, user, {"ordering": "name"})
+
+    @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
+    async def test_list_domain_desc(
+        self, client: AsyncClient, user: models.User
+    ) -> None:
+        response = await do_api_request(
+            client, "GET", self.url, user, {"ordering": "name"}
+        )
         assert response.status_code == 200
         res = response.json()
         res = res["data"]
         assert res["count"] == 3
         assert len(res["results"]) == 3
+
+    @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
+    async def test_list_domain_illegal_field(
+        self, client: AsyncClient, user: models.User
+    ) -> None:
+        response = await do_api_request(
+            client, "GET", self.url, user, {"ordering": "error_field"}
+        )
+        assert response.status_code == 200
+        res = response.json()
+        assert res["error_code"] == ErrorCode.IllegalFieldError
 
 
 @pytest.mark.asyncio
