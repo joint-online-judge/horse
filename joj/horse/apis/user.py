@@ -1,6 +1,6 @@
 from typing import Union
 
-import aiohttp
+import httpx
 import jwt
 from fastapi import Cookie, Depends, Query, Request
 from fastapi_jwt_auth import AuthJWT
@@ -102,15 +102,15 @@ async def jaccount_auth(
     )
 
     try:
-        async with aiohttp.ClientSession() as http:
-            async with http.post(
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
                 token_url, headers=headers, data=body.encode("utf-8")
-            ) as resp:
-                data = await resp.json()
-                parsed_data = jwt.decode(
-                    data["id_token"], verify=False, options={"verify_signature": False}
-                )
-                id_token = IDToken(**parsed_data)
+            )
+            data = resp.json()
+            parsed_data = jwt.decode(
+                data["id_token"], verify=False, options={"verify_signature": False}
+            )
+            id_token = IDToken(**parsed_data)
     except Exception:
         logger.exception("Jaccount auth error")
         raise BadRequestError(message="Jaccount authentication failed")
