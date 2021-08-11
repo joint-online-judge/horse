@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 50e8fbb@2021-07-28 13:34:13",
+    "description": "Git version: b134e64@2021-08-11 17:59:40",
     "version": "0.0.0"
   },
   "paths": {
@@ -5460,9 +5460,9 @@
             "title": "Moss Results",
             "type": "array",
             "items": {
-              "type": "string",
-              "minLength": 1,
               "maxLength": 2083,
+              "minLength": 1,
+              "type": "string",
               "format": "uri"
             },
             "default": []
@@ -5613,14 +5613,14 @@
             "type": "string",
             "description": "the problem set is available from",
             "format": "date-time",
-            "default": "2021-07-28T13:35:45.487459"
+            "default": "2021-08-11T18:01:30.706968"
           },
           "due_time": {
             "title": "Due Time",
             "type": "string",
             "description": "the problem set is due at",
             "format": "date-time",
-            "default": "2021-08-04T13:35:45.487464"
+            "default": "2021-08-18T18:01:30.706974"
           }
         }
       },
@@ -6309,7 +6309,8 @@
     "securitySchemes": {
       "HTTPBearer": {
         "type": "http",
-        "scheme": "bearer"
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   }
