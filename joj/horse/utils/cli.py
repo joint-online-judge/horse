@@ -1,21 +1,57 @@
 import asyncio
 from functools import lru_cache, wraps
-from typing import Any, Callable, List
+from typing import Any, Callable, List, Optional, Tuple, Type
 
 import click
+from click_option_group import optgroup
+from pydantic import BaseModel
 
-from joj.horse.config import get_settings
+from joj.horse.config import AllSettings, Settings
+
+
+def parse_settings_group(cls: Type[BaseModel]) -> Tuple[str, str]:
+    docstring = cls.__doc__ or ""
+    help_index = docstring.find("\n\n")
+    if help_index < 0:
+        name = docstring
+        help_str = ""
+    else:
+        name = docstring[:help_index]
+        help_str = docstring[help_index + 2 :]
+    return name, help_str
+
+
+def get_option_name(name: str, _type: type) -> str:
+    name = name.replace("_", "-")
+    if _type == bool:
+        return f"--{name}/--no-{name}"
+    return f"--{name}"
+
+
+def get_option_help(description: Optional[str], default: Any) -> str:
+    result = (description or "") + "\n"
+    if default is not None:
+        result += f"[default: {str(default)}]"
+    return result
 
 
 @lru_cache()
 def get_global_options() -> List[Any]:
     global_options = [click.argument("args", nargs=-1)]
-    _settings = get_settings()
-    for key, value in _settings.__fields__.items():
-        opt_name = "--" + key.replace("_", "-")
-        global_options.append(
-            click.option(opt_name, type=value.type_, is_flag=(value.type_ == bool))
-        )
+    for cls in AllSettings:
+        name, help_str = parse_settings_group(cls)
+        global_options.append(optgroup.group(name=name, help=help_str))
+        for key, value in cls.__fields__.items():
+            opt_name = get_option_name(key, value.type_)
+            help_str = get_option_help(value.field_info.description, value.default)
+            global_options.append(
+                optgroup.option(
+                    opt_name,
+                    type=value.type_,
+                    help=help_str,
+                    default=None,
+                )
+            )
     return global_options
 
 
@@ -30,7 +66,12 @@ def add_options(options: List[Any]) -> Callable[..., Callable[..., Any]]:
 
 def cli_command_start(name: str = None) -> Any:
     def decorator(func: Any) -> Any:
-        @click.command(name=name)
+        context_settings = dict(
+            help_option_names=["-h", "--help"],
+            max_content_width=88,
+        )
+
+        @click.command(name=name, context_settings=context_settings)
         @add_options(get_global_options())
         @wraps(func)
         def wrapped(*args: Any, **kwargs: Any) -> Any:
@@ -41,21 +82,20 @@ def cli_command_start(name: str = None) -> Any:
     return decorator
 
 
-def cli_command_end() -> Any:
-    _settings = get_settings()
+cli_settings = {}
 
+
+def cli_command_end() -> Any:
     def decorator(func: Any) -> Any:
         @wraps(func)
         def wrapped(args: Any, **kwargs: Any) -> Any:
             new_kwargs = {}
             for key, value in kwargs.items():
-                if key in _settings.__fields__:
-                    if value:
-                        _settings.__setattr__(key, value)
+                if key in Settings.__fields__:
+                    if value is not None:
+                        cli_settings[key] = value
                 else:
                     new_kwargs[key] = value
-            # from joj.horse.utils.db import get_db
-            # get_db()
             return func(*args, **new_kwargs)
 
         return wrapped

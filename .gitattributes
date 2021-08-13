@@ -1,2 +1,4 @@
 # Dockerfile make the repo not pure python
 Dockerfile linguist-vendored
+# ignore the generated migration files
+migrations/** linguist-generated

@@ -34,4 +34,4 @@ ENV HOST="localhost" \
 
 EXPOSE $PORT
 
-CMD python3 -m joj.horse
+CMD aerich upgrade && python3 -m joj.horse

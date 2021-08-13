@@ -7,7 +7,8 @@ from fastapi import FastAPI
 from httpx import AsyncClient
 from tortoise.contrib.test import finalizer, initializer
 
-from joj.horse import app as fastapi_app, models
+from joj.horse import models
+from joj.horse.app import app as fastapi_app
 from joj.horse.config import settings
 from joj.horse.models.permission import DefaultRole
 from joj.horse.tests.utils.utils import (
