@@ -94,7 +94,6 @@ def cli_command_end() -> Any:
                 if key in Settings.__fields__:
                     if value is not None:
                         cli_settings[key] = value
-                    pass
                 else:
                     new_kwargs[key] = value
             return func(*args, **new_kwargs)
