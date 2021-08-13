@@ -33,6 +33,8 @@ jobs:
         id: meta
         with:
           images: ghcr.io/joint-online-judge/horse
+          flavor: |
+            latest=${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
       - name: Set output
         id: output
         run: |
