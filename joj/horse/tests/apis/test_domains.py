@@ -4,7 +4,8 @@ import pytest
 from httpx import AsyncClient, Response
 from pytest_lazyfixture import lazy_fixture
 
-from joj.horse import apis, app, models
+from joj.horse import apis, models
+from joj.horse.app import app
 from joj.horse.models.permission import DefaultRole
 from joj.horse.tests.utils.utils import (
     create_test_domain,

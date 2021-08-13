@@ -184,7 +184,7 @@ class SettingsProxy:
 def get_settings() -> Settings:
     _settings = Settings()
     settings._set(_settings)  # type: ignore
-    print(_settings)
+    # print(_settings)
     return _settings
 
 
