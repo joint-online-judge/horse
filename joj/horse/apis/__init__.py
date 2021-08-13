@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING, Any, Callable
 
 from fastapi import FastAPI
 
-from joj.horse import app
 from joj.horse.apis import (
     admin as admin,
     domains as domains,
@@ -15,6 +14,7 @@ from joj.horse.apis import (
     users as users,
 )
 from joj.horse.apis.problems import submit_solution_to_problem, update_problem_config
+from joj.horse.app import app
 
 
 def include_router(module: Any) -> None:
