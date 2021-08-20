@@ -5613,14 +5613,14 @@
             "type": "string",
             "description": "the problem set is available from",
             "format": "date-time",
-            "default": "2021-08-13T14:02:58.398244"
+            "default": "2021-08-20T16:03:29.566051"
           },
           "due_time": {
             "title": "Due Time",
             "type": "string",
             "description": "the problem set is due at",
             "format": "date-time",
-            "default": "2021-08-20T14:02:58.398249"
+            "default": "2021-08-27T16:03:29.566057"
           }
         }
       },
