@@ -10,18 +10,33 @@ RUN --mount=type=cache,target=/var/cache/apt \
     apt-get install -y --no-install-recommends git && \
     rm -rf /var/lib/apt/lists/*
 
-RUN pip install git+https://github.com/joint-online-judge/elephant@master#egg=joj-elephant --no-cache-dir
-
+# install poetry
 ARG PYPI_MIRROR
-
 RUN if [[ ! -z "$PYPI_MIRROR" ]]; then pip config set global.index-url $PYPI_MIRROR; fi
+RUN --mount=type=cache,target=/root/.cache/pip pip install poetry
 
-COPY requirements.txt setup.py setup.cfg README.md /root/
-RUN mkdir -p /root/joj/horse
-RUN --mount=type=cache,target=/root/.cache/pip PBR_VERSION=0.0.0 pip install .[test]
+# RUN poetry config virtualenvs.in-project true
 
+# create virtualenv
+ENV VIRTUAL_ENV=/root/.venv
+RUN python3 -m virtualenv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# install dependencies
+# RUN pip install git+https://github.com/joint-online-judge/elephant@master#egg=joj-elephant --no-cache-dir
+COPY pyproject.toml poetry.lock /root/
+COPY joj/horse/__init__.py /root/joj/horse/
+RUN --mount=type=cache,target=/root/.cache/pip poetry install --no-dev
 COPY . /root
-RUN --mount=type=cache,target=/root/.cache/pip pip install .
+RUN --mount=type=cache,target=/root/.cache/pip poetry install --no-dev
+
+
+#COPY requirements.txt setup.py setup.cfg README.md /root/
+#RUN mkdir -p /root/joj/horse
+#RUN --mount=type=cache,target=/root/.cache/pip PBR_VERSION=0.0.0 pip install .[test]
+
+#COPY . /root
+#RUN --mount=type=cache,target=/root/.cache/pip pip install .
 
 ENV HOST="localhost" \
     PORT=34765 \

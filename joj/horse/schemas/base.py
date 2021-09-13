@@ -95,7 +95,7 @@ def get_standard_list_response_sub_model(
     )
 
 
-@lru_cache(maxsize=256)
+@lru_cache(maxsize=None)
 def get_standard_response_model(
     cls: Type[PydanticBaseModel], is_list: bool = False
 ) -> Tuple[Type[PydanticBaseModel], Optional[Type[PydanticBaseModel]]]:
