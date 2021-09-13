@@ -115,7 +115,7 @@ jobs:
           docker pull ${{ needs.build.outputs.tag }}
       - name: Test and Generate coverage report
         run: |
-          docker run --rm --network host -v "$(pwd)":"/root" ghcr.io/joint-online-judge/horse:${{ needs.build.outputs.tag }} /bin/bash -c "poetry install --no-dev -E test; pytest --cov=./ --cov-report=xml"
+          docker run --rm --network host -v "$(pwd)":"/root" ${{ needs.build.outputs.tag }} /bin/bash -c "poetry install --no-dev -E test; pytest --cov=./ --cov-report=xml"
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
