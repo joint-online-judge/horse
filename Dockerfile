@@ -12,7 +12,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
 
 # install poetry
 ARG PYPI_MIRROR
-RUN if [[ ! -z "$PYPI_MIRROR" ]]; then pip config set global.index-url $PYPI_MIRROR; fi
+RUN if [ ! -z "$PYPI_MIRROR" ]; then pip config set global.index-url $PYPI_MIRROR; fi
 RUN --mount=type=cache,target=/root/.cache/pip pip install poetry
 
 # RUN poetry config virtualenvs.in-project true
@@ -24,7 +24,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # install dependencies
 # RUN pip install git+https://github.com/joint-online-judge/elephant@master#egg=joj-elephant --no-cache-dir
-COPY pyproject.toml poetry.lock /root/
+COPY pyproject.toml poetry.lock README.md /root/
 COPY joj/horse/__init__.py /root/joj/horse/
 RUN --mount=type=cache,target=/root/.cache/pip poetry install --no-dev
 COPY . /root
