@@ -9,7 +9,7 @@ exclude_lines = [
     "if __name__ == \"__main__\":",
     "assert False",
 ]
-omit = "setup.py"
+omit = ["setup.py"]
 
 [tool.poetry]
 authors = ["JOJ Dev Team <liuyh615@126.com>"]
@@ -29,13 +29,13 @@ version = "0.1.0"
 [tool.poetry.dependencies]
 aerich = "^0.5.8"
 aiocache = {extras = ["redis", "msgpack"], version = "^0.11.1"}
-asgi-lifespan = {version = "^1.0.1", extras = ["test"]}
-asynctest = {version = "^0.13.0", extras = ["test"]}
+asgi-lifespan = {version = "^1.0.1", optional = true}
+asynctest = {version = "^0.13.0", optional = true}
 boto3 = "^1.18.38"
 celery = "^5.1.2"
 click = "7.1.2"
 click-option-group = "^0.5.3"
-coverage = {extras = ["test"], version = "^5.5"}
+coverage = {version = "^5.5", optional = true}
 fastapi = {extras = ["all"], version = "^0.68.1"}
 fastapi-jwt-auth = "^0.5.0"
 fastapi-utils = "^0.2.1"
@@ -47,11 +47,11 @@ lakefs-client = "0.47.0"
 oauth-jaccount = "^0.1.5"
 pbr = "^5.6.0"
 pydantic = {extras = ["dotenv"], version = "^1.8.2"}
-pytest = {version = "^6.2.5", extras = ["test"]}
-pytest-asyncio = {version = "^0.15.1", extras = ["test"]}
-pytest-cov = {version = "^2.12.1", extras = ["test"]}
-pytest-depends = {version = "^1.0.1", extras = ["test"]}
-pytest-lazy-fixture = {version = "^0.6.3", extras = ["test"]}
+pytest = {version = "^6.2.5", optional = true}
+pytest-asyncio = {version = "^0.15.1", optional = true}
+pytest-cov = {version = "^2.12.1", optional = true}
+pytest-depends = {version = "^1.0.1", optional = true}
+pytest-lazy-fixture = {version = "^0.6.3", optional = true}
 python = "^3.8"
 python-multipart = "^0.0.5"
 python-rapidjson = "^1.4"
@@ -62,6 +62,18 @@ tortoise-orm = {extras = ["asyncpg"], version = "^0.17.7"}
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.15.0"
+
+[tool.poetry.extras]
+test = [
+    "asgi-lifespan",
+    "asynctest",
+    "coverage",
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "pytest-depends",
+    "pytest-lazy-fixture",
+]
 
 [tool.pytest.ini_options]
 filterwarnings = "ignore::DeprecationWarning"
