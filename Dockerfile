@@ -12,7 +12,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
 
 # install poetry
 ARG PYPI_MIRROR
-RUN if [ ! -z "$PYPI_MIRROR" ]; then pip config set global.index-url $PYPI_MIRROR; fi
+RUN if [ -n "$PYPI_MIRROR" ]; then pip config set global.index-url $PYPI_MIRROR; fi
 RUN --mount=type=cache,target=/root/.cache/pip pip install poetry
 
 # create virtualenv
