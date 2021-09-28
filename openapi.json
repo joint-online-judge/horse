@@ -2,8 +2,8 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 931c1a8@2021-08-13 14:01:37",
-    "version": "0.0.0"
+    "description": "Git version: 3b82b34@2021-09-28 14:44:31",
+    "version": "0.1.0"
   },
   "paths": {
     "/": {
@@ -5613,14 +5613,14 @@
             "type": "string",
             "description": "the problem set is available from",
             "format": "date-time",
-            "default": "2021-08-20T16:03:29.566051"
+            "default": "2021-09-28T14:46:52.814610"
           },
           "due_time": {
             "title": "Due Time",
             "type": "string",
             "description": "the problem set is due at",
             "format": "date-time",
-            "default": "2021-08-27T16:03:29.566057"
+            "default": "2021-10-05T14:46:52.814617"
           }
         }
       },
