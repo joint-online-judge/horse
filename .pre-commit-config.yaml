@@ -3,9 +3,15 @@ repos:
     rev: v4.0.1
     hooks:
       - id: check-yaml
+      - id: check-toml
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: requirements-txt-fixer
+  - repo: https://github.com/pappasam/toml-sort.git
+    rev: v0.19.0
+    hooks:
+      - id: toml-sort
+        args: [ "--in-place", "--all", "--ignore-case" ]
   - repo: https://github.com/asottile/pyupgrade
     rev: v2.21.0
     hooks:
