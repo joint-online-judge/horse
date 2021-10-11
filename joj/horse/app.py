@@ -2,17 +2,19 @@ import asyncio
 from typing import Any
 
 import sentry_sdk
-from fastapi import FastAPI, Request, status
+from fastapi import Depends, FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.responses import JSONResponse, RedirectResponse
+from starlette_context import plugins
+from starlette_context.middleware import RawContextMiddleware
 from tenacity import RetryError
 from tortoise import Tortoise, exceptions as tortoise_exceptions
 from uvicorn.config import logger
 
 from joj.horse.config import get_settings
-from joj.horse.utils.db import try_init_db
+from joj.horse.utils.db import db_session, db_session_dependency, try_init_db
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.lakefs import (
     LakeFSApiException,
@@ -30,6 +32,7 @@ app = FastAPI(
     openapi_url="/api/v1/openapi.json",
     docs_url="/api/v1",
     redoc_url="/api/v1/redoc",
+    dependencies=[Depends(db_session_dependency)],
 )
 
 
@@ -62,6 +65,8 @@ async def shutdown_event() -> None:
 @app.get("/api")
 @app.get("/")
 async def redirect_to_docs() -> RedirectResponse:
+    async with db_session() as session:
+        print(session)
     redirect_url = generate_url("/api/v1?docExpansion=none")
     return RedirectResponse(redirect_url)
 
@@ -120,5 +125,10 @@ async def catch_exceptions_middleware(request: Request, call_next: Any) -> JSONR
 sentry_sdk.init(dsn=settings.dsn, traces_sample_rate=settings.traces_sample_rate)
 app.add_middleware(SentryAsgiMiddleware)
 app.middleware("http")(catch_exceptions_middleware)
+app.add_middleware(
+    RawContextMiddleware,
+    plugins=(plugins.RequestIdPlugin(), plugins.CorrelationIdPlugin()),
+)
+
 
 import joj.horse.apis  # noqa: F401
