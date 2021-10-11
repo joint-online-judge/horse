@@ -84,7 +84,7 @@ class ObjectStorageSettings(BaseModel):
 
 class AuthSettings(BaseModel):
     """
-    Aurh configuration
+    Auth configuration
 
     The configuration of JWT, OAuth and Sentry
     """
