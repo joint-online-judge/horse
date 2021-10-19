@@ -1,77 +1,74 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID
 
-from tortoise import fields, signals
+from sqlalchemy.schema import Column, ForeignKey
+from sqlmodel import Field, Relationship
+from sqlmodel.sql.sqltypes import GUID
 
-from joj.horse.models.base import BaseORMModel, DomainURLMixin, url_pre_save
-from joj.horse.models.domain import Domain
-from joj.horse.models.problem_group import ProblemGroup
-from joj.horse.models.user import User
+from joj.horse.models.base import BaseORMModel, DomainURLMixin
+from joj.horse.models.link_tables import ProblemProblemSetLink
+from joj.horse.schemas.base import BaseModel, LongText, NoneEmptyStr, UserInputURL
+
+if TYPE_CHECKING:
+    from joj.horse.models import Domain, ProblemGroup, ProblemSet, User
 
 
-class Problem(DomainURLMixin, BaseORMModel):
-    class Meta:
-        table = "problems"
+class ProblemEdit(BaseModel):
+    url: Optional[UserInputURL]
+    title: Optional[NoneEmptyStr]
+    content: Optional[LongText]
+    hidden: Optional[bool]
+    # data: Optional[int]
+    # data_version: Optional[DataVersion]
+    # languages: Optional[List[LongStr]]
 
-    domain: fields.ForeignKeyRelation[Domain] = fields.ForeignKeyField(
-        "models.Domain",
-        related_name="problems",
-        on_delete=fields.CASCADE,
-        index=True,
+
+class ProblemCreate(BaseModel):
+    url: UserInputURL = Field("", description="(unique in domain) url of the problem")
+    title: NoneEmptyStr = Field(..., description="title of the problem")
+    content: LongText = Field("", description="content of the problem")
+    hidden: bool = Field(False, description="is the problem hidden")
+    # this field can be induced from the config file
+    # data_version: DataVersion = Field(DataVersion.v2)
+    # languages: List[LongStr] = Field(
+    #     [], description="acceptable language of the problem"
+    # )
+    # problem_set: LongStr = Field(..., description="problem set it belongs to")
+
+
+class ProblemClone(BaseModel):
+    problems: List[str]
+    problem_set: str = Field(..., description="url or ObjectId of the problem set")
+    new_group: bool = Field(False, description="whether to create new problem group")
+
+
+class Problem(DomainURLMixin, BaseORMModel, table=True):  # type: ignore[call-arg]
+    __tablename__ = "problems"
+
+    title: str = Field(index=False)
+    content: str = Field(index=False, default="")
+    hidden: bool = Field(index=False, default=False)
+    num_submit: int = Field(index=False, default=0)
+    num_accept: int = Field(index=False, default=0)
+
+    data_version: int = Field(index=False, default=2)
+    languages: str = Field(index=False, default="[]")
+
+    domain_id: UUID = Field(
+        sa_column=Column(GUID, ForeignKey("domains.id", ondelete="CASCADE"))
     )
-    owner: fields.ForeignKeyRelation[User] = fields.ForeignKeyField(
-        "models.User",
-        related_name="owned_problems",
-        on_delete=fields.RESTRICT,
-        index=True,
+    domain: Optional["Domain"] = Relationship(back_populates="problems")
+
+    owner_id: UUID = Field(
+        sa_column=Column(GUID, ForeignKey("users.id", ondelete="RESTRICT"))
     )
-    problem_group: fields.ForeignKeyRelation[ProblemGroup] = fields.ForeignKeyField(
-        "models.ProblemGroup",
-        related_name="problems",
-        on_delete=fields.RESTRICT,
-        index=True,
+    owner: Optional["User"] = Relationship(back_populates="owned_problems")
+
+    problem_group_id: UUID = Field(
+        sa_column=Column(GUID, ForeignKey("problem_groups.id", ondelete="RESTRICT"))
     )
+    problem_group: Optional["ProblemGroup"] = Relationship(back_populates="problems")
 
-    title = fields.CharField(max_length=255)
-    content = fields.CharField(max_length=255, default="")
-    hidden = fields.BooleanField(default=False)
-    num_submit = fields.IntField(default=0)
-    num_accept = fields.IntField(default=0)
-
-    data_version = fields.IntField(default=2)
-    languages = fields.TextField(default="[]")
-
-    if TYPE_CHECKING:
-        problem_group_id: UUID
-
-
-signals.pre_save(Problem)(url_pre_save)
-
-
-# @instance.register
-# class Problem(DocumentMixin, MotorAsyncIODocument):
-#     class Meta:
-#         collection_name = "problems"
-#         indexes = [
-#             IndexModel("domain"),
-#             IndexModel("owner"),
-#             IndexModel("problem_group"),
-#             IndexModel("problem_set"),
-#         ]
-#         strict = False
-#
-#     domain = fields.ReferenceField(Domain, required=True)
-#     owner = fields.ReferenceField(User, required=True)
-#     problem_group = fields.ReferenceField(ProblemGroup, required=True)
-#     # problem_set = fields.ReferenceField(ProblemSet, required=True)
-#
-#     url = fields.StringField(required=True)
-#     title = fields.StringField(required=True)
-#     content = fields.StringField(default="")
-#     hidden = fields.BooleanField(default=False)
-#     num_submit = fields.IntegerField(default=0)
-#     num_accept = fields.IntegerField(default=0)
-#
-#     data = fields.IntegerField()  # modify later
-#     data_version = fields.IntegerField(default=2)
-#     languages = fields.ListField(fields.StringField(), default=List(str))
+    problem_sets: List["ProblemSet"] = Relationship(
+        back_populates="problems", link_model=ProblemProblemSetLink
+    )

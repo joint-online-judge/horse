@@ -1,36 +1,55 @@
+from datetime import datetime
 from functools import lru_cache
-from typing import TYPE_CHECKING, List, Optional, Type, TypeVar
-from uuid import uuid4
+from typing import TYPE_CHECKING, Any, List, Optional, Type, TypeVar
+from uuid import UUID, uuid4
 
-from pydantic import BaseModel
-from tortoise import BaseDBAsyncClient, Tortoise, fields, models, queryset
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.sql.functions import FunctionElement
+from sqlalchemy.types import DateTime
+from sqlmodel import Field, SQLModel, select
+from tortoise import BaseDBAsyncClient, Tortoise, queryset
 
+from joj.horse.schemas.base import UserInputURL
 from joj.horse.utils.base import is_uuid
+from joj.horse.utils.db import db_session
 
 if TYPE_CHECKING:
     from joj.horse.models.domain import Domain
     from joj.horse.schemas.query import OrderingQuery, PaginationQuery
 
 
-class BaseORMModel(models.Model):
-    class Meta:
-        abstract = True
+class utcnow(FunctionElement):
+    type = DateTime()
 
-    class PydanticMeta:
-        backward_relations = False
 
-    id = fields.UUIDField(pk=True)
+@compiles(utcnow, "postgresql")
+def pg_utcnow(element: Any, compiler: Any, **kwargs: Any) -> str:
+    return "TIMEZONE('utc', CURRENT_TIMESTAMP)"
 
-    created_at = fields.DatetimeField(null=True, auto_now_add=True)
-    updated_at = fields.DatetimeField(null=True, auto_now=True)
 
-    def __str__(self) -> str:
-        return str({k: v for k, v in self.__dict__.items() if not k.startswith("_")})
+class BaseORMModel(SQLModel):
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    created_at: datetime = Field(sa_column_kwargs={"server_default": utcnow()})
+    updated_at: datetime = Field(
+        sa_column_kwargs={"server_default": utcnow(), "onupdate": utcnow()}
+    )
 
-    def update_from_schema(self: "BaseORMModel", schema: BaseModel) -> None:
-        self.update_from_dict(
-            {k: v for k, v in schema.__dict__.items() if v is not None}
-        )
+    # def __str__(self) -> str:
+    #     return str({k: v for k, v in self.__dict__.items() if not k.startswith("_")})
+    #
+    # def update_from_schema(self: "BaseORMModel", schema: BaseModel) -> None:
+    #     self.update_from_dict(
+    #         {k: v for k, v in schema.__dict__.items() if v is not None}
+    #     )
+
+    @classmethod
+    async def find_by_id(
+        cls: Type["BaseORMModelType"], _id: UUID
+    ) -> Optional["BaseORMModelType"]:
+        async with db_session() as session:
+            statement = select(cls).where(cls.id == _id)
+            results = await session.exec(statement)
+            return results.one_or_none()
 
     @staticmethod
     def apply_ordering(
@@ -63,31 +82,47 @@ class BaseORMModel(models.Model):
 BaseORMModelType = TypeVar("BaseORMModelType", bound=BaseORMModel)
 
 
-class URLMixin(BaseORMModel):
-    url = fields.CharField(max_length=255, unique=True)
+class URLMixin(SQLModel):
+    url: UserInputURL = Field("", description="(unique) url of the domain")
+
+
+class URLORMModel(URLMixin, BaseORMModel):
+    url: str = Field(..., sa_column_kwargs={"unique": True})
 
     @classmethod
     async def find_by_url_or_id(
         cls: Type["BaseORMModelType"], url_or_id: str
     ) -> Optional["BaseORMModelType"]:
         if is_uuid(url_or_id):
-            return await cls.get_or_none(id=url_or_id)
+            statement = select(cls).where(cls.id == url_or_id)
         else:
-            return await cls.get_or_none(url=url_or_id)
+            statement = select(cls).where(cls.url == url_or_id)
+        async with db_session() as session:
+            result = await session.exec(statement)
+            return result.one_or_none()
 
 
 class DomainURLMixin(URLMixin):
     if TYPE_CHECKING:
-        domain: fields.ForeignKeyRelation["Domain"]
+        domain_id: UUID
 
     @classmethod
     async def find_by_domain_url_or_id(
         cls: Type["BaseORMModelType"], domain: "Domain", url_or_id: str
     ) -> Optional["BaseORMModelType"]:
         if is_uuid(url_or_id):
-            return await cls.get_or_none(domain=domain, id=url_or_id)
+            statement = (
+                select(cls).where(cls.id == url_or_id).where(cls.domain_id == domain.id)
+            )
         else:
-            return await cls.get_or_none(domain=domain, url=url_or_id)
+            statement = (
+                select(cls)
+                .where(cls.url == url_or_id)
+                .where(cls.domain_id == domain.id)
+            )
+        async with db_session() as session:
+            result = await session.exec(statement)
+            return result.one_or_none()
 
 
 async def url_pre_save(

@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
 from typing import List
 
+from joj.horse.models.user import UserBase
 from joj.horse.schemas import BaseModel
 from joj.horse.schemas.base import PydanticObjectId
-from joj.horse.schemas.user import UserBase
 
 
 class Score(BaseModel):

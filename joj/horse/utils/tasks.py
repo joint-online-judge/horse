@@ -3,12 +3,12 @@ from typing import Any, Dict
 
 from uvicorn.config import logger
 
-from joj.horse import models, schemas
+from joj.horse import models
 from joj.horse.tasks import celery_app
 
 
 class CeleryWorker:
-    def __init__(self, record_model: models.Record, record_schema: schemas.Record):
+    def __init__(self, record_model: models.Record, record_schema: models.Record):
         self.record_model = record_model
         self.record_schema = record_schema
 

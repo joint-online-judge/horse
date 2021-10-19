@@ -10,7 +10,8 @@ from joj.horse.apis import records
 from joj.horse.schemas import Empty, StandardListResponse, StandardResponse
 from joj.horse.schemas.base import PydanticObjectId
 from joj.horse.schemas.permission import Permission
-from joj.horse.schemas.problem import ListProblems, ProblemClone
+
+# from joj.horse.schemas.problem import ListProblems, ProblemClone
 from joj.horse.tasks import celery_app
 from joj.horse.utils.auth import Authentication, ensure_permission
 from joj.horse.utils.errors import BizError, ErrorCode
@@ -43,7 +44,7 @@ async def list_problems(
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     include_hidden: bool = Depends(parse_view_hidden_problem),
-) -> StandardListResponse[schemas.Problem]:
+) -> StandardListResponse[models.Problem]:
     problems, count = await domain.find_problems(
         include_hidden=include_hidden,
         problem_set=problem_set,
@@ -51,7 +52,7 @@ async def list_problems(
         ordering=ordering,
         pagination=pagination,
     )
-    problems = [schemas.Problem.from_orm(problem) for problem in problems]
+    problems = [models.Problem.from_orm(problem) for problem in problems]
     return StandardListResponse(problems, count)
 
 
@@ -59,11 +60,11 @@ async def list_problems(
     "", dependencies=[Depends(ensure_permission(Permission.DomainProblem.create))]
 )
 async def create_problem(
-    problem_create: schemas.ProblemCreate,
+    problem_create: models.ProblemCreate,
     background_tasks: BackgroundTasks,
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_auth),
-) -> StandardResponse[schemas.Problem]:
+) -> StandardResponse[models.Problem]:
     try:
         async with transactions.in_transaction():
             problem_group = await models.ProblemGroup.create()
@@ -80,7 +81,7 @@ async def create_problem(
         raise e
     lakefs_problem_config = LakeFSProblemConfig(problem)
     background_tasks.add_task(lakefs_problem_config.ensure_branch)
-    return StandardResponse(schemas.Problem.from_orm(problem))
+    return StandardResponse(models.Problem.from_orm(problem))
 
 
 @router.get(
@@ -89,8 +90,8 @@ async def create_problem(
 )
 async def get_problem(
     problem: models.Problem = Depends(parse_problem),
-) -> StandardResponse[schemas.Problem]:
-    return StandardResponse(schemas.Problem.from_orm(problem))
+) -> StandardResponse[models.Problem]:
+    return StandardResponse(models.Problem.from_orm(problem))
 
 
 @router.delete(
@@ -109,11 +110,11 @@ async def delete_problem(
     dependencies=[Depends(ensure_permission(Permission.DomainProblem.edit))],
 )
 async def update_problem(
-    edit_problem: schemas.ProblemEdit, problem: models.Problem = Depends(parse_problem)
-) -> StandardResponse[schemas.Problem]:
+    edit_problem: models.ProblemEdit, problem: models.Problem = Depends(parse_problem)
+) -> StandardResponse[models.Problem]:
     problem.update_from_schema(edit_problem)
     await problem.save()
-    return StandardResponse(schemas.Problem.from_orm(problem))
+    return StandardResponse(models.Problem.from_orm(problem))
 
 
 @router.patch(
@@ -122,8 +123,8 @@ async def update_problem(
 )
 async def update_problem_config(
     config: UploadFile = File(...), problem: models.Problem = Depends(parse_problem)
-) -> StandardResponse[schemas.Problem]:
-    return StandardResponse(schemas.Problem.from_orm(problem))
+) -> StandardResponse[models.Problem]:
+    return StandardResponse(models.Problem.from_orm(problem))
 
 
 @router.post(
@@ -131,11 +132,11 @@ async def update_problem_config(
     dependencies=[Depends(ensure_permission(Permission.DomainProblem.view_config))],
 )
 async def clone_problem(
-    problem_clone: ProblemClone,
+    problem_clone: models.ProblemClone,
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_auth),
     auth: Authentication = Depends(),
-) -> StandardResponse[ListProblems]:
+) -> StandardListResponse[models.Problem]:
     problems = [await parse_problem(oid, auth) for oid in problem_clone.problems]
     problem_set = await parse_problem_set(problem_clone.problem_set, auth)
     new_group = problem_clone.new_group
@@ -145,12 +146,12 @@ async def clone_problem(
             for problem in problems:
                 if new_group:
                     problem_group = models.ProblemGroup(
-                        **schemas.ProblemGroup().to_model()
+                        **models.ProblemGroup().to_model()
                     )
                     await problem_group.commit()
                 else:
                     problem_group = await problem.problem_group.fetch()
-                new_problem = schemas.Problem(
+                new_problem = models.Problem(
                     domain=domain.id,
                     owner=user.id,
                     title=problem.title,
@@ -163,12 +164,12 @@ async def clone_problem(
                 )
                 new_problem = models.Problem(**new_problem.to_model())
                 await new_problem.commit()
-                res.append(schemas.Problem.from_orm(new_problem))
+                res.append(models.Problem.from_orm(new_problem))
                 logger.info("problem cloned: %s", new_problem)
     except Exception as e:
         logger.exception("problems clone to problem set failed: %s", problem_set)
         raise e
-    return StandardResponse(ListProblems(results=res))
+    return StandardListResponse(res)
 
 
 @router.post(
@@ -176,12 +177,12 @@ async def clone_problem(
     dependencies=[Depends(ensure_permission(Permission.DomainProblem.submit))],
 )
 async def submit_solution_to_problem(
-    code_type: schemas.RecordCodeType = Form(...),
+    code_type: models.RecordCodeType = Form(...),
     file: UploadFile = File(...),
     problem: models.Problem = Depends(parse_problem),
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_auth),
-) -> StandardResponse[schemas.Record]:
+) -> StandardResponse[models.Record]:
     if domain.id != problem.domain:
         # TODO: test whether problem.domain is object id and add other error code
         raise BizError(ErrorCode.ProblemNotFoundError)
@@ -189,7 +190,7 @@ async def submit_solution_to_problem(
         # gfs = AsyncIOMotorGridFSBucket(get_db())
         #
         file_id = None
-        record = schemas.Record(
+        record = models.Record(
             domain=problem.domain,
             problem=problem.id,
             user=user.id,
@@ -197,7 +198,7 @@ async def submit_solution_to_problem(
             code=file_id,
             judge_category=[],
             submit_at=datetime.utcnow(),
-            cases=[schemas.RecordCase() for i in range(10)],  # TODO: modify later
+            cases=[models.RecordCase() for i in range(10)],  # TODO: modify later
         )
         record_model = models.Record(**record.to_model())
         await record_model.commit()
@@ -207,7 +208,7 @@ async def submit_solution_to_problem(
     except Exception as e:
         logger.exception("problem submission failed: %s", problem.id)
         raise e
-    record_schema = schemas.Record.from_orm(record_model)
+    record_schema = models.Record.from_orm(record_model)
     http_url = generate_url(
         records.router_prefix, records.router_name, record_schema.id
     )

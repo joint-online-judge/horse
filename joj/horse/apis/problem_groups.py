@@ -1,8 +1,7 @@
 from fastapi import Depends
 
 from joj.horse import models, schemas
-from joj.horse.schemas import StandardResponse
-from joj.horse.schemas.problem_group import ListProblemGroups
+from joj.horse.schemas import StandardListResponse
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.parser import parse_pagination_query
 from joj.horse.utils.router import MyRouter
@@ -17,7 +16,7 @@ router_prefix = "/api/v1"
 async def list_problem_groups(
     query: schemas.PaginationQuery = Depends(parse_pagination_query),
     auth: Authentication = Depends(),
-) -> StandardResponse[ListProblemGroups]:
+) -> StandardListResponse[models.ProblemGroup]:
     cursor = models.ProblemGroup.cursor_find({}, query)
-    res = await schemas.ProblemGroup.to_list(cursor)
-    return StandardResponse(ListProblemGroups(results=res))
+    res = await models.ProblemGroup.to_list(cursor)
+    return StandardListResponse(res)

@@ -3,9 +3,10 @@ from typing import List
 from fastapi import Depends, Query
 
 from joj.horse import models, schemas
-from joj.horse.schemas import StandardResponse
-from joj.horse.schemas.domain_user import ListDomainUsers
-from joj.horse.schemas.problem import ListProblems
+from joj.horse.schemas import StandardListResponse, StandardResponse
+
+# from joj.horse.schemas.domain_user import ListDomainUsers
+# from joj.horse.schemas.problem import ListProblems
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.parser import parse_pagination_query, parse_uid
 from joj.horse.utils.router import MyRouter
@@ -19,8 +20,8 @@ router_prefix = "/api/v1"
 @router.get("/{uid}")
 async def get_user(
     user: models.User = Depends(parse_uid), auth: Authentication = Depends()
-) -> StandardResponse[schemas.UserBase]:
-    return StandardResponse(schemas.UserBase.from_orm(user))
+) -> StandardResponse[models.UserBase]:
+    return StandardResponse(models.UserBase.from_orm(user))
 
 
 @router.get("/{uid}/domains")
@@ -28,18 +29,18 @@ async def get_user_domains(
     user: models.User = Depends(parse_uid),
     role: List[str] = Query([]),
     query: schemas.PaginationQuery = Depends(parse_pagination_query),
-) -> StandardResponse[ListDomainUsers]:
+) -> StandardListResponse[models.DomainUser]:
     cursor = models.DomainUser.cursor_find_user_domains(user.id, role, query)
-    results = await schemas.DomainUser.to_list(cursor)
-    return StandardResponse(ListDomainUsers(results=results))
+    results = await models.DomainUser.to_list(cursor)
+    return StandardListResponse(results)
 
 
 @router.get("/{uid}/problems")
 async def get_user_problems(
     user: models.User = Depends(parse_uid),
     query: schemas.PaginationQuery = Depends(parse_pagination_query),
-) -> StandardResponse[ListProblems]:
+) -> StandardListResponse[models.Problem]:
     condition = {"owner": user.id}
     cursor = models.Problem.cursor_find(condition, query)
-    res = await schemas.Problem.to_list(cursor)
-    return StandardResponse(ListProblems(results=res))
+    res = await models.Problem.to_list(cursor)
+    return StandardListResponse(res)

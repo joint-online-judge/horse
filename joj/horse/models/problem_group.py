@@ -1,15 +1,14 @@
+from typing import TYPE_CHECKING, List
+
+from sqlmodel import Relationship
+
 from joj.horse.models.base import BaseORMModel
 
-
-class ProblemGroup(BaseORMModel):
-    class Meta:
-        table = "problem_groups"
+if TYPE_CHECKING:
+    from joj.horse.models import Problem
 
 
-# @instance.register
-# class ProblemGroup(DocumentMixin, MotorAsyncIODocument):
-#     class Meta:
-#         collection_name = "problem.groups"
-#         strict = False
-#
-#     moss_results = fields.ListField(fields.StringField(), default=[])
+class ProblemGroup(BaseORMModel, table=True):  # type: ignore[call-arg]
+    __tablename__ = "problem_groups"
+
+    problems: List["Problem"] = Relationship(back_populates="problem_group")

@@ -4,6 +4,7 @@ from fastapi import FastAPI
 
 from joj.horse.apis import (
     admin as admin,
+    auth as auth,
     domains as domains,
     misc as misc,
     problem_groups as problem_groups,
@@ -33,6 +34,7 @@ include_router(records)
 include_router(problem_groups)
 include_router(user)
 include_router(users)
+include_router(auth)
 include_router(misc)
 include_router(admin)
 
