@@ -1,35 +1,44 @@
-from typing import Union
+from typing import Optional, Union
+from uuid import UUID
 
-from tortoise import fields
+from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
+from sqlmodel import Field, Relationship
+from sqlmodel.sql.sqltypes import GUID
 
 from joj.horse.models.base import BaseORMModel
 from joj.horse.models.domain import Domain
 from joj.horse.models.domain_role import DomainRole
 from joj.horse.models.permission import DefaultRole
 from joj.horse.models.user import User
+from joj.horse.schemas.base import BaseModel
+from joj.horse.schemas.permission import DomainPermission
 from joj.horse.utils.errors import BizError, ErrorCode
 
 
-class DomainUser(BaseORMModel):
-    class Meta:
-        table = "domain_users"
-        unique_together = [
-            ("domain", "user"),
-        ]
+class DomainUserAdd(BaseModel):
+    role: DefaultRole = Field(DefaultRole.USER)
+    user: str = Field(..., description="'me' or ObjectId of the user")
 
-    domain: fields.ForeignKeyRelation[Domain] = fields.ForeignKeyField(
-        "models.Domain",
-        related_name="users",
-        on_delete=fields.CASCADE,
-        index=True,
+
+class DomainUserPermission(BaseModel):
+    permission: DomainPermission
+
+
+class DomainUser(BaseORMModel, table=True):  # type: ignore[call-arg]
+    __tablename__ = "domain_users"
+    __table_args__ = (UniqueConstraint("domain_id", "user_id"),)
+
+    role: str = Field(index=False)
+
+    domain_id: UUID = Field(
+        sa_column=Column(GUID, ForeignKey("domains.id", ondelete="CASCADE"))
     )
-    user: fields.ForeignKeyRelation[User] = fields.ForeignKeyField(
-        "models.User",
-        related_name="domains",
-        on_delete=fields.CASCADE,
-        index=True,
+    domain: Optional["Domain"] = Relationship(back_populates="users")
+
+    user_id: UUID = Field(
+        sa_column=Column(GUID, ForeignKey("users.id", ondelete="CASCADE"))
     )
-    role = fields.CharField(max_length=255)
+    user: Optional["User"] = Relationship(back_populates="domain_users")
 
     @classmethod
     async def add_domain_user(
@@ -60,21 +69,3 @@ class DomainUser(BaseORMModel):
         domain_user.role = role
         await domain_user.save()
         return domain_user
-
-
-# @instance.register
-# class DomainUser(DocumentMixin, MotorAsyncIODocument):
-#     class Meta:
-#         collection_name = "domain.users"
-#         indexes = [
-#             IndexModel("domain"),
-#             IndexModel("user"),
-#             IndexModel([("domain", ASCENDING), ("user", ASCENDING)], unique=True),
-#         ]
-#         strict = False
-#
-#     domain = fields.ReferenceField(Domain, required=True)
-#     user = fields.ReferenceField(User, required=True)
-#     role = fields.StringField(required=True)
-#
-#     join_at = fields.DateTimeField(required=True)

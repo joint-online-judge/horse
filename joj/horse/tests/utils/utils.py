@@ -6,8 +6,8 @@ from fastapi.encoders import jsonable_encoder
 from fastapi_jwt_auth import AuthJWT
 from httpx import AsyncClient, Response
 
-from joj.horse import apis, models, schemas
-from joj.horse.utils.auth import auth_jwt_encode
+from joj.horse import apis, models
+from joj.horse.utils.auth import auth_jwt_encode_user
 from joj.horse.utils.errors import ErrorCode
 
 
@@ -24,7 +24,7 @@ def random_ip() -> str:
 
 
 def generate_auth_headers(user: models.User) -> Dict[str, str]:
-    access_jwt = auth_jwt_encode(auth_jwt=AuthJWT(), user=user, channel="jaccount")
+    access_jwt = auth_jwt_encode_user(auth_jwt=AuthJWT(), user=user)
     return {"Authorization": f"Bearer {access_jwt}"}
 
 
@@ -90,7 +90,7 @@ async def validate_test_domain(
         data = domain
     elif isinstance(domain, models.Domain):
         await domain.fetch_related("owner")
-        data = schemas.Domain.from_orm(domain).dict()
+        data = models.Domain.from_orm(domain).dict()
     else:
         assert False
 

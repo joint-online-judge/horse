@@ -1,46 +1,43 @@
-from tortoise import fields
+from typing import Any, Dict, Optional
+from uuid import UUID
+
+from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
+from sqlalchemy.types import JSON
+from sqlmodel import Field, Relationship
+from sqlmodel.sql.sqltypes import GUID
 
 from joj.horse.models.base import BaseORMModel
 from joj.horse.models.domain import Domain
+from joj.horse.schemas.base import BaseModel, NoneEmptyLongStr
+from joj.horse.schemas.permission import DomainPermission
 from joj.horse.utils.errors import BizError, ErrorCode
 
 
-class DomainRole(BaseORMModel):
-    class Meta:
-        table = "domain_roles"
-        unique_together = [
-            ("domain", "role"),
-        ]
-
-    domain: fields.ForeignKeyRelation[Domain] = fields.ForeignKeyField(
-        "models.Domain",
-        related_name="roles",
-        on_delete=fields.CASCADE,
-        index=True,
+class DomainRoleEdit(BaseModel):
+    role: Optional[NoneEmptyLongStr] = Field(None, description="New role name")
+    permission: Optional[Dict[str, Any]] = Field(
+        None, description="The permission which needs to be updated"
     )
-    role = fields.CharField(max_length=255)
-    permission = fields.JSONField()
+
+
+class DomainRoleCreate(BaseModel):
+    role: NoneEmptyLongStr
+    permission: DomainPermission = DomainPermission()
+
+
+class DomainRole(BaseORMModel, table=True):  # type: ignore[call-arg]
+    __tablename__ = "domain_roles"
+    __table_args__ = (UniqueConstraint("domain_id", "role"),)
+
+    role: str = Field(index=False)
+    permission: Dict[str, Any] = Field(index=False, sa_column=Column(JSON))
+
+    domain_id: UUID = Field(
+        sa_column=Column(GUID, ForeignKey("domains.id", ondelete="CASCADE"))
+    )
+    domain: Optional["Domain"] = Relationship(back_populates="roles")
 
     @classmethod
     async def ensure_exists(cls, domain: Domain, role: str) -> None:
         if await DomainRole.get_or_none(domain=domain, role=role) is None:
             raise BizError(ErrorCode.DomainRoleNotFoundError)
-
-
-# @instance.register
-# class DomainRole(DocumentMixin, MotorAsyncIODocument):
-#     class Meta:
-#         collection_name = "domain.roles"
-#         indexes = [
-#             IndexModel("domain"),
-#             IndexModel("role"),
-#             IndexModel([("domain", ASCENDING), ("role", ASCENDING)], unique=True),
-#         ]
-#         strict = False
-#
-#     domain = fields.ReferenceField(Domain, required=True)
-#     role = fields.StringField(required=True)
-#     permission = fields.EmbeddedField(DomainPermission, default=DomainPermission())
-#
-#     updated_at = fields.DateTimeField(required=True)
-#

@@ -43,15 +43,15 @@ async def list_records(
     if problem is not None:
         condition["problem"] = str(problem)
     cursor = models.Record.cursor_find(condition, query)
-    res = await schemas.Record.to_list(cursor)
+    res = await models.Record.to_list(cursor)
     return StandardResponse(ListRecords(results=res))
 
 
 @router.get("/{record}")
 async def get_record(
     record: models.Record = Depends(parse_record),
-) -> StandardResponse[schemas.Record]:
-    return StandardResponse(schemas.Record.from_orm(record))
+) -> StandardResponse[models.Record]:
+    return StandardResponse(models.Record.from_orm(record))
 
 
 @router.get("/{record}/code")

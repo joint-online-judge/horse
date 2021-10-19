@@ -1,16 +1,18 @@
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Set, Tuple, Union
 
-import jwt
 from fastapi import Depends, Path
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi_jwt_auth import AuthJWT
+from pydantic import SecretStr
 from typing_extensions import Literal
 
 from joj.horse.config import settings
 from joj.horse.models.domain import Domain
 from joj.horse.models.domain_role import DomainRole
 from joj.horse.models.domain_user import DomainUser
-from joj.horse.models.user import User
+from joj.horse.models.user import User, UserBase
+
+# from joj.horse.models.user_oauth_account import UserOAuthAccount
 from joj.horse.schemas import BaseModel
 from joj.horse.schemas.permission import (
     DEFAULT_DOMAIN_PERMISSION,
@@ -28,8 +30,11 @@ from joj.horse.utils.errors import (
     InternalServerError,
     UnauthorizedError,
 )
+from joj.horse.utils.oauth import OAuth2Profile
 
 jwt_scheme = HTTPBearer(bearerFormat="JWT", auto_error=False)
+
+SecretType = Union[str, SecretStr]
 
 
 class JWTToken(BaseModel):
@@ -43,10 +48,16 @@ class JWTToken(BaseModel):
     type: str
     fresh: bool
     csrf: Optional[str] = None
-    # user claims
-    name: str
-    scope: str
-    channel: str
+
+
+class JWTUserToken(JWTToken):
+    user: Optional[UserBase] = None
+    oauth: Optional[OAuth2Profile] = None
+
+
+class JWTOAuthToken(JWTToken):
+    authentication_backend: str
+    redirect_url: str
 
 
 class Settings(BaseModel):
@@ -76,35 +87,80 @@ def get_config() -> Settings:
     )
 
 
-def jwt_token_encode(token: JWTToken) -> bytes:
-    encoded_jwt = jwt.encode(
-        token.dict(), settings.jwt_secret, algorithm=settings.jwt_algorithm
+def auth_jwt_encode_user(
+    auth_jwt: AuthJWT, user: Optional[User], oauth2_profile: Optional[OAuth2Profile]
+) -> str:
+    user_claims = {}
+    subject = None
+
+    if oauth2_profile:
+        if not user:
+            subject = str(oauth2_profile.account_id)
+        user_claims["oauth"] = oauth2_profile.dict()
+
+    if user:
+        subject = str(user.id)
+        user_claims["user"] = UserBase(**user.dict()).dict()
+
+    if subject is None:
+        raise UnauthorizedError(
+            "At least one of user and oauth2_profile should be provided."
+        )
+
+    return auth_jwt.create_access_token(subject=subject, user_claims=user_claims)
+
+
+def auth_jwt_encode_oauth_state(
+    auth_jwt: AuthJWT,
+    oauth_name: str,
+    user_claims: Dict[str, str],
+) -> str:
+    return auth_jwt.create_access_token(
+        subject=oauth_name,
+        user_claims=user_claims,
+        # audience="horse:oauth-state",
+        expires_time=600,
     )
-    return encoded_jwt
 
 
-def auth_jwt_decode(
+# def auth_jwt_decode(auth_jwt: AuthJWT) -> Optional[Dict[str, Any]]:
+#     auth_jwt.jwt_optional()
+#     payload = auth_jwt.get_raw_jwt()
+#     return payload
+
+
+def auth_jwt_decode_user(
     auth_jwt: AuthJWT = Depends(),
     scheme: HTTPAuthorizationCredentials = Depends(jwt_scheme)
     # scheme is only used for authorization in swagger UI
-) -> Optional[JWTToken]:
+) -> Optional[JWTUserToken]:
     auth_jwt.jwt_optional()
     payload = auth_jwt.get_raw_jwt()
     if payload:
         try:
-            return JWTToken(**payload)
+            return JWTUserToken(**payload)
         except Exception:
             raise UnauthorizedError(message="JWT Format Error")
     return None
 
 
-def auth_jwt_encode(auth_jwt: AuthJWT, user: User, channel: str = "") -> str:
-    user_claims = {"name": user.uname_lower, "scope": user.scope, "channel": channel}
-    return auth_jwt.create_access_token(subject=str(user.id), user_claims=user_claims)
+def auth_jwt_decode_oauth_state(
+    auth_jwt: AuthJWT,
+    state: str,
+) -> Optional[JWTOAuthToken]:
+    payload = auth_jwt.get_raw_jwt(state)
+    if payload:
+        try:
+            return JWTOAuthToken(**payload)
+        except Exception:
+            raise UnauthorizedError(message="JWT Format Error")
+    return None
 
 
 # noinspection PyBroadException
-async def get_current_user(jwt_decoded: JWTToken = Depends(auth_jwt_decode)) -> User:
+async def get_current_user(
+    jwt_decoded: JWTToken = Depends(auth_jwt_decode_user),
+) -> User:
     try:
         user = await User.find_by_uname(scope=jwt_decoded.scope, uname=jwt_decoded.name)
         if user is None:
@@ -178,7 +234,7 @@ def is_domain_permission(scope: ScopeType) -> bool:
 class Authentication:
     def __init__(
         self,
-        jwt_decoded: Optional[JWTToken] = Depends(auth_jwt_decode),
+        jwt_decoded: Optional[JWTToken] = Depends(auth_jwt_decode_user),
         user: User = Depends(get_current_user),
         site_role: str = Depends(get_site_role),
         site_permission: SitePermission = Depends(get_site_permission),

@@ -13,15 +13,16 @@ from tenacity import RetryError
 from tortoise import Tortoise, exceptions as tortoise_exceptions
 from uvicorn.config import logger
 
+import joj.horse.models  # noqa: F401
 from joj.horse.config import get_settings
-from joj.horse.utils.db import db_session, db_session_dependency, try_init_db
+from joj.horse.utils.db import db_session_dependency, try_init_db
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.lakefs import (
     LakeFSApiException,
     examine_lakefs_buckets,
     try_init_lakefs,
 )
-from joj.horse.utils.url import generate_url
+from joj.horse.utils.url import get_base_url
 from joj.horse.utils.version import get_git_version, get_version
 
 settings = get_settings()
@@ -64,11 +65,19 @@ async def shutdown_event() -> None:
 # we temporarily redirect "/" and "/api" to "/api/v1" for debugging
 @app.get("/api")
 @app.get("/")
-async def redirect_to_docs() -> RedirectResponse:
-    async with db_session() as session:
-        print(session)
-    redirect_url = generate_url("/api/v1?docExpansion=none")
-    return RedirectResponse(redirect_url)
+async def redirect_to_docs(request: Request) -> RedirectResponse:
+    # logger.info(request.url)
+    # logger.info(request.url.netloc)
+    # logger.info(request.url.scheme)
+    # async with db_session() as session:
+    #     print(session)
+    base_url = get_base_url(request)
+    redirect_url = app.url_path_for("swagger_ui_html").make_absolute_url(base_url)
+
+    logger.info(base_url)
+    logger.info(redirect_url)
+
+    return RedirectResponse(redirect_url + "?docExpansion=none")
 
 
 @app.exception_handler(AuthJWTException)

@@ -1,47 +1,46 @@
-from typing import TYPE_CHECKING
+from datetime import datetime
+from typing import Optional
 from uuid import UUID
 
-from tortoise import fields
+from pydantic import validator
+from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
+from sqlmodel import Field, Relationship
+from sqlmodel.sql.sqltypes import GUID
 
 from joj.horse.models.base import BaseORMModel
 from joj.horse.models.domain import Domain
+from joj.horse.models.permission import DefaultRole
+from joj.horse.schemas import BaseModel
+from joj.horse.schemas.base import LongStr
 
 
-class DomainInvitation(BaseORMModel):
-    class Meta:
-        table = "domain_invitations"
-        unique_together = [
-            ("domain", "code"),
-        ]
+class DomainInvitationEdit(BaseModel):
+    code: Optional[LongStr] = Field(None, description="invitation code")
+    expire_at: Optional[datetime] = Field(None, description="expire time of invitation")
+    role: Optional[str] = Field(None, description="domain role after invitation")
 
-    domain: fields.ForeignKeyRelation[Domain] = fields.ForeignKeyField(
-        "models.Domain",
-        related_name="invitations",
-        on_delete=fields.CASCADE,
-        index=True,
+
+class DomainInvitationCreate(BaseModel):
+    code: LongStr = Field("", description="invitation code")
+    expire_at: datetime = Field(datetime.max, description="expire time of invitation")
+    role: str = Field(DefaultRole.USER, description="domain role after invitation")
+
+    @validator("role", pre=True)
+    def validate_role(cls, v: str) -> str:
+        if v == DefaultRole.ROOT:
+            raise ValueError("role can not be root")
+        return v
+
+
+class DomainInvitation(BaseORMModel, table=True):  # type: ignore[call-arg]
+    __tablename__ = "domain_invitations"
+    __table_args__ = (UniqueConstraint("domain_id", "code"),)
+
+    code: str = Field()
+    role: str = Field(index=False)
+    expire_at: datetime = Field(index=False)
+
+    domain_id: UUID = Field(
+        sa_column=Column(GUID, ForeignKey("domains.id", ondelete="CASCADE"))
     )
-    code = fields.CharField(max_length=255, index=True)
-    role = fields.CharField(max_length=255)
-
-    expire_at = fields.DatetimeField()
-
-    if TYPE_CHECKING:
-        domain_id: UUID
-
-
-# @instance.register
-# class DomainInvitation(DocumentMixin, MotorAsyncIODocument):
-#     class Meta:
-#         collection_name = "domain.invitations"
-#         indexes = [
-#             IndexModel("domain"),
-#             IndexModel("code"),
-#             IndexModel([("domain", ASCENDING), ("code", ASCENDING)], unique=True),
-#         ]
-#         strict = False
-#
-#     domain = fields.ReferenceField(Domain, required=True)
-#     code = fields.StringField(required=True)
-#     role = fields.StringField(required=True)
-#
-#     expire_at = fields.DateTimeField(required=False)
+    domain: Optional["Domain"] = Relationship(back_populates="invitations")

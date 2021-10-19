@@ -41,7 +41,7 @@ async def list_problem_sets(
     if domain is not None:
         condition["domain"] = str(domain.id)
     cursor = models.ProblemSet.cursor_find(condition, query)
-    res = await schemas.ProblemSet.to_list(cursor)
+    res = await models.ProblemSet.to_list(cursor)
     return StandardResponse(ListProblemSets(results=res))
 
 
@@ -49,13 +49,13 @@ async def list_problem_sets(
     "", dependencies=[Depends(ensure_permission(Permission.DomainProblem.create))]
 )
 async def create_problem_set(
-    problem_set: schemas.ProblemSetCreate,
+    problem_set: models.ProblemSetCreate,
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_auth),
-) -> StandardResponse[schemas.ProblemSet]:
+) -> StandardResponse[models.ProblemSet]:
     try:
         async with transactions.in_transaction():
-            problem_set_schema = schemas.ProblemSet(
+            problem_set_schema = models.ProblemSet(
                 **problem_set.dict(), domain=domain.id, owner=user.id
             )
             problem_set_model = models.ProblemSet(**problem_set_schema.to_model())
@@ -65,15 +65,15 @@ async def create_problem_set(
     except Exception as e:
         logger.exception("problem set creation failed: %s", problem_set.title)
         raise e
-    return StandardResponse(schemas.ProblemSet.from_orm(problem_set_model))
+    return StandardResponse(models.ProblemSet.from_orm(problem_set_model))
 
 
 @router.get("/{problem_set}")
 async def get_problem_set(
     domain: models.Domain = Depends(parse_domain),
     problem_set: models.ProblemSet = Depends(parse_problem_set_with_time),
-) -> StandardResponse[schemas.ProblemSet]:
-    return StandardResponse(schemas.ProblemSet.from_orm(problem_set))
+) -> StandardResponse[models.ProblemSet]:
+    return StandardResponse(models.ProblemSet.from_orm(problem_set))
 
 
 @router.delete("/{problem_set}", deprecated=True)
@@ -87,13 +87,13 @@ async def delete_problem_set(
 
 @router.patch("/{problem_set}")
 async def update_problem_set(
-    edit_problem_set: schemas.ProblemSetEdit,
+    edit_problem_set: models.ProblemSetEdit,
     domain: models.Domain = Depends(parse_domain),
     problem_set: models.ProblemSet = Depends(parse_problem_set),
-) -> StandardResponse[schemas.ProblemSet]:
+) -> StandardResponse[models.ProblemSet]:
     problem_set.update_from_schema(edit_problem_set)
     await problem_set.commit()
-    return StandardResponse(schemas.ProblemSet.from_orm(problem_set))
+    return StandardResponse(models.ProblemSet.from_orm(problem_set))
 
 
 @router.get("/{problem_set}/scoreboard")
@@ -107,7 +107,7 @@ async def get_scoreboard(
     cursor = models.DomainUser.cursor_join(
         field="user", condition={"domain": domain.id}
     )
-    users = await schemas.User.to_list(cursor)
+    users = await models.User.to_list(cursor)
     results: List[UserScore] = []
     problem_ids: List[PydanticObjectId] = []
     firstUser = True
@@ -129,7 +129,7 @@ async def get_scoreboard(
                 sort=[("submit_at", "DESCENDING")],
             )
             tried = record_model is not None
-            record = schemas.Record.from_orm(record_model) if record_model else None
+            record = models.Record.from_orm(record_model) if record_model else None
             score = 0
             time = datetime(1970, 1, 1)
             time_spent = datetime.utcnow() - problem_set.available_time

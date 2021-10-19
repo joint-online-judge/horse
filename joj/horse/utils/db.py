@@ -1,17 +1,19 @@
 from contextlib import asynccontextmanager
 from functools import lru_cache
-from typing import Any, AsyncGenerator, Dict
+from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from sqlalchemy.util.concurrency import greenlet_spawn
+from sqlalchemy_utils import create_database, database_exists
+from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette_context import context
 from tenacity import retry
 from tenacity.stop import stop_after_attempt
 from tenacity.wait import wait_exponential
-from tortoise import Tortoise
 from uvicorn.config import logger
 
-from joj.horse.config import get_settings, settings
+from joj.horse.config import settings
 
 
 @lru_cache()
@@ -51,62 +53,28 @@ async def db_session_dependency() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-@lru_cache()
-def get_tortoise_config() -> Dict[str, Any]:
-    tortoise_config = {
-        "connections": {
-            "default": {
-                "engine": "tortoise.backends.asyncpg",
-                "credentials": {
-                    "host": settings.db_host,
-                    "port": settings.db_port,
-                    "user": settings.db_username,
-                    "password": settings.db_password,
-                    "database": settings.db_name,
-                },
-            },
-        },
-        "apps": {
-            "models": {
-                "models": ["joj.horse.models", "aerich.models"],
-                "default_connection": "default",
-            }
-        },
-    }
-    logger.info(
-        "Tortoise-ORM engine: %s.",
-        tortoise_config["connections"]["default"]["engine"],  # type: ignore
-    )
-    return tortoise_config
-
-
-def __getattr__(name: str) -> Any:
-    if name == "tortoise_config":
-        get_settings()
-        return get_tortoise_config()
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
-
-
-async def create() -> None:
-    await Tortoise.init(config=get_tortoise_config(), _create_db=True, use_tz=True)
-    logger.info("Database %s created.", settings.db_name)
-
-
-async def init_tortoise() -> None:
-    await Tortoise.init(config=get_tortoise_config(), use_tz=True)
-    logger.info("Tortoise-ORM connected: %s.", settings.db_name)
+async def ensure_db() -> None:
+    engine = get_db_engine()
+    if not await greenlet_spawn(database_exists, engine.url):
+        logger.info("Database %s created.", settings.db_name)
+        await greenlet_spawn(create_database, engine.url)
+    else:
+        logger.info("Database %s already exists.", settings.db_name)
 
 
 async def generate_schema() -> None:
-    await Tortoise.generate_schemas()
-    logger.info("Tortoise-ORM generated schema.")
+    async with get_db_engine().begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
+        logger.info("SQLModel generated schema.")
 
 
 @retry(stop=stop_after_attempt(5), wait=wait_exponential(2))
 async def try_init_db() -> None:
     attempt_number = try_init_db.retry.statistics["attempt_number"]
     try:
-        await init_tortoise()
+        await ensure_db()
+        if settings.debug:
+            await generate_schema()
     except Exception as e:
         max_attempt_number = try_init_db.retry.stop.max_attempt_number
         msg = "Tortoise-ORM: initialization failed ({}/{})".format(
@@ -116,6 +84,6 @@ async def try_init_db() -> None:
             msg += ", trying again after {} second.".format(2 ** attempt_number)
         else:
             msg += "."
-        logger.error(e)
+        logger.exception(e)
         logger.warning(msg)
         raise e

@@ -39,18 +39,18 @@ async def list_domains(
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["name"])),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     user: models.User = Depends(parse_user_from_auth),
-) -> StandardListResponse[schemas.Domain]:
+) -> StandardListResponse[models.Domain]:
     """List all domains that the current user has a role."""
     domains, count = await user.find_domains(role, ordering, pagination)
-    domains = [schemas.Domain.from_orm(domain) for domain in domains]
+    domains = [models.Domain.from_orm(domain) for domain in domains]
     return StandardListResponse(domains, count)
 
 
 @router.post("", dependencies=[Depends(ensure_permission())])
 async def create_domain(
-    domain_create: schemas.DomainCreate,
+    domain_create: models.DomainCreate,
     user: models.User = Depends(parse_user_from_auth),
-) -> StandardResponse[schemas.Domain]:
+) -> StandardResponse[models.Domain]:
     try:
         async with transactions.in_transaction():
             domain = await models.Domain.create(**domain_create.dict(), owner=user)
@@ -72,7 +72,7 @@ async def create_domain(
     except Exception as e:
         logger.exception(f"domain creation failed: {domain_create.url}")
         raise e
-    return StandardResponse(schemas.Domain.from_orm(domain))
+    return StandardResponse(models.Domain.from_orm(domain))
 
 
 @router.get(
@@ -81,9 +81,9 @@ async def create_domain(
 )
 async def get_domain(
     domain: models.Domain = Depends(parse_domain),
-) -> StandardResponse[schemas.Domain]:
+) -> StandardResponse[models.Domain]:
     # await domain.owner.fetch()
-    return StandardResponse(await schemas.Domain.from_tortoise_orm(domain))
+    return StandardResponse(await models.Domain.from_tortoise_orm(domain))
 
 
 @router.delete(
@@ -108,11 +108,11 @@ async def delete_domain(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def update_domain(
-    domain_edit: schemas.DomainEdit, domain: models.Domain = Depends(parse_domain)
-) -> StandardResponse[schemas.Domain]:
+    domain_edit: models.DomainEdit, domain: models.Domain = Depends(parse_domain)
+) -> StandardResponse[models.Domain]:
     domain.update_from_schema(domain_edit)
     await domain.save()
-    return StandardResponse(await schemas.Domain.from_tortoise_orm(domain))
+    return StandardResponse(await models.Domain.from_tortoise_orm(domain))
 
 
 @router.post(
@@ -120,11 +120,11 @@ async def update_domain(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
 )
 async def transfer_domain(
-    domain_transfer: schemas.DomainTransfer,
+    domain_transfer: models.DomainTransfer,
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_auth),
     auth: Authentication = Depends(),
-) -> StandardResponse[schemas.Domain]:
+) -> StandardResponse[models.Domain]:
     target_user = await parse_uid(domain_transfer.target_user, auth)
     # only domain owner (or site root) can transfer the domain
     if user.id != domain.owner_id and not auth.is_root():
@@ -138,7 +138,7 @@ async def transfer_domain(
         raise BizError(ErrorCode.DomainNotRootError)
     domain.owner = target_user
     await domain.save()
-    return StandardResponse(schemas.Domain.from_orm(domain))
+    return StandardResponse(models.Domain.from_orm(domain))
 
 
 @router.get(
@@ -147,9 +147,9 @@ async def transfer_domain(
 )
 async def list_domain_users(
     domain: models.Domain = Depends(parse_domain),
-) -> StandardListResponse[schemas.DomainUser]:
+) -> StandardListResponse[models.DomainUser]:
     users = await domain.users.all()
-    domain_users = [schemas.DomainUser.from_orm(user) for user in users]
+    domain_users = [models.DomainUser.from_orm(user) for user in users]
     return StandardListResponse(domain_users)
 
 
@@ -158,10 +158,10 @@ async def list_domain_users(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def add_domain_user(
-    domain_user_add: schemas.DomainUserAdd,
+    domain_user_add: models.DomainUserAdd,
     domain: models.Domain = Depends(parse_domain),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
-) -> StandardResponse[schemas.DomainUser]:
+) -> StandardResponse[models.DomainUser]:
     role = domain_user_add.role
     user = await parse_uid(domain_user_add.user, domain_auth.auth)
     # only root member (or site root) can add root member
@@ -171,7 +171,7 @@ async def add_domain_user(
     domain_user = await models.DomainUser.add_domain_user(
         domain=domain, user=user, role=role
     )
-    return StandardResponse(schemas.DomainUser.from_orm(domain_user))
+    return StandardResponse(models.DomainUser.from_orm(domain_user))
 
 
 @router.get(
@@ -181,11 +181,11 @@ async def add_domain_user(
 async def get_domain_user(
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_path_or_query),
-) -> StandardResponse[schemas.DomainUser]:
+) -> StandardResponse[models.DomainUser]:
     domain_user = await models.DomainUser.get_or_none(domain=domain, user=user)
     if domain_user is None:
         raise BizError(ErrorCode.DomainUserNotFoundError)
-    return StandardResponse(schemas.DomainUser.from_orm(domain_user))
+    return StandardResponse(models.DomainUser.from_orm(domain_user))
 
 
 @router.delete(
@@ -219,7 +219,7 @@ async def update_domain_user(
     user: models.User = Depends(parse_user_from_path_or_query),
     role: str = Body(DefaultRole.USER),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
-) -> StandardResponse[schemas.DomainUser]:
+) -> StandardResponse[models.DomainUser]:
     # domain owner must be root member
     if role != DefaultRole.ROOT and domain_auth.auth.is_domain_owner():
         raise BizError(ErrorCode.DomainNotRootError)
@@ -230,7 +230,7 @@ async def update_domain_user(
     domain_user_model = await models.DomainUser.update_domain_user(
         domain=domain, user=user, role=role
     )
-    return StandardResponse(schemas.DomainUser.from_orm(domain_user_model))
+    return StandardResponse(models.DomainUser.from_orm(domain_user_model))
 
 
 @router.get(
@@ -240,7 +240,7 @@ async def update_domain_user(
 async def get_domain_user_permission(
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_path_or_query),
-) -> StandardResponse[schemas.DomainUserPermission]:
+) -> StandardResponse[models.DomainUserPermission]:
     domain_user = await models.DomainUser.get_or_none(domain=domain, user=user)
     if domain_user is None:
         raise BizError(ErrorCode.DomainUserNotFoundError)
@@ -250,9 +250,9 @@ async def get_domain_user_permission(
     if domain_role is None:
         raise BizError(ErrorCode.DomainRoleNotFoundError)
 
-    domain_user_schema = schemas.DomainUser.from_orm(domain_user)
-    permission = schemas.DomainPermission(**domain_role.permission)
-    result = schemas.DomainUserPermission(
+    domain_user_schema = models.DomainUser.from_orm(domain_user)
+    permission = models.DomainPermission(**domain_role.permission)
+    result = models.DomainUserPermission(
         **domain_user_schema.dict(), permission=permission
     )
     return StandardResponse(result)
@@ -264,9 +264,9 @@ async def get_domain_user_permission(
 )
 async def list_domain_roles(
     domain: models.Domain = Depends(parse_domain),
-) -> StandardListResponse[schemas.DomainRole]:
+) -> StandardListResponse[models.DomainRole]:
     roles = await domain.roles.all()
-    domain_roles = [schemas.DomainRole.from_orm(role) for role in roles]
+    domain_roles = [models.DomainRole.from_orm(role) for role in roles]
     return StandardListResponse(domain_roles)
 
 
@@ -275,9 +275,9 @@ async def list_domain_roles(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def create_domain_role(
-    domain_role_create: schemas.DomainRoleCreate,
+    domain_role_create: models.DomainRoleCreate,
     domain: models.Domain = Depends(parse_domain),
-) -> StandardResponse[schemas.DomainRole]:
+) -> StandardResponse[models.DomainRole]:
     if domain_role_create.role in READONLY_ROLES:
         raise BizError(ErrorCode.DomainRoleReadOnlyError)
     if await models.DomainRole.get_or_none(domain=domain, role=domain_role_create.role):
@@ -287,7 +287,7 @@ async def create_domain_role(
         role=domain_role_create.role,
         permission=domain_role_create.permission.dict(),
     )
-    return StandardResponse(schemas.DomainRole.from_orm(domain_role))
+    return StandardResponse(models.DomainRole.from_orm(domain_role))
 
 
 @router.delete(
@@ -311,10 +311,10 @@ async def delete_domain_role(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def update_domain_role(
-    domain_role_edit: schemas.DomainRoleEdit,
+    domain_role_edit: models.DomainRoleEdit,
     domain_role: models.DomainRole = Depends(parse_domain_role),
     domain: models.Domain = Depends(parse_domain),
-) -> StandardResponse[schemas.DomainRole]:
+) -> StandardResponse[models.DomainRole]:
     if domain_role_edit.role:
         if (
             domain_role.role in READONLY_ROLES
@@ -334,7 +334,7 @@ async def update_domain_role(
     else:
         domain_role.update_from_schema(domain_role_edit)
         await domain_role.save()
-    return StandardResponse(schemas.DomainRole.from_orm(domain_role))
+    return StandardResponse(models.DomainRole.from_orm(domain_role))
 
 
 @router.post(
@@ -342,9 +342,9 @@ async def update_domain_role(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def create_domain_invitation(
-    invitation_create: schemas.DomainInvitationCreate,
+    invitation_create: models.DomainInvitationCreate,
     domain: models.Domain = Depends(parse_domain),
-) -> StandardResponse[schemas.DomainInvitation]:
+) -> StandardResponse[models.DomainInvitation]:
     if await models.DomainInvitation.get_or_none(
         domain=domain, code=invitation_create.code
     ):
@@ -353,7 +353,7 @@ async def create_domain_invitation(
         **invitation_create.dict(),
         domain=domain,
     )
-    return StandardResponse(schemas.DomainInvitation.from_orm(invitation))
+    return StandardResponse(models.DomainInvitation.from_orm(invitation))
 
 
 @router.delete(
@@ -375,15 +375,15 @@ async def delete_domain_invitation(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def update_domain_invitation(
-    invitation_edit: schemas.DomainInvitationEdit,
+    invitation_edit: models.DomainInvitationEdit,
     invitation: models.DomainInvitation = Depends(parse_domain_invitation),
     domain: models.Domain = Depends(parse_domain),
-) -> StandardResponse[schemas.DomainInvitation]:
+) -> StandardResponse[models.DomainInvitation]:
     if invitation.domain_id != domain.id:
         raise BizError(ErrorCode.DomainInvitationBadRequestError)
     invitation.update_from_schema(invitation_edit)
     await invitation.save()
-    return StandardResponse(schemas.DomainInvitation.from_orm(invitation))
+    return StandardResponse(models.DomainInvitation.from_orm(invitation))
 
 
 @router.post("/{domain}/join", dependencies=[Depends(ensure_permission())])
@@ -391,7 +391,7 @@ async def join_domain_by_invitation(
     invitation_code: str = Query(...),
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_auth),
-) -> StandardResponse[schemas.DomainUser]:
+) -> StandardResponse[models.DomainUser]:
     # validate the invitation
     invitation_model = await models.DomainInvitation.get_or_none(
         domain=domain, code=invitation_code
@@ -402,4 +402,4 @@ async def join_domain_by_invitation(
     domain_user = await models.DomainUser.add_domain_user(
         domain=domain, user=user, role=invitation_model.role
     )
-    return StandardResponse(schemas.DomainUser.from_orm(domain_user))
+    return StandardResponse(models.DomainUser.from_orm(domain_user))

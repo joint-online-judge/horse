@@ -1,55 +1,109 @@
-class RecordCase:
-    pass
-    # status = fields.IntegerField(default=0)
-    # score = fields.IntegerField(default=0)
-    # time_ms = fields.IntegerField(default=0)
-    # memory_kb = fields.IntegerField(default=0)
-    # execute_status = fields.IntegerField(default=0)
-    # stdout = fields.StringField(default="")
-    # stderr = fields.StringField(default="")
+from datetime import datetime
+from enum import IntEnum
+from typing import List
+
+from joj.horse.schemas import BaseModel
+
+# from pydantic.typing import AnyCallable
+
+# from joj.horse.schemas.base import PydanticObjectId
+# from joj.horse.schemas.domain import Domain
+# from joj.horse.schemas.problem import Problem
+# from joj.horse.schemas.user import UserBase
 
 
-class Record:
+class RecordStatus(IntEnum):
+    # waiting
+    waiting = 0
+    # working
+    judging = 20
+    # compiling = 21
+    # fetched = 22
+    # ignored = 30
+    # done
+    accepted = 1
+    wrong_answer = 2
+    time_limit_exceeded = 3
+    memory_limit_exceeded = 4
+    output_limit_exceeded = 5
+    runtime_error = 6
+    compile_error = 7
+    system_error = 8
+    canceled = 9
+    etc = 10
+
+
+class RecordCodeType(IntEnum):
+    text = 0
+    tar = 1
+    zip = 2
+    rar = 3
+
+
+class RecordCase(BaseModel):
+    class Config:
+        orm_mode = True
+
+    status: RecordStatus = RecordStatus.waiting
+    score: int = 0
+    time_ms: int = 0
+    memory_kb: int = 0
+    execute_status: int = 0
+    stdout: str = ""
+    stderr: str = ""
+
+
+class Record(BaseModel):
     pass
-    # class Meta:
-    #     collection_name = "records"
-    #     indexes = [
-    #         IndexModel(
-    #             [
-    #                 ("domain", ASCENDING),
-    #                 ("problem", ASCENDING),
-    #                 ("user", ASCENDING),
-    #                 ("submit_at", DESCENDING),
-    #             ]
-    #         ),
-    #         IndexModel(
-    #             [("problem", ASCENDING), ("user", ASCENDING), ("submit_at", DESCENDING)]
-    #         ),
-    #         IndexModel(
-    #             [("domain", ASCENDING), ("user", ASCENDING), ("submit_at", DESCENDING)]
-    #         ),
-    #         IndexModel([("user", ASCENDING), ("submit_at", DESCENDING)]),
-    #     ]
-    #     strict = False
-    #
-    # status = fields.IntegerField(default=0)
-    # score = fields.IntegerField(default=0)
-    # time_ms = fields.IntegerField(default=0)
-    # memory_kb = fields.IntegerField(default=0)
-    # domain = fields.ReferenceField(Domain)
-    # problem = fields.ReferenceField(Problem)
-    # problem_data = fields.IntegerField(default=0)  # modify later
-    # user = fields.ReferenceField(User)
-    # code_type = fields.IntegerField()
-    # code = fields.ObjectIdField()
-    # judge_category = fields.ListField(fields.StringField())
-    #
-    # submit_at = fields.DateTimeField()
-    # judge_at = fields.DateTimeField()
-    #
-    # judge_user = fields.ReferenceField(User)
-    #
-    # compiler_texts = fields.StringField(default="")
-    # cases = fields.ListField(
-    #     fields.EmbeddedField(RecordCase, default=RecordCase()), default=[]
-    # )
+
+
+# class Record(BaseODMSchema):
+#     status: RecordStatus = RecordStatus.waiting
+#     score: int = 0
+#     time_ms: int = 0
+#     memory_kb: int = 0
+#     domain: ReferenceSchema[Domain]
+#     problem: ReferenceSchema[Problem]
+#     problem_data: int = 0
+#     user: ReferenceSchema[UserBase]
+#     code_type: RecordCodeType
+#     code: PydanticObjectId
+#     judge_category: List[str]
+#
+#     submit_at: datetime
+#     judge_at: Optional[datetime]
+#
+#     judge_user: Optional[ReferenceSchema[UserBase]]
+#
+#     compiler_texts: str = ""
+#     cases: List[RecordCase] = []
+#
+#     _validate_domain: Callable[[AnyCallable], classmethod] = reference_schema_validator(
+#         "domain", Domain
+#     )
+#     _validate_user: Callable[[AnyCallable], classmethod] = reference_schema_validator(
+#         "user", UserBase
+#     )
+#     _validate_judge_user: Callable[
+#         [AnyCallable], classmethod
+#     ] = reference_schema_validator("judge_user", UserBase)
+#     _validate_problem: Callable[
+#         [AnyCallable], classmethod
+#     ] = reference_schema_validator("problem", Problem)
+
+
+class ListRecords(BaseModel):
+    results: List[Record]
+
+
+class RecordCaseResult(BaseModel):
+    index: int
+    result: RecordCase
+
+
+class RecordResult(BaseModel):
+    status: RecordStatus
+    score: int
+    time_ms: int
+    memory_kb: int
+    judge_at: datetime

@@ -1,49 +1,68 @@
-from typing import TYPE_CHECKING, List, Optional, Tuple, Type
+from datetime import datetime
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
-from pydantic import EmailStr
-from tortoise import BaseDBAsyncClient, fields, queryset, signals, timezone
+from pydantic import EmailStr, root_validator
+from sqlmodel import Field, Relationship
+from tortoise import timezone
 from uvicorn.config import logger
 
-from joj.horse.models.base import BaseORMModel
+from joj.horse.models.base import BaseORMModel, utcnow
 from joj.horse.models.permission import DefaultRole
 
 if TYPE_CHECKING:
-    from joj.horse.models import Domain, DomainUser
+    from joj.horse.models import (
+        Domain,
+        DomainUser,
+        Problem,
+        ProblemSet,
+        UserOAuthAccount,
+    )
     from joj.horse.schemas.query import OrderingQuery, PaginationQuery
 
 
-class User(BaseORMModel):
-    class Meta:
-        table = "users"
-        unique_together = [
-            ("scope", "uname_lower"),
-            ("scope", "mail_lower"),
-        ]
+class UserBase(BaseORMModel):
+    user_name: str = Field(index=False)
+    email: EmailStr = Field(index=False)
 
-    id = fields.UUIDField(pk=True)
+    gravatar: str = Field(default="", index=False)
+    student_id: str = Field(default="")
+    real_name: str = Field(default="")
 
-    scope = fields.CharField(max_length=255)
-    uname = fields.CharField(max_length=255)
-    mail = fields.CharField(max_length=255)
 
-    uname_lower = fields.CharField(max_length=255)
-    mail_lower = fields.CharField(max_length=255)
-    gravatar = fields.CharField(max_length=255)
+class User(UserBase, table=True):  # type: ignore[call-arg]
+    __tablename__ = "users"
 
-    student_id = fields.CharField(default="", max_length=255)
-    real_name = fields.CharField(default="", max_length=255)
+    salt: str = Field(default="", index=False)
+    hash: str = Field(default="", index=False)
+    role: str = Field(default=str(DefaultRole.USER))
 
-    salt = fields.CharField(default="", max_length=255)
-    hash = fields.CharField(default="", max_length=255)
-    role = fields.CharField(default=str(DefaultRole.USER), max_length=255)
+    user_name_lower: str = Field(index=True, sa_column_kwargs={"unique": True})
+    email_lower: EmailStr = Field(index=True, sa_column_kwargs={"unique": True})
 
     # register_at = fields.DatetimeField(auto_now_add=True)
-    register_ip = fields.CharField(default="0.0.0.0", max_length=255)
-    login_at = fields.DatetimeField(auto_now_add=True)
-    login_ip = fields.CharField(default="0.0.0.0", max_length=255)
+    register_ip: str = Field(default="0.0.0.0", index=False)
+    login_at: datetime = Field(
+        sa_column_kwargs={"server_default": utcnow()}, index=False
+    )
+    login_ip: str = Field(default="0.0.0.0", index=False)
 
-    if TYPE_CHECKING:
-        domains: queryset.QuerySet[DomainUser]
+    owned_domains: List["Domain"] = Relationship(back_populates="owner")
+    domain_users: List["DomainUser"] = Relationship(back_populates="user")
+    owned_problems: List["Problem"] = Relationship(back_populates="owner")
+    owned_problem_sets: List["ProblemSet"] = Relationship(back_populates="owner")
+    oauth_accounts: List["UserOAuthAccount"] = Relationship(back_populates="user")
+
+    @root_validator(pre=True)
+    def validate_lower_name(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        if "user_name" not in values:
+            raise ValueError("user_name undefined")
+        values["user_name_lower"] = values["user_name"].lower()
+        if "email" not in values:
+            raise ValueError("email undefined")
+        values["email_lower"] = values["email"].lower()
+        if "gravatar" not in values or not values["gravatar"]:
+            values["gravatar"] = values["user_name_lower"]
+        return values
 
     @classmethod
     async def find_by_uname(cls, scope: str, uname: str) -> Optional["User"]:
@@ -95,48 +114,3 @@ class User(BaseORMModel):
         except Exception as e:
             logger.exception(e)
             return None
-
-
-@signals.pre_save(User)
-async def user_pre_save(
-    sender: "Type[User]",
-    instance: User,
-    using_db: "Optional[BaseDBAsyncClient]",
-    update_fields: List[str],
-) -> None:
-    instance.uname_lower = instance.uname.strip().lower()
-    instance.mail_lower = instance.mail.strip().lower()
-    if not instance.gravatar:
-        instance.gravatar = instance.mail_lower
-
-
-# @instance.register
-# class User(DocumentMixin, MotorAsyncIODocument):
-#     class Meta:
-#         collection_name = "users"
-#         indexes = [
-#             IndexModel([("scope", ASCENDING), ("uname_lower", ASCENDING)], unique=True),
-#             IndexModel([("scope", ASCENDING), ("mail_lower", ASCENDING)], unique=True),
-#         ]
-#         strict = False
-#
-#     scope = fields.StringField(required=True)
-#     uname = fields.StringField(required=True)
-#     mail = fields.EmailField(required=True)
-#
-#     uname_lower = fields.StringField(required=True)
-#     mail_lower = fields.StringField(required=True)
-#     gravatar = fields.StringField(required=True)
-#
-#     student_id = fields.StringField(default="")
-#     real_name = fields.StringField(default="")
-#
-#     salt = fields.StringField(default="")
-#     hash = fields.StringField(default="")
-#     role = fields.StringField(default="user")
-#
-#     register_timestamp = fields.DateTimeField(required=True)
-#     register_ip = fields.StringField(default="0.0.0.0")
-#     login_timestamp = fields.DateTimeField(required=True)
-#     login_ip = fields.StringField(default="0.0.0.0")
-#

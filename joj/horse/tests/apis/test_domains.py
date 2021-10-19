@@ -20,14 +20,14 @@ base_user_url = get_base_url(apis.user)
 base_domain_url = get_base_url(apis.domains)
 
 
-# domain = schemas.DomainCreate(
+# domain = models.DomainCreate(
 #     url=random_lower_string(),
 #     name=random_lower_string(),
 #     bulletin=random_lower_string(),
 #     gravatar=random_lower_string(),
 # )
 # data = jsonable_encoder(domain)
-# domain_edit = schemas.DomainEdit(
+# domain_edit = models.DomainEdit(
 #     name=random_lower_string(),
 #     bulletin=random_lower_string(),
 #     gravatar=random_lower_string(),
