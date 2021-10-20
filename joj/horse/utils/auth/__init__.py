@@ -57,7 +57,7 @@ class JWTUserToken(JWTToken):
 
 class JWTOAuthToken(JWTToken):
     authentication_backend: str
-    redirect_url: str
+    backend_parameters: Dict[str, Any]
 
 
 class Settings(BaseModel):
