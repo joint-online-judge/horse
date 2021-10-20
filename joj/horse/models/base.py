@@ -43,11 +43,13 @@ class BaseORMModel(SQLModel):
     #     )
 
     @classmethod
-    async def find_by_id(
-        cls: Type["BaseORMModelType"], _id: UUID
+    async def get_or_none(
+        __base_orm_model_cls__: Type["BaseORMModelType"], **kwargs: Any
     ) -> Optional["BaseORMModelType"]:
         async with db_session() as session:
-            statement = select(cls).where(cls.id == _id)
+            statement = select(__base_orm_model_cls__)
+            for k, v in kwargs.items():
+                statement = statement.where(getattr(__base_orm_model_cls__, k) == v)
             results = await session.exec(statement)
             return results.one_or_none()
 

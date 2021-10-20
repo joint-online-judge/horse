@@ -873,6 +873,14 @@ python-dateutil = "*"
 urllib3 = ">=1.25.3"
 
 [[package]]
+name = "makefun"
+version = "1.12.1"
+description = "Small library to dynamically create python functions."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "markupsafe"
 version = "2.0.1"
 description = "Safely add untrusted strings to HTML/XML markup."
@@ -1596,7 +1604,7 @@ test = ["asgi-lifespan", "asynctest", "coverage", "pytest", "pytest-asyncio", "p
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "2b607be2b514c7bf9563ccfdbe37a514203eefd0e2647aa118e157c80cbe5830"
+content-hash = "27c4c1e47e1938ec4101135b52c9bd99eb2415766d5e2e4b0048e8641abf3874"
 
 [metadata.files]
 aerich = [
@@ -1977,6 +1985,10 @@ kombu = [
 lakefs-client = [
     {file = "lakefs-client-0.47.0.tar.gz", hash = "sha256:000ed8ce64fce893ca54054a903cc1d40fb76828a7adb338a8de8c2776a7e8ff"},
     {file = "lakefs_client-0.47.0-py3-none-any.whl", hash = "sha256:0b57a720324046f27b8df8a41b845d21bc0527583b7607f97003ff5ade4d462f"},
+]
+makefun = [
+    {file = "makefun-1.12.1-py2.py3-none-any.whl", hash = "sha256:639ac01a68ddd76ab156ca435bcd89dab25c717fb09af23f1563dc26362b4dcc"},
+    {file = "makefun-1.12.1.tar.gz", hash = "sha256:4d0e90ca3fdbdeb6a4a0891e2da7d4b8e80386e19e6db91ce29b8aa5c876ecfe"},
 ]
 markupsafe = [
     {file = "MarkupSafe-2.0.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:d8446c54dc28c01e5a2dbac5a25f071f6653e6e40f3a8818e8b45d790fe6ef53"},
