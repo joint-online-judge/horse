@@ -8,7 +8,6 @@ from fastapi.security.base import SecurityBase
 from fastapi_jwt_auth import AuthJWT
 from makefun import with_signature
 
-from joj.horse.utils.auth import auth_jwt_encode_user
 from joj.horse.utils.oauth import OAuth2Profile
 from joj.horse.utils.url import get_base_url
 
@@ -54,8 +53,8 @@ class BaseAuthentication(Generic[T]):
         request: Request,
         response: Response,
         auth_jwt: AuthJWT,
-        user: Optional["User"],
-        oauth2_profile: Optional[OAuth2Profile],
+        access_token: str,
+        refresh_token: str,
         parameters: Dict[str, Any],
     ) -> None:
         raise NotImplementedError()
@@ -129,18 +128,19 @@ class CookieAuthentication(BaseAuthentication[str]):
         request: Request,
         response: Response,
         auth_jwt: AuthJWT,
-        user: Optional["User"],
-        oauth2_profile: Optional[OAuth2Profile],
+        access_token: str,
+        refresh_token: str,
         parameters: Dict[str, Any],
     ) -> None:
-        token = auth_jwt_encode_user(auth_jwt, user, oauth2_profile)
-        print(token)
-        auth_jwt.set_access_cookies(token, response)
+        # token = auth_jwt_encode_user(auth_jwt, user, oauth2_profile)
+        print(access_token)
+        auth_jwt.set_access_cookies(access_token, response)
+        auth_jwt.set_refresh_cookies(refresh_token, response)
         redirect_url = parameters.get("redirect_url", "")
         if not redirect_url:
             redirect_url = str(get_base_url(request))
         if redirect_url:
-            response.status_code = 307
+            response.status_code = 302
             response.headers["location"] = quote_plus(
                 str(redirect_url), safe=":/%#?&=@[]!$&'()*+,;"
             )
@@ -201,12 +201,16 @@ class JWTAuthentication(BaseAuthentication[str]):
         request: Request,
         response: Response,
         auth_jwt: AuthJWT,
-        user: Optional["User"],
-        oauth2_profile: Optional[OAuth2Profile],
+        access_token: str,
+        refresh_token: str,
         parameters: Dict[str, Any],
     ) -> Any:
-        token = auth_jwt_encode_user(auth_jwt, user, oauth2_profile)
-        return {"access_token": token, "token_type": "bearer"}
+        # token = auth_jwt_encode_user(auth_jwt, user, oauth2_profile)
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
+        }
 
     async def get_logout_response(
         self,

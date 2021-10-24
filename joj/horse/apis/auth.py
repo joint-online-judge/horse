@@ -8,16 +8,22 @@ from uvicorn.config import logger
 from joj.horse import models
 from joj.horse.config import settings
 from joj.horse.utils.auth import (
+    JWTToken,
     JWTUserToken,
     auth_jwt_decode_oauth_state,
+    auth_jwt_decode_refresh_token,
     auth_jwt_decode_user,
+    auth_jwt_decode_user_optional,
     auth_jwt_encode_oauth_state,
+    auth_jwt_encode_user,
+    auth_jwt_raw_token,
 )
 from joj.horse.utils.auth.backend import (
     BaseAuthentication,
     CookieAuthentication,
     JWTAuthentication,
 )
+from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.oauth import BaseOAuth2, OAuth2AuthorizeCallback, OAuth2Token
 from joj.horse.utils.oauth.jaccount import JaccountOAuth2
 from joj.horse.utils.router import MyRouter
@@ -103,10 +109,9 @@ def get_oauth_router(
             oauth2_authorize_callback
         ),
     ) -> Any:
-        token, state = access_token_state
-        profile, _ = await oauth_client.get_profile(token)
-
         try:
+            token, state = access_token_state
+            oauth_profile, _ = await oauth_client.get_profile(token)
             state_data = auth_jwt_decode_oauth_state(auth_jwt, state)
         except Exception as e:
             logger.exception(e)
@@ -116,22 +121,27 @@ def get_oauth_router(
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
         oauth_account = await models.UserOAuthAccount.create_or_update(
-            oauth_client.name, token, profile
+            oauth_client.name, token, oauth_profile
         )
         logger.info(oauth_account)
-        # logger.info(profile)
+        # logger.info(oauth_profile)
 
         if not oauth_account.user_id:
-            user = None
+            access_token, refresh_token = auth_jwt_encode_user(
+                auth_jwt, oauth=oauth_profile
+            )
         else:
             user = await models.User.get_or_none(id=oauth_account.user_id)
+            access_token, refresh_token = auth_jwt_encode_user(
+                auth_jwt, user=user, oauth_name=oauth_profile.oauth_name
+            )
 
         return await backend.get_login_response(
             request,
             response,
             auth_jwt,
-            user,
-            profile,
+            access_token,
+            refresh_token,
             state_data.backend_parameters,
         )
         # for backend in authentication_backends:
@@ -182,9 +192,9 @@ def get_auth_router(
         ),
     ) -> Any:
         user = await models.User.get_or_none(id=credentials.username)
-
+        access_token, refresh_token = auth_jwt_encode_user(auth_jwt, user=user)
         return await backend.get_login_response(
-            request, response, auth_jwt, user, None, backend_parameters
+            request, response, auth_jwt, access_token, refresh_token, backend_parameters
         )
 
         # raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
@@ -194,16 +204,73 @@ def get_auth_router(
         request: Request,
         response: Response,
         auth_jwt: AuthJWT = Depends(AuthJWT),
-        jwt_decoded: Optional[JWTUserToken] = Depends(auth_jwt_decode_user),
+        jwt_decoded: JWTUserToken = Depends(auth_jwt_decode_user),
     ) -> Any:
-        if jwt_decoded is None:
-            user = None
-            oauth = None
-        else:
-            user = jwt_decoded.user
-            oauth = jwt_decoded.oauth
+        user = jwt_decoded.user
+        oauth = jwt_decoded.oauth
         return await backend.get_logout_response(
             request, response, auth_jwt, user, oauth, {}
+        )
+
+    @auth_router.post("/register")
+    async def register(
+        request: Request,
+        response: Response,
+        user_create: models.UserCreate,
+        auth_jwt: AuthJWT = Depends(AuthJWT),
+        jwt_decoded: Optional[JWTUserToken] = Depends(auth_jwt_decode_user_optional),
+        backend_parameters: Dict[str, Any] = Depends(
+            backend.get_parameters_dependency()
+        ),
+    ) -> Any:
+        if jwt_decoded is not None and jwt_decoded.type == "user":
+            raise BizError(
+                ErrorCode.UserRegisterError,
+                "user already login, please logout before register",
+            )
+        user_model = await models.User.create(
+            user_create=user_create,
+            jwt_decoded=jwt_decoded,
+            register_ip=request.client.host,
+        )
+        access_token, refresh_token = auth_jwt_encode_user(
+            auth_jwt, user=user_model, oauth_name=user_create.oauth_name
+        )
+        return await backend.get_login_response(
+            request, response, auth_jwt, access_token, refresh_token, backend_parameters
+        )
+
+    @auth_router.get("/token")
+    async def get_token(
+        request: Request,
+        response: Response,
+        auth_jwt: AuthJWT = Depends(AuthJWT),
+        access_token: Optional[str] = Depends(auth_jwt_raw_token),
+        backend_parameters: Dict[str, Any] = Depends(
+            backend.get_parameters_dependency()
+        ),
+    ) -> Any:
+        return await backend.get_login_response(
+            request, response, auth_jwt, access_token, "", backend_parameters
+        )
+
+    @auth_router.get("refresh")
+    async def refresh(
+        request: Request,
+        response: Response,
+        auth_jwt: AuthJWT = Depends(AuthJWT),
+        decoded_jwt: JWTToken = Depends(auth_jwt_decode_refresh_token),
+        backend_parameters: Dict[str, Any] = Depends(
+            backend.get_parameters_dependency()
+        ),
+    ) -> Any:
+        user = await models.User.get_or_none(id=decoded_jwt.sub)
+        if user is None:
+            access_token, refresh_token = "", ""
+        else:
+            access_token, refresh_token = auth_jwt_encode_user(auth_jwt, user=user)
+        return await backend.get_login_response(
+            request, response, auth_jwt, access_token, refresh_token, backend_parameters
         )
 
     return auth_router

@@ -6,7 +6,8 @@ from sqlmodel import Field, Relationship
 from sqlmodel.sql.sqltypes import GUID
 
 from joj.horse.models.base import URLMixin, URLORMModel
-from joj.horse.models.user import User
+
+# from joj.horse.models.user import User
 from joj.horse.schemas.base import BaseModel, LongStr, LongText, UserInputURL
 
 if TYPE_CHECKING:
@@ -17,6 +18,7 @@ if TYPE_CHECKING:
         Problem,
         ProblemGroup,
         ProblemSet,
+        User,
     )
     from joj.horse.schemas.query import OrderingQuery, PaginationQuery
 

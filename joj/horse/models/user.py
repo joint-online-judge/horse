@@ -1,42 +1,54 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
-from pydantic import EmailStr, root_validator
+from pydantic import EmailStr, root_validator, validator
 from sqlmodel import Field, Relationship
 from tortoise import timezone
 from uvicorn.config import logger
 
-from joj.horse.models.base import BaseORMModel, utcnow
+from joj.horse.models.base import BaseORMModel, SQLModel, utcnow
 from joj.horse.models.permission import DefaultRole
+from joj.horse.models.user_oauth_account import UserOAuthAccount
+from joj.horse.utils.db import db_session
+from joj.horse.utils.errors import BizError, ErrorCode
 
 if TYPE_CHECKING:
-    from joj.horse.models import (
-        Domain,
-        DomainUser,
-        Problem,
-        ProblemSet,
-        UserOAuthAccount,
-    )
+    from joj.horse.models import Domain, DomainUser, Problem, ProblemSet
     from joj.horse.schemas.query import OrderingQuery, PaginationQuery
+    from joj.horse.utils.auth import JWTUserToken
+
+
+class UserCreate(SQLModel):
+    username: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
+    oauth_name: Optional[str] = None
+    oauth_account_id: Optional[str] = None
+
+    @validator("email", pre=True, always=True)
+    def validate_email(cls, v: Any) -> Optional[EmailStr]:
+        if not v:
+            return None
+        return EmailStr(v)
 
 
 class UserBase(BaseORMModel):
-    user_name: str = Field(index=False)
+    username: str = Field(index=False)
     email: EmailStr = Field(index=False)
 
     gravatar: str = Field(default="", index=False)
     student_id: str = Field(default="")
     real_name: str = Field(default="")
+    role: str = Field(default=str(DefaultRole.USER))
+    is_active: bool = Field(default=False, index=False)
 
 
 class User(UserBase, table=True):  # type: ignore[call-arg]
     __tablename__ = "users"
 
-    salt: str = Field(default="", index=False)
-    hash: str = Field(default="", index=False)
-    role: str = Field(default=str(DefaultRole.USER))
+    hashed_password: str = Field(default="", index=False)
 
-    user_name_lower: str = Field(index=True, sa_column_kwargs={"unique": True})
+    username_lower: str = Field(index=True, sa_column_kwargs={"unique": True})
     email_lower: EmailStr = Field(index=True, sa_column_kwargs={"unique": True})
 
     # register_at = fields.DatetimeField(auto_now_add=True)
@@ -54,14 +66,12 @@ class User(UserBase, table=True):  # type: ignore[call-arg]
 
     @root_validator(pre=True)
     def validate_lower_name(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        if "user_name" not in values:
-            raise ValueError("user_name undefined")
-        values["user_name_lower"] = values["user_name"].lower()
+        if "username" not in values:
+            raise ValueError("username undefined")
+        values["username_lower"] = values["username"].lower()
         if "email" not in values:
             raise ValueError("email undefined")
         values["email_lower"] = values["email"].lower()
-        if "gravatar" not in values or not values["gravatar"]:
-            values["gravatar"] = values["user_name_lower"]
         return values
 
     @classmethod
@@ -114,3 +124,75 @@ class User(UserBase, table=True):  # type: ignore[call-arg]
         except Exception as e:
             logger.exception(e)
             return None
+
+    @classmethod
+    async def create(
+        cls,
+        user_create: UserCreate,
+        jwt_decoded: Optional["JWTUserToken"],
+        register_ip: str,
+    ) -> "User":
+        username = user_create.username
+        email = user_create.email
+        if user_create.oauth_name:
+            if (
+                jwt_decoded is None
+                or jwt_decoded.type != "oauth"
+                or jwt_decoded.oauth_name != user_create.oauth_name
+                or jwt_decoded.id != user_create.oauth_account_id
+            ):
+                raise BizError(ErrorCode.UserRegisterError, "oauth account not matched")
+            oauth_account = await UserOAuthAccount.get_or_none(
+                oauth_name=jwt_decoded.oauth_name,
+                account_id=jwt_decoded.id,
+            )
+            if oauth_account is None:
+                raise BizError(ErrorCode.UserRegisterError, "oauth account not matched")
+            if not user_create.username:
+                if not oauth_account.account_name:
+                    raise BizError(ErrorCode.UserRegisterError, "username not provided")
+                username = oauth_account.account_name
+            if not user_create.email:
+                email = oauth_account.account_email
+            student_id = jwt_decoded.student_id
+            real_name = jwt_decoded.real_name
+            is_active = True
+
+        else:
+            oauth_account = None
+            if not user_create.password:
+                raise BizError(ErrorCode.UserRegisterError, "password not provided")
+            if not user_create.username:
+                raise BizError(ErrorCode.UserRegisterError, "username not provided")
+            if not user_create.email:
+                raise BizError(ErrorCode.UserRegisterError, "email not provided")
+            student_id = ""
+            real_name = ""
+            is_active = False
+
+        if user_create.password:
+            from joj.horse.utils.auth import pwd_context
+
+            hashed_password = pwd_context.hash(user_create.password)
+        else:
+            # register with oauth can omit password
+            hashed_password = ""
+
+        async with db_session() as session:
+            user = User(
+                username=username,
+                email=email,
+                student_id=student_id,
+                real_name=real_name,
+                is_active=is_active,
+                hashed_password=hashed_password,
+                register_ip=register_ip,
+                login_ip=register_ip,
+            )
+            session.sync_session.add(user)
+            if oauth_account:
+                oauth_account.user_id = user.id
+                session.sync_session.add(oauth_account)
+            await session.commit()
+            await session.refresh(user)
+            return user
