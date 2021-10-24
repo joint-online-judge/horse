@@ -33,5 +33,9 @@ from joj.horse.models.problem_set import (
     ProblemSetEdit as ProblemSetEdit,
 )
 from joj.horse.models.record import Record as Record, RecordCodeType as RecordCodeType
-from joj.horse.models.user import User as User, UserBase as UserBase
+from joj.horse.models.user import (
+    User as User,
+    UserBase as UserBase,
+    UserCreate as UserCreate,
+)
 from joj.horse.models.user_oauth_account import UserOAuthAccount as UserOAuthAccount
