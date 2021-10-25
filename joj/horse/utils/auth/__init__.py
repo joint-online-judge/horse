@@ -4,7 +4,7 @@ from fastapi import Depends, Path
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi_jwt_auth import AuthJWT
 from passlib.context import CryptContext
-from pydantic import SecretStr
+from pydantic import Field, SecretStr
 from typing_extensions import Literal
 
 from joj.horse.config import settings
@@ -41,20 +41,19 @@ SecretType = Union[str, SecretStr]
 
 class JWTToken(BaseModel):
     # registered claims
-    sub: str
+    id: str = Field(..., alias="sub")
     iat: int
     nbf: int
     jti: str
     exp: int
     # fastapi_jwt_auth claims
-    category: str
+    type: str
     fresh: bool
     csrf: Optional[str] = None
 
 
 class JWTUserClaims(BaseModel):
-    type: Literal["user", "oauth"]
-    id: str
+    category: Literal["user", "oauth"]
     username: str
     email: str
     student_id: str
@@ -63,8 +62,12 @@ class JWTUserClaims(BaseModel):
     oauth_name: Optional[str]
 
 
-class JWTUserToken(JWTToken, JWTUserClaims):
+class JWTAccessToken(JWTUserClaims, JWTToken):
     pass
+
+
+class JWTRefreshToken(JWTToken):
+    oauth_name: Optional[str]
 
 
 class JWTOAuthToken(JWTToken):
@@ -117,8 +120,7 @@ def auth_jwt_encode_user(
     if user is not None:
         subject = str(user.id)
         user_claims = JWTUserClaims(
-            type="user",
-            id=subject,
+            category="user",
             username=user.username,
             email=user.email,
             student_id=user.student_id,
@@ -129,8 +131,7 @@ def auth_jwt_encode_user(
     elif oauth is not None:
         subject = str(oauth.account_id)
         user_claims = JWTUserClaims(
-            type="oauth",
-            id=subject,
+            category="oauth",
             username=oauth.account_name,
             email=oauth.account_email,
             student_id=oauth.student_id,
@@ -143,7 +144,9 @@ def auth_jwt_encode_user(
     access_token = auth_jwt.create_access_token(
         subject=subject, user_claims=user_claims.dict()
     )
-    refresh_token = auth_jwt.create_refresh_token(subject=subject)
+    refresh_token = auth_jwt.create_refresh_token(
+        subject=subject, user_claims={"oauth_name": user_claims.oauth_name}
+    )
     return access_token, refresh_token
 
 
@@ -172,11 +175,12 @@ def auth_jwt_decode_refresh_token(
     try:
         auth_jwt.jwt_refresh_token_required()
         payload = auth_jwt.get_raw_jwt()
-        return JWTToken(**payload)
+        return JWTRefreshToken(**payload)
     except Exception:
         raise UnauthorizedError(message="JWT Format Error")
 
 
+# noinspection PyProtectedMember
 def auth_jwt_raw_token(
     auth_jwt: AuthJWT = Depends(),
 ) -> str:
@@ -184,27 +188,30 @@ def auth_jwt_raw_token(
     return auth_jwt._token or ""
 
 
-def auth_jwt_decode_user_optional(
+# noinspection PyUnusedLocal
+def auth_jwt_decode_access_token_optional(
     auth_jwt: AuthJWT = Depends(),
     scheme: HTTPAuthorizationCredentials = Depends(jwt_scheme)
     # scheme is only used for authorization in swagger UI
-) -> Optional[JWTUserToken]:
+) -> Optional[JWTAccessToken]:
     auth_jwt.jwt_optional()
     payload = auth_jwt.get_raw_jwt()
     if not payload:
         return None
     try:
-        return JWTUserToken(**payload)
+        return JWTAccessToken(**payload)
     except Exception:
         raise UnauthorizedError(message="JWT Format Error")
 
 
-def auth_jwt_decode_user(
-    jwt_decoded: Optional[JWTUserToken] = Depends(auth_jwt_decode_user_optional),
-) -> JWTUserToken:
-    if jwt_decoded is None:
+def auth_jwt_decode_access_token(
+    jwt_access_token: Optional[JWTAccessToken] = Depends(
+        auth_jwt_decode_access_token_optional
+    ),
+) -> JWTAccessToken:
+    if jwt_access_token is None:
         raise UnauthorizedError(message="Unauthorized")
-    return jwt_decoded
+    return jwt_access_token
 
 
 def auth_jwt_decode_oauth_state(
@@ -222,13 +229,13 @@ def auth_jwt_decode_oauth_state(
 
 # noinspection PyBroadException
 # def get_current_user_optional(
-#     jwt_decoded: Optional[JWTUserToken] = Depends(auth_jwt_decode_user_optional),
+#     jwt_access_token: Optional[JWTUserToken] = Depends(auth_jwt_decode_user_optional),
 # ) -> Optional[JWTUserTokenUser]:
-#     if jwt_decoded is None:
+#     if jwt_access_token is None:
 #         return None
-#     return jwt_decoded.user
+#     return jwt_access_token.user
 # try:
-#     user = await User.find_by_uname(scope=jwt_decoded.scope, uname=jwt_decoded.name)
+#     user = await User.find_by_uname(scope=jwt_access_token.scope, uname=jwt_access_token.name)
 #     if user is None:
 #         raise Exception()
 # except Exception:
@@ -237,16 +244,18 @@ def auth_jwt_decode_oauth_state(
 
 
 # def get_current_oauth_profile_optional(
-#     jwt_decoded: Optional[JWTUserToken] = Depends(auth_jwt_decode_user_optional),
+#     jwt_access_token: Optional[JWTUserToken] = Depends(auth_jwt_decode_user_optional),
 # ) -> Optional[JWTUserTokenOAuth]:
-#     if jwt_decoded is None:
+#     if jwt_access_token is None:
 #         return None
-#     return jwt_decoded.oauth
+#     return jwt_access_token.oauth
 
 
-def get_site_role(jwt_decoded: JWTUserToken = Depends(auth_jwt_decode_user)) -> str:
-    if jwt_decoded.user:
-        return jwt_decoded.user.role
+def get_site_role(
+    jwt_access_token: JWTAccessToken = Depends(auth_jwt_decode_access_token),
+) -> str:
+    if jwt_access_token.role:
+        return jwt_access_token.role
     # the default site role is guest
     return DefaultRole.GUEST
 
@@ -268,12 +277,12 @@ async def get_domain(
 
 
 async def get_domain_role(
-    jwt_decoded: JWTUserToken = Depends(auth_jwt_decode_user),
+    jwt_access_token: JWTAccessToken = Depends(auth_jwt_decode_access_token),
     domain: Domain = Depends(get_domain),
 ) -> str:
-    if jwt_decoded.user:
+    if jwt_access_token.category == "user":
         domain_user = await DomainUser.get_or_none(
-            domain=domain.id, user=jwt_decoded.user.id
+            domain=domain.id, user=jwt_access_token.id
         )
         if domain_user:
             return domain_user.role
@@ -310,13 +319,13 @@ def is_domain_permission(scope: ScopeType) -> bool:
 class Authentication:
     def __init__(
         self,
-        jwt_decoded: JWTUserToken = Depends(auth_jwt_decode_user),
+        jwt_access_token: JWTAccessToken = Depends(auth_jwt_decode_access_token),
         site_role: str = Depends(get_site_role),
         site_permission: SitePermission = Depends(get_site_permission),
     ):
-        self.jwt: JWTUserToken = jwt_decoded
-        # self.user: User = jwt_decoded.user
-        # self.oauth_profile: Optional[OAuth2Profile] = jwt_decoded.oauth
+        self.jwt: JWTAccessToken = jwt_access_token
+        # self.user: User = jwt_access_token.user
+        # self.oauth_profile: Optional[OAuth2Profile] = jwt_access_token.oauth
         self.site_role: str = site_role
         self.site_permission: SitePermission = site_permission
         self.domain: Optional[Domain] = None
@@ -363,7 +372,7 @@ class Authentication:
     def is_domain_owner(self) -> bool:
         if self.domain is None:
             return False
-        return self.domain.owner.id == self.jwt.user.id
+        return self.domain.owner.id == self.jwt.id
 
 
 class DomainAuthentication:
@@ -399,16 +408,14 @@ PermComposeTuple = Union[  # type: ignore
     Tuple[PermComposeIterable],
     Tuple[PermComposeIterable, Literal["AND", "OR"]],
 ]
-PermArg1 = (
-    Union[
-        ScopeType,
-        PermComposeIterable,
-        PermKey,
-        PermCompose,
-        PermKeyTuple,
-        PermComposeTuple,
-    ],
-)
+PermArg1 = Union[  # type: ignore
+    ScopeType,
+    PermComposeIterable,
+    PermKey,
+    PermCompose,
+    PermKeyTuple,
+    PermComposeTuple,
+]
 PermArg2 = Union[PermissionType, Optional[Literal["AND", "OR"]]]
 
 
@@ -464,7 +471,7 @@ class DomainPermissionChecker(PermissionChecker):
 
 
 def ensure_permission(
-    arg1: PermArg1 = None, arg2: PermArg2 = None  # type: ignore
+    arg1: Optional[PermArg1] = None, arg2: Optional[PermArg2] = None
 ) -> Optional[Callable[..., None]]:
     """
     Returns a permission check dependency in fastapi.
@@ -496,7 +503,7 @@ def ensure_permission(
     """
 
     def construct_perm(
-        _arg1: PermArg1, _arg2: PermArg2 = None  # type: ignore
+        _arg1: PermArg1, _arg2: Optional[PermArg2] = None
     ) -> Union[PermKey, PermCompose]:
         _perm: Optional[Union[PermKey, PermCompose]] = None
         if _arg1 is None:

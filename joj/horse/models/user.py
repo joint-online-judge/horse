@@ -15,7 +15,7 @@ from joj.horse.utils.errors import BizError, ErrorCode
 if TYPE_CHECKING:
     from joj.horse.models import Domain, DomainUser, Problem, ProblemSet
     from joj.horse.schemas.query import OrderingQuery, PaginationQuery
-    from joj.horse.utils.auth import JWTUserToken
+    from joj.horse.utils.auth import JWTAccessToken
 
 
 class UserCreate(SQLModel):
@@ -129,22 +129,22 @@ class User(UserBase, table=True):  # type: ignore[call-arg]
     async def create(
         cls,
         user_create: UserCreate,
-        jwt_decoded: Optional["JWTUserToken"],
+        jwt_access_token: Optional["JWTAccessToken"],
         register_ip: str,
     ) -> "User":
         username = user_create.username
         email = user_create.email
         if user_create.oauth_name:
             if (
-                jwt_decoded is None
-                or jwt_decoded.type != "oauth"
-                or jwt_decoded.oauth_name != user_create.oauth_name
-                or jwt_decoded.id != user_create.oauth_account_id
+                jwt_access_token is None
+                or jwt_access_token.category != "oauth"
+                or jwt_access_token.oauth_name != user_create.oauth_name
+                or jwt_access_token.id != user_create.oauth_account_id
             ):
                 raise BizError(ErrorCode.UserRegisterError, "oauth account not matched")
             oauth_account = await UserOAuthAccount.get_or_none(
-                oauth_name=jwt_decoded.oauth_name,
-                account_id=jwt_decoded.id,
+                oauth_name=jwt_access_token.oauth_name,
+                account_id=jwt_access_token.id,
             )
             if oauth_account is None:
                 raise BizError(ErrorCode.UserRegisterError, "oauth account not matched")
@@ -154,8 +154,8 @@ class User(UserBase, table=True):  # type: ignore[call-arg]
                 username = oauth_account.account_name
             if not user_create.email:
                 email = oauth_account.account_email
-            student_id = jwt_decoded.student_id
-            real_name = jwt_decoded.real_name
+            student_id = jwt_access_token.student_id
+            real_name = jwt_access_token.real_name
             is_active = True
 
         else:

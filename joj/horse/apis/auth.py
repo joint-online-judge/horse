@@ -8,12 +8,12 @@ from uvicorn.config import logger
 from joj.horse import models
 from joj.horse.config import settings
 from joj.horse.utils.auth import (
+    JWTAccessToken,
     JWTToken,
-    JWTUserToken,
+    auth_jwt_decode_access_token,
+    auth_jwt_decode_access_token_optional,
     auth_jwt_decode_oauth_state,
     auth_jwt_decode_refresh_token,
-    auth_jwt_decode_user,
-    auth_jwt_decode_user_optional,
     auth_jwt_encode_oauth_state,
     auth_jwt_encode_user,
     auth_jwt_raw_token,
@@ -144,33 +144,6 @@ def get_oauth_router(
             refresh_token,
             state_data.backend_parameters,
         )
-        # for backend in authentication_backends:
-        #     if backend.name == state_data.authentication_backend:
-
-        # raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
-        # return response
-
-        # new_oauth_account = models.BaseOAuthAccount(
-        #     oauth_name=oauth_client.name,
-        #     access_token=token["access_token"],
-        #     expires_at=token.get("expires_at"),
-        #     refresh_token=token.get("refresh_token"),
-        #     account_id=account_id,
-        #     account_email=account_email,
-        # )
-        #
-        # user = await user_manager.oauth_callback(new_oauth_account, request)
-        #
-        # if not user.is_active:
-        #     raise HTTPException(
-        #         status_code=status.HTTP_400_BAD_REQUEST,
-        #         detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
-        #     )
-        #
-        # # Authenticate
-        # for backend in authenticator.backends:
-        #     if backend.name == state_data["authentication_backend"]:
-        #         return await backend.get_login_response(user, response, user_manager)
 
     return oauth_router
 
@@ -204,10 +177,10 @@ def get_auth_router(
         request: Request,
         response: Response,
         auth_jwt: AuthJWT = Depends(AuthJWT),
-        jwt_decoded: JWTUserToken = Depends(auth_jwt_decode_user),
+        jwt_access_token: JWTAccessToken = Depends(auth_jwt_decode_access_token),
     ) -> Any:
-        user = jwt_decoded.user
-        oauth = jwt_decoded.oauth
+        user = jwt_access_token.user
+        oauth = jwt_access_token.oauth_name
         return await backend.get_logout_response(
             request, response, auth_jwt, user, oauth, {}
         )
@@ -218,19 +191,21 @@ def get_auth_router(
         response: Response,
         user_create: models.UserCreate,
         auth_jwt: AuthJWT = Depends(AuthJWT),
-        jwt_decoded: Optional[JWTUserToken] = Depends(auth_jwt_decode_user_optional),
+        jwt_access_token: Optional[JWTAccessToken] = Depends(
+            auth_jwt_decode_access_token_optional
+        ),
         backend_parameters: Dict[str, Any] = Depends(
             backend.get_parameters_dependency()
         ),
     ) -> Any:
-        if jwt_decoded is not None and jwt_decoded.type == "user":
+        if jwt_access_token is not None and jwt_access_token.category == "user":
             raise BizError(
                 ErrorCode.UserRegisterError,
                 "user already login, please logout before register",
             )
         user_model = await models.User.create(
             user_create=user_create,
-            jwt_decoded=jwt_decoded,
+            jwt_access_token=jwt_access_token,
             register_ip=request.client.host,
         )
         access_token, refresh_token = auth_jwt_encode_user(
@@ -259,12 +234,12 @@ def get_auth_router(
         request: Request,
         response: Response,
         auth_jwt: AuthJWT = Depends(AuthJWT),
-        decoded_jwt: JWTToken = Depends(auth_jwt_decode_refresh_token),
+        jwt_refresh_token: JWTToken = Depends(auth_jwt_decode_refresh_token),
         backend_parameters: Dict[str, Any] = Depends(
             backend.get_parameters_dependency()
         ),
     ) -> Any:
-        user = await models.User.get_or_none(id=decoded_jwt.sub)
+        user = await models.User.get_or_none(id=jwt_refresh_token.id)
         if user is None:
             access_token, refresh_token = "", ""
         else:
