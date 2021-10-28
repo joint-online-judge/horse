@@ -12,3 +12,9 @@ class JWT(BaseModel):
 
 class RedirectModel(BaseModel):
     redirect_url: str
+
+
+class AuthTokens(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str
