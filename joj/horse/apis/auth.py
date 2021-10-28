@@ -25,6 +25,7 @@ from joj.horse.utils.auth.backend import (
 )
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.oauth import BaseOAuth2, OAuth2AuthorizeCallback, OAuth2Token
+from joj.horse.utils.oauth.github import GitHubOAuth2
 from joj.horse.utils.oauth.jaccount import JaccountOAuth2
 from joj.horse.utils.router import MyRouter
 
@@ -111,6 +112,7 @@ def get_oauth_router(
     ) -> Any:
         try:
             token, state = access_token_state
+            logger.info(token)
             oauth_profile, _ = await oauth_client.get_profile(token)
             state_data = auth_jwt_decode_oauth_state(auth_jwt, state)
         except Exception as e:
@@ -229,7 +231,7 @@ def get_auth_router(
             request, response, auth_jwt, access_token, "", backend_parameters
         )
 
-    @auth_router.get("refresh")
+    @auth_router.get("/refresh")
     async def refresh(
         request: Request,
         response: Response,
@@ -262,6 +264,11 @@ oauth_clients = []
 if settings.oauth_jaccount:
     oauth_clients.append(
         JaccountOAuth2(settings.oauth_jaccount_id, settings.oauth_jaccount_secret)
+    )
+
+if settings.oauth_github:
+    oauth_clients.append(
+        GitHubOAuth2(settings.oauth_github_id, settings.oauth_github_secret)
     )
 
 for oauth_client in oauth_clients:

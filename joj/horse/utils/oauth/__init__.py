@@ -71,7 +71,7 @@ T = TypeVar("T")
 class OAuth2Profile(BaseModel):
     oauth_name: str
     account_id: str
-    account_name: Optional[str] = None
+    account_name: str = ""
     account_email: str
 
     real_name: str = ""
