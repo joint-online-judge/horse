@@ -135,18 +135,7 @@ def get_oauth_router(
         auth_parameters: AuthParams = Depends(auth_parameters_dependency),
         auth_jwt: AuthJWT = Depends(AuthJWT),
         scopes: List[str] = Query(None),
-    ) -> Any:
-        # backend_exists = any(
-        #     backend.name == authentication_backend
-        #     for backend in authentication_backends
-        # )
-        #
-        # if not backend_exists:
-        #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
-
-        # if not redirect_url:
-        #     redirect_url = str(get_base_url(request))
-
+    ) -> schemas.StandardResponse[schemas.Redirect]:
         if callback_redirect_url is not None:
             authorize_redirect_url = callback_redirect_url
         else:
@@ -160,7 +149,9 @@ def get_oauth_router(
             scopes,
         )
 
-        return {"authorization_url": authorization_url}
+        return schemas.StandardResponse(
+            schemas.Redirect(redirect_url=authorization_url)
+        )
 
     @oauth_router.get("/callback", name=callback_route_name, include_in_schema=False)
     async def callback(
@@ -170,7 +161,7 @@ def get_oauth_router(
         access_token_state: Tuple[OAuth2Token, Optional[str]] = Depends(
             oauth2_authorize_callback
         ),
-    ) -> Any:
+    ) -> schemas.StandardResponse[schemas.AuthTokens]:
         try:
             token, state = access_token_state
             logger.info(token)
@@ -187,7 +178,6 @@ def get_oauth_router(
             oauth_client.name, token, oauth_profile
         )
         logger.info(oauth_account)
-        # logger.info(oauth_profile)
 
         if not oauth_account.user_id:
             access_token, refresh_token = auth_jwt_encode_user(
@@ -223,7 +213,7 @@ def get_auth_router(
         auth_parameters: AuthParams = Depends(auth_parameters_dependency),
         auth_jwt: AuthJWT = Depends(AuthJWT),
         credentials: OAuth2PasswordRequestForm = Depends(),
-    ) -> Any:
+    ) -> schemas.StandardResponse[schemas.AuthTokens]:
         user = await models.User.get_or_none(id=credentials.username)
         access_token, refresh_token = auth_jwt_encode_user(auth_jwt, user=user)
         return await get_login_response(
@@ -255,7 +245,7 @@ def get_auth_router(
         jwt_access_token: Optional[JWTAccessToken] = Depends(
             auth_jwt_decode_access_token_optional
         ),
-    ) -> Any:
+    ) -> schemas.StandardResponse[schemas.AuthTokens]:
         if jwt_access_token is not None and jwt_access_token.category == "user":
             raise BizError(
                 ErrorCode.UserRegisterError,
@@ -281,7 +271,7 @@ def get_auth_router(
         auth_jwt: AuthJWT = Depends(AuthJWT),
         access_token: str = Depends(auth_jwt_raw_access_token),
         refresh_token: str = Depends(auth_jwt_raw_refresh_token),
-    ) -> Any:
+    ) -> schemas.StandardResponse[schemas.AuthTokens]:
         return await get_login_response(
             request,
             response,
@@ -298,7 +288,7 @@ def get_auth_router(
         auth_parameters: AuthParams = Depends(auth_parameters_dependency),
         auth_jwt: AuthJWT = Depends(AuthJWT),
         jwt_refresh_token: JWTToken = Depends(auth_jwt_decode_refresh_token),
-    ) -> Any:
+    ) -> schemas.StandardResponse[schemas.AuthTokens]:
         user = await models.User.get_or_none(id=jwt_refresh_token.id)
         if user is None:
             access_token, refresh_token = "", ""

@@ -10,7 +10,7 @@ class JWT(BaseModel):
     jwt: str
 
 
-class RedirectModel(BaseModel):
+class Redirect(BaseModel):
     redirect_url: str
 
 

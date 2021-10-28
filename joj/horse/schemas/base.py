@@ -113,7 +113,7 @@ def get_standard_response_model(
         create_model(
             model_name,
             error_code=(ErrorCode, ...),
-            error_msg=(Optional[str], ...),
+            error_msg=(Optional[str], None),
             data=data_type,
         ),
         sub_model,

@@ -4,7 +4,7 @@ from joj.horse.schemas.base import (
     StandardListResponse as StandardListResponse,
     StandardResponse as StandardResponse,
 )
-from joj.horse.schemas.misc import AuthTokens as AuthTokens
+from joj.horse.schemas.misc import AuthTokens as AuthTokens, Redirect as Redirect
 
 # from joj.horse.schemas.domain import (
 #     Domain as Domain,

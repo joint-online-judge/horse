@@ -6,7 +6,7 @@ from starlette.responses import JSONResponse, RedirectResponse
 
 from joj.horse import models, schemas
 from joj.horse.schemas import StandardListResponse, StandardResponse
-from joj.horse.schemas.misc import RedirectModel
+from joj.horse.schemas.misc import Redirect
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.parser import parse_pagination_query
 from joj.horse.utils.router import MyRouter
@@ -17,7 +17,7 @@ router_tag = "user"
 router_prefix = "/api/v1"
 
 
-@router.get("/logout", response_model=RedirectModel)
+@router.get("/logout", response_model=Redirect)
 async def logout(
     auth: Authentication = Depends(),
     auth_jwt: AuthJWT = Depends(),
