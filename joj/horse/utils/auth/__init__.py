@@ -1,6 +1,6 @@
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Set, Tuple, Union
 
-from fastapi import Depends, Path
+from fastapi import Depends, Path, Query
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi_jwt_auth import AuthJWT
 from passlib.context import CryptContext
@@ -39,6 +39,12 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SecretType = Union[str, SecretStr]
 
 
+class AuthParams(BaseModel):
+    cookie: bool = True
+    response_type: Literal["redirect", "json"]
+    redirect_url: Optional[str] = None
+
+
 class JWTToken(BaseModel):
     # registered claims
     id: str = Field(..., alias="sub")
@@ -71,8 +77,7 @@ class JWTRefreshToken(JWTToken):
 
 
 class JWTOAuthToken(JWTToken):
-    authentication_backend: str
-    backend_parameters: Dict[str, Any]
+    auth_parameters: AuthParams
 
 
 class Settings(BaseModel):
@@ -153,7 +158,7 @@ def auth_jwt_encode_user(
 def auth_jwt_encode_oauth_state(
     auth_jwt: AuthJWT,
     oauth_name: str,
-    user_claims: Dict[str, str],
+    user_claims: Dict[str, Any],
 ) -> str:
     return auth_jwt.create_access_token(
         subject=oauth_name,
@@ -181,11 +186,24 @@ def auth_jwt_decode_refresh_token(
 
 
 # noinspection PyProtectedMember
-def auth_jwt_raw_token(
+def auth_jwt_raw_access_token(
     auth_jwt: AuthJWT = Depends(),
 ) -> str:
+    auth_jwt._token = None
     auth_jwt.jwt_optional()
     return auth_jwt._token or ""
+
+
+# noinspection PyProtectedMember,PyBroadException
+def auth_jwt_raw_refresh_token(
+    auth_jwt: AuthJWT = Depends(),
+) -> str:
+    try:
+        auth_jwt._token = None
+        auth_jwt.jwt_refresh_token_required()
+        return auth_jwt._token or ""
+    except Exception:
+        return ""
 
 
 # noinspection PyUnusedLocal
