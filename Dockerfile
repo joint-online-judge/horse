@@ -29,9 +29,6 @@ RUN --mount=type=cache,target=/root/.cache poetry install --no-dev
 
 ENV HOST="localhost" \
     PORT=34765 \
-    OAUTH_JACCOUNT=true \
-    OAUTH_JACCOUNT_ID="" \
-    OAUTH_JACCOUNT_SECRET="" \
     JWT_SECRET="secret" \
     DSN="" \
     TRACES_SAMPLE_RATE=0

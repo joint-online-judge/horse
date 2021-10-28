@@ -99,6 +99,10 @@ class AuthSettings(BaseModel):
     oauth_jaccount_id: str = ""
     oauth_jaccount_secret: str = ""
 
+    oauth_github: bool = False
+    oauth_github_id: str = ""
+    oauth_github_secret: str = ""
+
     # sentry config
     dsn: str = ""
     traces_sample_rate: float = 1
