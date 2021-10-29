@@ -281,7 +281,7 @@ def get_auth_router(
             refresh_token,
         )
 
-    @auth_router.get("/refresh")
+    @auth_router.post("/refresh")
     async def refresh(
         request: Request,
         response: Response,
@@ -293,7 +293,9 @@ def get_auth_router(
         if user is None:
             access_token, refresh_token = "", ""
         else:
-            access_token, refresh_token = auth_jwt_encode_user(auth_jwt, user=user)
+            access_token, refresh_token = auth_jwt_encode_user(
+                auth_jwt, user=user, fresh=False
+            )
         return await get_login_response(
             request, response, auth_jwt, auth_parameters, access_token, refresh_token
         )

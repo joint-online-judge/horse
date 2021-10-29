@@ -104,6 +104,7 @@ def get_config() -> Settings:
         authjwt_cookie_max_age=settings.jwt_expire_seconds,
         authjwt_cookie_secure=not settings.debug,
         authjwt_cookie_csrf_protect=not settings.debug,
+        # authjwt_cookie_csrf_protect=True,
     )
 
 
@@ -112,6 +113,7 @@ def auth_jwt_encode_user(
     user: Optional[User] = None,
     oauth: Optional[OAuth2Profile] = None,
     oauth_name: Optional[str] = None,
+    fresh: bool = True,
 ) -> Tuple[str, str]:
     if user is None and oauth is None:
         raise UnauthorizedError(
@@ -147,7 +149,9 @@ def auth_jwt_encode_user(
         assert False
 
     access_token = auth_jwt.create_access_token(
-        subject=subject, user_claims=user_claims.dict()
+        subject=subject,
+        user_claims=user_claims.dict(),
+        fresh=fresh,
     )
     refresh_token = auth_jwt.create_refresh_token(
         subject=subject, user_claims={"oauth_name": user_claims.oauth_name}
