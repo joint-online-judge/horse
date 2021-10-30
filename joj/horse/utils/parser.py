@@ -14,9 +14,9 @@ from joj.horse.utils.errors import BizError, ErrorCode
 async def parse_uid(
     uid: str = Query("me", description="'me' or ObjectId of the user"),
     auth: Authentication = Depends(),
-) -> models.User:
+) -> models.UserBase:
     if uid == "me":
-        return auth.user
+        return parse_user_from_auth(auth)
     else:
         user = await models.User.get_or_none(id=uid)
         if user:
@@ -27,21 +27,31 @@ async def parse_uid(
 async def parse_uid_or_none(
     uid: Optional[str] = Query("", description="uid or 'me' or empty"),
     auth: Authentication = Depends(),
-) -> Optional[models.User]:
+) -> Optional[models.UserBase]:
     return await parse_uid(uid, auth) if uid else None
 
 
 async def parse_user_from_path_or_query(
     user: str = Path("me", description="'me' or ObjectId of the user"),
     auth: Authentication = Depends(),
-) -> models.User:
+) -> models.UserBase:
     return await parse_uid(user, auth)
 
 
 def parse_user_from_auth(
     auth: Authentication = Depends(Authentication),
-) -> models.User:
-    return auth.user
+) -> models.UserBase:
+    if auth.jwt.category != "user":
+        raise BizError(ErrorCode.UserNotFoundError)
+    return models.UserBase(
+        id=auth.jwt.id,
+        username=auth.jwt.username,
+        email=auth.jwt.email,
+        student_id=auth.jwt.student_id,
+        real_name=auth.jwt.real_name,
+        role=auth.jwt.role,
+        is_active=auth.jwt.is_active,
+    )
 
 
 async def parse_domain(domain: models.Domain = Depends(get_domain)) -> models.Domain:

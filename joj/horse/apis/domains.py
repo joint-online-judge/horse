@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from fastapi import Body, Depends, Query
+from sqlmodel.ext.asyncio.session import AsyncSession
 from tortoise import transactions
 from uvicorn.config import logger
 
@@ -14,6 +15,7 @@ from joj.horse.schemas.permission import (
     Permission,
 )
 from joj.horse.utils.auth import Authentication, DomainAuthentication, ensure_permission
+from joj.horse.utils.db import db_session_dependency
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
     parse_domain,
@@ -49,30 +51,35 @@ async def list_domains(
 @router.post("", dependencies=[Depends(ensure_permission())])
 async def create_domain(
     domain_create: models.DomainCreate,
-    user: models.User = Depends(parse_user_from_auth),
+    user: models.UserBase = Depends(parse_user_from_auth),
+    session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardResponse[models.Domain]:
     try:
-        async with transactions.in_transaction():
-            domain = await models.Domain.create(**domain_create.dict(), owner=user)
-            logger.info("domain created: %s", domain)
-            domain_user = await models.DomainUser.create(
-                domain=domain, user=user, role=str(DefaultRole.ROOT)
+        domain = models.Domain(**domain_create.dict(), owner_id=user.id)
+        session.sync_session.add(domain)
+        logger.info("domain created: %s", domain)
+        domain_user = models.DomainUser(
+            domain_id=domain.id, user_id=user.id, role=str(DefaultRole.ROOT)
+        )
+        session.sync_session.add(domain_user)
+        logger.info("domain user created: %s", domain_user)
+        for role in DefaultRole:
+            # skip fixed roles (judge)
+            if role in FIXED_ROLES:
+                continue
+            domain_role = models.DomainRole(
+                domain_id=domain.id,
+                role=role,
+                permission=DEFAULT_DOMAIN_PERMISSION[role].dict(),
             )
-            logger.info("domain user created: %s", domain_user)
-            for role in DefaultRole:
-                # skip fixed roles (judge)
-                if role in FIXED_ROLES:
-                    continue
-                domain_role = await models.DomainRole.create(
-                    domain=domain,
-                    role=role,
-                    permission=DEFAULT_DOMAIN_PERMISSION[role].dict(),
-                )
-                logger.info("domain role created: %s", domain_role)
+            session.sync_session.add(domain_role)
+            logger.info("domain role created: %s", domain_role)
+        await session.commit()
+        await session.refresh(domain)
     except Exception as e:
         logger.exception(f"domain creation failed: {domain_create.url}")
         raise e
-    return StandardResponse(models.Domain.from_orm(domain))
+    return StandardResponse(domain)
 
 
 @router.get(
@@ -83,7 +90,7 @@ async def get_domain(
     domain: models.Domain = Depends(parse_domain),
 ) -> StandardResponse[models.Domain]:
     # await domain.owner.fetch()
-    return StandardResponse(await models.Domain.from_tortoise_orm(domain))
+    return StandardResponse(domain)
 
 
 @router.delete(
@@ -108,11 +115,15 @@ async def delete_domain(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def update_domain(
-    domain_edit: models.DomainEdit, domain: models.Domain = Depends(parse_domain)
+    domain_edit: models.DomainEdit,
+    domain: models.Domain = Depends(parse_domain),
+    session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardResponse[models.Domain]:
     domain.update_from_schema(domain_edit)
-    await domain.save()
-    return StandardResponse(await models.Domain.from_tortoise_orm(domain))
+    session.sync_session.add(domain)
+    await session.commit()
+    await session.refresh(domain)
+    return StandardResponse(domain)
 
 
 @router.post(
@@ -124,6 +135,7 @@ async def transfer_domain(
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_auth),
     auth: Authentication = Depends(),
+    session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardResponse[models.Domain]:
     target_user = await parse_uid(domain_transfer.target_user, auth)
     # only domain owner (or site root) can transfer the domain
@@ -132,13 +144,17 @@ async def transfer_domain(
     # can not transfer to self
     if domain.owner_id == target_user.id:
         raise BizError(ErrorCode.DomainNotOwnerError)
-    domain_user = await models.DomainUser.get_or_none(domain=domain, user=target_user)
+    domain_user = await models.DomainUser.get_or_none(
+        domain_id=domain.id, user_id=target_user.id
+    )
     # can only transfer the domain to a root user in the domain
     if not domain_user or domain_user.role != DefaultRole.ROOT:
         raise BizError(ErrorCode.DomainNotRootError)
-    domain.owner = target_user
-    await domain.save()
-    return StandardResponse(models.Domain.from_orm(domain))
+    domain.owner_id = target_user.id
+    session.sync_session.add(domain)
+    await session.commit()
+    await session.refresh(domain)
+    return StandardResponse(domain)
 
 
 @router.get(
