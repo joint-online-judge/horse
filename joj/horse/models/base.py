@@ -1,8 +1,9 @@
 from datetime import datetime
 from functools import lru_cache
-from typing import TYPE_CHECKING, Any, List, Optional, Type, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, TypeVar
 from uuid import UUID, uuid4
 
+from pydantic import BaseModel, root_validator
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.functions import FunctionElement
 from sqlalchemy.types import DateTime
@@ -29,18 +30,23 @@ def pg_utcnow(element: Any, compiler: Any, **kwargs: Any) -> str:
 
 class BaseORMModel(SQLModel):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
-    created_at: datetime = Field(sa_column_kwargs={"server_default": utcnow()})
-    updated_at: datetime = Field(
-        sa_column_kwargs={"server_default": utcnow(), "onupdate": utcnow()}
+    created_at: Optional[datetime] = Field(
+        None, sa_column_kwargs={"server_default": utcnow()}
+    )
+    updated_at: Optional[datetime] = Field(
+        None, sa_column_kwargs={"server_default": utcnow(), "onupdate": utcnow()}
     )
 
     # def __str__(self) -> str:
     #     return str({k: v for k, v in self.__dict__.items() if not k.startswith("_")})
     #
-    # def update_from_schema(self: "BaseORMModel", schema: BaseModel) -> None:
-    #     self.update_from_dict(
-    #         {k: v for k, v in schema.__dict__.items() if v is not None}
-    #     )
+    def update_from_schema(self: "BaseORMModel", schema: BaseModel) -> None:
+        for k, v in schema.dict().items():
+            if v is not None:
+                setattr(self, k, v)
+        # self.update_from_dict(
+        #     {k: v for k, v in schema.dict().items() if v is not None}
+        # )
 
     @classmethod
     async def get_or_none(
@@ -90,6 +96,12 @@ class URLMixin(SQLModel):
 
 class URLORMModel(URLMixin, BaseORMModel):
     url: str = Field(..., sa_column_kwargs={"unique": True})
+
+    @root_validator()
+    def validate_url(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        if "url" not in values or not values["url"]:
+            values["url"] = str(values["id"])
+        return values
 
     @classmethod
     async def find_by_url_or_id(

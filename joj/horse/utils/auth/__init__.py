@@ -66,6 +66,7 @@ class JWTUserClaims(BaseModel):
     real_name: str
     role: Optional[str]
     oauth_name: Optional[str]
+    is_active: bool
 
 
 class JWTAccessToken(JWTUserClaims, JWTToken):
@@ -134,6 +135,7 @@ def auth_jwt_encode_user(
             real_name=user.real_name,
             role=user.role,
             oauth_name=oauth_name,
+            is_active=user.is_active,
         )
     elif oauth is not None:
         subject = str(oauth.account_id)
@@ -144,6 +146,7 @@ def auth_jwt_encode_user(
             student_id=oauth.student_id,
             real_name=oauth.real_name,
             oauth_name=oauth.oauth_name,
+            is_active=False,
         )
     else:
         assert False

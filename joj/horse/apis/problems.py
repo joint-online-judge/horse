@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import BackgroundTasks, Depends, File, Form, Query, UploadFile
+from sqlmodel.ext.asyncio.session import AsyncSession
 from tortoise import transactions
 from uvicorn.config import logger
 
@@ -14,6 +15,7 @@ from joj.horse.schemas.permission import Permission
 # from joj.horse.schemas.problem import ListProblems, ProblemClone
 from joj.horse.tasks import celery_app
 from joj.horse.utils.auth import Authentication, ensure_permission
+from joj.horse.utils.db import db_session_dependency
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.lakefs import LakeFSProblemConfig
 from joj.horse.utils.parser import (
@@ -64,18 +66,21 @@ async def create_problem(
     background_tasks: BackgroundTasks,
     domain: models.Domain = Depends(parse_domain),
     user: models.User = Depends(parse_user_from_auth),
+    session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardResponse[models.Problem]:
     try:
-        async with transactions.in_transaction():
-            problem_group = await models.ProblemGroup.create()
-            logger.info("problem group created: %s", problem_group)
-            problem = await models.Problem.create(
-                **problem_create.dict(),
-                domain=domain,
-                owner=user,
-                problem_group=problem_group,
-            )
-            logger.info("problem created: %s", problem)
+        problem_group = models.ProblemGroup()
+        session.sync_session.add(problem_group)
+        logger.info("problem group created: %s", problem_group)
+        problem = models.Problem(
+            **problem_create.dict(),
+            domain=domain,
+            owner=user,
+            problem_group=problem_group,
+        )
+        session.sync_session.add(problem)
+        logger.info("problem created: %s", problem)
+        await session.commit()
     except Exception as e:
         logger.exception("problem creation failed: %s", problem_create)
         raise e
@@ -91,7 +96,7 @@ async def create_problem(
 async def get_problem(
     problem: models.Problem = Depends(parse_problem),
 ) -> StandardResponse[models.Problem]:
-    return StandardResponse(models.Problem.from_orm(problem))
+    return StandardResponse(problem)
 
 
 @router.delete(
@@ -100,8 +105,9 @@ async def get_problem(
 )
 async def delete_problem(
     problem: models.Problem = Depends(parse_problem),
+    session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardResponse[Empty]:
-    await problem.delete()
+    await session.delete(problem)
     return StandardResponse()
 
 
@@ -110,10 +116,13 @@ async def delete_problem(
     dependencies=[Depends(ensure_permission(Permission.DomainProblem.edit))],
 )
 async def update_problem(
-    edit_problem: models.ProblemEdit, problem: models.Problem = Depends(parse_problem)
+    edit_problem: models.ProblemEdit,
+    problem: models.Problem = Depends(parse_problem),
+    session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardResponse[models.Problem]:
     problem.update_from_schema(edit_problem)
-    await problem.save()
+    session.sync_session.add(problem)
+    await session.commit()
     return StandardResponse(models.Problem.from_orm(problem))
 
 
