@@ -19,7 +19,7 @@ from joj.horse.utils.db import db_session_dependency
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.lakefs import LakeFSProblemConfig
 from joj.horse.utils.parser import (
-    parse_domain,
+    parse_domain_from_auth,
     parse_ordering_query,
     parse_pagination_query,
     parse_problem,
@@ -40,7 +40,7 @@ router_prefix = "/api/v1"
     "", dependencies=[Depends(ensure_permission(Permission.DomainProblem.view))]
 )
 async def list_problems(
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     problem_set: Optional[PydanticObjectId] = Query(None),
     problem_group: Optional[PydanticObjectId] = Query(None),
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
@@ -64,7 +64,7 @@ async def list_problems(
 async def create_problem(
     problem_create: models.ProblemCreate,
     background_tasks: BackgroundTasks,
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_auth),
     session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardResponse[models.Problem]:
@@ -142,7 +142,7 @@ async def update_problem_config(
 )
 async def clone_problem(
     problem_clone: models.ProblemClone,
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_auth),
     auth: Authentication = Depends(),
 ) -> StandardListResponse[models.Problem]:
@@ -189,7 +189,7 @@ async def submit_solution_to_problem(
     code_type: models.RecordCodeType = Form(...),
     file: UploadFile = File(...),
     problem: models.Problem = Depends(parse_problem),
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[models.Record]:
     if domain.id != problem.domain:

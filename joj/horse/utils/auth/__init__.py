@@ -301,16 +301,23 @@ async def get_domain(
     return domain_model
 
 
-async def get_domain_role(
+async def get_domain_user(
     jwt_access_token: JWTAccessToken = Depends(auth_jwt_decode_access_token),
     domain: Domain = Depends(get_domain),
-) -> str:
+) -> Optional[DomainUser]:
     if jwt_access_token.category == "user":
         domain_user = await DomainUser.get_or_none(
             domain=domain.id, user=jwt_access_token.id
         )
-        if domain_user:
-            return domain_user.role
+        return domain_user
+    return None
+
+
+async def get_domain_role(
+    domain_user: Optional[DomainUser] = Depends(get_domain_user),
+) -> str:
+    if domain_user is not None:
+        return domain_user.role
     # the default site role is guest
     return DefaultRole.GUEST
 
@@ -354,6 +361,7 @@ class Authentication:
         self.site_role: str = site_role
         self.site_permission: SitePermission = site_permission
         self.domain: Optional[Domain] = None
+        self.domain_user: Optional[DomainUser] = None
         self.domain_role: str = DefaultRole.GUEST
         self.domain_permission: DomainPermission = DEFAULT_DOMAIN_PERMISSION[
             DefaultRole.GUEST
@@ -405,11 +413,13 @@ class DomainAuthentication:
         self,
         auth: Authentication = Depends(),
         domain: Domain = Depends(get_domain),
+        domain_user: Optional[DomainUser] = Depends(get_domain_user),
         domain_role: DefaultRole = Depends(get_domain_role),
         domain_permission: DomainPermission = Depends(get_domain_permission),
     ):
         self.auth = auth
         self.auth.domain = domain
+        self.auth.domain_user = domain_user
         self.auth.domain_role = domain_role
         self.auth.domain_permission = domain_permission
 
