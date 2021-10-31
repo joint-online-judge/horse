@@ -35,4 +35,4 @@ ENV HOST="localhost" \
 
 EXPOSE $PORT
 
-CMD python3 -m joj.horse
+CMD alembic upgrade head && python3 -m joj.horse

@@ -7,7 +7,7 @@ from joj.horse import models
 from joj.horse.models.permission import PermissionType, ScopeType
 from joj.horse.schemas.base import NoneEmptyLongStr, NoneNegativeInt, PaginationLimit
 from joj.horse.schemas.query import OrderingQuery, PaginationQuery
-from joj.horse.utils.auth import Authentication, DomainAuthentication, get_domain
+from joj.horse.utils.auth import Authentication, DomainAuthentication
 from joj.horse.utils.errors import BizError, ErrorCode
 
 
@@ -54,16 +54,27 @@ def parse_user_from_auth(
     )
 
 
-async def parse_domain(domain: models.Domain = Depends(get_domain)) -> models.Domain:
-    return domain
+async def parse_domain_from_auth(
+    domain_auth: DomainAuthentication = Depends(),
+) -> models.Domain:
+    domain = domain_auth.auth.domain
+    if (
+        domain.hidden
+        and domain_auth.auth.domain_user is None
+        and not domain_auth.auth.check(
+            ScopeType.SITE_DOMAIN, PermissionType.view_hidden
+        )
+    ):
+        raise BizError(ErrorCode.DomainNotFoundError)
+    return domain_auth.auth.domain
 
 
 async def parse_domain_role(
     role: NoneEmptyLongStr = Path(..., description="name of the domain role"),
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> models.DomainRole:
-    domain_role_model = await models.DomainRole.find_one(
-        {"domain": domain.id, "role": role}
+    domain_role_model = await models.DomainRole.get_or_none(
+        domain_id=domain.id, role=role
     )
     if domain_role_model is None:
         raise BizError(ErrorCode.DomainRoleNotFoundError)
@@ -73,7 +84,7 @@ async def parse_domain_role(
 async def parse_domain_invitation(
     invitation: str = Path(..., description="ObjectId of the domain invitation"),
 ) -> models.DomainInvitation:
-    invitation_model = await models.DomainInvitation.find_by_id(invitation)
+    invitation_model = await models.DomainInvitation.get_or_none(id=invitation)
     if invitation_model is None:
         raise BizError(ErrorCode.DomainInvitationBadRequestError)
     return invitation_model

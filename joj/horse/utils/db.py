@@ -17,14 +17,19 @@ from joj.horse.config import settings
 
 
 @lru_cache()
-def get_db_engine() -> AsyncEngine:
-    db_url = "postgresql+asyncpg://{user}:{password}@{host}:{port}/{database}".format(
+def get_db_url() -> str:
+    return "postgresql+asyncpg://{user}:{password}@{host}:{port}/{database}".format(
         host=settings.db_host,
         port=settings.db_port,
         user=settings.db_username,
         password=settings.db_password,
         database=settings.db_name,
     )
+
+
+@lru_cache()
+def get_db_engine() -> AsyncEngine:
+    db_url = get_db_url()
     engine = create_async_engine(db_url, future=True, echo=True)
     return engine
 
@@ -73,8 +78,8 @@ async def try_init_db() -> None:
     attempt_number = try_init_db.retry.statistics["attempt_number"]
     try:
         await ensure_db()
-        if settings.debug:
-            await generate_schema()
+        # if settings.debug:
+        #     await generate_schema()
     except Exception as e:
         max_attempt_number = try_init_db.retry.stop.max_attempt_number
         msg = "Tortoise-ORM: initialization failed ({}/{})".format(

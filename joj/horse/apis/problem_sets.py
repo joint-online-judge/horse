@@ -15,7 +15,7 @@ from joj.horse.schemas.score import Score, ScoreBoard, UserScore
 from joj.horse.utils.auth import Authentication, ensure_permission
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
-    parse_domain,
+    parse_domain_from_auth,
     parse_pagination_query,
     parse_problem_set,
     parse_problem_set_with_time,
@@ -33,7 +33,7 @@ router_prefix = "/api/v1"
     "", dependencies=[Depends(ensure_permission(Permission.DomainProblem.view))]
 )
 async def list_problem_sets(
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     query: schemas.PaginationQuery = Depends(parse_pagination_query),
     auth: Authentication = Depends(),
 ) -> StandardResponse[ListProblemSets]:
@@ -50,7 +50,7 @@ async def list_problem_sets(
 )
 async def create_problem_set(
     problem_set: models.ProblemSetCreate,
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[models.ProblemSet]:
     try:
@@ -70,7 +70,7 @@ async def create_problem_set(
 
 @router.get("/{problem_set}")
 async def get_problem_set(
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     problem_set: models.ProblemSet = Depends(parse_problem_set_with_time),
 ) -> StandardResponse[models.ProblemSet]:
     return StandardResponse(models.ProblemSet.from_orm(problem_set))
@@ -78,7 +78,7 @@ async def get_problem_set(
 
 @router.delete("/{problem_set}", deprecated=True)
 async def delete_problem_set(
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     problem_set: models.ProblemSet = Depends(parse_problem_set),
 ) -> StandardResponse[Empty]:
     await problem_set.delete()
@@ -88,7 +88,7 @@ async def delete_problem_set(
 @router.patch("/{problem_set}")
 async def update_problem_set(
     edit_problem_set: models.ProblemSetEdit,
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     problem_set: models.ProblemSet = Depends(parse_problem_set),
 ) -> StandardResponse[models.ProblemSet]:
     problem_set.update_from_schema(edit_problem_set)
@@ -99,7 +99,7 @@ async def update_problem_set(
 @router.get("/{problem_set}/scoreboard")
 async def get_scoreboard(
     problem_set: models.ProblemSet = Depends(parse_problem_set_with_time),
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardResponse[ScoreBoard]:
     if problem_set.scoreboard_hidden:
         raise BizError(ErrorCode.ScoreboardHiddenBadRequestError)

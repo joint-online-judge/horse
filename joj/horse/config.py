@@ -51,7 +51,7 @@ class DatabaseSettings(BaseModel):
     db_port: int = Field(5432, description="Port of PostgreSQL server.")
     db_username: str = "postgres"
     db_password: str = "pass"
-    db_name: str = "horse-production"
+    db_name: str = "horse_production"
 
     # redis config
     redis_host: str = "localhost"

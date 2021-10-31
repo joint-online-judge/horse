@@ -18,7 +18,7 @@ from joj.horse.utils.auth import Authentication, DomainAuthentication, ensure_pe
 from joj.horse.utils.db import db_session_dependency
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
-    parse_domain,
+    parse_domain_from_auth,
     parse_domain_invitation,
     parse_domain_role,
     parse_ordering_query,
@@ -48,7 +48,9 @@ async def list_domains(
     return StandardListResponse(domains, count)
 
 
-@router.post("", dependencies=[Depends(ensure_permission())])
+@router.post(
+    "", dependencies=[Depends(ensure_permission(Permission.SiteDomain.create))]
+)
 async def create_domain(
     domain_create: models.DomainCreate,
     user: models.UserBase = Depends(parse_user_from_auth),
@@ -87,7 +89,7 @@ async def create_domain(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
 )
 async def get_domain(
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardResponse[models.Domain]:
     # await domain.owner.fetch()
     return StandardResponse(domain)
@@ -99,7 +101,7 @@ async def get_domain(
     deprecated=True,
 )
 async def delete_domain(
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardResponse[Empty]:
     """
     TODO: finish this part
@@ -116,7 +118,7 @@ async def delete_domain(
 )
 async def update_domain(
     domain_edit: models.DomainEdit,
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardResponse[models.Domain]:
     domain.update_from_schema(domain_edit)
@@ -132,7 +134,7 @@ async def update_domain(
 )
 async def transfer_domain(
     domain_transfer: models.DomainTransfer,
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_auth),
     auth: Authentication = Depends(),
     session: AsyncSession = Depends(db_session_dependency),
@@ -162,7 +164,7 @@ async def transfer_domain(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
 )
 async def list_domain_users(
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardListResponse[models.DomainUser]:
     users = await domain.users.all()
     domain_users = [models.DomainUser.from_orm(user) for user in users]
@@ -175,7 +177,7 @@ async def list_domain_users(
 )
 async def add_domain_user(
     domain_user_add: models.DomainUserAdd,
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> StandardResponse[models.DomainUser]:
     role = domain_user_add.role
@@ -195,7 +197,7 @@ async def add_domain_user(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
 )
 async def get_domain_user(
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_path_or_query),
 ) -> StandardResponse[models.DomainUser]:
     domain_user = await models.DomainUser.get_or_none(domain=domain, user=user)
@@ -209,7 +211,7 @@ async def get_domain_user(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def remove_domain_user(
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_path_or_query),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> StandardResponse[Empty]:
@@ -231,7 +233,7 @@ async def remove_domain_user(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def update_domain_user(
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_path_or_query),
     role: str = Body(DefaultRole.USER),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
@@ -254,7 +256,7 @@ async def update_domain_user(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
 )
 async def get_domain_user_permission(
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_path_or_query),
 ) -> StandardResponse[models.DomainUserPermission]:
     domain_user = await models.DomainUser.get_or_none(domain=domain, user=user)
@@ -279,7 +281,7 @@ async def get_domain_user_permission(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
 )
 async def list_domain_roles(
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardListResponse[models.DomainRole]:
     roles = await domain.roles.all()
     domain_roles = [models.DomainRole.from_orm(role) for role in roles]
@@ -292,7 +294,7 @@ async def list_domain_roles(
 )
 async def create_domain_role(
     domain_role_create: models.DomainRoleCreate,
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardResponse[models.DomainRole]:
     if domain_role_create.role in READONLY_ROLES:
         raise BizError(ErrorCode.DomainRoleReadOnlyError)
@@ -312,7 +314,7 @@ async def create_domain_role(
 )
 async def delete_domain_role(
     domain_role: models.DomainRole = Depends(parse_domain_role),
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardResponse[Empty]:
     if domain_role.role in READONLY_ROLES:
         raise BizError(ErrorCode.DomainRoleReadOnlyError)
@@ -329,7 +331,7 @@ async def delete_domain_role(
 async def update_domain_role(
     domain_role_edit: models.DomainRoleEdit,
     domain_role: models.DomainRole = Depends(parse_domain_role),
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardResponse[models.DomainRole]:
     if domain_role_edit.role:
         if (
@@ -359,7 +361,7 @@ async def update_domain_role(
 )
 async def create_domain_invitation(
     invitation_create: models.DomainInvitationCreate,
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardResponse[models.DomainInvitation]:
     if await models.DomainInvitation.get_or_none(
         domain=domain, code=invitation_create.code
@@ -378,7 +380,7 @@ async def create_domain_invitation(
 )
 async def delete_domain_invitation(
     invitation: models.DomainInvitation = Depends(parse_domain_invitation),
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardResponse[Empty]:
     if invitation.domain_id != domain.id:
         raise BizError(ErrorCode.DomainInvitationBadRequestError)
@@ -393,7 +395,7 @@ async def delete_domain_invitation(
 async def update_domain_invitation(
     invitation_edit: models.DomainInvitationEdit,
     invitation: models.DomainInvitation = Depends(parse_domain_invitation),
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardResponse[models.DomainInvitation]:
     if invitation.domain_id != domain.id:
         raise BizError(ErrorCode.DomainInvitationBadRequestError)
@@ -405,7 +407,7 @@ async def update_domain_invitation(
 @router.post("/{domain}/join", dependencies=[Depends(ensure_permission())])
 async def join_domain_by_invitation(
     invitation_code: str = Query(...),
-    domain: models.Domain = Depends(parse_domain),
+    domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[models.DomainUser]:
     # validate the invitation

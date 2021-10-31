@@ -31,6 +31,9 @@ class DomainBase(URLMixin):
     )
     gravatar: LongStr = Field("", index=False, description="gravatar url of the domain")
     bulletin: LongText = Field("", index=False, description="bulletin of the domain")
+    hidden: bool = Field(
+        True, index=False, description="is the domain hidden", nullable=False
+    )
 
 
 class DomainCreate(DomainBase):
@@ -42,6 +45,7 @@ class DomainEdit(BaseModel):
     name: Optional[LongStr]
     gravatar: Optional[LongStr]
     bulletin: Optional[LongText]
+    hidden: Optional[bool]
 
 
 class DomainTransfer(BaseModel):
