@@ -7,7 +7,7 @@ from typing import Any, Dict, Generic, List, Optional, Tuple, TypeVar, cast
 from urllib.parse import urlencode
 
 import httpx
-from fastapi import HTTPException
+from fastapi import Depends, HTTPException, Path
 from pydantic import BaseModel
 from starlette import status
 from starlette.requests import Request
@@ -89,6 +89,7 @@ class BaseOAuth2(Generic[T]):
     refresh_token_endpoint: Optional[str]
     revoke_token_endpoint: Optional[str]
     base_scopes: Optional[List[str]]
+    display_name: str
     request_headers: Dict[str, str]
 
     def __init__(
@@ -101,6 +102,7 @@ class BaseOAuth2(Generic[T]):
         revoke_token_endpoint: Optional[str] = None,
         name: str = "oauth2",
         base_scopes: Optional[List[str]] = None,
+        display_name: Optional[str] = None,
     ):
         self.client_id = client_id
         self.client_secret = client_secret
@@ -110,6 +112,7 @@ class BaseOAuth2(Generic[T]):
         self.revoke_token_endpoint = revoke_token_endpoint
         self.name = name
         self.base_scopes = base_scopes
+        self.display_name = display_name or name
 
         self.request_headers = {
             "Accept": "application/json",
@@ -209,38 +212,64 @@ class BaseOAuth2(Generic[T]):
 OAuth2 = BaseOAuth2[Dict[str, Any]]
 
 
-class OAuth2AuthorizeCallback:
+class OAuth2Dependency:
 
-    client: BaseOAuth2[Any]
+    oauth_clients: List[BaseOAuth2[Any]]
     route_name: Optional[str]
     redirect_url: Optional[str]
 
     def __init__(
-        self, client: BaseOAuth2[Any], route_name: str = None, redirect_url: str = None
+        self,
+        oauth_clients: List[BaseOAuth2[Any]],
+        route_name: str = None,
+        redirect_url: str = None,
     ) -> None:
         assert (route_name is not None and redirect_url is None) or (
             route_name is None and redirect_url is not None
         ), "You should either set route_name or redirect_url"
-        self.client = client
+        self.oauth_clients = oauth_clients
         self.route_name = route_name
         self.redirect_url = redirect_url
 
-    async def __call__(
-        self, request: Request, code: str = None, state: str = None, error: str = None
-    ) -> Tuple[OAuth2Token, Optional[str]]:
-        if code is None or error is not None:
+    def oauth_client(self) -> Any:
+        def func(
+            oauth_name: str = Path(..., description="OAuth client name")
+        ) -> BaseOAuth2[Any]:
+            for oauth_client in self.oauth_clients:
+                if oauth_name == oauth_client.name:
+                    return oauth_client
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=error if error is not None else None,
+                detail=f"OAuth client {oauth_name} not found!",
             )
 
-        if self.route_name:
-            redirect_url = request.url_for(self.route_name)
-        elif self.redirect_url:
-            redirect_url = self.redirect_url
-        else:
-            assert False
+        return func
 
-        access_token = await self.client.get_access_token(code, redirect_url)
+    def access_token_state(self) -> Any:
+        async def func(
+            request: Request,
+            oauth_client: BaseOAuth2[Any] = Depends(self.oauth_client()),
+            code: str = None,
+            state: str = None,
+            error: str = None,
+        ) -> Tuple[OAuth2Token, Optional[str]]:
+            if code is None or error is not None:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=error if error is not None else None,
+                )
 
-        return access_token, state
+            if self.route_name:
+                redirect_url = request.url_for(
+                    self.route_name, oauth_name=oauth_client.name
+                )
+            elif self.redirect_url:
+                redirect_url = self.redirect_url
+            else:
+                assert False
+
+            access_token = await oauth_client.get_access_token(code, redirect_url)
+
+            return access_token, state
+
+        return func

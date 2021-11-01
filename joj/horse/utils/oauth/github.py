@@ -18,7 +18,13 @@ class GitHubOAuth2AuthorizeParams(TypedDict, total=False):
 
 
 class GitHubOAuth2(BaseOAuth2[GitHubOAuth2AuthorizeParams]):
-    def __init__(self, client_id: str, client_secret: str, name: str = "github"):
+    def __init__(
+        self,
+        client_id: str,
+        client_secret: str,
+        name: str = "github",
+        display_name: str = "GitHub",
+    ):
         super().__init__(
             client_id,
             client_secret,
@@ -26,6 +32,7 @@ class GitHubOAuth2(BaseOAuth2[GitHubOAuth2AuthorizeParams]):
             ACCESS_TOKEN_ENDPOINT,
             name=name,
             base_scopes=BASE_SCOPES,
+            display_name=display_name,
         )
 
     async def get_profile(

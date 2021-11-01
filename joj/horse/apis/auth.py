@@ -22,7 +22,7 @@ from joj.horse.utils.auth import (
     auth_jwt_raw_refresh_token,
 )
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.oauth import BaseOAuth2, OAuth2AuthorizeCallback, OAuth2Token
+from joj.horse.utils.oauth import BaseOAuth2, OAuth2Dependency, OAuth2Token
 from joj.horse.utils.oauth.github import GitHubOAuth2
 from joj.horse.utils.oauth.jaccount import JaccountOAuth2
 from joj.horse.utils.router import MyRouter
@@ -107,31 +107,48 @@ async def get_logout_response(
 
 
 def get_oauth_router(
-    oauth_client: BaseOAuth2,
+    oauth_clients: List[BaseOAuth2],
     # backend: BaseAuthentication,
     callback_redirect_url: Optional[str] = None,
 ) -> MyRouter:
     oauth_router = MyRouter()
-    authorize_route_name = f"oauth_{oauth_client.name}_authorize"
-    callback_route_name = f"oauth_{oauth_client.name}_callback"
+    authorize_route_name = "oauth_authorize"
+    callback_route_name = "oauth_callback"
+
+    # def oauth_client_dependency(
+    #         oauth_name: str = Path(..., description="OAuth client name")
+    # ) -> BaseOAuth2:
+    #     for oa
 
     # if len(authentication_backends) == 0:
     #     raise SystemError("at least one authentication backend should be defined")
 
     if callback_redirect_url is not None:
-        oauth2_authorize_callback = OAuth2AuthorizeCallback(
-            oauth_client,
+        oauth2_dependency = OAuth2Dependency(
+            oauth_clients,
             redirect_url=callback_redirect_url,
         )
     else:
-        oauth2_authorize_callback = OAuth2AuthorizeCallback(
-            oauth_client,
+        oauth2_dependency = OAuth2Dependency(
+            oauth_clients,
             route_name=callback_route_name,
         )
 
-    @oauth_router.get("/authorize", name=authorize_route_name)
+    @oauth_router.get("")
+    async def list_oauth2() -> schemas.StandardListResponse[schemas.OAuth2Client]:
+        result = [
+            schemas.OAuth2Client(
+                oauth_name=oauth_client.name,
+                display_name=oauth_client.display_name,
+            )
+            for oauth_client in oauth_clients
+        ]
+        return schemas.StandardListResponse(result)
+
+    @oauth_router.get("/{oauth_name}/authorize", name=authorize_route_name)
     async def authorize(
         request: Request,
+        oauth_client: BaseOAuth2 = Depends(oauth2_dependency.oauth_client()),
         auth_parameters: AuthParams = Depends(auth_parameters_dependency),
         auth_jwt: AuthJWT = Depends(AuthJWT),
         scopes: List[str] = Query(None),
@@ -139,7 +156,9 @@ def get_oauth_router(
         if callback_redirect_url is not None:
             authorize_redirect_url = callback_redirect_url
         else:
-            authorize_redirect_url = request.url_for(callback_route_name)
+            authorize_redirect_url = request.url_for(
+                callback_route_name, oauth_name=oauth_client.name
+            )
 
         state_data = {"auth_parameters": auth_parameters.dict()}
         state = auth_jwt_encode_oauth_state(auth_jwt, oauth_client.name, state_data)
@@ -153,13 +172,16 @@ def get_oauth_router(
             schemas.Redirect(redirect_url=authorization_url)
         )
 
-    @oauth_router.get("/callback", name=callback_route_name, include_in_schema=False)
+    @oauth_router.get(
+        "/{oauth_name}/callback", name=callback_route_name, include_in_schema=False
+    )
     async def callback(
         request: Request,
         response: Response,
+        oauth_client: BaseOAuth2 = Depends(oauth2_dependency.oauth_client()),
         auth_jwt: AuthJWT = Depends(AuthJWT),
         access_token_state: Tuple[OAuth2Token, Optional[str]] = Depends(
-            oauth2_authorize_callback
+            oauth2_dependency.access_token_state()
         ),
     ) -> schemas.StandardResponse[schemas.AuthTokens]:
         try:
@@ -317,8 +339,8 @@ if settings.oauth_github:
 
 for _oauth_client in _oauth_clients:
     router.include_router(
-        get_oauth_router(_oauth_client),
-        prefix=f"/oauth/{_oauth_client.name}",
+        get_oauth_router(_oauth_clients),
+        prefix="/oauth2",
     )
 
 router.include_router(get_auth_router(_oauth_clients))

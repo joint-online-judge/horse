@@ -17,7 +17,13 @@ class JaccountOAuth2AuthorizeParams(TypedDict, total=False):
 
 
 class JaccountOAuth2(BaseOAuth2[JaccountOAuth2AuthorizeParams]):
-    def __init__(self, client_id: str, client_secret: str, name: str = "jaccount"):
+    def __init__(
+        self,
+        client_id: str,
+        client_secret: str,
+        name: str = "jaccount",
+        display_name: str = "JAccount",
+    ):
         super().__init__(
             client_id,
             client_secret,
@@ -25,6 +31,7 @@ class JaccountOAuth2(BaseOAuth2[JaccountOAuth2AuthorizeParams]):
             ACCESS_TOKEN_ENDPOINT,
             name=name,
             base_scopes=BASE_SCOPES,
+            display_name=display_name,
         )
 
     async def get_profile(

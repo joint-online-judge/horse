@@ -5,10 +5,11 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, root_validator
 from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.sql.expression import Select
 from sqlalchemy.sql.functions import FunctionElement
 from sqlalchemy.types import DateTime
 from sqlmodel import Field, SQLModel, select
-from tortoise import BaseDBAsyncClient, Tortoise, queryset
+from tortoise import BaseDBAsyncClient, Tortoise
 
 from joj.horse.schemas.base import UserInputURL
 from joj.horse.utils.base import is_uuid
@@ -37,16 +38,10 @@ class BaseORMModel(SQLModel):
         None, sa_column_kwargs={"server_default": utcnow(), "onupdate": utcnow()}
     )
 
-    # def __str__(self) -> str:
-    #     return str({k: v for k, v in self.__dict__.items() if not k.startswith("_")})
-    #
     def update_from_schema(self: "BaseORMModel", schema: BaseModel) -> None:
         for k, v in schema.dict().items():
             if v is not None:
                 setattr(self, k, v)
-        # self.update_from_dict(
-        #     {k: v for k, v in schema.dict().items() if v is not None}
-        # )
 
     @classmethod
     async def get_or_none(
@@ -59,32 +54,39 @@ class BaseORMModel(SQLModel):
             results = await session.exec(statement)
             return results.one_or_none()
 
-    @staticmethod
+    @classmethod
     def apply_ordering(
-        query_set: queryset.QuerySet,
+        __base_orm_model_cls__: Type["BaseORMModelType"],
+        statement: Select,
         ordering: Optional["OrderingQuery"],
         prefix: str = "",
-    ) -> queryset.QuerySet:
+    ) -> Select:
         def add_prefix(x: str) -> str:
             if x.startswith("-"):
                 return f"-{prefix}{x[1:]}"
             return f"{prefix}{x}"
 
         if ordering is not None and ordering.orderings:
-            if prefix:
-                orderings = [add_prefix(x) for x in ordering.orderings]
-            else:
-                orderings = ordering.orderings
-            query_set = query_set.order_by(*orderings)
-        return query_set
+            for x in ordering.orderings:
+                if x.startswith("-"):
+                    # TODO: write this
+                    pass
+            # if prefix:
+            #     orderings = [add_prefix(x) for x in ordering.orderings]
+            # else:
+            #     orderings = ordering.orderings
+            # statement.order_by()
+            # query_set = query_set.order_by(*orderings)
+        return statement
 
     @staticmethod
     def apply_pagination(
-        query_set: queryset.QuerySet, pagination: Optional["PaginationQuery"]
-    ) -> queryset.QuerySet:
+        statement: Select,
+        pagination: Optional["PaginationQuery"],
+    ) -> Select:
         if pagination is not None:
-            query_set = query_set.offset(pagination.offset).limit(pagination.limit)
-        return query_set
+            statement = statement.offset(pagination.offset).limit(pagination.limit)
+        return statement
 
 
 BaseORMModelType = TypeVar("BaseORMModelType", bound=BaseORMModel)

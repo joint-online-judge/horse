@@ -18,3 +18,8 @@ class AuthTokens(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str
+
+
+class OAuth2Client(BaseModel):
+    oauth_name: str
+    display_name: str
