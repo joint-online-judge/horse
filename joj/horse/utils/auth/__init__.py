@@ -54,7 +54,7 @@ class JWTToken(BaseModel):
     exp: int
     # fastapi_jwt_auth claims
     type: str
-    fresh: bool
+    fresh: bool = False
     csrf: Optional[str] = None
 
 
@@ -188,7 +188,8 @@ def auth_jwt_decode_refresh_token(
         auth_jwt.jwt_refresh_token_required()
         payload = auth_jwt.get_raw_jwt()
         return JWTRefreshToken(**payload)
-    except Exception:
+    except Exception as e:
+        print(e)
         raise UnauthorizedError(message="JWT Format Error")
 
 

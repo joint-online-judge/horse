@@ -1,8 +1,14 @@
 from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from joj.horse import models
+from joj.horse.models.permission import DefaultRole
 from joj.horse.schemas.base import StandardResponse
 from joj.horse.schemas.misc import Version
 from joj.horse.utils.auth import JWTAccessToken, auth_jwt_decode_access_token
+from joj.horse.utils.db import db_session_dependency
+from joj.horse.utils.errors import BizError, ErrorCode
+from joj.horse.utils.parser import parse_user_from_auth
 from joj.horse.utils.router import MyRouter
 from joj.horse.utils.version import get_git_version, get_version
 
@@ -35,3 +41,20 @@ async def jwt_decoded(
 @router.get("/test/sentry")
 async def test_sentry() -> None:
     assert False
+
+
+@router.post("/set_root_user")
+async def set_root_user(
+    user: models.UserBase = Depends(parse_user_from_auth),
+    session: AsyncSession = Depends(db_session_dependency),
+) -> StandardResponse[models.UserBase]:
+    root_user = await models.User.get_or_none(role=DefaultRole.ROOT)
+    if root_user is not None:
+        raise BizError(ErrorCode.Error)
+
+    current_user = await models.User.get_or_none(id=user.id)
+    current_user.role = DefaultRole.ROOT
+    session.sync_session.add(current_user)
+    await session.commit()
+    await session.refresh(current_user)
+    return StandardResponse(current_user)
