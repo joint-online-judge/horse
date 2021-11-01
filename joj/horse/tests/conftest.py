@@ -41,7 +41,7 @@ async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, Any]:
 async def global_root_user(app: FastAPI) -> models.User:
     user = await create_test_user()
     user.role = DefaultRole.ROOT
-    await user.save()
+    await user.save_model()
     return user
 
 

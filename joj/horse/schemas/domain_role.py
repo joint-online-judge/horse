@@ -3,7 +3,6 @@ from typing import Any, Dict, List, Optional
 from pydantic import Field
 from tortoise.contrib.pydantic import pydantic_model_creator
 
-from joj.horse.models.base import init_models
 from joj.horse.models.domain_role import DomainRole as DomainRoleModel
 
 # from joj.horse.models.permission import DomainPermission
@@ -24,7 +23,6 @@ class DomainRoleCreate(BaseModel):
     permission: DomainPermission = DomainPermission()
 
 
-init_models()
 DomainRoleGenerated = pydantic_model_creator(
     DomainRoleModel,
     name="DomainRole",

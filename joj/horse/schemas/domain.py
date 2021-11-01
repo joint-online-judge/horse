@@ -4,7 +4,6 @@ from typing import List, Optional
 from pydantic import Field, validator
 from tortoise.contrib.pydantic import pydantic_model_creator
 
-from joj.horse.models.base import init_models
 from joj.horse.models.domain import Domain as DomainModel
 from joj.horse.schemas.base import BaseModel, LongStr, LongText, UserInputURL
 from joj.horse.schemas.user import UserBase
@@ -43,7 +42,6 @@ class DomainTransfer(BaseModel):
 #         "owner", UserBase
 #     )
 
-init_models()
 DomainGenerated = pydantic_model_creator(DomainModel, name="Domain", exclude=("owner",))
 
 

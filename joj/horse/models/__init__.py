@@ -18,6 +18,7 @@ from joj.horse.models.domain_user import (
     DomainUser as DomainUser,
     DomainUserAdd as DomainUserAdd,
     DomainUserPermission as DomainUserPermission,
+    DomainUserUpdate as DomainUserUpdate,
 )
 from joj.horse.models.link_tables import ProblemProblemSetLink as ProblemProblemSetLink
 from joj.horse.models.problem import (

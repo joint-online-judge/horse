@@ -4,7 +4,6 @@ from typing import Optional
 from pydantic import Field, validator
 from tortoise.contrib.pydantic import pydantic_model_creator
 
-from joj.horse.models.base import init_models
 from joj.horse.models.domain_invitation import DomainInvitation as DomainInvitationModel
 from joj.horse.models.permission import DefaultRole
 from joj.horse.schemas import BaseModel
@@ -29,7 +28,6 @@ class DomainInvitationCreate(BaseModel):
         return v
 
 
-init_models()
 DomainInvitation = pydantic_model_creator(
     DomainInvitationModel,
     name="DomainInvitation",

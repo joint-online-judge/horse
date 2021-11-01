@@ -1,11 +1,12 @@
 from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID
 
+from sqlalchemy import event
 from sqlalchemy.schema import Column, ForeignKey
 from sqlmodel import Field, Relationship
 from sqlmodel.sql.sqltypes import GUID
 
-from joj.horse.models.base import BaseORMModel, DomainURLMixin
+from joj.horse.models.base import BaseORMModel, DomainURLORMModel, url_pre_save
 from joj.horse.models.link_tables import ProblemProblemSetLink
 from joj.horse.schemas.base import BaseModel, LongText, NoneEmptyStr, UserInputURL
 
@@ -42,7 +43,7 @@ class ProblemClone(BaseModel):
     new_group: bool = Field(False, description="whether to create new problem group")
 
 
-class Problem(DomainURLMixin, BaseORMModel, table=True):  # type: ignore[call-arg]
+class Problem(DomainURLORMModel, BaseORMModel, table=True):  # type: ignore[call-arg]
     __tablename__ = "problems"
 
     title: str = Field(index=False)
@@ -72,3 +73,7 @@ class Problem(DomainURLMixin, BaseORMModel, table=True):  # type: ignore[call-ar
     problem_sets: List["ProblemSet"] = Relationship(
         back_populates="problems", link_model=ProblemProblemSetLink
     )
+
+
+event.listen(Problem, "before_insert", url_pre_save)
+event.listen(Problem, "before_update", url_pre_save)

@@ -38,6 +38,6 @@ class DomainRole(BaseORMModel, table=True):  # type: ignore[call-arg]
     domain: Optional["Domain"] = Relationship(back_populates="roles")
 
     @classmethod
-    async def ensure_exists(cls, domain: Domain, role: str) -> None:
-        if await DomainRole.get_or_none(domain=domain, role=role) is None:
+    async def ensure_exists(cls, domain_id: UUID, role: str) -> None:
+        if await DomainRole.get_or_none(domain_id=domain_id, role=role) is None:
             raise BizError(ErrorCode.DomainRoleNotFoundError)

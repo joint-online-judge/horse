@@ -1,15 +1,15 @@
 from datetime import datetime
-from functools import lru_cache
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, TypeVar
+from typing import TYPE_CHECKING, Any, List, Optional, Type, TypeVar, Union
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel
+from sqlalchemy.engine import Connection
 from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.sql.expression import Select
+from sqlalchemy.orm import Mapper
+from sqlalchemy.sql.expression import Delete, Select, Update
 from sqlalchemy.sql.functions import FunctionElement
 from sqlalchemy.types import DateTime
-from sqlmodel import Field, SQLModel, select
-from tortoise import BaseDBAsyncClient, Tortoise
+from sqlmodel import Field, SQLModel, delete, select, update
 
 from joj.horse.schemas.base import UserInputURL
 from joj.horse.utils.base import is_uuid
@@ -44,15 +44,52 @@ class BaseORMModel(SQLModel):
                 setattr(self, k, v)
 
     @classmethod
+    def sql_select(cls) -> Select:
+        return select(cls)
+
+    @classmethod
+    def sql_update(cls) -> Update:
+        return update(cls)
+
+    @classmethod
+    def sql_delete(cls) -> Delete:
+        return delete(cls)
+
+    @classmethod
     async def get_or_none(
         __base_orm_model_cls__: Type["BaseORMModelType"], **kwargs: Any
     ) -> Optional["BaseORMModelType"]:
         async with db_session() as session:
-            statement = select(__base_orm_model_cls__)
-            for k, v in kwargs.items():
-                statement = statement.where(getattr(__base_orm_model_cls__, k) == v)
+            statement = __base_orm_model_cls__.apply_filtering(
+                select(__base_orm_model_cls__), **kwargs
+            )
             results = await session.exec(statement)
             return results.one_or_none()
+
+    @classmethod
+    async def get_many(
+        __base_orm_model_cls__: Type["BaseORMModelType"], **kwargs: Any
+    ) -> List["BaseORMModelType"]:
+        async with db_session() as session:
+            statement = __base_orm_model_cls__.apply_filtering(
+                select(__base_orm_model_cls__), **kwargs
+            )
+            results = await session.exec(statement)
+            return results.all()
+
+    async def save_model(self, commit: bool = True, refresh: bool = True) -> None:
+        async with db_session() as session:
+            session.sync_session.add(self)
+            if commit:
+                await session.commit()
+            if refresh:
+                await session.refresh(self)
+
+    async def delete_model(self, commit: bool = True) -> None:
+        async with db_session() as session:
+            session.sync_session.delete(self)
+            if commit:
+                await session.commit()
 
     @classmethod
     def apply_ordering(
@@ -88,6 +125,17 @@ class BaseORMModel(SQLModel):
             statement = statement.offset(pagination.offset).limit(pagination.limit)
         return statement
 
+    @classmethod
+    def apply_filtering(
+        __base_orm_model_cls__: Type["BaseORMModelType"],
+        __statement__: Union[Select, Update, Delete],
+        **kwargs: Any,
+    ) -> Union[Select, Update, Delete]:
+        statement = select(__base_orm_model_cls__)
+        for k, v in kwargs.items():
+            statement = statement.where(getattr(__base_orm_model_cls__, k) == v)
+        return statement
+
 
 BaseORMModelType = TypeVar("BaseORMModelType", bound=BaseORMModel)
 
@@ -98,12 +146,6 @@ class URLMixin(SQLModel):
 
 class URLORMModel(URLMixin, BaseORMModel):
     url: str = Field(..., sa_column_kwargs={"unique": True})
-
-    @root_validator()
-    def validate_url(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        if "url" not in values or not values["url"]:
-            values["url"] = str(values["id"])
-        return values
 
     @classmethod
     async def find_by_url_or_id(
@@ -118,7 +160,7 @@ class URLORMModel(URLMixin, BaseORMModel):
             return result.one_or_none()
 
 
-class DomainURLMixin(URLMixin):
+class DomainURLORMModel(URLORMModel):
     if TYPE_CHECKING:
         domain_id: UUID
 
@@ -141,18 +183,6 @@ class DomainURLMixin(URLMixin):
             return result.one_or_none()
 
 
-async def url_pre_save(
-    sender: "Type[URLMixin]",
-    instance: "URLMixin",
-    using_db: "Optional[BaseDBAsyncClient]",
-    update_fields: List[str],
-) -> None:
-    if not instance.id:
-        instance.id = uuid4()
-    if not instance.url:
-        instance.url = str(instance.id)
-
-
-@lru_cache()
-def init_models() -> None:
-    Tortoise.init_models(["joj.horse.models"], "models")
+def url_pre_save(mapper: Mapper, connection: Connection, target: URLORMModel) -> None:
+    if not target.url:
+        target.url = str(target.id)

@@ -3,7 +3,6 @@ from typing import List, Optional
 from pydantic import Field
 from tortoise.contrib.pydantic import pydantic_model_creator
 
-from joj.horse.models.base import init_models
 from joj.horse.models.domain_user import DomainUser as DomainUserModel
 from joj.horse.models.permission import DefaultRole
 from joj.horse.schemas import BaseModel
@@ -13,7 +12,6 @@ from joj.horse.schemas.user import UserBase
 
 # from joj.horse.schemas.domain_role import DomainPermission
 
-init_models()
 DomainUser = pydantic_model_creator(
     DomainUserModel,
     name="DomainUser",

@@ -83,8 +83,11 @@ async def parse_domain_role(
 
 async def parse_domain_invitation(
     invitation: str = Path(..., description="ObjectId of the domain invitation"),
+    domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> models.DomainInvitation:
-    invitation_model = await models.DomainInvitation.get_or_none(id=invitation)
+    invitation_model = await models.DomainInvitation.get_or_none(
+        domain_id=domain.id, id=invitation
+    )
     if invitation_model is None:
         raise BizError(ErrorCode.DomainInvitationBadRequestError)
     return invitation_model

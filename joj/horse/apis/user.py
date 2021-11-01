@@ -57,7 +57,7 @@ async def logout(
 # ) -> Union[RedirectResponse, JSONResponse]:
 #     client = get_client()
 #     if client is None:
-#         raise BizError(ErrorCode.ApiNotImplementedError)
+#         raise BizError(ErrorCode.APINotImplementedError)
 #
 #     jaccount_redirect_url = generate_url(router_prefix, router_name, "jaccount", "auth")
 #     url, state = client.get_authorize_url(jaccount_redirect_url)
@@ -83,7 +83,7 @@ async def logout(
 # ) -> RedirectResponse:
 #     client = get_client()
 #     if client is None:
-#         raise BizError(ErrorCode.ApiNotImplementedError)
+#         raise BizError(ErrorCode.APINotImplementedError)
 #
 #     if jaccount_state != state:
 #         raise BadRequestError(message="Invalid authentication state")
@@ -132,7 +132,7 @@ async def logout(
 # def get_jaccount_logout_url(redirect_url: str) -> str:
 #     client = get_client()
 #     if client is None:
-#         raise BizError(ErrorCode.ApiNotImplementedError)
+#         raise BizError(ErrorCode.APINotImplementedError)
 #
 #     return client.get_logout_url(redirect_url)
 

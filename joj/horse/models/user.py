@@ -119,7 +119,7 @@ class User(UserBase, table=True):  # type: ignore[call-arg]
                     login_timestamp=timezone.now(),
                     login_ip=ip,
                 )
-            await user.save()
+            await user.save_model()
             return user
         except Exception as e:
             logger.exception(e)
