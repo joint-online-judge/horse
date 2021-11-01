@@ -1,14 +1,21 @@
 from typing import TYPE_CHECKING, List, Optional, Tuple
 from uuid import UUID
 
+from sqlalchemy import event
 from sqlalchemy.schema import Column, ForeignKey
 from sqlmodel import Field, Relationship
 from sqlmodel.sql.sqltypes import GUID
 
-from joj.horse.models.base import URLMixin, URLORMModel
+from joj.horse.models.base import URLMixin, URLORMModel, url_pre_save
 
 # from joj.horse.models.user import User
-from joj.horse.schemas.base import BaseModel, LongStr, LongText, UserInputURL
+from joj.horse.schemas.base import (
+    BaseModel,
+    LongStr,
+    LongText,
+    NoneEmptyLongStr,
+    UserInputURL,
+)
 
 if TYPE_CHECKING:
     from joj.horse.models import (
@@ -24,9 +31,9 @@ if TYPE_CHECKING:
 
 
 class DomainBase(URLMixin):
-    name: LongStr = Field(
+    name: NoneEmptyLongStr = Field(
         ...,
-        sa_column_kwargs={"unique": True},
+        # sa_column_kwargs={"unique": True},
         description="displayed name of the domain",
     )
     gravatar: LongStr = Field("", index=False, description="gravatar url of the domain")
@@ -89,4 +96,5 @@ class Domain(URLORMModel, DomainBase, table=True):  # type: ignore[call-arg]
         return problems, count
 
 
-# signals.pre_save(Domain)(url_pre_save)
+event.listen(Domain, "before_insert", url_pre_save)
+event.listen(Domain, "before_update", url_pre_save)

@@ -5,7 +5,6 @@ from typing import List, Optional
 from pydantic import Field
 from tortoise.contrib.pydantic import pydantic_model_creator
 
-from joj.horse.models.base import init_models
 from joj.horse.models.problem import Problem as ProblemModel
 from joj.horse.schemas import BaseModel
 from joj.horse.schemas.base import (  # NoneEmptyLongStr,
@@ -56,7 +55,6 @@ class ProblemCreate(BaseModel):
 #     pass
 
 
-init_models()
 Problem = pydantic_model_creator(
     ProblemModel,
     name="Problem",

@@ -2,11 +2,12 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID
 
+from sqlalchemy import event
 from sqlalchemy.schema import Column, ForeignKey
 from sqlmodel import Field, Relationship
 from sqlmodel.sql.sqltypes import GUID
 
-from joj.horse.models.base import BaseORMModel, DomainURLMixin
+from joj.horse.models.base import BaseORMModel, DomainURLORMModel, url_pre_save
 from joj.horse.models.link_tables import ProblemProblemSetLink
 from joj.horse.schemas import BaseModel
 from joj.horse.schemas.base import LongText, NoneEmptyLongStr, UserInputURL
@@ -43,7 +44,7 @@ class ProblemSetCreate(BaseModel):
     )
 
 
-class ProblemSet(DomainURLMixin, BaseORMModel, table=True):  # type: ignore[call-arg]
+class ProblemSet(DomainURLORMModel, BaseORMModel, table=True):  # type: ignore[call-arg]
     __tablename__ = "problem_sets"
 
     title: str = Field(index=False)
@@ -69,3 +70,7 @@ class ProblemSet(DomainURLMixin, BaseORMModel, table=True):  # type: ignore[call
     problems: List["Problem"] = Relationship(
         back_populates="problem_sets", link_model=ProblemProblemSetLink
     )
+
+
+event.listen(ProblemSet, "before_insert", url_pre_save)
+event.listen(ProblemSet, "before_update", url_pre_save)

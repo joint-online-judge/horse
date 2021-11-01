@@ -107,7 +107,7 @@ async def delete_problem(
     problem: models.Problem = Depends(parse_problem),
     session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardResponse[Empty]:
-    await session.delete(problem)
+    await problem.delete_model()
     return StandardResponse()
 
 

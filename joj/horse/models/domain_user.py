@@ -22,8 +22,8 @@ class DomainUserAdd(BaseModel):
     user: str = Field(..., description="'me' or ObjectId of the user")
 
 
-class DomainUserPermission(BaseModel):
-    permission: DomainPermission
+class DomainUserUpdate(BaseModel):
+    role: DefaultRole = Field(DefaultRole.USER)
 
 
 class DomainUser(BaseORMModel, table=True):  # type: ignore[call-arg]
@@ -44,30 +44,35 @@ class DomainUser(BaseORMModel, table=True):  # type: ignore[call-arg]
 
     @classmethod
     async def add_domain_user(
-        cls, domain: Domain, user: "User", role: Union[str, DefaultRole]
+        cls, domain_id: UUID, user_id: UUID, role: Union[str, DefaultRole]
     ) -> "DomainUser":
         role = str(role)
         # check domain user
-        if await DomainUser.get_or_none(domain=domain, user=user):
+        domain_user = await DomainUser.get_or_none(domain_id=domain_id, user_id=user_id)
+        if domain_user is not None:
             raise BizError(ErrorCode.UserAlreadyInDomainBadRequestError)
         # check domain role
-        await DomainRole.ensure_exists(domain=domain, role=role)
+        await DomainRole.ensure_exists(domain_id=domain_id, role=role)
         # add member
-        domain_user = await DomainUser.create(domain=domain, user=user, role=role)
+        domain_user = DomainUser(domain_id=domain_id, user_id=user_id, role=role)
         return domain_user
 
     @classmethod
     async def update_domain_user(
-        cls, domain: Domain, user: "User", role: Union[str, DefaultRole]
+        cls, domain_id: UUID, user_id: UUID, role: Union[str, DefaultRole]
     ) -> "DomainUser":
         role = str(role)
         # check domain user
-        domain_user = await DomainUser.get_or_none(domain=domain, user=user)
+        domain_user = await DomainUser.get_or_none(domain_id=domain_id, user_id=user_id)
         if domain_user is None:
             raise BizError(ErrorCode.UserAlreadyInDomainBadRequestError)
         # check domain role
-        await DomainRole.ensure_exists(domain=domain, role=role)
+        await DomainRole.ensure_exists(domain_id=domain_id, role=role)
         # update role
         domain_user.role = role
-        await domain_user.save()
         return domain_user
+
+
+class DomainUserPermission(BaseModel):
+    domain_user: DomainUser
+    permission: DomainPermission

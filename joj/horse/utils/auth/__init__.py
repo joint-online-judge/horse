@@ -308,7 +308,7 @@ async def get_domain_user(
 ) -> Optional[DomainUser]:
     if jwt_access_token.category == "user":
         domain_user = await DomainUser.get_or_none(
-            domain=domain.id, user=jwt_access_token.id
+            domain_id=domain.id, user_id=jwt_access_token.id
         )
         return domain_user
     return None
@@ -329,7 +329,9 @@ async def get_domain_permission(
     if domain_role == DefaultRole.ROOT:
         return DEFAULT_DOMAIN_PERMISSION[DefaultRole.ROOT]
     if domain:
-        _domain_role = await DomainRole.get_or_none(domain=domain.id, role=domain_role)
+        _domain_role = await DomainRole.get_or_none(
+            domain_id=domain.id, role=domain_role
+        )
     else:
         _domain_role = None
     if _domain_role:
@@ -406,7 +408,7 @@ class Authentication:
     def is_domain_owner(self) -> bool:
         if self.domain is None:
             return False
-        return self.domain.owner.id == self.jwt.id
+        return self.domain.owner_id == self.jwt.id
 
 
 class DomainAuthentication:

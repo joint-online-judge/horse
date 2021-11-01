@@ -81,7 +81,7 @@ async def delete_problem_set(
     domain: models.Domain = Depends(parse_domain_from_auth),
     problem_set: models.ProblemSet = Depends(parse_problem_set),
 ) -> StandardResponse[Empty]:
-    await problem_set.delete()
+    await problem_set.delete_model()
     return StandardResponse()
 
 

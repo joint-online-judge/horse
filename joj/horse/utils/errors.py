@@ -12,7 +12,7 @@ class ErrorCode(str, Enum):
     IllegalFieldError = "IllegalFieldError"
     IntegrityError = "IntegrityError"
 
-    ApiNotImplementedError = "ApiNotImplementedError"
+    APINotImplementedError = "APINotImplementedError"
     UserNotFoundError = "UserNotFoundError"
     UserRegisterError = "UserRegisterError"
     DomainNotFoundError = "DomainNotFoundError"

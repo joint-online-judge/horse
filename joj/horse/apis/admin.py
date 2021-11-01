@@ -54,7 +54,7 @@ async def delete_user(
 ) -> StandardResponse[Empty]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
-    await user.delete()
+    await user.delete_model()
     return StandardResponse()
 
 
