@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 import git
 import pbr.version
@@ -11,16 +11,13 @@ def get_version() -> str:
 
 def get_git_version() -> str:
     try:
+        repo = git.Repo(__file__, search_parent_directories=True)
         return (
-            git.Repo(__file__, search_parent_directories=True).git.describe(
-                always=True, tags=True
-            )
+            repo.git.describe(always=True, tags=True)
             + "@"
             + datetime.fromtimestamp(
-                git.Repo(
-                    __file__, search_parent_directories=True
-                ).head.commit.committed_date
-            ).strftime("%Y-%m-%d %H:%M:%S")
+                repo.head.commit.committed_date, tz=timezone.utc
+            ).strftime("%Y-%m-%dT%H:%M:%SZ")
         )
     except (git.InvalidGitRepositoryError, git.GitCommandError) as e:
         logger.error("Failed to get repository: %s", repr(e))
