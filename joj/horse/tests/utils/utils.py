@@ -24,15 +24,15 @@ def random_ip() -> str:
 
 
 def generate_auth_headers(user: models.User) -> Dict[str, str]:
-    access_jwt = auth_jwt_encode_user(auth_jwt=AuthJWT(), user=user)
-    return {"Authorization": f"Bearer {access_jwt}"}
+    access_token, refresh_token = auth_jwt_encode_user(auth_jwt=AuthJWT(), user=user)
+    return {"Authorization": f"Bearer {access_token}"}
 
 
 def get_path_by_url_type(model: Any, url_type: str) -> str:
     if url_type == "url":
         return model.url
     elif url_type == "id" or url_type == "pk":
-        return model.pk
+        return model.id
     assert False
 
 
@@ -57,9 +57,12 @@ async def do_api_request(
 
 
 async def create_test_user() -> models.User:
-    user = await models.User.login_by_jaccount(
-        random_student_id(), random_lower_string(), random_lower_string(), random_ip()
+    user_create = models.UserCreate(
+        username=random_lower_string(),
+        email=random_lower_string() + "@sjtu.edu.cn",
+        password=random_lower_string(),
     )
+    user = await models.User.create(user_create, None, random_ip())
     assert user is not None
     return user
 
@@ -89,8 +92,7 @@ async def validate_test_domain(
     if isinstance(domain, dict):
         data = domain
     elif isinstance(domain, models.Domain):
-        await domain.fetch_related("owner")
-        data = models.Domain.from_orm(domain).dict()
+        data = domain.dict()
     else:
         assert False
 

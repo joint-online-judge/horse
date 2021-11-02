@@ -1,14 +1,9 @@
-from typing import Union
-
-from fastapi import Depends, Query
-from fastapi_jwt_auth import AuthJWT
-from starlette.responses import JSONResponse, RedirectResponse
+from fastapi import Depends
 
 from joj.horse import models, schemas
 from joj.horse.schemas import StandardListResponse, StandardResponse
-from joj.horse.schemas.misc import Redirect
 from joj.horse.utils.auth import Authentication
-from joj.horse.utils.parser import parse_pagination_query
+from joj.horse.utils.parser import parse_pagination_query, parse_uid
 from joj.horse.utils.router import MyRouter
 
 router = MyRouter()
@@ -17,30 +12,30 @@ router_tag = "user"
 router_prefix = "/api/v1"
 
 
-@router.get("/logout", response_model=Redirect)
-async def logout(
-    auth: Authentication = Depends(),
-    auth_jwt: AuthJWT = Depends(),
-    redirect_url: str = Query("", description="Set the redirect url after the logout."),
-    redirect: bool = Query(
-        True,
-        description="If true (html link mode), redirect to a url; "
-        "If false (ajax mode), return the redirect url, "
-        "you also need to unset all cookies manually in ajax mode.",
-    ),
-) -> Union[RedirectResponse, JSONResponse]:
-    # if auth.jwt and auth.jwt.channel == "jaccount":
-    #     url = get_jaccount_logout_url(redirect_url=redirect_url)
-    # else:
-    #     url = redirect_url
-    url = redirect_url
-    response: Union[RedirectResponse, JSONResponse]
-    if redirect:
-        response = RedirectResponse(url)
-    else:
-        response = JSONResponse({"redirect_url": url})
-    auth_jwt.unset_access_cookies(response=response)
-    return response
+# @router.get("/logout", response_model=Redirect)
+# async def logout(
+#     auth: Authentication = Depends(),
+#     auth_jwt: AuthJWT = Depends(),
+#     redirect_url: str = Query("", description="Set the redirect url after the logout."),
+#     redirect: bool = Query(
+#         True,
+#         description="If true (html link mode), redirect to a url; "
+#         "If false (ajax mode), return the redirect url, "
+#         "you also need to unset all cookies manually in ajax mode.",
+#     ),
+# ) -> Union[RedirectResponse, JSONResponse]:
+#     # if auth.jwt and auth.jwt.channel == "jaccount":
+#     #     url = get_jaccount_logout_url(redirect_url=redirect_url)
+#     # else:
+#     #     url = redirect_url
+#     url = redirect_url
+#     response: Union[RedirectResponse, JSONResponse]
+#     if redirect:
+#         response = RedirectResponse(url)
+#     else:
+#         response = JSONResponse({"redirect_url": url})
+#     auth_jwt.unset_access_cookies(response=response)
+#     return response
 
 
 # @router.get("/jaccount/login", response_model=RedirectModel)
@@ -138,8 +133,11 @@ async def logout(
 
 
 @router.get("")
-async def get_user(auth: Authentication = Depends()) -> StandardResponse[models.User]:
-    return StandardResponse(models.User.from_orm(auth.user))
+async def get_user(
+    auth: Authentication = Depends(),
+) -> StandardResponse[models.UserDetail]:
+    user = await parse_uid(auth.jwt.id, auth)
+    return StandardResponse(user)
 
 
 @router.get("/problems")

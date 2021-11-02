@@ -43,20 +43,21 @@ class UserBase(BaseORMModel):
     is_active: bool = Field(default=False, index=False)
 
 
-class User(UserBase, table=True):  # type: ignore[call-arg]
-    __tablename__ = "users"
-
-    hashed_password: str = Field(default="", index=False)
-
-    username_lower: str = Field(index=True, sa_column_kwargs={"unique": True})
-    email_lower: EmailStr = Field(index=True, sa_column_kwargs={"unique": True})
-
+class UserDetail(UserBase):
     # register_at = fields.DatetimeField(auto_now_add=True)
     register_ip: str = Field(default="0.0.0.0", index=False)
     login_at: datetime = Field(
         sa_column=get_datetime_column(index=False, server_default=utcnow())
     )
     login_ip: str = Field(default="0.0.0.0", index=False)
+
+
+class User(UserDetail, table=True):  # type: ignore[call-arg]
+    __tablename__ = "users"
+
+    hashed_password: str = Field(default="", index=False)
+    username_lower: str = Field(index=True, sa_column_kwargs={"unique": True})
+    email_lower: EmailStr = Field(index=True, sa_column_kwargs={"unique": True})
 
     owned_domains: List["Domain"] = Relationship(back_populates="owner")
     domain_users: List["DomainUser"] = Relationship(back_populates="user")

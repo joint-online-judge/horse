@@ -81,7 +81,7 @@ async def update_problem_set(
     edit_problem_set: models.ProblemSetEdit,
     problem_set: models.ProblemSet = Depends(parse_problem_set),
 ) -> StandardResponse[models.ProblemSet]:
-    problem_set.update_from_schema(edit_problem_set)
+    problem_set.update_from_dict(edit_problem_set.dict())
     await problem_set.save_model()
     return StandardResponse(problem_set)
 
