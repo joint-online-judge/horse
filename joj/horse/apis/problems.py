@@ -120,7 +120,7 @@ async def update_problem(
     problem: models.Problem = Depends(parse_problem),
     session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardResponse[models.Problem]:
-    problem.update_from_schema(edit_problem)
+    problem.update_from_dict(edit_problem.dict())
     await problem.save_model()
     return StandardResponse(problem)
 

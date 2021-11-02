@@ -119,7 +119,7 @@ async def update_domain(
     domain_edit: models.DomainEdit,
     domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardResponse[models.Domain]:
-    domain.update_from_schema(domain_edit)
+    domain.update_from_dict(domain_edit.dict())
     logger.info("update domain: %s", domain)
     await domain.save_model()
     return StandardResponse(domain)
@@ -365,7 +365,7 @@ async def update_domain_role(
             logger.info("update domain user: %s", domain_user)
             session.sync_session.add(domain_user)
 
-    domain_role.update_from_schema(domain_role_edit)
+    domain_role.update_from_dict(domain_role_edit.dict())
     logger.info("update domain role: %s", domain_role)
     await domain_role.save_model()
     return StandardResponse(domain_role)
@@ -412,7 +412,7 @@ async def update_domain_invitation(
     invitation_edit: models.DomainInvitationEdit,
     invitation: models.DomainInvitation = Depends(parse_domain_invitation),
 ) -> StandardResponse[models.DomainInvitation]:
-    invitation.update_from_schema(invitation_edit)
+    invitation.update_from_dict(invitation_edit.dict())
     logger.info("update domain invitation: %s", invitation)
     await invitation.save_model()
     return StandardResponse(invitation)

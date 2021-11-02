@@ -2,6 +2,7 @@ import asyncio
 from typing import Any
 
 import sentry_sdk
+import sqlalchemy.exc
 from fastapi import Depends, FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi_jwt_auth.exceptions import AuthJWTException
@@ -10,7 +11,6 @@ from starlette.responses import JSONResponse, RedirectResponse
 from starlette_context import plugins
 from starlette_context.middleware import RawContextMiddleware
 from tenacity import RetryError
-from tortoise import Tortoise, exceptions as tortoise_exceptions
 from uvicorn.config import logger
 
 import joj.horse.models  # noqa: F401
@@ -58,7 +58,7 @@ async def startup_event() -> None:
 
 @app.on_event("shutdown")
 async def shutdown_event() -> None:
-    await Tortoise.close_connections()
+    # await Tortoise.close_connections()
     logger.info("Tortoise-ORM shutdown")
 
 
@@ -95,18 +95,18 @@ def business_exception_response(exc: BizError) -> JSONResponse:
     )
 
 
-@app.exception_handler(tortoise_exceptions.IntegrityError)
+@app.exception_handler(sqlalchemy.exc.IntegrityError)
 async def tortoise_integrity_error_handler(
-    request: Request, exc: tortoise_exceptions.IntegrityError
+    request: Request, exc: sqlalchemy.exc.IntegrityError
 ) -> JSONResponse:
     return business_exception_response(BizError(ErrorCode.IntegrityError, str(exc)))
 
 
-@app.exception_handler(tortoise_exceptions.FieldError)
-async def tortoise_field_error_handler(
-    request: Request, exc: tortoise_exceptions.FieldError
-) -> JSONResponse:
-    return business_exception_response(BizError(ErrorCode.UnknownFieldError, str(exc)))
+# @app.exception_handler(tortoise_exceptions.FieldError)
+# async def tortoise_field_error_handler(
+#     request: Request, exc: tortoise_exceptions.FieldError
+# ) -> JSONResponse:
+#     return business_exception_response(BizError(ErrorCode.UnknownFieldError, str(exc)))
 
 
 @app.exception_handler(BizError)
@@ -131,7 +131,8 @@ async def catch_exceptions_middleware(request: Request, call_next: Any) -> JSONR
         )
 
 
-sentry_sdk.init(dsn=settings.dsn, traces_sample_rate=settings.traces_sample_rate)
+if settings.dsn:
+    sentry_sdk.init(dsn=settings.dsn, traces_sample_rate=settings.traces_sample_rate)
 app.add_middleware(SentryAsgiMiddleware)
 app.middleware("http")(catch_exceptions_middleware)
 app.add_middleware(

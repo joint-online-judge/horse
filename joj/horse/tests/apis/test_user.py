@@ -56,8 +56,8 @@ class TestUserGet:
         res = r.json()
         assert res["error_code"] == ErrorCode.Success
         res = res["data"]
-        assert res["scope"] == "sjtu"
-        assert res["uname"] == user.uname
+        assert res["username"] == user.username
+        assert res["email"] == user.email
         assert res["student_id"] == user.student_id
         assert res["real_name"] == user.real_name
         assert res["login_ip"] == user.login_ip

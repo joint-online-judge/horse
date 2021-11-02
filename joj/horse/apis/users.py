@@ -4,10 +4,6 @@ from fastapi import Depends, Query
 
 from joj.horse import models, schemas
 from joj.horse.schemas import StandardListResponse, StandardResponse
-
-# from joj.horse.schemas.domain_user import ListDomainUsers
-# from joj.horse.schemas.problem import ListProblems
-from joj.horse.utils.auth import Authentication
 from joj.horse.utils.parser import parse_pagination_query, parse_uid
 from joj.horse.utils.router import MyRouter
 
@@ -19,9 +15,9 @@ router_prefix = "/api/v1"
 
 @router.get("/{uid}")
 async def get_user(
-    user: models.User = Depends(parse_uid), auth: Authentication = Depends()
+    user: models.User = Depends(parse_uid),
 ) -> StandardResponse[models.UserBase]:
-    return StandardResponse(models.UserBase.from_orm(user))
+    return StandardResponse(user)
 
 
 @router.get("/{uid}/domains")

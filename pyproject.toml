@@ -46,9 +46,10 @@ httpx = "^0.19.0"
 httpx-oauth = "^0.3.7"
 joj-elephant = {git = "https://github.com/joint-online-judge/elephant.git"}
 lakefs-client = "0.47.0"
+loguru = "^0.5.3"
 makefun = "^1.12.1"
 oauth-jaccount = "^0.1.5"
-passlib = "^1.7.4"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 pbr = "^5.6.0"
 pydantic = {extras = ["dotenv"], version = "^1.8.2"}
 PyJWT = "^2.3.0"

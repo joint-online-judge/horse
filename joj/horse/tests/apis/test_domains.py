@@ -127,7 +127,7 @@ class TestDomainUpdate:
     ) -> None:
         data = {}
         for field in ["url", "name", "bulletin", "gravatar"]:
-            data[field] = f"{user.uname}-{field}-update-all"
+            data[field] = f"{user.username}-{field}-update-all"
         await self.validate_update(client, user, domain, data)
 
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
@@ -140,7 +140,7 @@ class TestDomainUpdate:
         domain: models.Domain,
         field: str,
     ) -> None:
-        data = {field: f"{user.uname}-{field}-update-one"}
+        data = {field: f"{user.username}-{field}-update-one"}
         await self.validate_update(client, user, domain, data)
 
     @pytest.mark.depends(on=["test_update_all", "test_update_one"])

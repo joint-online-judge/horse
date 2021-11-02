@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from functools import lru_cache
 from typing import AsyncGenerator
 
+from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from sqlalchemy.util.concurrency import greenlet_spawn
 from sqlalchemy_utils import create_database, database_exists
@@ -11,7 +12,6 @@ from starlette_context import context
 from tenacity import retry
 from tenacity.stop import stop_after_attempt
 from tenacity.wait import wait_exponential
-from uvicorn.config import logger
 
 from joj.horse.config import settings
 
@@ -58,13 +58,18 @@ async def db_session_dependency() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
+# noinspection PyBroadException
 async def ensure_db() -> None:
     engine = get_db_engine()
-    if not await greenlet_spawn(database_exists, engine.url):
-        logger.info("Database %s created.", settings.db_name)
+    try:
+        exists = await greenlet_spawn(database_exists, engine.url)
+    except Exception:
+        exists = False
+    if not exists:
         await greenlet_spawn(create_database, engine.url)
+        logger.info("Database {} created.", settings.db_name)
     else:
-        logger.info("Database %s already exists.", settings.db_name)
+        logger.info("Database {} already exists.", settings.db_name)
 
 
 async def generate_schema() -> None:

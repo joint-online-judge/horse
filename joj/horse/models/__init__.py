@@ -38,5 +38,6 @@ from joj.horse.models.user import (
     User as User,
     UserBase as UserBase,
     UserCreate as UserCreate,
+    UserDetail as UserDetail,
 )
 from joj.horse.models.user_oauth_account import UserOAuthAccount as UserOAuthAccount

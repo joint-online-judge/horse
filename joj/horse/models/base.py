@@ -1,8 +1,7 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, List, Optional, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, TypeVar, Union
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel
 from pydantic.datetime_parse import parse_datetime
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.compiler import compiles
@@ -65,8 +64,8 @@ class BaseORMModel(SQLModel):
         None, sa_column=get_datetime_column(server_default=utcnow(), onupdate=utcnow())
     )
 
-    def update_from_schema(self: "BaseORMModel", schema: BaseModel) -> None:
-        for k, v in schema.dict().items():
+    def update_from_dict(self: "BaseORMModel", d: Dict[str, Any]) -> None:
+        for k, v in d.items():
             if v is not None:
                 setattr(self, k, v)
 
