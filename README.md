@@ -17,23 +17,16 @@ The new generation of JOJ Backend. "Horse" is related to speed, an excellent fea
 
 Refer to <https://joint-online-judge.github.io/horse/> to prepare your environment.
 
-### Setup venv (Optional)
-
 ```bash
-python3 -m venv env
-source env/Scripts/activate
-```
-
-```bash
-pip3 install -e .
+poetry install
 vi .env # configure environment
-python3 -m joj.horse # or just press F5 in VS Code
+poetry run python3 -m joj.horse
 ```
 
 ### For developers
 
 ```bash
-pip3 install -e ".[dev,test]"
+poetry install --no-dev -E test
 pre-commit install
 pytest -svv
 ```
