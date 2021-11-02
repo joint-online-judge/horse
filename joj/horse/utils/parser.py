@@ -12,7 +12,7 @@ from joj.horse.utils.errors import BizError, ErrorCode
 
 
 async def parse_uid(
-    uid: str = Query("me", description="'me' or ObjectId of the user"),
+    uid: str = Query("me", description="'me' or id of the user"),
     auth: Authentication = Depends(),
 ) -> models.UserBase:
     if uid == "me":
@@ -25,14 +25,14 @@ async def parse_uid(
 
 
 async def parse_uid_or_none(
-    uid: Optional[str] = Query("", description="uid or 'me' or empty"),
+    uid: Optional[str] = Query("", description="user id or 'me' or empty"),
     auth: Authentication = Depends(),
 ) -> Optional[models.UserBase]:
     return await parse_uid(uid, auth) if uid else None
 
 
 async def parse_user_from_path_or_query(
-    user: str = Path("me", description="'me' or ObjectId of the user"),
+    user: str = Path("me", description="user id or 'me' or empty"),
     auth: Authentication = Depends(),
 ) -> models.UserBase:
     return await parse_uid(user, auth)
@@ -82,19 +82,19 @@ async def parse_domain_role(
 
 
 async def parse_domain_invitation(
-    invitation: str = Path(..., description="ObjectId of the domain invitation"),
+    invitation: str = Path(..., description="url or id of the domain invitation"),
     domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> models.DomainInvitation:
-    invitation_model = await models.DomainInvitation.get_or_none(
-        domain_id=domain.id, id=invitation
+    invitation_model = await models.DomainInvitation.find_by_domain_url_or_id(
+        domain, invitation
     )
-    if invitation_model is None:
-        raise BizError(ErrorCode.DomainInvitationBadRequestError)
-    return invitation_model
+    if invitation_model:
+        return invitation_model
+    raise BizError(ErrorCode.DomainInvitationBadRequestError)
 
 
 async def parse_problem(
-    problem: str,
+    problem: str = Path(..., description="url or id of the problem"),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> models.Problem:
     problem_model = await models.Problem.find_by_domain_url_or_id(
@@ -115,25 +115,28 @@ async def parse_problems(
 
 
 async def parse_problem_set(
-    problem_set: str = Path(..., description="url or ObjectId of the problem set"),
-    auth: Authentication = Depends(),
+    problem_set: str = Path(..., description="url or id of the problem set"),
+    domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> models.ProblemSet:
-    problem_set_model = await models.ProblemSet.find_by_id(problem_set)
-    if problem_set_model and problem_set_model.owner == auth.user:
+    problem_set_model = await models.ProblemSet.find_by_domain_url_or_id(
+        domain, problem_set
+    )
+    if problem_set_model:
         return problem_set_model
     raise BizError(ErrorCode.ProblemSetNotFoundError)
 
 
 async def parse_problem_set_with_time(
-    problem_set: str, auth: Authentication = Depends()
+    problem_set: str = Path(..., description="url or id of the problem set"),
+    domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> models.ProblemSet:
     # TODO: domain admin can see problem sets which are not in available period
-    problem_set_schema = await parse_problem_set(problem_set, auth)
-    if datetime.utcnow() < problem_set_schema.available_time:
+    problem_set_model = await parse_problem_set(problem_set, domain)
+    if datetime.utcnow() < problem_set_model.available_time:
         raise BizError(ErrorCode.ProblemSetBeforeAvailableError)
-    if datetime.utcnow() > problem_set_schema.due_time:
+    if datetime.utcnow() > problem_set_model.due_time:
         raise BizError(ErrorCode.ProblemSetAfterDueError)
-    return problem_set_schema
+    return problem_set_model
 
 
 async def parse_problem_group(problem_group: str) -> models.ProblemSet:

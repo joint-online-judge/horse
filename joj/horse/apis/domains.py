@@ -58,12 +58,12 @@ async def create_domain(
     try:
         domain = models.Domain(**domain_create.dict(), owner_id=user.id)
         session.sync_session.add(domain)
-        logger.info("domain created: %s", domain)
+        logger.info("create domain: %s", domain)
         domain_user = models.DomainUser(
             domain_id=domain.id, user_id=user.id, role=str(DefaultRole.ROOT)
         )
         session.sync_session.add(domain_user)
-        logger.info("domain user created: %s", domain_user)
+        logger.info("create domain user: %s", domain_user)
         for role in DefaultRole:
             # skip fixed roles (judge)
             if role in FIXED_ROLES:
@@ -73,8 +73,8 @@ async def create_domain(
                 role=role,
                 permission=DEFAULT_DOMAIN_PERMISSION[role].dict(),
             )
+            logger.info("create domain role: %s", domain_role)
             session.sync_session.add(domain_role)
-            logger.info("domain role created: %s", domain_role)
         await session.commit()
         await session.refresh(domain)
     except Exception as e:
@@ -120,6 +120,7 @@ async def update_domain(
     domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardResponse[models.Domain]:
     domain.update_from_schema(domain_edit)
+    logger.info("update domain: %s", domain)
     await domain.save_model()
     return StandardResponse(domain)
 
@@ -148,6 +149,9 @@ async def transfer_domain(
     if not domain_user or domain_user.role != DefaultRole.ROOT:
         raise BizError(ErrorCode.DomainNotRootError)
     domain.owner_id = target_user.id
+    logger.info(
+        "transfer domain: (%s -> %s) %s", user.username, target_user.username, domain
+    )
     await domain.save_model()
     return StandardResponse(domain)
 
@@ -182,6 +186,7 @@ async def add_domain_user(
     domain_user = await models.DomainUser.add_domain_user(
         domain_id=domain.id, user_id=user.id, role=role
     )
+    logger.info("create domain user: %s", domain_user)
     await domain_user.save_model()
     return StandardResponse(domain_user)
 
@@ -222,6 +227,7 @@ async def remove_domain_user(
     # only root member (or site root) can remove root member
     if domain_user.role == DefaultRole.ROOT and not domain_auth.auth.is_domain_root():
         raise BizError(ErrorCode.DomainNotRootError)
+    logger.info("delete domain user: %s", domain_user)
     await domain_user.delete_model()
     return StandardResponse()
 
@@ -247,6 +253,7 @@ async def update_domain_user(
     domain_user = await models.DomainUser.update_domain_user(
         domain_id=domain.id, user_id=user.id, role=role
     )
+    logger.info("update domain user: %s", domain_user)
     await domain_user.save_model()
     return StandardResponse(domain_user)
 
@@ -306,6 +313,7 @@ async def create_domain_role(
         role=domain_role_create.role,
         permission=domain_role_create.permission.dict(),
     )
+    logger.info("create domain role: %s", domain_role)
     await domain_role.save_model()
     return StandardResponse(domain_role)
 
@@ -323,6 +331,7 @@ async def delete_domain_role(
         raise BizError(ErrorCode.DomainRoleReadOnlyError)
     if await models.DomainUser.get_or_none(domain_id=domain.id, role=domain_role.role):
         raise BizError(ErrorCode.DomainRoleUsedError)
+    logger.info("delete domain role: %s", domain_role)
     await domain_role.delete_model()
     return StandardResponse()
 
@@ -353,9 +362,11 @@ async def update_domain_role(
         )
         for domain_user in domain_users:
             domain_user.role = domain_role_edit.role
+            logger.info("update domain user: %s", domain_user)
             session.sync_session.add(domain_user)
 
     domain_role.update_from_schema(domain_role_edit)
+    logger.info("update domain role: %s", domain_role)
     await domain_role.save_model()
     return StandardResponse(domain_role)
 
@@ -376,6 +387,7 @@ async def create_domain_invitation(
         **invitation_create.dict(),
         domain_id=domain.id,
     )
+    logger.info("create domain invitation: %s", invitation)
     await invitation.save_model()
     return StandardResponse(invitation)
 
@@ -387,6 +399,7 @@ async def create_domain_invitation(
 async def delete_domain_invitation(
     invitation: models.DomainInvitation = Depends(parse_domain_invitation),
 ) -> StandardResponse[Empty]:
+    logger.info("delete domain invitation: %s", invitation)
     await invitation.delete_model()
     return StandardResponse()
 
@@ -400,6 +413,7 @@ async def update_domain_invitation(
     invitation: models.DomainInvitation = Depends(parse_domain_invitation),
 ) -> StandardResponse[models.DomainInvitation]:
     invitation.update_from_schema(invitation_edit)
+    logger.info("update domain invitation: %s", invitation)
     await invitation.save_model()
     return StandardResponse(invitation)
 
@@ -420,4 +434,6 @@ async def join_domain_by_invitation(
     domain_user = await models.DomainUser.add_domain_user(
         domain_id=domain.id, user_id=user.id, role=invitation_model.role
     )
+    logger.info("create domain user: %s", domain_user)
+    await domain_user.save_model()
     return StandardResponse(domain_user)

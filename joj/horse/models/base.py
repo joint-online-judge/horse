@@ -3,11 +3,13 @@ from typing import TYPE_CHECKING, Any, List, Optional, Type, TypeVar, Union
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel
+from pydantic.datetime_parse import parse_datetime
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.orm import Mapper
 from sqlalchemy.sql.expression import Delete, Select, Update
 from sqlalchemy.sql.functions import FunctionElement
+from sqlalchemy.sql.schema import Column
 from sqlalchemy.types import DateTime
 from sqlmodel import Field, SQLModel, delete, select, update
 
@@ -29,13 +31,38 @@ def pg_utcnow(element: Any, compiler: Any, **kwargs: Any) -> str:
     return "TIMEZONE('utc', CURRENT_TIMESTAMP)"
 
 
+@compiles(utcnow, "mssql")
+def ms_utcnow(element: Any, compiler: Any, **kwargs: Any) -> str:
+    return "GETUTCDATE()"
+
+
+def get_datetime_column(**kwargs: Any) -> Column:
+    if "index" not in kwargs:
+        kwargs["index"] = True
+    if "nullable" not in kwargs:
+        kwargs["nullable"] = False
+    return Column(DateTime(timezone=True), **kwargs)
+
+
+class UTCDatetime(datetime):
+    """parse a datetime and convert in into UTC format"""
+
+    @classmethod
+    def __get_validators__(cls) -> Any:
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v: Any) -> datetime:
+        return datetime.fromtimestamp(parse_datetime(v).timestamp())
+
+
 class BaseORMModel(SQLModel):
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    id: UUID = Field(default_factory=uuid4, primary_key=True, nullable=False)
     created_at: Optional[datetime] = Field(
-        None, sa_column_kwargs={"server_default": utcnow()}
+        None, sa_column=get_datetime_column(server_default=utcnow())
     )
     updated_at: Optional[datetime] = Field(
-        None, sa_column_kwargs={"server_default": utcnow(), "onupdate": utcnow()}
+        None, sa_column=get_datetime_column(server_default=utcnow(), onupdate=utcnow())
     )
 
     def update_from_schema(self: "BaseORMModel", schema: BaseModel) -> None:

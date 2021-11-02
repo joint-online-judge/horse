@@ -76,10 +76,6 @@ class LongText(ConstrainedStr):
     max_length = 65536
 
 
-class PydanticObjectId(str):
-    pass
-
-
 BT = TypeVar("BT", bound=PydanticBaseModel)
 
 

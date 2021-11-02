@@ -6,7 +6,7 @@ from sqlmodel import Field, Relationship
 from tortoise import timezone
 from uvicorn.config import logger
 
-from joj.horse.models.base import BaseORMModel, SQLModel, utcnow
+from joj.horse.models.base import BaseORMModel, SQLModel, get_datetime_column, utcnow
 from joj.horse.models.permission import DefaultRole
 from joj.horse.models.user_oauth_account import UserOAuthAccount
 from joj.horse.utils.db import db_session
@@ -54,7 +54,7 @@ class User(UserBase, table=True):  # type: ignore[call-arg]
     # register_at = fields.DatetimeField(auto_now_add=True)
     register_ip: str = Field(default="0.0.0.0", index=False)
     login_at: datetime = Field(
-        sa_column_kwargs={"server_default": utcnow()}, index=False
+        sa_column=get_datetime_column(index=False, server_default=utcnow())
     )
     login_ip: str = Field(default="0.0.0.0", index=False)
 

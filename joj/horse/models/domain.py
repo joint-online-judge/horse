@@ -33,13 +33,20 @@ if TYPE_CHECKING:
 class DomainBase(URLMixin):
     name: NoneEmptyLongStr = Field(
         ...,
-        # sa_column_kwargs={"unique": True},
+        nullable=False,
         description="displayed name of the domain",
     )
-    gravatar: LongStr = Field("", index=False, description="gravatar url of the domain")
-    bulletin: LongText = Field("", index=False, description="bulletin of the domain")
+    gravatar: LongStr = Field(
+        "", index=False, nullable=True, description="gravatar url of the domain"
+    )
+    bulletin: LongText = Field(
+        "", index=False, nullable=True, description="bulletin of the domain"
+    )
     hidden: bool = Field(
-        True, index=False, description="is the domain hidden", nullable=False
+        True,
+        index=False,
+        nullable=False,
+        description="is the domain hidden",
     )
 
 
@@ -56,7 +63,7 @@ class DomainEdit(BaseModel):
 
 
 class DomainTransfer(BaseModel):
-    target_user: str = Field(..., description="'me' or ObjectId of the user")
+    target_user: str = Field(..., description="'me' or id of the user")
 
 
 class Domain(URLORMModel, DomainBase, table=True):  # type: ignore[call-arg]

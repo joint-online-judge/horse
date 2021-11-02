@@ -6,7 +6,7 @@ from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.models.permission import DefaultRole
-from joj.horse.schemas.base import Empty, PydanticObjectId, StandardResponse
+from joj.horse.schemas.base import Empty, StandardResponse
 from joj.horse.schemas.record import ListRecords, RecordCaseResult, RecordResult
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.errors import BizError, ErrorCode
@@ -26,9 +26,9 @@ router_prefix = "/api/v1"
 
 @router.get("")
 async def list_records(
-    domain: Optional[PydanticObjectId] = Query(None),
-    problem_set: Optional[PydanticObjectId] = Query(None),
-    problem: Optional[PydanticObjectId] = Query(None),
+    domain: Optional[str] = Query(None),
+    problem_set: Optional[str] = Query(None),
+    problem: Optional[str] = Query(None),
     query: schemas.PaginationQuery = Depends(parse_pagination_query),
     user: models.User = Depends(parse_uid_or_none),
     auth: Authentication = Depends(),

@@ -294,7 +294,7 @@ def get_site_permission(site_role: str = Depends(get_site_role)) -> SitePermissi
 
 
 async def get_domain(
-    domain: str = Path(..., description="url or ObjectId of the domain"),
+    domain: str = Path(..., description="url or id of the domain"),
 ) -> Domain:
     domain_model = await Domain.find_by_url_or_id(domain)
     if domain_model is None:

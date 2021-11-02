@@ -9,7 +9,6 @@ from uvicorn.config import logger
 from joj.horse import models, schemas
 from joj.horse.apis import records
 from joj.horse.schemas import Empty, StandardListResponse, StandardResponse
-from joj.horse.schemas.base import PydanticObjectId
 from joj.horse.schemas.permission import Permission
 
 # from joj.horse.schemas.problem import ListProblems, ProblemClone
@@ -41,8 +40,8 @@ router_prefix = "/api/v1"
 )
 async def list_problems(
     domain: models.Domain = Depends(parse_domain_from_auth),
-    problem_set: Optional[PydanticObjectId] = Query(None),
-    problem_group: Optional[PydanticObjectId] = Query(None),
+    problem_set: Optional[str] = Query(None),
+    problem_group: Optional[str] = Query(None),
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     include_hidden: bool = Depends(parse_view_hidden_problem),
@@ -74,19 +73,20 @@ async def create_problem(
         logger.info("problem group created: %s", problem_group)
         problem = models.Problem(
             **problem_create.dict(),
-            domain=domain,
-            owner=user,
-            problem_group=problem_group,
+            domain_id=domain.id,
+            owner_id=user.id,
+            problem_group_id=problem_group.id,
         )
         session.sync_session.add(problem)
         logger.info("problem created: %s", problem)
         await session.commit()
+        await session.refresh(problem)
     except Exception as e:
         logger.exception("problem creation failed: %s", problem_create)
         raise e
     lakefs_problem_config = LakeFSProblemConfig(problem)
     background_tasks.add_task(lakefs_problem_config.ensure_branch)
-    return StandardResponse(models.Problem.from_orm(problem))
+    return StandardResponse(problem)
 
 
 @router.get(
@@ -121,9 +121,8 @@ async def update_problem(
     session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardResponse[models.Problem]:
     problem.update_from_schema(edit_problem)
-    session.sync_session.add(problem)
-    await session.commit()
-    return StandardResponse(models.Problem.from_orm(problem))
+    await problem.save_model()
+    return StandardResponse(problem)
 
 
 @router.patch(
@@ -133,7 +132,7 @@ async def update_problem(
 async def update_problem_config(
     config: UploadFile = File(...), problem: models.Problem = Depends(parse_problem)
 ) -> StandardResponse[models.Problem]:
-    return StandardResponse(models.Problem.from_orm(problem))
+    return StandardResponse(problem)
 
 
 @router.post(
