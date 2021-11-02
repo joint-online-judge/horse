@@ -23,3 +23,4 @@ class AuthTokens(BaseModel):
 class OAuth2Client(BaseModel):
     oauth_name: str
     display_name: str
+    icon: str

@@ -90,6 +90,7 @@ class BaseOAuth2(Generic[T]):
     revoke_token_endpoint: Optional[str]
     base_scopes: Optional[List[str]]
     display_name: str
+    icon: str
     request_headers: Dict[str, str]
 
     def __init__(
@@ -103,6 +104,7 @@ class BaseOAuth2(Generic[T]):
         name: str = "oauth2",
         base_scopes: Optional[List[str]] = None,
         display_name: Optional[str] = None,
+        icon: str = "",
     ):
         self.client_id = client_id
         self.client_secret = client_secret
@@ -113,6 +115,7 @@ class BaseOAuth2(Generic[T]):
         self.name = name
         self.base_scopes = base_scopes
         self.display_name = display_name or name
+        self.icon = icon
 
         self.request_headers = {
             "Accept": "application/json",
