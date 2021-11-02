@@ -79,7 +79,6 @@ class TestUserGet:
 #     assert len(res) == 1
 #     res = res[0]
 #     NEW_DOMAIN = res["domain"]
-#     assert ObjectId.is_valid(res["id"])
 #     assert res["domain"]["id"]
 #     assert res["domain"]["url"] == domain.url
 #     assert res["domain"]["name"] == domain.name
@@ -104,7 +103,6 @@ class TestUserGet:
 #     res = res["data"]["results"]
 #     assert len(res) == 1
 #     res = res[0]
-#     assert ObjectId.is_valid(res["id"])
 #     # assert res["domain"] == NEW_DOMAIN["id"]
 #     assert res["title"] == problem.title
 #     assert res["content"] == problem.content

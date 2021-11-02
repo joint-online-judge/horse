@@ -98,5 +98,5 @@ class ListProblems(BaseModel):
 
 class ProblemClone(BaseModel):
     problems: List[str]
-    problem_set: str = Field(..., description="url or ObjectId of the problem set")
+    problem_set: str = Field(..., description="url or id of the problem set")
     new_group: bool = Field(False, description="whether to create new problem group")

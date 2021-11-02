@@ -6,7 +6,6 @@ from joj.horse.schemas import BaseModel
 
 # from pydantic.typing import AnyCallable
 
-# from joj.horse.schemas.base import PydanticObjectId
 # from joj.horse.schemas.domain import Domain
 # from joj.horse.schemas.problem import Problem
 # from joj.horse.schemas.user import UserBase
@@ -67,7 +66,7 @@ class Record(BaseModel):
 #     problem_data: int = 0
 #     user: ReferenceSchema[UserBase]
 #     code_type: RecordCodeType
-#     code: PydanticObjectId
+#     code: str
 #     judge_category: List[str]
 #
 #     submit_at: datetime

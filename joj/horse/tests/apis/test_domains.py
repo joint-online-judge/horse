@@ -439,7 +439,6 @@ class TestDomainTransfer:
 #     res = r.json()
 #     assert res["error_code"] == ErrorCode.Success
 #     res = res["data"]
-#     assert ObjectId.is_valid(res["id"])
 #     assert res["url"] == domain.url
 #     assert res["name"] == domain_edit.name
 #     assert res["bulletin"] == domain_edit.bulletin

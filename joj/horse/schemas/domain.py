@@ -31,7 +31,7 @@ class DomainCreate(BaseModel):
 
 
 class DomainTransfer(BaseModel):
-    target_user: str = Field(..., description="'me' or ObjectId of the user")
+    target_user: str = Field(..., description="'me' or id of the user")
 
 
 # class Domain(DomainCreate, BaseODMSchema):

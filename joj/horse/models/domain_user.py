@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 class DomainUserAdd(BaseModel):
     role: DefaultRole = Field(DefaultRole.USER)
-    user: str = Field(..., description="'me' or ObjectId of the user")
+    user: str = Field(..., description="'me' or id of the user")
 
 
 class DomainUserUpdate(BaseModel):

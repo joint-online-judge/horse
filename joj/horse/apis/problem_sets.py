@@ -2,12 +2,10 @@ from datetime import datetime, timedelta
 from typing import List
 
 from fastapi import Depends
-from tortoise import transactions
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.schemas import Empty, StandardResponse
-from joj.horse.schemas.base import PydanticObjectId
 from joj.horse.schemas.permission import Permission
 from joj.horse.schemas.problem_set import ListProblemSets
 from joj.horse.schemas.record import RecordStatus
@@ -49,36 +47,29 @@ async def list_problem_sets(
     "", dependencies=[Depends(ensure_permission(Permission.DomainProblem.create))]
 )
 async def create_problem_set(
-    problem_set: models.ProblemSetCreate,
+    problem_set_create: models.ProblemSetCreate,
     domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[models.ProblemSet]:
-    try:
-        async with transactions.in_transaction():
-            problem_set_schema = models.ProblemSet(
-                **problem_set.dict(), domain=domain.id, owner=user.id
-            )
-            problem_set_model = models.ProblemSet(**problem_set_schema.to_model())
-            await problem_set_model.commit()
-            await problem_set_model.set_url_from_id()
-            logger.info("problem set created: %s", problem_set_model)
-    except Exception as e:
-        logger.exception("problem set creation failed: %s", problem_set.title)
-        raise e
-    return StandardResponse(models.ProblemSet.from_orm(problem_set_model))
+    problem_set = models.ProblemSet(
+        **problem_set_create.dict(),
+        domain_id=domain.id,
+        owner_id=user.id,
+    )
+    logger.info("create problem set: %s", problem_set)
+    await problem_set.save_model()
+    return StandardResponse(problem_set)
 
 
 @router.get("/{problem_set}")
 async def get_problem_set(
-    domain: models.Domain = Depends(parse_domain_from_auth),
-    problem_set: models.ProblemSet = Depends(parse_problem_set_with_time),
+    problem_set: models.ProblemSet = Depends(parse_problem_set),
 ) -> StandardResponse[models.ProblemSet]:
-    return StandardResponse(models.ProblemSet.from_orm(problem_set))
+    return StandardResponse(problem_set)
 
 
 @router.delete("/{problem_set}", deprecated=True)
 async def delete_problem_set(
-    domain: models.Domain = Depends(parse_domain_from_auth),
     problem_set: models.ProblemSet = Depends(parse_problem_set),
 ) -> StandardResponse[Empty]:
     await problem_set.delete_model()
@@ -88,12 +79,11 @@ async def delete_problem_set(
 @router.patch("/{problem_set}")
 async def update_problem_set(
     edit_problem_set: models.ProblemSetEdit,
-    domain: models.Domain = Depends(parse_domain_from_auth),
     problem_set: models.ProblemSet = Depends(parse_problem_set),
 ) -> StandardResponse[models.ProblemSet]:
     problem_set.update_from_schema(edit_problem_set)
-    await problem_set.commit()
-    return StandardResponse(models.ProblemSet.from_orm(problem_set))
+    await problem_set.save_model()
+    return StandardResponse(problem_set)
 
 
 @router.get("/{problem_set}/scoreboard")
@@ -109,7 +99,7 @@ async def get_scoreboard(
     )
     users = await models.User.to_list(cursor)
     results: List[UserScore] = []
-    problem_ids: List[PydanticObjectId] = []
+    problem_ids: List[str] = []
     firstUser = True
     for user in users:
         scores: List[Score] = []

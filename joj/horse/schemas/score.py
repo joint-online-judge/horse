@@ -3,7 +3,6 @@ from typing import List
 
 from joj.horse.models.user import UserBase
 from joj.horse.schemas import BaseModel
-from joj.horse.schemas.base import PydanticObjectId
 
 
 class Score(BaseModel):
@@ -22,5 +21,5 @@ class UserScore(BaseModel):
 
 
 class ScoreBoard(BaseModel):
-    problem_ids: List[PydanticObjectId]
+    problem_ids: List[str]
     results: List[UserScore]

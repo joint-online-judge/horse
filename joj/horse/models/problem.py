@@ -6,7 +6,7 @@ from sqlalchemy.schema import Column, ForeignKey
 from sqlmodel import Field, Relationship
 from sqlmodel.sql.sqltypes import GUID
 
-from joj.horse.models.base import BaseORMModel, DomainURLORMModel, url_pre_save
+from joj.horse.models.base import DomainURLORMModel, URLMixin, url_pre_save
 from joj.horse.models.link_tables import ProblemProblemSetLink
 from joj.horse.schemas.base import BaseModel, LongText, NoneEmptyStr, UserInputURL
 
@@ -24,11 +24,16 @@ class ProblemEdit(BaseModel):
     # languages: Optional[List[LongStr]]
 
 
-class ProblemCreate(BaseModel):
-    url: UserInputURL = Field("", description="(unique in domain) url of the problem")
-    title: NoneEmptyStr = Field(..., description="title of the problem")
-    content: LongText = Field("", description="content of the problem")
-    hidden: bool = Field(False, description="is the problem hidden")
+class ProblemBase(URLMixin):
+    title: NoneEmptyStr = Field(
+        ..., index=False, nullable=False, description="title of the problem"
+    )
+    content: LongText = Field(
+        "", index=False, nullable=True, description="content of the problem"
+    )
+    hidden: bool = Field(
+        False, index=False, nullable=False, description="is the problem hidden"
+    )
     # this field can be induced from the config file
     # data_version: DataVersion = Field(DataVersion.v2)
     # languages: List[LongStr] = Field(
@@ -37,23 +42,23 @@ class ProblemCreate(BaseModel):
     # problem_set: LongStr = Field(..., description="problem set it belongs to")
 
 
+class ProblemCreate(ProblemBase):
+    pass
+
+
 class ProblemClone(BaseModel):
     problems: List[str]
-    problem_set: str = Field(..., description="url or ObjectId of the problem set")
+    problem_set: str = Field(..., description="url or id of the problem set")
     new_group: bool = Field(False, description="whether to create new problem group")
 
 
-class Problem(DomainURLORMModel, BaseORMModel, table=True):  # type: ignore[call-arg]
+class Problem(DomainURLORMModel, ProblemBase, table=True):  # type: ignore[call-arg]
     __tablename__ = "problems"
 
-    title: str = Field(index=False)
-    content: str = Field(index=False, default="")
-    hidden: bool = Field(index=False, default=False)
-    num_submit: int = Field(index=False, default=0)
-    num_accept: int = Field(index=False, default=0)
-
-    data_version: int = Field(index=False, default=2)
-    languages: str = Field(index=False, default="[]")
+    num_submit: int = Field(0, index=False, nullable=False)
+    num_accept: int = Field(0, index=False, nullable=False)
+    data_version: int = Field(2, index=False, nullable=False)
+    languages: str = Field("[]", index=False, nullable=False)
 
     domain_id: UUID = Field(
         sa_column=Column(GUID, ForeignKey("domains.id", ondelete="CASCADE"))
