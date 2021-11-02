@@ -140,6 +140,7 @@ def get_oauth_router(
             schemas.OAuth2Client(
                 oauth_name=oauth_client.name,
                 display_name=oauth_client.display_name,
+                icon=oauth_client.icon,
             )
             for oauth_client in oauth_clients
         ]

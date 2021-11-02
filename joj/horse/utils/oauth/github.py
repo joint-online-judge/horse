@@ -24,6 +24,7 @@ class GitHubOAuth2(BaseOAuth2[GitHubOAuth2AuthorizeParams]):
         client_secret: str,
         name: str = "github",
         display_name: str = "GitHub",
+        icon: str = "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
     ):
         super().__init__(
             client_id,
@@ -33,6 +34,7 @@ class GitHubOAuth2(BaseOAuth2[GitHubOAuth2AuthorizeParams]):
             name=name,
             base_scopes=BASE_SCOPES,
             display_name=display_name,
+            icon=icon,
         )
 
     async def get_profile(

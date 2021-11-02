@@ -23,6 +23,7 @@ class JaccountOAuth2(BaseOAuth2[JaccountOAuth2AuthorizeParams]):
         client_secret: str,
         name: str = "jaccount",
         display_name: str = "JAccount",
+        icon: str = "https://vi.sjtu.edu.cn/img/base/Logo.png",
     ):
         super().__init__(
             client_id,
@@ -32,6 +33,7 @@ class JaccountOAuth2(BaseOAuth2[JaccountOAuth2AuthorizeParams]):
             name=name,
             base_scopes=BASE_SCOPES,
             display_name=display_name,
+            icon=icon,
         )
 
     async def get_profile(
