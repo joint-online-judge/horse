@@ -121,6 +121,14 @@ class BaseOAuth2(Generic[T]):
             "Accept": "application/json",
         }
 
+    def _parse_scope(self, scope: Optional[List[str]]) -> str:
+        scope_set = set()
+        if self.base_scopes is not None:
+            scope_set.update(set(self.base_scopes))
+        if scope is not None:
+            scope_set.update(set(scope))
+        return " ".join(scope_set)
+
     async def get_authorization_url(
         self,
         redirect_uri: str,
@@ -137,8 +145,9 @@ class BaseOAuth2(Generic[T]):
         if state is not None:
             params["state"] = state
 
-        if scope is not None:
-            params["scope"] = " ".join(scope)
+        parsed_scope = self._parse_scope(scope)
+        if parsed_scope:
+            params["scope"] = parsed_scope
 
         if extras_params is not None:
             params = {**params, **extras_params}  # type: ignore

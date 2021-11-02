@@ -7,7 +7,7 @@ from joj.horse.utils.oauth import BaseOAuth2, GetProfileError, OAuth2Profile
 
 AUTHORIZE_ENDPOINT = "https://github.com/login/oauth/authorize"
 ACCESS_TOKEN_ENDPOINT = "https://github.com/login/oauth/access_token"
-BASE_SCOPES = ["user", "user:email"]
+BASE_SCOPES = ["user:email"]
 PROFILE_ENDPOINT = "https://api.github.com/user"
 EMAILS_ENDPOINT = "https://api.github.com/user/emails"
 

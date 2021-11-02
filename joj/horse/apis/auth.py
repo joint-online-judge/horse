@@ -115,14 +115,6 @@ def get_oauth_router(
     authorize_route_name = "oauth_authorize"
     callback_route_name = "oauth_callback"
 
-    # def oauth_client_dependency(
-    #         oauth_name: str = Path(..., description="OAuth client name")
-    # ) -> BaseOAuth2:
-    #     for oa
-
-    # if len(authentication_backends) == 0:
-    #     raise SystemError("at least one authentication backend should be defined")
-
     if callback_redirect_url is not None:
         oauth2_dependency = OAuth2Dependency(
             oauth_clients,
