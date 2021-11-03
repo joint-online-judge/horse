@@ -19,6 +19,9 @@ def get_git_version() -> str:
                 repo.head.commit.committed_date, tz=timezone.utc
             ).strftime("%Y-%m-%dT%H:%M:%SZ")
         )
-    except (git.InvalidGitRepositoryError, git.GitCommandError) as e:
+    except (
+        git.InvalidGitRepositoryError,
+        git.GitCommandError,
+    ) as e:  # pragma: no cover
         logger.error("Failed to get repository: %s", repr(e))
         return "unknown"
