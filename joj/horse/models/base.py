@@ -124,10 +124,10 @@ class BaseORMModel(SQLModel):
         ordering: Optional["OrderingQuery"],
         prefix: str = "",
     ) -> Select:
-        def add_prefix(x: str) -> str:
-            if x.startswith("-"):
-                return f"-{prefix}{x[1:]}"
-            return f"{prefix}{x}"
+        # def add_prefix(x: str) -> str:
+        #     if x.startswith("-"):
+        #         return f"-{prefix}{x[1:]}"
+        #     return f"{prefix}{x}"
 
         if ordering is not None and ordering.orderings:
             for x in ordering.orderings:

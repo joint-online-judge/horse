@@ -24,7 +24,7 @@ def random_ip() -> str:
 
 
 def generate_auth_headers(user: models.User) -> Dict[str, str]:
-    access_token, refresh_token = auth_jwt_encode_user(auth_jwt=AuthJWT(), user=user)
+    access_token, _ = auth_jwt_encode_user(auth_jwt=AuthJWT(), user=user)
     return {"Authorization": f"Bearer {access_token}"}
 
 
