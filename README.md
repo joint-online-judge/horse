@@ -32,7 +32,7 @@ poetry run pytest -svv
 
 ## Usage
 
-```
+```bash
 poetry run python3 -m joj.horse
 ```
 
