@@ -3,7 +3,6 @@ from typing import Optional
 
 from fastapi import BackgroundTasks, Depends, File, Form, Query, UploadFile
 from sqlmodel.ext.asyncio.session import AsyncSession
-from tortoise import transactions
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
@@ -149,31 +148,28 @@ async def clone_problem(
     problem_set = await parse_problem_set(problem_clone.problem_set, auth)
     new_group = problem_clone.new_group
     try:
-        async with transactions.in_transaction():
-            res = []
-            for problem in problems:
-                if new_group:
-                    problem_group = models.ProblemGroup(
-                        **models.ProblemGroup().to_model()
-                    )
-                    await problem_group.commit()
-                else:
-                    problem_group = await problem.problem_group.fetch()
-                new_problem = models.Problem(
-                    domain=domain.id,
-                    owner=user.id,
-                    title=problem.title,
-                    content=problem.content,
-                    data=problem.data,
-                    data_version=problem.data_version,
-                    languages=problem.languages,
-                    problem_group=problem_group.id,
-                    problem_set=problem_set.id,
-                )
-                new_problem = models.Problem(**new_problem.to_model())
-                await new_problem.commit()
-                res.append(models.Problem.from_orm(new_problem))
-                logger.info("problem cloned: %s", new_problem)
+        res = []
+        for problem in problems:
+            if new_group:
+                problem_group = models.ProblemGroup(**models.ProblemGroup().to_model())
+                await problem_group.commit()
+            else:
+                problem_group = await problem.problem_group.fetch()
+            new_problem = models.Problem(
+                domain=domain.id,
+                owner=user.id,
+                title=problem.title,
+                content=problem.content,
+                data=problem.data,
+                data_version=problem.data_version,
+                languages=problem.languages,
+                problem_group=problem_group.id,
+                problem_set=problem_set.id,
+            )
+            new_problem = models.Problem(**new_problem.to_model())
+            await new_problem.commit()
+            res.append(models.Problem.from_orm(new_problem))
+            logger.info("problem cloned: %s", new_problem)
     except Exception as e:
         logger.exception("problems clone to problem set failed: %s", problem_set)
         raise e

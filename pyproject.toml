@@ -27,10 +27,10 @@ repository = "https://github.com/joint-online-judge/horse/"
 version = "0.1.0"
 
 [tool.poetry.dependencies]
-aerich = "^0.5.8"
 aiocache = {extras = ["redis", "msgpack"], version = "^0.11.1"}
 alembic = "^1.7.4"
 asgi-lifespan = {version = "^1.0.1", optional = true}
+asyncpg = "^0.24.0"
 asynctest = {version = "^0.13.0", optional = true}
 boto3 = "^1.18.38"
 celery = "^5.1.2"
@@ -66,9 +66,9 @@ SQLAlchemy-Utils = "^0.37.8"
 sqlmodel = "^0.0.4"
 starlette-context = "^0.3.3"
 tenacity = "^8.0.1"
-tortoise-orm = {extras = ["asyncpg"], version = "^0.17.7"}
 
 [tool.poetry.dev-dependencies]
+black = {version = "^21.10b0", allow-prereleases = true}
 pre-commit = "^2.15.0"
 
 [tool.poetry.extras]

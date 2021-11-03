@@ -56,12 +56,6 @@ async def startup_event() -> None:
         exit(-1)
 
 
-@app.on_event("shutdown")
-async def shutdown_event() -> None:
-    # await Tortoise.close_connections()
-    logger.info("Tortoise-ORM shutdown")
-
-
 # we temporarily redirect "/" and "/api" to "/api/v1" for debugging
 @app.get("/api")
 @app.get("/")
@@ -96,17 +90,10 @@ def business_exception_response(exc: BizError) -> JSONResponse:
 
 
 @app.exception_handler(sqlalchemy.exc.IntegrityError)
-async def tortoise_integrity_error_handler(
+async def sqlalchemy_integrity_error_handler(
     request: Request, exc: sqlalchemy.exc.IntegrityError
 ) -> JSONResponse:
     return business_exception_response(BizError(ErrorCode.IntegrityError, str(exc)))
-
-
-# @app.exception_handler(tortoise_exceptions.FieldError)
-# async def tortoise_field_error_handler(
-#     request: Request, exc: tortoise_exceptions.FieldError
-# ) -> JSONResponse:
-#     return business_exception_response(BizError(ErrorCode.UnknownFieldError, str(exc)))
 
 
 @app.exception_handler(BizError)

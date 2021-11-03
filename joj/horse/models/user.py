@@ -1,9 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 from pydantic import EmailStr, root_validator, validator
 from sqlmodel import Field, Relationship
-from tortoise import timezone
 from uvicorn.config import logger
 
 from joj.horse.models.base import BaseORMModel, SQLModel, get_datetime_column, utcnow
@@ -107,7 +106,7 @@ class User(UserDetail, table=True):  # type: ignore[call-arg]
         try:
             user = await cls.find_by_uname(scope=scope, uname=jaccount_name)
             if user:
-                user.login_at = timezone.now()
+                user.login_at = datetime.now(tz=timezone.utc)
                 user.login_ip = ip
             else:
                 user = User(
@@ -117,7 +116,7 @@ class User(UserDetail, table=True):  # type: ignore[call-arg]
                     student_id=student_id,
                     real_name=real_name,
                     register_ip=ip,
-                    login_timestamp=timezone.now(),
+                    login_timestamp=datetime.now(tz=timezone.utc),
                     login_ip=ip,
                 )
             await user.save_model()

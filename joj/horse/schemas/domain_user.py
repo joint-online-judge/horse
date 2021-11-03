@@ -1,28 +1,9 @@
-from typing import List, Optional
-
 from pydantic import Field
-from tortoise.contrib.pydantic import pydantic_model_creator
 
-from joj.horse.models.domain_user import DomainUser as DomainUserModel
 from joj.horse.models.permission import DefaultRole
 from joj.horse.schemas import BaseModel
-from joj.horse.schemas.domain import Domain
-from joj.horse.schemas.permission import DomainPermission
-from joj.horse.schemas.user import UserBase
 
 # from joj.horse.schemas.domain_role import DomainPermission
-
-DomainUser = pydantic_model_creator(
-    DomainUserModel,
-    name="DomainUser",
-    exclude=("domain", "user"),
-)
-DomainUserGenerated = pydantic_model_creator(DomainUserModel, name="DomainUserFull")
-
-
-class DomainUserExpanded(DomainUserGenerated):  # type: ignore
-    domain: Optional[Domain] = None
-    user: Optional[UserBase] = None
 
 
 # class DomainUser(BaseODMSchema):
@@ -43,17 +24,6 @@ class DomainUserExpanded(DomainUserGenerated):  # type: ignore
 #         "user", UserBase
 #     )
 #
-
-
-class DomainUserPermission(DomainUser):  # type: ignore
-    class Config:
-        title = "DomainUserPermission"
-
-    permission: DomainPermission
-
-
-class ListDomainUsers(BaseModel):
-    results: List[DomainUser]  # type: ignore
 
 
 class DomainUserAdd(BaseModel):

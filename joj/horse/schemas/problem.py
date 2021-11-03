@@ -3,9 +3,7 @@ from typing import List, Optional
 
 # from joj.elephant.schemas import Config as ProblemConfig
 from pydantic import Field
-from tortoise.contrib.pydantic import pydantic_model_creator
 
-from joj.horse.models.problem import Problem as ProblemModel
 from joj.horse.schemas import BaseModel
 from joj.horse.schemas.base import (  # NoneEmptyLongStr,
     LongText,
@@ -55,13 +53,6 @@ class ProblemCreate(BaseModel):
 #     pass
 
 
-Problem = pydantic_model_creator(
-    ProblemModel,
-    name="Problem",
-    exclude=("domain", "owner", "problem_group", "problem_sets"),
-)
-
-
 # class Problem(ProblemCreate, BaseODMSchema):
 #     domain: ReferenceSchema[Domain]
 #     owner: ReferenceSchema[UserBase]
@@ -90,10 +81,6 @@ Problem = pydantic_model_creator(
 #     # _validate_problem_set: Callable[
 #     #     [AnyCallable], classmethod
 #     # ] = reference_schema_validator("problem_set", ProblemSet)
-
-
-class ListProblems(BaseModel):
-    results: List[Problem]  # type: ignore
 
 
 class ProblemClone(BaseModel):

@@ -80,14 +80,14 @@ async def generate_schema() -> None:
 
 @retry(stop=stop_after_attempt(5), wait=wait_exponential(2))
 async def try_init_db() -> None:
-    attempt_number = try_init_db.retry.statistics["attempt_number"]
+    attempt_number = try_init_db.retry.statistics["attempt_number"]  # type: ignore
     try:
         await ensure_db()
         # if settings.debug:
         #     await generate_schema()
     except Exception as e:
-        max_attempt_number = try_init_db.retry.stop.max_attempt_number
-        msg = "Tortoise-ORM: initialization failed ({}/{})".format(
+        max_attempt_number = try_init_db.retry.stop.max_attempt_number  # type: ignore
+        msg = "SQLModel: initialization failed ({}/{})".format(
             attempt_number, max_attempt_number
         )
         if attempt_number < max_attempt_number:

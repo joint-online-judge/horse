@@ -1,9 +1,6 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from pydantic import Field
-from tortoise.contrib.pydantic import pydantic_model_creator
-
-from joj.horse.models.domain_role import DomainRole as DomainRoleModel
 
 # from joj.horse.models.permission import DomainPermission
 from joj.horse.schemas import BaseModel
@@ -21,18 +18,3 @@ class DomainRoleEdit(BaseModel):
 class DomainRoleCreate(BaseModel):
     role: NoneEmptyLongStr
     permission: DomainPermission = DomainPermission()
-
-
-DomainRoleGenerated = pydantic_model_creator(
-    DomainRoleModel,
-    name="DomainRole",
-    exclude=("domain",),
-)
-
-
-class DomainRole(DomainRoleGenerated):  # type: ignore
-    permission: DomainPermission
-
-
-class ListDomainRoles(BaseModel):
-    results: List[DomainRole]
