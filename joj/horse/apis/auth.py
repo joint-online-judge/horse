@@ -205,6 +205,8 @@ def get_oauth_router(
             user.login_ip = request.client.host
             await user.save_model()
             logger.info(request.headers.items())
+            logger.info(request.scope.items())
+            logger.info(request.client)
             logger.info("user oauth login: %s", user)
 
             access_token, refresh_token = auth_jwt_encode_user(
