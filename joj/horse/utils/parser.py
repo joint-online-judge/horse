@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Callable, List, Optional, Set
+from typing import Callable, List, Optional
 
 from fastapi import Depends, Path, Query
 
@@ -176,38 +176,39 @@ def parse_view_hidden_problem_set(
     )
 
 
-class OrderingQueryParser:
-    def __init__(self, ordering_fields: Optional[Set[str]] = None):
-        self.ordering_fields = ordering_fields
+def parse_ordering_query(
+    ordering_fields: Optional[List[str]] = None,
+) -> Callable[..., OrderingQuery]:
+    description = (
+        "Comma seperated list of ordering the results.\n"
+        "You may specify reverse orderings by prefixing the field name with '-'.\n\n"
+    )
+    if ordering_fields is None:
+        ordering_fields = list()
+    if len(ordering_fields) > 0:
+        description += "Available fields: " + ",".join(ordering_fields)
+    else:
+        description += "Available fields: Any"
+    ordering_fields_set = set(ordering_fields)
 
-    def __call__(
-        self,
+    def wrapped(
         ordering: str = Query(
             "",
-            description="Comma seperated list of ordering the results.\n"
-            "You may also specify reverse orderings by prefixing the field name with '-'.",
-            example="-name,created_at",
-        ),
+            description=description,
+        )
     ) -> OrderingQuery:
         orderings = list(filter(None, ordering.split(",")))
-        if self.ordering_fields is not None:
+        if ordering_fields_set is not None:
             for x in orderings:
                 name = x.startswith("-") and x[1:] or x
-                if name not in self.ordering_fields:
+                if name not in ordering_fields_set:
                     raise BizError(
                         ErrorCode.IllegalFieldError,
                         f"{x} is not available in ordering fields",
                     )
         return OrderingQuery(orderings=orderings)
 
-
-def parse_ordering_query(
-    ordering_fields: Optional[List[str]] = None,
-) -> Callable[..., OrderingQuery]:
-    if ordering_fields is None:
-        return OrderingQueryParser()
-    else:
-        return OrderingQueryParser(set(ordering_fields))
+    return wrapped
 
 
 def parse_pagination_query(

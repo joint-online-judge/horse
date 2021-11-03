@@ -13,6 +13,7 @@ def main() -> None:
         host=settings.host,
         port=settings.port,
         reload=settings.debug,
+        forwarded_allow_ips=settings.forwarded_allow_ips,
         log_config=log_config,
         reload_dirs=["joj"],
     )
