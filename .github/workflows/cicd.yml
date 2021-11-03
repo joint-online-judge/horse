@@ -178,4 +178,6 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-          script: echo "git pull -v" | docker exec -i horse bash
+          script: |
+            cd ~/joj-deploy
+            docker-compose pull && docker-compose up -d
