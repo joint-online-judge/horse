@@ -204,7 +204,7 @@ def get_oauth_router(
             user.login_at = datetime.now(tz=timezone.utc)
             user.login_ip = request.client.host
             await user.save_model()
-            logger.debug(request.headers.items())
+            logger.info(request.headers.items())
             logger.info("user oauth login: %s", user)
 
             access_token, refresh_token = auth_jwt_encode_user(
@@ -240,7 +240,7 @@ def get_auth_router(
         user.login_at = datetime.now(tz=timezone.utc)
         user.login_ip = request.client.host
         await user.save_model()
-        logger.debug(request.headers.items())
+        logger.info(request.headers.items())
         logger.info("user login: %s", user)
         access_token, refresh_token = auth_jwt_encode_user(auth_jwt, user=user)
         return await get_login_response(
