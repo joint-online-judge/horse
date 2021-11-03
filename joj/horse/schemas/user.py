@@ -1,11 +1,6 @@
 import re
-from typing import List
-
-from pydantic import BaseModel
-from tortoise.contrib.pydantic import pydantic_model_creator
 
 # from joj.horse.models.permission import DefaultRole
-from joj.horse.models.user import User as UserModel
 
 # from joj.horse.schemas import BaseModel
 
@@ -14,24 +9,6 @@ from joj.horse.models.user import User as UserModel
 
 UID_RE = re.compile(r"-?\d+")
 UNAME_RE = re.compile(r"[^\s\u3000](.{,254}[^\s\u3000])?")
-
-UserBase = pydantic_model_creator(
-    UserModel,
-    name="UserBase",
-    include=(
-        "id",
-        "scope",
-        "uname",
-        "mail",
-        "uname_lower",
-        "mail_lower",
-        "gravatar",
-        "student_id",
-        "real_name",
-    ),
-)
-
-User = pydantic_model_creator(UserModel, name="User")
 
 # UserList = pydantic_queryset_creator(UserModel, name="UserList")
 
@@ -88,7 +65,3 @@ User = pydantic_model_creator(UserModel, name="User")
 #     @validator("login_timestamp", pre=True, always=True)
 #     def default_login_timestamp(cls, v: datetime) -> datetime:
 #         return v or datetime.utcnow()
-
-
-class ListUsers(BaseModel):
-    results: List[User]  # type: ignore
