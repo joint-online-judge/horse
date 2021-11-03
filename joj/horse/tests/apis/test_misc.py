@@ -1,31 +1,65 @@
-# import jwt
-# from fastapi.testclient import TestClient
+import jwt
+import pytest
+from fastapi_jwt_auth import AuthJWT
+from httpx import AsyncClient
+from pytest_lazyfixture import lazy_fixture
 
-# from joj.horse.apis.misc import router_prefix
-# from joj.horse.utils.version import get_git_version, get_version
+from joj.horse import models
+from joj.horse.app import app
+from joj.horse.config import settings
+from joj.horse.tests.utils.utils import do_api_request
+from joj.horse.utils.auth import auth_jwt_encode_user
+from joj.horse.utils.version import get_git_version, get_version
 
-# def test_version(client: TestClient) -> None:
-#     r = client.get(f"{router_prefix}/version")
-#     res = r.json()
-#     assert r.status_code == 200
-#     assert res["version"] == get_version()
-#     assert res["git"] == get_git_version()
-#
-#
-# def test_jwt(
-#     client: TestClient, global_test_user_token_headers: Dict[str, str]
-# ) -> None:
-#     r = client.get(f"{router_prefix}/jwt", headers=global_test_user_token_headers)
-#     res = r.json()
-#     assert r.status_code == 200
-#     res_jwt_dict = jwt.decode(res["jwt"], verify=False)
-#     header_jwt_dict = jwt.decode(
-#         global_test_user_token_headers["Authorization"][7:], verify=False
-#     )
-#     assert res_jwt_dict["sub"] == header_jwt_dict["sub"]
-#     assert res_jwt_dict["type"] == header_jwt_dict["type"]
-#     assert res_jwt_dict["fresh"] == header_jwt_dict["fresh"]
-#     assert res_jwt_dict["name"] == header_jwt_dict["name"]
-#     assert res_jwt_dict["scope"] == header_jwt_dict["scope"]
-#     assert res_jwt_dict["channel"] == header_jwt_dict["channel"]
-#     assert res_jwt_dict.get("csrf") == header_jwt_dict.get("csrf")
+
+@pytest.mark.asyncio
+class TestMisc:
+    @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
+    async def test_version(self, client: AsyncClient, user: models.User) -> None:
+        url = app.url_path_for("version")
+        response = await do_api_request(client, "GET", url, user)
+        assert response.status_code == 200
+        res = response.json()
+        assert res["version"] == get_version()
+        assert res["git"] == get_git_version()
+
+    @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
+    async def test_jwt(self, client: AsyncClient, user: models.User) -> None:
+        url = app.url_path_for("jwt_decoded")
+        response = await do_api_request(client, "GET", url, user)
+        assert response.status_code == 200
+        res = response.json()
+        assert "data" in res
+        res_jwt_dict = res["data"]
+        access_token, _ = auth_jwt_encode_user(auth_jwt=AuthJWT(), user=user)
+        header_jwt_dict = jwt.decode(
+            access_token,
+            key=settings.jwt_secret,
+            verify=False,
+            algorithms=[settings.jwt_algorithm],
+        )
+        for key in [
+            "sub",
+            "iat",
+            "nbf",
+            "exp",
+            "type",
+            "fresh",
+            "csrf",
+            "category",
+            "username",
+            "email",
+            "student_id",
+            "real_name",
+            "role",
+            "oauth_name",
+            "is_active",
+        ]:
+            assert res_jwt_dict.get(key) == header_jwt_dict.get(key)
+
+    async def test_jwt_decoded_unauthorized(self, client: AsyncClient) -> None:
+        url = app.url_path_for("jwt_decoded")
+        response = await client.request(method="GET", url=url)
+        assert response.status_code == 401
+        res = response.json()
+        assert res["detail"] == "Unauthorized"
