@@ -37,6 +37,11 @@ class ServerSettings(BaseModel):
     """
     domain: str = Field("", description="The domain of the server (for proxy usage)")
     root_path: str = Field("", description="ASGI root path (for proxy usage)")
+    forwarded_allow_ips: str = Field(
+        "127.0.0.1",
+        description="Comma separated list of IPs to trust with proxy headers. "
+        "A wildcard '*' means always trust.",
+    )
 
 
 class DatabaseSettings(BaseModel):
