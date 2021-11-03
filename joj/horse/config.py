@@ -143,7 +143,7 @@ class Settings(
     """
 
     @classmethod
-    def __inject_cli(cls, values: Dict[str, Any]) -> None:
+    def __inject_cli(cls, values: Dict[str, Any]) -> None:  # pragma: no cover
         from joj.horse.utils.cli import cli_settings
 
         AllSettingsValidator(**cli_settings)
@@ -155,14 +155,14 @@ class Settings(
     def __set_default_values(cls, values: Dict[str, Any]) -> None:
         if "domain" not in values or not values["domain"]:
             if "host" not in values or "port" not in values:
-                raise ValueError()
-            if values["port"] == 90 or values["port"] == 443:
-                values["domain"] = values["host"]
+                raise ValueError()  # pragma: no cover
+            if values["port"] == 80 or values["port"] == 443:
+                values["domain"] = values["host"]  # pragma: no cover
             else:
                 values["domain"] = "{}:{}".format(values["host"], values["port"])
         if "https" not in values or values["https"] is None:
             if "debug" not in values:
-                raise ValueError()
+                raise ValueError()  # pragma: no cover
             values["https"] = not values["debug"]
 
     @root_validator()
@@ -185,7 +185,7 @@ class SettingsProxy:
 
     def __getattr__(self, attr: str) -> Any:
         if self._settings is None:
-            raise ValueError("settings not initialized")
+            raise ValueError("settings not initialized")  # pragma: no cover
         return getattr(self._settings, attr)
 
 
