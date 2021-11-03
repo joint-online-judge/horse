@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: a5c2259@2021-11-03T09:25:38Z",
+    "description": "Git version: bd11f07@2021-11-03T11:20:31Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -60,15 +60,14 @@
             "in": "query"
           },
           {
-            "description": "Comma seperated list of ordering the results.\nYou may also specify reverse orderings by prefixing the field name with '-'.",
+            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: name",
             "required": false,
             "schema": {
               "title": "Ordering",
               "type": "string",
-              "description": "Comma seperated list of ordering the results.\nYou may also specify reverse orderings by prefixing the field name with '-'.",
+              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: name",
               "default": ""
             },
-            "example": "-name,created_at",
             "name": "ordering",
             "in": "query"
           },
@@ -1892,15 +1891,14 @@
             "in": "query"
           },
           {
-            "description": "Comma seperated list of ordering the results.\nYou may also specify reverse orderings by prefixing the field name with '-'.",
+            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: Any",
             "required": false,
             "schema": {
               "title": "Ordering",
               "type": "string",
-              "description": "Comma seperated list of ordering the results.\nYou may also specify reverse orderings by prefixing the field name with '-'.",
+              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: Any",
               "default": ""
             },
-            "example": "-name,created_at",
             "name": "ordering",
             "in": "query"
           },
