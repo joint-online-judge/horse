@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Any, List, Literal, Optional, Tuple
 from urllib.parse import quote_plus
 
@@ -200,6 +201,10 @@ def get_oauth_router(
             )
         else:
             user = await models.User.get_or_none(id=oauth_account.user_id)
+            user.login_at = datetime.now(tz=timezone.utc)
+            user.login_ip = request.client.host
+            await user.save_model()
+
             access_token, refresh_token = auth_jwt_encode_user(
                 auth_jwt, user=user, oauth_name=oauth_profile.oauth_name
             )
@@ -230,6 +235,9 @@ def get_auth_router(
         credentials: OAuth2PasswordRequestForm = Depends(),
     ) -> schemas.StandardResponse[schemas.AuthTokens]:
         user = await models.User.get_or_none(id=credentials.username)
+        user.login_at = datetime.now(tz=timezone.utc)
+        user.login_ip = request.client.host
+        await user.save_model()
         access_token, refresh_token = auth_jwt_encode_user(auth_jwt, user=user)
         return await get_login_response(
             request, response, auth_jwt, auth_parameters, access_token, refresh_token
