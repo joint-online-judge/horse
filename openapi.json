@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 3b82b34@2021-09-28 14:44:31",
+    "description": "Git version: a5c2259@2021-11-03T09:25:38Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -198,12 +198,12 @@
         "operationId": "get_domain_api_v1_domains__domain__get",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
@@ -256,12 +256,12 @@
         "operationId": "delete_domain_api_v1_domains__domain__delete",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
@@ -314,12 +314,12 @@
         "operationId": "update_domain_api_v1_domains__domain__patch",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
@@ -383,12 +383,12 @@
         "operationId": "transfer_domain_api_v1_domains__domain__transfer_post",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
@@ -452,12 +452,12 @@
         "operationId": "list_domain_users_api_v1_domains__domain__users_get",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
@@ -509,12 +509,12 @@
         "operationId": "add_domain_user_api_v1_domains__domain__users_post",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
@@ -578,23 +578,23 @@
         "operationId": "get_domain_user_api_v1_domains__domain__users__user__get",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
           },
           {
-            "description": "'me' or ObjectId of the user",
+            "description": "user id or 'me' or empty",
             "required": true,
             "schema": {
               "title": "User",
               "type": "string",
-              "description": "'me' or ObjectId of the user"
+              "description": "user id or 'me' or empty"
             },
             "name": "user",
             "in": "path"
@@ -646,23 +646,23 @@
         "operationId": "remove_domain_user_api_v1_domains__domain__users__user__delete",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
           },
           {
-            "description": "'me' or ObjectId of the user",
+            "description": "user id or 'me' or empty",
             "required": true,
             "schema": {
               "title": "User",
               "type": "string",
-              "description": "'me' or ObjectId of the user"
+              "description": "user id or 'me' or empty"
             },
             "name": "user",
             "in": "path"
@@ -714,23 +714,23 @@
         "operationId": "update_domain_user_api_v1_domains__domain__users__user__patch",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
           },
           {
-            "description": "'me' or ObjectId of the user",
+            "description": "user id or 'me' or empty",
             "required": true,
             "schema": {
               "title": "User",
               "type": "string",
-              "description": "'me' or ObjectId of the user"
+              "description": "user id or 'me' or empty"
             },
             "name": "user",
             "in": "path"
@@ -740,12 +740,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "title": "Role",
-                "type": "string",
-                "default": "user"
+                "$ref": "#/components/schemas/DomainUserUpdate"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -795,23 +794,23 @@
         "operationId": "get_domain_user_permission_api_v1_domains__domain__users__user__permission_get",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
           },
           {
-            "description": "'me' or ObjectId of the user",
+            "description": "user id or 'me' or empty",
             "required": true,
             "schema": {
               "title": "User",
               "type": "string",
-              "description": "'me' or ObjectId of the user"
+              "description": "user id or 'me' or empty"
             },
             "name": "user",
             "in": "path"
@@ -865,12 +864,12 @@
         "operationId": "list_domain_roles_api_v1_domains__domain__roles_get",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
@@ -922,12 +921,12 @@
         "operationId": "create_domain_role_api_v1_domains__domain__roles_post",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
@@ -991,12 +990,12 @@
         "operationId": "delete_domain_role_api_v1_domains__domain__roles__role__delete",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
@@ -1061,12 +1060,12 @@
         "operationId": "update_domain_role_api_v1_domains__domain__roles__role__patch",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
@@ -1143,12 +1142,12 @@
         "operationId": "create_domain_invitation_api_v1_domains__domain__invitations_post",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
@@ -1212,23 +1211,23 @@
         "operationId": "delete_domain_invitation_api_v1_domains__domain__invitations__invitation__delete",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
           },
           {
-            "description": "ObjectId of the domain invitation",
+            "description": "url or id of the domain invitation",
             "required": true,
             "schema": {
               "title": "Invitation",
               "type": "string",
-              "description": "ObjectId of the domain invitation"
+              "description": "url or id of the domain invitation"
             },
             "name": "invitation",
             "in": "path"
@@ -1280,23 +1279,23 @@
         "operationId": "update_domain_invitation_api_v1_domains__domain__invitations__invitation__patch",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
           },
           {
-            "description": "ObjectId of the domain invitation",
+            "description": "url or id of the domain invitation",
             "required": true,
             "schema": {
               "title": "Invitation",
               "type": "string",
-              "description": "ObjectId of the domain invitation"
+              "description": "url or id of the domain invitation"
             },
             "name": "invitation",
             "in": "path"
@@ -1360,12 +1359,12 @@
         "operationId": "join_domain_by_invitation_api_v1_domains__domain__join_post",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
@@ -1428,12 +1427,12 @@
         "operationId": "list_problem_sets_api_v1_domains__domain__problem_sets_get",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
@@ -1508,12 +1507,12 @@
         "operationId": "create_problem_set_api_v1_domains__domain__problem_sets_post",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
@@ -1577,23 +1576,25 @@
         "operationId": "get_problem_set_api_v1_domains__domain__problem_sets__problem_set__get",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the problem set",
+            "required": true,
+            "schema": {
+              "title": "Problem Set",
+              "type": "string",
+              "description": "url or id of the problem set"
+            },
+            "name": "problem_set",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
-            "in": "path"
-          },
-          {
-            "required": true,
-            "schema": {
-              "title": "Problem Set",
-              "type": "string"
-            },
-            "name": "problem_set",
             "in": "path"
           }
         ],
@@ -1643,25 +1644,25 @@
         "operationId": "delete_problem_set_api_v1_domains__domain__problem_sets__problem_set__delete",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or ObjectId of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          },
-          {
-            "description": "url or ObjectId of the problem set",
+            "description": "url or id of the problem set",
             "required": true,
             "schema": {
               "title": "Problem Set",
               "type": "string",
-              "description": "url or ObjectId of the problem set"
+              "description": "url or id of the problem set"
             },
             "name": "problem_set",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
             "in": "path"
           }
         ],
@@ -1712,25 +1713,25 @@
         "operationId": "update_problem_set_api_v1_domains__domain__problem_sets__problem_set__patch",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or ObjectId of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          },
-          {
-            "description": "url or ObjectId of the problem set",
+            "description": "url or id of the problem set",
             "required": true,
             "schema": {
               "title": "Problem Set",
               "type": "string",
-              "description": "url or ObjectId of the problem set"
+              "description": "url or id of the problem set"
             },
             "name": "problem_set",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
             "in": "path"
           }
         ],
@@ -1792,21 +1793,23 @@
         "operationId": "get_scoreboard_api_v1_domains__domain__problem_sets__problem_set__scoreboard_get",
         "parameters": [
           {
+            "description": "url or id of the problem set",
             "required": true,
             "schema": {
               "title": "Problem Set",
-              "type": "string"
+              "type": "string",
+              "description": "url or id of the problem set"
             },
             "name": "problem_set",
             "in": "path"
           },
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
@@ -1860,12 +1863,12 @@
         "operationId": "list_problems_api_v1_domains__domain__problems_get",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
@@ -1971,12 +1974,12 @@
         "operationId": "create_problem_api_v1_domains__domain__problems_post",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
@@ -2040,21 +2043,23 @@
         "operationId": "get_problem_api_v1_domains__domain__problems__problem__get",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
           },
           {
+            "description": "url or id of the problem",
             "required": true,
             "schema": {
               "title": "Problem",
-              "type": "string"
+              "type": "string",
+              "description": "url or id of the problem"
             },
             "name": "problem",
             "in": "path"
@@ -2106,21 +2111,23 @@
         "operationId": "submit_solution_to_problem_api_v1_domains__domain__problems__problem__post",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
           },
           {
+            "description": "url or id of the problem",
             "required": true,
             "schema": {
               "title": "Problem",
-              "type": "string"
+              "type": "string",
+              "description": "url or id of the problem"
             },
             "name": "problem",
             "in": "path"
@@ -2182,21 +2189,23 @@
         "operationId": "delete_problem_api_v1_domains__domain__problems__problem__delete",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
           },
           {
+            "description": "url or id of the problem",
             "required": true,
             "schema": {
               "title": "Problem",
-              "type": "string"
+              "type": "string",
+              "description": "url or id of the problem"
             },
             "name": "problem",
             "in": "path"
@@ -2248,21 +2257,23 @@
         "operationId": "update_problem_api_v1_domains__domain__problems__problem__patch",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
           },
           {
+            "description": "url or id of the problem",
             "required": true,
             "schema": {
               "title": "Problem",
-              "type": "string"
+              "type": "string",
+              "description": "url or id of the problem"
             },
             "name": "problem",
             "in": "path"
@@ -2326,21 +2337,23 @@
         "operationId": "update_problem_config_api_v1_domains__domain__problems__problem__config_patch",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
           },
           {
+            "description": "url or id of the problem",
             "required": true,
             "schema": {
               "title": "Problem",
-              "type": "string"
+              "type": "string",
+              "description": "url or id of the problem"
             },
             "name": "problem",
             "in": "path"
@@ -2404,12 +2417,12 @@
         "operationId": "clone_problem_api_v1_domains__domain__problems_clone_post",
         "parameters": [
           {
-            "description": "url or ObjectId of the domain",
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
               "type": "string",
-              "description": "url or ObjectId of the domain"
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
@@ -2431,7 +2444,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListProblemsResp"
+                  "$ref": "#/components/schemas/ProblemListResp"
                 }
               }
             }
@@ -2523,12 +2536,12 @@
             "in": "query"
           },
           {
-            "description": "uid or 'me' or empty",
+            "description": "user id or 'me' or empty",
             "required": false,
             "schema": {
               "title": "Uid",
               "type": "string",
-              "description": "uid or 'me' or empty",
+              "description": "user id or 'me' or empty",
               "default": ""
             },
             "name": "uid",
@@ -2860,7 +2873,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListProblemGroupsResp"
+                  "$ref": "#/components/schemas/ProblemGroupListResp"
                 }
               }
             }
@@ -2891,226 +2904,6 @@
             "HTTPBearer": []
           }
         ]
-      }
-    },
-    "/api/v1/user/logout": {
-      "get": {
-        "tags": [
-          "user"
-        ],
-        "summary": "Logout",
-        "operationId": "logout_api_v1_user_logout_get",
-        "parameters": [
-          {
-            "description": "Set the redirect url after the logout.",
-            "required": false,
-            "schema": {
-              "title": "Redirect Url",
-              "type": "string",
-              "description": "Set the redirect url after the logout.",
-              "default": "http://localhost:34765"
-            },
-            "name": "redirect_url",
-            "in": "query"
-          },
-          {
-            "description": "If true (html link mode), redirect to a url; If false (ajax mode), return the redirect url, you also need to unset all cookies manually in ajax mode.",
-            "required": false,
-            "schema": {
-              "title": "Redirect",
-              "type": "boolean",
-              "description": "If true (html link mode), redirect to a url; If false (ajax mode), return the redirect url, you also need to unset all cookies manually in ajax mode.",
-              "default": true
-            },
-            "name": "redirect",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RedirectModel"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/user/jaccount/login": {
-      "get": {
-        "tags": [
-          "user"
-        ],
-        "summary": "Jaccount Login",
-        "operationId": "jaccount_login_api_v1_user_jaccount_login_get",
-        "parameters": [
-          {
-            "description": "Set the redirect url after the authorization.",
-            "required": false,
-            "schema": {
-              "title": "Redirect Url",
-              "type": "string",
-              "description": "Set the redirect url after the authorization.",
-              "default": "http://localhost:34765"
-            },
-            "name": "redirect_url",
-            "in": "query"
-          },
-          {
-            "description": "If true (html link mode), redirect to jaccount site; If false (ajax mode), return the redirect url to the jaccount site, you also need to set the cookies returned manually in ajax mode.",
-            "required": false,
-            "schema": {
-              "title": "Redirect",
-              "type": "boolean",
-              "description": "If true (html link mode), redirect to jaccount site; If false (ajax mode), return the redirect url to the jaccount site, you also need to set the cookies returned manually in ajax mode.",
-              "default": true
-            },
-            "name": "redirect",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RedirectModel"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/user/jaccount/auth": {
-      "get": {
-        "tags": [
-          "user"
-        ],
-        "summary": "Jaccount Auth",
-        "operationId": "jaccount_auth_api_v1_user_jaccount_auth_get",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "State",
-              "type": "string"
-            },
-            "name": "state",
-            "in": "query"
-          },
-          {
-            "required": true,
-            "schema": {
-              "title": "Code",
-              "type": "string"
-            },
-            "name": "code",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Jaccount State",
-              "type": "string",
-              "default": ""
-            },
-            "name": "jaccount_state",
-            "in": "cookie"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Redirect Url",
-              "type": "string",
-              "default": "http://localhost:34765"
-            },
-            "name": "redirect_url",
-            "in": "cookie"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RedirectModel"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
       }
     },
     "/api/v1/user": {
@@ -3126,7 +2919,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserResp"
+                  "$ref": "#/components/schemas/UserDetailResp"
                 }
               }
             }
@@ -3187,7 +2980,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListProblemsResp"
+                  "$ref": "#/components/schemas/ProblemListResp"
                 }
               }
             }
@@ -3337,7 +3130,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListDomainUsersResp"
+                  "$ref": "#/components/schemas/DomainUserListResp"
                 }
               }
             }
@@ -3417,7 +3210,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListProblemsResp"
+                  "$ref": "#/components/schemas/ProblemListResp"
                 }
               }
             }
@@ -3448,6 +3241,431 @@
             "HTTPBearer": []
           }
         ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Login",
+        "operationId": "login_api_v1_auth_login_post",
+        "parameters": [
+          {
+            "description": "Add Set/Delete-Cookie on response header",
+            "required": false,
+            "schema": {
+              "title": "Cookie",
+              "type": "boolean",
+              "description": "Add Set/Delete-Cookie on response header",
+              "default": true
+            },
+            "name": "cookie",
+            "in": "query"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Response Type",
+              "enum": [
+                "redirect",
+                "json"
+              ],
+              "type": "string"
+            },
+            "name": "response_type",
+            "in": "query"
+          },
+          {
+            "description": "The redirect url after the operation",
+            "required": false,
+            "schema": {
+              "title": "Redirect Url",
+              "type": "string",
+              "description": "The redirect url after the operation"
+            },
+            "name": "redirect_url",
+            "in": "query"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_login_api_v1_auth_login_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthTokensResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Logout",
+        "operationId": "logout_api_v1_auth_logout_post",
+        "parameters": [
+          {
+            "description": "Add Set/Delete-Cookie on response header",
+            "required": false,
+            "schema": {
+              "title": "Cookie",
+              "type": "boolean",
+              "description": "Add Set/Delete-Cookie on response header",
+              "default": true
+            },
+            "name": "cookie",
+            "in": "query"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Response Type",
+              "enum": [
+                "redirect",
+                "json"
+              ],
+              "type": "string"
+            },
+            "name": "response_type",
+            "in": "query"
+          },
+          {
+            "description": "The redirect url after the operation",
+            "required": false,
+            "schema": {
+              "title": "Redirect Url",
+              "type": "string",
+              "description": "The redirect url after the operation"
+            },
+            "name": "redirect_url",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Logout Api V1 Auth Logout Post"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Register",
+        "operationId": "register_api_v1_auth_register_post",
+        "parameters": [
+          {
+            "description": "Add Set/Delete-Cookie on response header",
+            "required": false,
+            "schema": {
+              "title": "Cookie",
+              "type": "boolean",
+              "description": "Add Set/Delete-Cookie on response header",
+              "default": true
+            },
+            "name": "cookie",
+            "in": "query"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Response Type",
+              "enum": [
+                "redirect",
+                "json"
+              ],
+              "type": "string"
+            },
+            "name": "response_type",
+            "in": "query"
+          },
+          {
+            "description": "The redirect url after the operation",
+            "required": false,
+            "schema": {
+              "title": "Redirect Url",
+              "type": "string",
+              "description": "The redirect url after the operation"
+            },
+            "name": "redirect_url",
+            "in": "query"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthTokensResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/token": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Get Token",
+        "operationId": "get_token_api_v1_auth_token_get",
+        "parameters": [
+          {
+            "description": "Add Set/Delete-Cookie on response header",
+            "required": false,
+            "schema": {
+              "title": "Cookie",
+              "type": "boolean",
+              "description": "Add Set/Delete-Cookie on response header",
+              "default": true
+            },
+            "name": "cookie",
+            "in": "query"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Response Type",
+              "enum": [
+                "redirect",
+                "json"
+              ],
+              "type": "string"
+            },
+            "name": "response_type",
+            "in": "query"
+          },
+          {
+            "description": "The redirect url after the operation",
+            "required": false,
+            "schema": {
+              "title": "Redirect Url",
+              "type": "string",
+              "description": "The redirect url after the operation"
+            },
+            "name": "redirect_url",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthTokensResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Refresh",
+        "operationId": "refresh_api_v1_auth_refresh_post",
+        "parameters": [
+          {
+            "description": "Add Set/Delete-Cookie on response header",
+            "required": false,
+            "schema": {
+              "title": "Cookie",
+              "type": "boolean",
+              "description": "Add Set/Delete-Cookie on response header",
+              "default": true
+            },
+            "name": "cookie",
+            "in": "query"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Response Type",
+              "enum": [
+                "redirect",
+                "json"
+              ],
+              "type": "string"
+            },
+            "name": "response_type",
+            "in": "query"
+          },
+          {
+            "description": "The redirect url after the operation",
+            "required": false,
+            "schema": {
+              "title": "Redirect Url",
+              "type": "string",
+              "description": "The redirect url after the operation"
+            },
+            "name": "redirect_url",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthTokensResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/version": {
@@ -3481,20 +3699,20 @@
         }
       }
     },
-    "/api/v1/jwt": {
+    "/api/v1/jwt_decoded": {
       "get": {
         "tags": [
           "miscellaneous"
         ],
-        "summary": "Jwt",
-        "operationId": "jwt_api_v1_jwt_get",
+        "summary": "Jwt Decoded",
+        "operationId": "jwt_decoded_api_v1_jwt_decoded_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JWT"
+                  "$ref": "#/components/schemas/JWTAccessTokenResp"
                 }
               }
             }
@@ -3549,6 +3767,42 @@
         }
       }
     },
+    "/api/v1/set_root_user": {
+      "post": {
+        "tags": [
+          "miscellaneous"
+        ],
+        "summary": "Set Root User",
+        "operationId": "set_root_user_api_v1_set_root_user_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserBaseResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/admin/users": {
       "get": {
         "tags": [
@@ -3587,7 +3841,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListUsersResp"
+                  "$ref": "#/components/schemas/UserBaseListResp"
                 }
               }
             }
@@ -3797,7 +4051,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListDomainUsersResp"
+                  "$ref": "#/components/schemas/DomainUserListResp"
                 }
               }
             }
@@ -3868,7 +4122,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListDomainRolesResp"
+                  "$ref": "#/components/schemas/DomainRoleListResp"
                 }
               }
             }
@@ -3939,7 +4193,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListUsersResp"
+                  "$ref": "#/components/schemas/UserListResp"
                 }
               }
             }
@@ -4097,6 +4351,84 @@
   },
   "components": {
     "schemas": {
+      "AuthTokens": {
+        "title": "AuthTokens",
+        "required": [
+          "access_token",
+          "refresh_token",
+          "token_type"
+        ],
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "title": "Access Token",
+            "type": "string"
+          },
+          "refresh_token": {
+            "title": "Refresh Token",
+            "type": "string"
+          },
+          "token_type": {
+            "title": "Token Type",
+            "type": "string"
+          }
+        }
+      },
+      "AuthTokensResp": {
+        "title": "AuthTokensResp",
+        "required": [
+          "error_code"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AuthTokens"
+          }
+        }
+      },
+      "Body_login_api_v1_auth_login_post": {
+        "title": "Body_login_api_v1_auth_login_post",
+        "required": [
+          "username",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "grant_type": {
+            "title": "Grant Type",
+            "pattern": "password",
+            "type": "string"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          },
+          "password": {
+            "title": "Password",
+            "type": "string"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string",
+            "default": ""
+          },
+          "client_id": {
+            "title": "Client Id",
+            "type": "string"
+          },
+          "client_secret": {
+            "title": "Client Secret",
+            "type": "string"
+          }
+        }
+      },
       "DefaultRole": {
         "title": "DefaultRole",
         "enum": [
@@ -4127,11 +4459,41 @@
         "required": [
           "url",
           "name",
-          "owner_id",
-          "owner"
+          "owner_id"
         ],
         "type": "object",
         "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string",
+            "description": "displayed name of the domain"
+          },
+          "gravatar": {
+            "title": "Gravatar",
+            "maxLength": 256,
+            "type": "string",
+            "description": "gravatar url of the domain",
+            "default": ""
+          },
+          "bulletin": {
+            "title": "Bulletin",
+            "maxLength": 65536,
+            "type": "string",
+            "description": "bulletin of the domain",
+            "default": ""
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "is the domain hidden",
+            "default": true
+          },
           "id": {
             "title": "Id",
             "type": "string",
@@ -4140,48 +4502,19 @@
           "created_at": {
             "title": "Created At",
             "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "readOnly": true
+            "format": "date-time"
           },
           "updated_at": {
             "title": "Updated At",
             "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "readOnly": true
-          },
-          "url": {
-            "title": "Url",
-            "maxLength": 255,
-            "type": "string"
-          },
-          "name": {
-            "title": "Name",
-            "maxLength": 255,
-            "type": "string"
-          },
-          "gravatar": {
-            "title": "Gravatar",
-            "maxLength": 255,
-            "type": "string",
-            "default": ""
-          },
-          "bulletin": {
-            "title": "Bulletin",
-            "type": "string",
-            "default": ""
+            "format": "date-time"
           },
           "owner_id": {
             "title": "Owner Id",
             "type": "string",
             "format": "uuid"
-          },
-          "owner": {
-            "$ref": "#/components/schemas/UserBase"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "DomainCreate": {
         "title": "DomainCreate",
@@ -4199,8 +4532,16 @@
           "name": {
             "title": "Name",
             "maxLength": 256,
+            "minLength": 1,
             "type": "string",
             "description": "displayed name of the domain"
+          },
+          "gravatar": {
+            "title": "Gravatar",
+            "maxLength": 256,
+            "type": "string",
+            "description": "gravatar url of the domain",
+            "default": ""
           },
           "bulletin": {
             "title": "Bulletin",
@@ -4209,12 +4550,11 @@
             "description": "bulletin of the domain",
             "default": ""
           },
-          "gravatar": {
-            "title": "Gravatar",
-            "maxLength": 256,
-            "type": "string",
-            "description": "gravatar url of the domain",
-            "default": ""
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "is the domain hidden",
+            "default": true
           }
         }
       },
@@ -4240,65 +4580,25 @@
             "title": "Bulletin",
             "maxLength": 65536,
             "type": "string"
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean"
           }
         }
       },
       "DomainInvitation": {
         "title": "DomainInvitation",
         "required": [
-          "code",
-          "role",
-          "expire_at",
+          "url",
           "domain_id"
         ],
         "type": "object",
         "properties": {
-          "id": {
-            "title": "Id",
-            "type": "string",
-            "format": "uuid"
-          },
-          "created_at": {
-            "title": "Created At",
-            "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "readOnly": true
-          },
-          "updated_at": {
-            "title": "Updated At",
-            "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "readOnly": true
-          },
-          "code": {
-            "title": "Code",
-            "maxLength": 255,
+          "url": {
+            "title": "Url",
             "type": "string"
           },
-          "role": {
-            "title": "Role",
-            "maxLength": 255,
-            "type": "string"
-          },
-          "expire_at": {
-            "title": "Expire At",
-            "type": "string",
-            "format": "date-time"
-          },
-          "domain_id": {
-            "title": "Domain Id",
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "additionalProperties": false
-      },
-      "DomainInvitationCreate": {
-        "title": "DomainInvitationCreate",
-        "type": "object",
-        "properties": {
           "code": {
             "title": "Code",
             "maxLength": 256,
@@ -4312,6 +4612,59 @@
             "description": "expire time of invitation",
             "format": "date-time",
             "default": "9999-12-31T23:59:59.999999"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string",
+            "description": "domain role after invitation",
+            "default": "user"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "domain_id": {
+            "title": "Domain Id",
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "DomainInvitationCreate": {
+        "title": "DomainInvitationCreate",
+        "required": [
+          "expire_at"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string",
+            "description": "(unique) url of the domain",
+            "default": ""
+          },
+          "code": {
+            "title": "Code",
+            "maxLength": 256,
+            "type": "string",
+            "description": "invitation code",
+            "default": ""
+          },
+          "expire_at": {
+            "title": "Expire At",
+            "type": "string",
+            "format": "date-time"
           },
           "role": {
             "title": "Role",
@@ -4347,8 +4700,7 @@
       "DomainInvitationResp": {
         "title": "DomainInvitationResp",
         "required": [
-          "error_code",
-          "error_msg"
+          "error_code"
         ],
         "type": "object",
         "properties": {
@@ -4386,8 +4738,7 @@
       "DomainListResp": {
         "title": "DomainListResp",
         "required": [
-          "error_code",
-          "error_msg"
+          "error_code"
         ],
         "type": "object",
         "properties": {
@@ -4477,8 +4828,7 @@
       "DomainResp": {
         "title": "DomainResp",
         "required": [
-          "error_code",
-          "error_msg"
+          "error_code"
         ],
         "type": "object",
         "properties": {
@@ -4511,37 +4861,27 @@
           "created_at": {
             "title": "Created At",
             "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "readOnly": true
+            "format": "date-time"
           },
           "updated_at": {
             "title": "Updated At",
             "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "readOnly": true
+            "format": "date-time"
           },
           "role": {
             "title": "Role",
-            "maxLength": 255,
             "type": "string"
           },
           "permission": {
             "title": "Permission",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/DomainPermission"
-              }
-            ]
+            "type": "object"
           },
           "domain_id": {
             "title": "Domain Id",
             "type": "string",
             "format": "uuid"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "DomainRoleCreate": {
         "title": "DomainRoleCreate",
@@ -4640,8 +4980,7 @@
       "DomainRoleListResp": {
         "title": "DomainRoleListResp",
         "required": [
-          "error_code",
-          "error_msg"
+          "error_code"
         ],
         "type": "object",
         "properties": {
@@ -4660,8 +4999,7 @@
       "DomainRoleResp": {
         "title": "DomainRoleResp",
         "required": [
-          "error_code",
-          "error_msg"
+          "error_code"
         ],
         "type": "object",
         "properties": {
@@ -4687,7 +5025,7 @@
           "target_user": {
             "title": "Target User",
             "type": "string",
-            "description": "'me' or ObjectId of the user"
+            "description": "'me' or id of the user"
           }
         }
       },
@@ -4708,20 +5046,15 @@
           "created_at": {
             "title": "Created At",
             "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "readOnly": true
+            "format": "date-time"
           },
           "updated_at": {
             "title": "Updated At",
             "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "readOnly": true
+            "format": "date-time"
           },
           "role": {
             "title": "Role",
-            "maxLength": 255,
             "type": "string"
           },
           "domain_id": {
@@ -4734,8 +5067,7 @@
             "type": "string",
             "format": "uuid"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "DomainUserAdd": {
         "title": "DomainUserAdd",
@@ -4755,7 +5087,7 @@
           "user": {
             "title": "User",
             "type": "string",
-            "description": "'me' or ObjectId of the user"
+            "description": "'me' or id of the user"
           }
         }
       },
@@ -4781,8 +5113,7 @@
       "DomainUserListResp": {
         "title": "DomainUserListResp",
         "required": [
-          "error_code",
-          "error_msg"
+          "error_code"
         ],
         "type": "object",
         "properties": {
@@ -4801,58 +5132,23 @@
       "DomainUserPermission": {
         "title": "DomainUserPermission",
         "required": [
-          "role",
-          "domain_id",
-          "user_id",
+          "domain_user",
           "permission"
         ],
         "type": "object",
         "properties": {
-          "id": {
-            "title": "Id",
-            "type": "string",
-            "format": "uuid"
-          },
-          "created_at": {
-            "title": "Created At",
-            "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "readOnly": true
-          },
-          "updated_at": {
-            "title": "Updated At",
-            "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "readOnly": true
-          },
-          "role": {
-            "title": "Role",
-            "maxLength": 255,
-            "type": "string"
-          },
-          "domain_id": {
-            "title": "Domain Id",
-            "type": "string",
-            "format": "uuid"
-          },
-          "user_id": {
-            "title": "User Id",
-            "type": "string",
-            "format": "uuid"
+          "domain_user": {
+            "$ref": "#/components/schemas/DomainUser"
           },
           "permission": {
             "$ref": "#/components/schemas/DomainPermission"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "DomainUserPermissionResp": {
         "title": "DomainUserPermissionResp",
         "required": [
-          "error_code",
-          "error_msg"
+          "error_code"
         ],
         "type": "object",
         "properties": {
@@ -4871,8 +5167,7 @@
       "DomainUserResp": {
         "title": "DomainUserResp",
         "required": [
-          "error_code",
-          "error_msg"
+          "error_code"
         ],
         "type": "object",
         "properties": {
@@ -4888,6 +5183,20 @@
           }
         }
       },
+      "DomainUserUpdate": {
+        "title": "DomainUserUpdate",
+        "type": "object",
+        "properties": {
+          "role": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DefaultRole"
+              }
+            ],
+            "default": "user"
+          }
+        }
+      },
       "Empty": {
         "title": "Empty",
         "type": "object",
@@ -4896,8 +5205,7 @@
       "EmptyResp": {
         "title": "EmptyResp",
         "required": [
-          "error_code",
-          "error_msg"
+          "error_code"
         ],
         "type": "object",
         "properties": {
@@ -4922,8 +5230,9 @@
           "UnknownFieldError",
           "IllegalFieldError",
           "IntegrityError",
-          "ApiNotImplementedError",
+          "APINotImplementedError",
           "UserNotFoundError",
+          "UserRegisterError",
           "DomainNotFoundError",
           "InvalidUrlError",
           "ProblemNotFoundError",
@@ -5005,27 +5314,99 @@
           }
         }
       },
-      "ListDomainRoles": {
-        "title": "ListDomainRoles",
+      "JWTAccessToken": {
+        "title": "JWTAccessToken",
         "required": [
-          "results"
+          "sub",
+          "iat",
+          "nbf",
+          "jti",
+          "exp",
+          "type",
+          "category",
+          "username",
+          "email",
+          "student_id",
+          "real_name",
+          "is_active"
         ],
         "type": "object",
         "properties": {
-          "results": {
-            "title": "Results",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DomainRole"
-            }
+          "sub": {
+            "title": "Sub",
+            "type": "string"
+          },
+          "iat": {
+            "title": "Iat",
+            "type": "integer"
+          },
+          "nbf": {
+            "title": "Nbf",
+            "type": "integer"
+          },
+          "jti": {
+            "title": "Jti",
+            "type": "string"
+          },
+          "exp": {
+            "title": "Exp",
+            "type": "integer"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          },
+          "fresh": {
+            "title": "Fresh",
+            "type": "boolean",
+            "default": false
+          },
+          "csrf": {
+            "title": "Csrf",
+            "type": "string"
+          },
+          "category": {
+            "title": "Category",
+            "enum": [
+              "user",
+              "oauth"
+            ],
+            "type": "string"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "student_id": {
+            "title": "Student Id",
+            "type": "string"
+          },
+          "real_name": {
+            "title": "Real Name",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "oauth_name": {
+            "title": "Oauth Name",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
           }
         }
       },
-      "ListDomainRolesResp": {
-        "title": "ListDomainRolesResp",
+      "JWTAccessTokenResp": {
+        "title": "JWTAccessTokenResp",
         "required": [
-          "error_code",
-          "error_msg"
+          "error_code"
         ],
         "type": "object",
         "properties": {
@@ -5037,79 +5418,7 @@
             "type": "string"
           },
           "data": {
-            "$ref": "#/components/schemas/ListDomainRoles"
-          }
-        }
-      },
-      "ListDomainUsers": {
-        "title": "ListDomainUsers",
-        "required": [
-          "results"
-        ],
-        "type": "object",
-        "properties": {
-          "results": {
-            "title": "Results",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DomainUser"
-            }
-          }
-        }
-      },
-      "ListDomainUsersResp": {
-        "title": "ListDomainUsersResp",
-        "required": [
-          "error_code",
-          "error_msg"
-        ],
-        "type": "object",
-        "properties": {
-          "error_code": {
-            "$ref": "#/components/schemas/ErrorCode"
-          },
-          "error_msg": {
-            "title": "Error Msg",
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/ListDomainUsers"
-          }
-        }
-      },
-      "ListProblemGroups": {
-        "title": "ListProblemGroups",
-        "required": [
-          "results"
-        ],
-        "type": "object",
-        "properties": {
-          "results": {
-            "title": "Results",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProblemGroup"
-            }
-          }
-        }
-      },
-      "ListProblemGroupsResp": {
-        "title": "ListProblemGroupsResp",
-        "required": [
-          "error_code",
-          "error_msg"
-        ],
-        "type": "object",
-        "properties": {
-          "error_code": {
-            "$ref": "#/components/schemas/ErrorCode"
-          },
-          "error_msg": {
-            "title": "Error Msg",
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/ListProblemGroups"
+            "$ref": "#/components/schemas/JWTAccessToken"
           }
         }
       },
@@ -5124,7 +5433,7 @@
             "title": "Results",
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ProblemSet"
+              "$ref": "#/components/schemas/joj__horse__schemas__problem_set__ProblemSet"
             }
           }
         }
@@ -5132,8 +5441,7 @@
       "ListProblemSetsResp": {
         "title": "ListProblemSetsResp",
         "required": [
-          "error_code",
-          "error_msg"
+          "error_code"
         ],
         "type": "object",
         "properties": {
@@ -5149,42 +5457,6 @@
           }
         }
       },
-      "ListProblems": {
-        "title": "ListProblems",
-        "required": [
-          "results"
-        ],
-        "type": "object",
-        "properties": {
-          "results": {
-            "title": "Results",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Problem"
-            }
-          }
-        }
-      },
-      "ListProblemsResp": {
-        "title": "ListProblemsResp",
-        "required": [
-          "error_code",
-          "error_msg"
-        ],
-        "type": "object",
-        "properties": {
-          "error_code": {
-            "$ref": "#/components/schemas/ErrorCode"
-          },
-          "error_msg": {
-            "title": "Error Msg",
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/ListProblems"
-          }
-        }
-      },
       "ListRecords": {
         "title": "ListRecords",
         "required": [
@@ -5196,7 +5468,7 @@
             "title": "Results",
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Record"
+              "$ref": "#/components/schemas/joj__horse__schemas__record__Record"
             }
           }
         }
@@ -5204,8 +5476,7 @@
       "ListRecordsResp": {
         "title": "ListRecordsResp",
         "required": [
-          "error_code",
-          "error_msg"
+          "error_code"
         ],
         "type": "object",
         "properties": {
@@ -5221,42 +5492,6 @@
           }
         }
       },
-      "ListUsers": {
-        "title": "ListUsers",
-        "required": [
-          "results"
-        ],
-        "type": "object",
-        "properties": {
-          "results": {
-            "title": "Results",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/User"
-            }
-          }
-        }
-      },
-      "ListUsersResp": {
-        "title": "ListUsersResp",
-        "required": [
-          "error_code",
-          "error_msg"
-        ],
-        "type": "object",
-        "properties": {
-          "error_code": {
-            "$ref": "#/components/schemas/ErrorCode"
-          },
-          "error_msg": {
-            "title": "Error Msg",
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/ListUsers"
-          }
-        }
-      },
       "Problem": {
         "title": "Problem",
         "required": [
@@ -5268,6 +5503,29 @@
         ],
         "type": "object",
         "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "minLength": 1,
+            "type": "string",
+            "description": "title of the problem"
+          },
+          "content": {
+            "title": "Content",
+            "maxLength": 65536,
+            "type": "string",
+            "description": "content of the problem",
+            "default": ""
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "is the problem hidden",
+            "default": false
+          },
           "id": {
             "title": "Id",
             "type": "string",
@@ -5276,56 +5534,25 @@
           "created_at": {
             "title": "Created At",
             "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "readOnly": true
+            "format": "date-time"
           },
           "updated_at": {
             "title": "Updated At",
             "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "readOnly": true
-          },
-          "url": {
-            "title": "Url",
-            "maxLength": 255,
-            "type": "string"
-          },
-          "title": {
-            "title": "Title",
-            "maxLength": 255,
-            "type": "string"
-          },
-          "content": {
-            "title": "Content",
-            "maxLength": 255,
-            "type": "string",
-            "default": ""
-          },
-          "hidden": {
-            "title": "Hidden",
-            "type": "boolean",
-            "default": false
+            "format": "date-time"
           },
           "num_submit": {
             "title": "Num Submit",
-            "maximum": 2147483647.0,
-            "minimum": -2147483648.0,
             "type": "integer",
             "default": 0
           },
           "num_accept": {
             "title": "Num Accept",
-            "maximum": 2147483647.0,
-            "minimum": -2147483648.0,
             "type": "integer",
             "default": 0
           },
           "data_version": {
             "title": "Data Version",
-            "maximum": 2147483647.0,
-            "minimum": -2147483648.0,
             "type": "integer",
             "default": 2
           },
@@ -5349,8 +5576,7 @@
             "type": "string",
             "format": "uuid"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "ProblemClone": {
         "title": "ProblemClone",
@@ -5370,7 +5596,7 @@
           "problem_set": {
             "title": "Problem Set",
             "type": "string",
-            "description": "url or ObjectId of the problem set"
+            "description": "url or id of the problem set"
           },
           "new_group": {
             "title": "New Group",
@@ -5404,7 +5630,7 @@
           "url": {
             "title": "Url",
             "type": "string",
-            "description": "(unique in domain) url of the problem",
+            "description": "(unique) url of the domain",
             "default": ""
           },
           "title": {
@@ -5456,16 +5682,58 @@
         "title": "ProblemGroup",
         "type": "object",
         "properties": {
-          "moss_results": {
-            "title": "Moss Results",
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ProblemGroupList": {
+        "title": "ProblemGroupList",
+        "type": "object",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer",
+            "default": 0
+          },
+          "results": {
+            "title": "Results",
             "type": "array",
             "items": {
-              "maxLength": 2083,
-              "minLength": 1,
-              "type": "string",
-              "format": "uri"
+              "$ref": "#/components/schemas/ProblemGroup"
             },
             "default": []
+          }
+        }
+      },
+      "ProblemGroupListResp": {
+        "title": "ProblemGroupListResp",
+        "required": [
+          "error_code"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProblemGroupList"
           }
         }
       },
@@ -5491,8 +5759,7 @@
       "ProblemListResp": {
         "title": "ProblemListResp",
         "required": [
-          "error_code",
-          "error_msg"
+          "error_code"
         ],
         "type": "object",
         "properties": {
@@ -5547,8 +5814,7 @@
       "ProblemResp": {
         "title": "ProblemResp",
         "required": [
-          "error_code",
-          "error_msg"
+          "error_code"
         ],
         "type": "object",
         "properties": {
@@ -5564,22 +5830,19 @@
           }
         }
       },
-      "ProblemSet": {
-        "title": "ProblemSet",
-        "type": "object",
-        "properties": {}
-      },
       "ProblemSetCreate": {
         "title": "ProblemSetCreate",
         "required": [
-          "title"
+          "title",
+          "available_time",
+          "due_time"
         ],
         "type": "object",
         "properties": {
           "url": {
             "title": "Url",
             "type": "string",
-            "description": "(unique in domain) url of the problem set",
+            "description": "(unique) url of the domain",
             "default": ""
           },
           "title": {
@@ -5611,16 +5874,12 @@
           "available_time": {
             "title": "Available Time",
             "type": "string",
-            "description": "the problem set is available from",
-            "format": "date-time",
-            "default": "2021-09-28T14:46:52.814610"
+            "format": "date-time"
           },
           "due_time": {
             "title": "Due Time",
             "type": "string",
-            "description": "the problem set is due at",
-            "format": "date-time",
-            "default": "2021-10-05T14:46:52.814617"
+            "format": "date-time"
           }
         }
       },
@@ -5628,6 +5887,10 @@
         "title": "ProblemSetEdit",
         "type": "object",
         "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
           "title": {
             "title": "Title",
             "maxLength": 256,
@@ -5708,8 +5971,7 @@
       "ProblemSetResp": {
         "title": "ProblemSetResp",
         "required": [
-          "error_code",
-          "error_msg"
+          "error_code"
         ],
         "type": "object",
         "properties": {
@@ -5721,7 +5983,7 @@
             "type": "string"
           },
           "data": {
-            "$ref": "#/components/schemas/ProblemSet"
+            "$ref": "#/components/schemas/joj__horse__models__problem_set__ProblemSet"
           }
         }
       },
@@ -5742,11 +6004,6 @@
             "format": "binary"
           }
         }
-      },
-      "Record": {
-        "title": "Record",
-        "type": "object",
-        "properties": {}
       },
       "RecordCase": {
         "title": "RecordCase",
@@ -5854,8 +6111,7 @@
       "RecordResp": {
         "title": "RecordResp",
         "required": [
-          "error_code",
-          "error_msg"
+          "error_code"
         ],
         "type": "object",
         "properties": {
@@ -5867,7 +6123,7 @@
             "type": "string"
           },
           "data": {
-            "$ref": "#/components/schemas/Record"
+            "$ref": "#/components/schemas/joj__horse__models__record__Record"
           }
         }
       },
@@ -5922,19 +6178,6 @@
         ],
         "type": "integer",
         "description": "An enumeration."
-      },
-      "RedirectModel": {
-        "title": "RedirectModel",
-        "required": [
-          "redirect_url"
-        ],
-        "type": "object",
-        "properties": {
-          "redirect_url": {
-            "title": "Redirect Url",
-            "type": "string"
-          }
-        }
       },
       "Score": {
         "title": "Score",
@@ -5998,8 +6241,7 @@
       "ScoreBoardResp": {
         "title": "ScoreBoardResp",
         "required": [
-          "error_code",
-          "error_msg"
+          "error_code"
         ],
         "type": "object",
         "properties": {
@@ -6018,13 +6260,11 @@
       "User": {
         "title": "User",
         "required": [
-          "scope",
-          "uname",
-          "mail",
-          "uname_lower",
-          "mail_lower",
-          "gravatar",
-          "login_at"
+          "username",
+          "email",
+          "login_at",
+          "username_lower",
+          "email_lower"
         ],
         "type": "object",
         "properties": {
@@ -6036,107 +6276,83 @@
           "created_at": {
             "title": "Created At",
             "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "readOnly": true
+            "format": "date-time"
           },
           "updated_at": {
             "title": "Updated At",
             "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "readOnly": true
+            "format": "date-time"
           },
-          "scope": {
-            "title": "Scope",
-            "maxLength": 255,
+          "username": {
+            "title": "Username",
             "type": "string"
           },
-          "uname": {
-            "title": "Uname",
-            "maxLength": 255,
-            "type": "string"
-          },
-          "mail": {
-            "title": "Mail",
-            "maxLength": 255,
-            "type": "string"
-          },
-          "uname_lower": {
-            "title": "Uname Lower",
-            "maxLength": 255,
-            "type": "string"
-          },
-          "mail_lower": {
-            "title": "Mail Lower",
-            "maxLength": 255,
-            "type": "string"
+          "email": {
+            "title": "Email",
+            "type": "string",
+            "format": "email"
           },
           "gravatar": {
             "title": "Gravatar",
-            "maxLength": 255,
-            "type": "string"
+            "type": "string",
+            "default": ""
           },
           "student_id": {
             "title": "Student Id",
-            "maxLength": 255,
             "type": "string",
             "default": ""
           },
           "real_name": {
             "title": "Real Name",
-            "maxLength": 255,
-            "type": "string",
-            "default": ""
-          },
-          "salt": {
-            "title": "Salt",
-            "maxLength": 255,
-            "type": "string",
-            "default": ""
-          },
-          "hash": {
-            "title": "Hash",
-            "maxLength": 255,
             "type": "string",
             "default": ""
           },
           "role": {
             "title": "Role",
-            "maxLength": 255,
             "type": "string",
             "default": "user"
           },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean",
+            "default": false
+          },
           "register_ip": {
             "title": "Register Ip",
-            "maxLength": 255,
             "type": "string",
             "default": "0.0.0.0"
           },
           "login_at": {
             "title": "Login At",
             "type": "string",
-            "format": "date-time",
-            "readOnly": true
+            "format": "date-time"
           },
           "login_ip": {
             "title": "Login Ip",
-            "maxLength": 255,
             "type": "string",
             "default": "0.0.0.0"
+          },
+          "hashed_password": {
+            "title": "Hashed Password",
+            "type": "string",
+            "default": ""
+          },
+          "username_lower": {
+            "title": "Username Lower",
+            "type": "string"
+          },
+          "email_lower": {
+            "title": "Email Lower",
+            "type": "string",
+            "format": "email"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "UserBase": {
         "title": "UserBase",
         "required": [
-          "scope",
-          "uname",
-          "mail",
-          "uname_lower",
-          "mail_lower",
-          "gravatar"
+          "username",
+          "email"
         ],
         "type": "object",
         "properties": {
@@ -6145,56 +6361,94 @@
             "type": "string",
             "format": "uuid"
           },
-          "scope": {
-            "title": "Scope",
-            "maxLength": 255,
+          "created_at": {
+            "title": "Created At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "username": {
+            "title": "Username",
             "type": "string"
           },
-          "uname": {
-            "title": "Uname",
-            "maxLength": 255,
-            "type": "string"
-          },
-          "mail": {
-            "title": "Mail",
-            "maxLength": 255,
-            "type": "string"
-          },
-          "uname_lower": {
-            "title": "Uname Lower",
-            "maxLength": 255,
-            "type": "string"
-          },
-          "mail_lower": {
-            "title": "Mail Lower",
-            "maxLength": 255,
-            "type": "string"
+          "email": {
+            "title": "Email",
+            "type": "string",
+            "format": "email"
           },
           "gravatar": {
             "title": "Gravatar",
-            "maxLength": 255,
-            "type": "string"
+            "type": "string",
+            "default": ""
           },
           "student_id": {
             "title": "Student Id",
-            "maxLength": 255,
             "type": "string",
             "default": ""
           },
           "real_name": {
             "title": "Real Name",
-            "maxLength": 255,
             "type": "string",
             "default": ""
+          },
+          "role": {
+            "title": "Role",
+            "type": "string",
+            "default": "user"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean",
+            "default": false
           }
-        },
-        "additionalProperties": false
+        }
+      },
+      "UserBaseList": {
+        "title": "UserBaseList",
+        "type": "object",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer",
+            "default": 0
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserBase"
+            },
+            "default": []
+          }
+        }
+      },
+      "UserBaseListResp": {
+        "title": "UserBaseListResp",
+        "required": [
+          "error_code"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserBaseList"
+          }
+        }
       },
       "UserBaseResp": {
         "title": "UserBaseResp",
         "required": [
-          "error_code",
-          "error_msg"
+          "error_code"
         ],
         "type": "object",
         "properties": {
@@ -6210,11 +6464,168 @@
           }
         }
       },
+      "UserCreate": {
+        "title": "UserCreate",
+        "type": "object",
+        "properties": {
+          "username": {
+            "title": "Username",
+            "type": "string"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "password": {
+            "title": "Password",
+            "type": "string"
+          },
+          "oauth_name": {
+            "title": "Oauth Name",
+            "type": "string"
+          },
+          "oauth_account_id": {
+            "title": "Oauth Account Id",
+            "type": "string"
+          }
+        }
+      },
+      "UserDetail": {
+        "title": "UserDetail",
+        "required": [
+          "username",
+          "email",
+          "login_at"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string",
+            "format": "email"
+          },
+          "gravatar": {
+            "title": "Gravatar",
+            "type": "string",
+            "default": ""
+          },
+          "student_id": {
+            "title": "Student Id",
+            "type": "string",
+            "default": ""
+          },
+          "real_name": {
+            "title": "Real Name",
+            "type": "string",
+            "default": ""
+          },
+          "role": {
+            "title": "Role",
+            "type": "string",
+            "default": "user"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean",
+            "default": false
+          },
+          "register_ip": {
+            "title": "Register Ip",
+            "type": "string",
+            "default": "0.0.0.0"
+          },
+          "login_at": {
+            "title": "Login At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "login_ip": {
+            "title": "Login Ip",
+            "type": "string",
+            "default": "0.0.0.0"
+          }
+        }
+      },
+      "UserDetailResp": {
+        "title": "UserDetailResp",
+        "required": [
+          "error_code"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserDetail"
+          }
+        }
+      },
+      "UserList": {
+        "title": "UserList",
+        "type": "object",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer",
+            "default": 0
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            },
+            "default": []
+          }
+        }
+      },
+      "UserListResp": {
+        "title": "UserListResp",
+        "required": [
+          "error_code"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "error_msg": {
+            "title": "Error Msg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserList"
+          }
+        }
+      },
       "UserResp": {
         "title": "UserResp",
         "required": [
-          "error_code",
-          "error_msg"
+          "error_code"
         ],
         "type": "object",
         "properties": {
@@ -6304,6 +6715,110 @@
             "type": "string"
           }
         }
+      },
+      "joj__horse__models__problem_set__ProblemSet": {
+        "title": "ProblemSet",
+        "required": [
+          "url",
+          "title",
+          "domain_id",
+          "owner_id"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string",
+            "description": "title of the problem set"
+          },
+          "content": {
+            "title": "Content",
+            "maxLength": 65536,
+            "type": "string",
+            "description": "content of the problem set",
+            "default": ""
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "whether the problem set is hidden",
+            "default": false
+          },
+          "scoreboard_hidden": {
+            "title": "Scoreboard Hidden",
+            "type": "boolean",
+            "description": "whether the scoreboard of the problem set is hidden",
+            "default": false
+          },
+          "available_time": {
+            "title": "Available Time",
+            "type": "string",
+            "description": "the problem set is available from",
+            "format": "date-time"
+          },
+          "due_time": {
+            "title": "Due Time",
+            "type": "string",
+            "description": "the problem set is due at",
+            "format": "date-time"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "num_submit": {
+            "title": "Num Submit",
+            "type": "integer",
+            "default": 0
+          },
+          "num_accept": {
+            "title": "Num Accept",
+            "type": "integer",
+            "default": 0
+          },
+          "domain_id": {
+            "title": "Domain Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "owner_id": {
+            "title": "Owner Id",
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "joj__horse__models__record__Record": {
+        "title": "Record",
+        "type": "object",
+        "properties": {}
+      },
+      "joj__horse__schemas__problem_set__ProblemSet": {
+        "title": "ProblemSet",
+        "type": "object",
+        "properties": {}
+      },
+      "joj__horse__schemas__record__Record": {
+        "title": "Record",
+        "type": "object",
+        "properties": {}
       }
     },
     "securitySchemes": {
