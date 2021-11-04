@@ -3,14 +3,13 @@ from starlette.datastructures import URL, URLPath
 
 from joj.horse.config import settings
 
-
-def get_prefix(protocol: str, netloc: str) -> str:
-    # if protocol == "http":
-    #     if settings.https:
-    #         protocol += "s"
-    # else:
-    #     protocol = "ws"
-    return f"{protocol}://{settings.domain}"
+# def get_prefix(protocol: str, netloc: str) -> str:
+#     # if protocol == "http":
+#     #     if settings.https:
+#     #         protocol += "s"
+#     # else:
+#     #     protocol = "ws"
+#     return f"{protocol}://{settings.domain}"
 
 
 def get_base_url(request: Request) -> URL:

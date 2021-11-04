@@ -1,5 +1,3 @@
-import random
-import string
 from typing import Any, Dict, Optional, Tuple, Union
 from uuid import UUID
 
@@ -11,13 +9,12 @@ from joj.horse import apis, models
 from joj.horse.config import settings
 from joj.horse.utils.errors import ErrorCode
 
+# def random_lower_string(length: int = 32) -> str:
+#     return "".join(random.choices(string.ascii_lowercase, k=length))
 
-def random_lower_string(length: int = 32) -> str:
-    return "".join(random.choices(string.ascii_lowercase, k=length))
 
-
-def random_ip() -> str:
-    return ".".join(map(str, (random.randint(0, 255) for _ in range(4))))
+# def random_ip() -> str:
+#     return ".".join(map(str, (random.randint(0, 255) for _ in range(4))))
 
 
 user_access_tokens: Dict[UUID, str] = {}
