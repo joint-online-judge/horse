@@ -68,7 +68,7 @@ async def ensure_db() -> None:
     if not exists:  # pragma: no cover
         await greenlet_spawn(create_database, engine.url)
         logger.info("Database {} created.", settings.db_name)
-    else:
+    else:  # pragma: no cover
         logger.info("Database {} already exists.", settings.db_name)
     await generate_schema()
 
