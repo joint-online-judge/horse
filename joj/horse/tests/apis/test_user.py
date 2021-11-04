@@ -4,7 +4,6 @@ from httpx import AsyncClient
 from pytest_lazyfixture import lazy_fixture
 
 from joj.horse import apis
-from joj.horse.models.permission import DefaultRole
 from joj.horse.models.user import User
 from joj.horse.tests.utils.utils import generate_auth_headers, get_base_url
 from joj.horse.utils.errors import ErrorCode
@@ -32,14 +31,7 @@ BUILD_PATH = "build2"
 
 
 @pytest.mark.asyncio
-@pytest.mark.depends(name="TestUserCreate")
-class TestUserCreate:
-    async def test_root_user(self, global_root_user: User) -> None:
-        assert global_root_user.role == DefaultRole.ROOT
-
-
-@pytest.mark.asyncio
-@pytest.mark.depends(name="TestUserGet", on=["TestUserCreate"])
+@pytest.mark.depends(name="TestUserGet", on=["TestAuthLogin"])
 class TestUserGet:
     @pytest.mark.parametrize(
         "user",

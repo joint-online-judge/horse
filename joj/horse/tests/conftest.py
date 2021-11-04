@@ -15,8 +15,10 @@ from joj.horse.config import settings
 from joj.horse.models.permission import DefaultRole
 from joj.horse.tests.utils.utils import (
     create_test_domain,
-    create_test_user,
+    login_test_user,
+    user_access_tokens,
     validate_test_domain,
+    validate_test_user,
 )
 from joj.horse.utils.db import get_db_engine
 
@@ -53,27 +55,35 @@ async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, Any]:
         yield c
 
 
-@pytest.fixture(scope="session")
-async def global_root_user(app: FastAPI) -> models.User:
-    user = await create_test_user()
-    user.role = DefaultRole.ROOT
-    await user.save_model()
+async def login_and_validate_user(client: AsyncClient, username: str) -> models.User:
+    response = await login_test_user(client, username)
+    user, access_token = await validate_test_user(response, username)
+    user_access_tokens[user.id] = access_token
     return user
 
 
 @pytest.fixture(scope="session")
-async def global_domain_root_user(app: FastAPI) -> models.User:
-    return await create_test_user()
+@pytest.mark.depends(on=["TestAuthRegister"])
+async def global_root_user(client: AsyncClient) -> models.User:
+    user = await login_and_validate_user(client, "global_root_user")
+    user.role = DefaultRole.ROOT
+    await user.save_model()
+    return await login_and_validate_user(client, "global_root_user")
 
 
 @pytest.fixture(scope="session")
-async def global_domain_user(app: FastAPI) -> models.User:
-    return await create_test_user()
+async def global_domain_root_user(client: AsyncClient) -> models.User:
+    return await login_and_validate_user(client, "global_domain_root_user")
 
 
 @pytest.fixture(scope="session")
-async def global_guest_user(app: FastAPI) -> models.User:
-    return await create_test_user()
+async def global_domain_user(client: AsyncClient) -> models.User:
+    return await login_and_validate_user(client, "global_domain_user")
+
+
+@pytest.fixture(scope="session")
+async def global_guest_user(client: AsyncClient) -> models.User:
+    return await login_and_validate_user(client, "global_guest_user")
 
 
 @pytest.fixture(scope="session")

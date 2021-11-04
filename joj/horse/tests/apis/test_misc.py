@@ -1,18 +1,17 @@
 import jwt
 import pytest
-from fastapi_jwt_auth import AuthJWT
 from httpx import AsyncClient
 from pytest_lazyfixture import lazy_fixture
 
 from joj.horse import models
 from joj.horse.app import app
 from joj.horse.config import settings
-from joj.horse.tests.utils.utils import do_api_request
-from joj.horse.utils.auth import auth_jwt_encode_user
+from joj.horse.tests.utils.utils import do_api_request, user_access_tokens
 from joj.horse.utils.version import get_git_version, get_version
 
 
 @pytest.mark.asyncio
+@pytest.mark.depends(name="TestMisc", on=["TestAuthLogin"])
 class TestMisc:
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
     async def test_version(self, client: AsyncClient, user: models.User) -> None:
@@ -31,7 +30,7 @@ class TestMisc:
         res = response.json()
         assert "data" in res
         res_jwt_dict = res["data"]
-        access_token, _ = auth_jwt_encode_user(auth_jwt=AuthJWT(), user=user)
+        access_token = user_access_tokens[user.id]
         header_jwt_dict = jwt.decode(
             access_token,
             key=settings.jwt_secret,
