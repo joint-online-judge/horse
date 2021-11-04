@@ -1,6 +1,6 @@
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Set, Tuple, Union
 
-from fastapi import Depends, Path, Query
+from fastapi import Depends, Path, Query, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi_jwt_auth import AuthJWT
 from passlib.context import CryptContext
@@ -188,26 +188,34 @@ def auth_jwt_decode_refresh_token(
         auth_jwt.jwt_refresh_token_required()
         payload = auth_jwt.get_raw_jwt()
         return JWTRefreshToken(**payload)
-    except Exception as e:
-        print(e)
+    except Exception:
         raise UnauthorizedError(message="JWT Format Error")
 
 
-# noinspection PyProtectedMember
+# noinspection PyProtectedMember,PyBroadException
 def auth_jwt_raw_access_token(
+    request: Request,
     auth_jwt: AuthJWT = Depends(),
 ) -> str:
-    auth_jwt._token = None
-    auth_jwt.jwt_optional()
-    return auth_jwt._token or ""
+    auth = request.headers.get(auth_jwt._header_name.lower())
+    if not auth:
+        auth_jwt._token = None
+    try:
+        auth_jwt.jwt_required()
+        return auth_jwt._token or ""
+    except Exception:
+        return ""
 
 
 # noinspection PyProtectedMember,PyBroadException
 def auth_jwt_raw_refresh_token(
+    request: Request,
     auth_jwt: AuthJWT = Depends(),
 ) -> str:
-    try:
+    auth = request.headers.get(auth_jwt._header_name.lower())
+    if not auth:
         auth_jwt._token = None
+    try:
         auth_jwt.jwt_refresh_token_required()
         return auth_jwt._token or ""
     except Exception:

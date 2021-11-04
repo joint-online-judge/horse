@@ -1,13 +1,14 @@
 import random
 import string
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Tuple, Union
+from uuid import UUID
 
+import jwt
 from fastapi.encoders import jsonable_encoder
-from fastapi_jwt_auth import AuthJWT
 from httpx import AsyncClient, Response
 
 from joj.horse import apis, models
-from joj.horse.utils.auth import auth_jwt_encode_user
+from joj.horse.config import settings
 from joj.horse.utils.errors import ErrorCode
 
 
@@ -15,16 +16,27 @@ def random_lower_string(length: int = 32) -> str:
     return "".join(random.choices(string.ascii_lowercase, k=length))
 
 
-def random_student_id() -> str:
-    return f"5{random.randint(0,99):02}370910{random.randint(0,999):03}"
-
-
 def random_ip() -> str:
     return ".".join(map(str, (random.randint(0, 255) for _ in range(4))))
 
 
+user_access_tokens: Dict[UUID, str] = {}
+user_refresh_tokens: Dict[UUID, str] = {}
+
+
+def get_data_from_response(
+    response: Response, error_code: ErrorCode = ErrorCode.Success
+) -> Dict[str, Any]:
+    assert response.status_code == 200
+    res = response.json()
+    assert res["error_code"] == error_code
+    assert res["data"]
+    return res["data"]
+
+
 def generate_auth_headers(user: models.User) -> Dict[str, str]:
-    access_token, _ = auth_jwt_encode_user(auth_jwt=AuthJWT(), user=user)
+    # access_token, _ = auth_jwt_encode_user(auth_jwt=AuthJWT(), user=user)
+    access_token = user_access_tokens[user.id]
     return {"Authorization": f"Bearer {access_token}"}
 
 
@@ -43,8 +55,10 @@ async def do_api_request(
     user: models.User,
     query: Optional[Dict[str, str]] = None,
     data: Optional[Dict[str, str]] = None,
+    headers: Optional[Dict[str, str]] = None,
 ) -> Response:
-    headers = generate_auth_headers(user)
+    if headers is None:
+        headers = generate_auth_headers(user)
     response = await client.request(
         method=method,
         url=url,
@@ -52,19 +66,67 @@ async def do_api_request(
         json=jsonable_encoder(data),
         headers=headers,
     )
-    print(response.json())
+    # print(response.json())
     return response
 
 
-async def create_test_user() -> models.User:
+async def create_test_user(
+    client: AsyncClient, username: str, password: Optional[str] = None
+) -> Response:
+    if password is None:
+        password = username
     user_create = models.UserCreate(
-        username=random_lower_string(),
-        email=random_lower_string() + "@sjtu.edu.cn",
-        password=random_lower_string(),
+        username=username,
+        email=username + "@sjtu.edu.cn",
+        password=password,
     )
-    user = await models.User.create(user_create, None, random_ip())
-    assert user is not None
-    return user
+    base_auth_url = get_base_url(apis.auth)
+    response = await client.post(
+        f"{base_auth_url}/register",
+        json=jsonable_encoder(user_create.dict()),
+        params={"response_type": "json", "cookie": False},
+    )
+    return response
+
+
+async def login_test_user(
+    client: AsyncClient, username: str, password: Optional[str] = None
+) -> Response:
+    if password is None:
+        password = username
+    base_auth_url = get_base_url(apis.auth)
+    response = await client.post(
+        f"{base_auth_url}/login",
+        data={
+            "username": username,
+            "password": password,
+        },
+        params={"response_type": "json", "cookie": False},
+    )
+    return response
+
+
+async def validate_test_user(
+    response: Response,
+    username: str,
+) -> Tuple[models.User, str, str]:
+    assert response.status_code == 200
+    res = response.json()
+    assert res["error_code"] == ErrorCode.Success
+    res = res["data"]
+    assert res["access_token"]
+    assert res["refresh_token"]
+    payload = jwt.decode(
+        res["access_token"],
+        key=settings.jwt_secret,
+        verify=False,
+        algorithms=[settings.jwt_algorithm],
+    )
+    assert payload["username"] == username
+    assert payload["sub"]
+    user = await models.User.get_or_none(id=payload["sub"])
+    assert user
+    return user, res["access_token"], res["refresh_token"]
 
 
 async def create_test_domain(

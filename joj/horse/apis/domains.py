@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 
+import sqlalchemy.exc
 from fastapi import Depends, Query
 from sqlmodel.ext.asyncio.session import AsyncSession
 from uvicorn.config import logger
@@ -79,6 +80,8 @@ async def create_domain(
             session.sync_session.add(domain_role)
         await session.commit()
         await session.refresh(domain)
+    except sqlalchemy.exc.IntegrityError as e:
+        raise e
     except Exception as e:
         logger.exception(f"domain creation failed: {domain_create.url}")
         raise e
