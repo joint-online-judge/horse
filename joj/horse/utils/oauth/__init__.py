@@ -8,9 +8,10 @@ from urllib.parse import urlencode
 
 import httpx
 from fastapi import Depends, HTTPException, Path
-from pydantic import BaseModel
 from starlette import status
 from starlette.requests import Request
+
+from joj.horse.schemas import BaseModel
 
 
 class HTTPXOAuthError(Exception):

@@ -14,6 +14,7 @@ from typing import (
     Union,
 )
 
+from fastapi_utils.api_model import APIModel
 from pydantic import (
     BaseModel as PydanticBaseModel,
     ConstrainedInt,
@@ -28,9 +29,10 @@ if TYPE_CHECKING:
     Model = TypeVar("Model", bound="BaseModel")
 
 
-class BaseModel(PydanticBaseModel):
-    class Config:
-        validate_all = True
+class BaseModel(APIModel):
+    pass
+    # class Config:
+    #     validate_all = True
 
 
 class NoneNegativeInt(ConstrainedInt):
@@ -93,6 +95,7 @@ def get_standard_list_response_sub_model(
         f"{name}List",
         count=(int, 0),
         results=(List[cls], []),  # type: ignore
+        __base__=BaseModel,
     )
 
 
@@ -116,6 +119,7 @@ def get_standard_response_model(
             error_code=(ErrorCode, ...),
             error_msg=(Optional[str], None),
             data=data_type,
+            __base__=BaseModel,
         ),
         sub_model,
     )
