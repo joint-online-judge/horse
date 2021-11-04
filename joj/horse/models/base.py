@@ -91,6 +91,7 @@ class BaseORMModel(SQLModel, BaseModel):
                 select(__base_orm_model_cls__), **kwargs
             )
             results = await session.exec(statement)
+            session.sync_session.query()
             return results.one_or_none()
 
     @classmethod
@@ -213,7 +214,7 @@ class BaseORMModel(SQLModel, BaseModel):
 BaseORMModelType = TypeVar("BaseORMModelType", bound=BaseORMModel)
 
 
-class URLMixin(SQLModel, BaseModel):
+class URLMixin(BaseORMModel):
     url: UserInputURL = Field("", description="(unique) url of the domain")
 
 
