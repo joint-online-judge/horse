@@ -1,4 +1,5 @@
 import pytest
+from fastapi_jwt_auth import AuthJWT
 from httpx import AsyncClient
 from pytest_lazyfixture import lazy_fixture
 
@@ -61,6 +62,24 @@ class TestUserGet:
         assert res["student_id"] == user.student_id
         assert res["real_name"] == user.real_name
         assert res["login_ip"] == user.login_ip
+
+
+@pytest.mark.asyncio
+class TestUserGetError:
+    # @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
+    # async def test_scope_error_user(self, client: AsyncClient, user: User) -> None:
+    #     user_copy = copy(user)
+    #     user_copy.scope = "error"
+    #     headers = generate_auth_headers(user_copy)
+    #     r = await client.get(base_user_url, headers=headers)
+    #     assert r.status_code == 401
+
+    @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
+    async def test_jwt_format_error_user(self, client: AsyncClient, user: User) -> None:
+        access_token = AuthJWT().create_access_token(subject=str(user.id))
+        headers = {"Authorization": f"Bearer {access_token}"}
+        r = await client.get(base_user_url, headers=headers)
+        assert r.status_code == 401
 
 
 # def test_get_user_domains(

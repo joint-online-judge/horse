@@ -57,6 +57,7 @@ class DatabaseSettings(BaseModel):
     db_username: str = "postgres"
     db_password: str = "pass"
     db_name: str = "horse_production"
+    db_echo: bool = True
 
     # redis config
     redis_host: str = "localhost"
@@ -193,7 +194,6 @@ class SettingsProxy:
 def get_settings() -> Settings:
     _settings = Settings()
     settings._set(_settings)  # type: ignore
-    # print(_settings)
     return _settings
 
 

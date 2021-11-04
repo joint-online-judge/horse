@@ -65,7 +65,6 @@ async def get_login_response(
     access_token: str,
     refresh_token: str,
 ) -> Any:
-    print(access_token)
     if parameters.cookie:
         if access_token:
             auth_jwt.set_access_cookies(access_token, response)

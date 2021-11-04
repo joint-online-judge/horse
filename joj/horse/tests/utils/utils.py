@@ -48,7 +48,7 @@ async def do_api_request(
         json=jsonable_encoder(data),
         headers=headers,
     )
-    print(response.json())
+    # print(response.json())
     return response
 
 

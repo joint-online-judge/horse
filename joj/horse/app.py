@@ -6,12 +6,12 @@ import sqlalchemy.exc
 from fastapi import Depends, FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi_jwt_auth.exceptions import AuthJWTException
+from loguru import logger
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.responses import JSONResponse, RedirectResponse
 from starlette_context import plugins
 from starlette_context.middleware import RawContextMiddleware
 from tenacity import RetryError
-from uvicorn.config import logger
 
 import joj.horse.models  # noqa: F401
 from joj.horse.config import get_settings

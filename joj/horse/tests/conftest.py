@@ -18,7 +18,7 @@ from joj.horse.tests.utils.utils import (
     create_test_user,
     validate_test_domain,
 )
-from joj.horse.utils.db import ensure_db, generate_schema, get_db_engine
+from joj.horse.utils.db import get_db_engine
 
 
 @pytest.yield_fixture(scope="session")
@@ -37,8 +37,7 @@ async def drop_db() -> None:
 @pytest.fixture(scope="session", autouse=True)
 async def postgres(request: Any) -> None:
     settings.db_name += "_test"
-    await ensure_db()
-    await generate_schema()
+    settings.db_echo = False
     request.addfinalizer(lambda: asyncio.run(drop_db()))
 
 

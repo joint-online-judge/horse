@@ -30,7 +30,7 @@ def get_db_url() -> str:
 @lru_cache()
 def get_db_engine() -> AsyncEngine:
     db_url = get_db_url()
-    engine = create_async_engine(db_url, future=True, echo=True)
+    engine = create_async_engine(db_url, future=True, echo=settings.db_echo)
     return engine
 
 
@@ -70,6 +70,7 @@ async def ensure_db() -> None:
         logger.info("Database {} created.", settings.db_name)
     else:
         logger.info("Database {} already exists.", settings.db_name)  # pragma: no cover
+    await generate_schema()
 
 
 async def generate_schema() -> None:

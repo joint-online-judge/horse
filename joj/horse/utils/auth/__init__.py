@@ -188,8 +188,7 @@ def auth_jwt_decode_refresh_token(
         auth_jwt.jwt_refresh_token_required()
         payload = auth_jwt.get_raw_jwt()
         return JWTRefreshToken(**payload)
-    except Exception as e:
-        print(e)
+    except Exception:
         raise UnauthorizedError(message="JWT Format Error")
 
 
