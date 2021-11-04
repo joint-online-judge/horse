@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
@@ -15,6 +16,10 @@ if TYPE_CHECKING:
     from joj.horse.models import Domain, DomainUser, Problem, ProblemSet
     from joj.horse.schemas.query import OrderingQuery, PaginationQuery
     from joj.horse.utils.auth import JWTAccessToken
+
+
+UID_RE = re.compile(r"-?\d+")
+UNAME_RE = re.compile(r"[^\s\u3000](.{,254}[^\s\u3000])?")
 
 
 class UserCreate(SQLModel):

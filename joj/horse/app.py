@@ -60,11 +60,6 @@ async def startup_event() -> None:  # pragma: no cover
 @app.get("/api")
 @app.get("/")
 async def redirect_to_docs(request: Request) -> RedirectResponse:  # pragma: no cover
-    # logger.info(request.url)
-    # logger.info(request.url.netloc)
-    # logger.info(request.url.scheme)
-    # async with db_session() as session:
-    #     print(session)
     base_url = get_base_url(request)
     redirect_url = app.url_path_for("swagger_ui_html").make_absolute_url(base_url)
 

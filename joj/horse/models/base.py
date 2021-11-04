@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, TypeVar, Union
 from uuid import UUID, uuid4
 
-from fastapi_utils.api_model import APIModel
 from pydantic.datetime_parse import parse_datetime
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.compiler import compiles
@@ -13,7 +12,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.types import DateTime
 from sqlmodel import Field, SQLModel, delete, select, update
 
-from joj.horse.schemas.base import UserInputURL
+from joj.horse.schemas.base import BaseModel, UserInputURL
 from joj.horse.utils.base import is_uuid
 from joj.horse.utils.db import db_session
 
@@ -56,7 +55,7 @@ class UTCDatetime(datetime):
         return datetime.fromtimestamp(parse_datetime(v).timestamp())
 
 
-class BaseORMModel(SQLModel, APIModel):
+class BaseORMModel(SQLModel, BaseModel):
     id: UUID = Field(default_factory=uuid4, primary_key=True, nullable=False)
     created_at: Optional[datetime] = Field(
         None, sa_column=get_datetime_column(server_default=utcnow())
@@ -167,7 +166,7 @@ class BaseORMModel(SQLModel, APIModel):
 BaseORMModelType = TypeVar("BaseORMModelType", bound=BaseORMModel)
 
 
-class URLMixin(SQLModel, APIModel):
+class URLMixin(SQLModel, BaseModel):
     url: UserInputURL = Field("", description="(unique) url of the domain")
 
 

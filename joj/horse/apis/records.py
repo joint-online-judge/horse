@@ -6,8 +6,7 @@ from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.models.permission import DefaultRole
-from joj.horse.schemas.base import Empty, StandardResponse
-from joj.horse.schemas.record import ListRecords, RecordCaseResult, RecordResult
+from joj.horse.schemas.base import Empty, StandardListResponse, StandardResponse
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
@@ -32,7 +31,7 @@ async def list_records(
     query: schemas.PaginationQuery = Depends(parse_pagination_query),
     user: models.User = Depends(parse_uid_or_none),
     auth: Authentication = Depends(),
-) -> StandardResponse[ListRecords]:
+) -> StandardListResponse[models.Record]:
     condition = {}
     if user:
         condition["user"] = auth.user.id
@@ -44,7 +43,7 @@ async def list_records(
         condition["problem"] = str(problem)
     cursor = models.Record.cursor_find(condition, query)
     res = await models.Record.to_list(cursor)
-    return StandardResponse(ListRecords(results=res))
+    return StandardResponse(res)
 
 
 @router.get("/{record}")
@@ -109,7 +108,7 @@ async def get_record_code(record: models.Record = Depends(parse_record)) -> Any:
 
 @router.post("/{record}/http")
 async def http_record(
-    record_result: RecordResult,
+    record_result: models.RecordResult,
     record: models.Record = Depends(parse_record_judger),
     auth: Authentication = Depends(),
 ) -> StandardResponse[Empty]:
@@ -125,7 +124,7 @@ async def http_record(
 
 @router.post("/{record}/cases/http")
 async def http_record_cases(
-    record_case_result: RecordCaseResult,
+    record_case_result: models.RecordCaseResult,
     record: models.Record = Depends(parse_record_judger),
     auth: Authentication = Depends(),
 ) -> StandardResponse[Empty]:

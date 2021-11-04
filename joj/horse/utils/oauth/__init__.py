@@ -12,6 +12,7 @@ from starlette import status
 from starlette.requests import Request
 
 from joj.horse.schemas import BaseModel
+from joj.horse.schemas.base import camelcase_parameters
 
 
 class HTTPXOAuthError(Exception):
@@ -245,6 +246,7 @@ class OAuth2Dependency:
         self.redirect_url = redirect_url
 
     def oauth_client(self) -> Any:
+        @camelcase_parameters
         def func(
             oauth_name: str = Path(..., description="OAuth client name")
         ) -> BaseOAuth2[Any]:

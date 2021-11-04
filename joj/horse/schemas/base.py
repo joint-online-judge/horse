@@ -1,5 +1,6 @@
 import re
 from functools import lru_cache
+from inspect import signature
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -14,7 +15,10 @@ from typing import (
     Union,
 )
 
+from fastapi import params
 from fastapi_utils.api_model import APIModel
+from fastapi_utils.camelcase import snake2camel
+from makefun import wraps
 from pydantic import (
     BaseModel as PydanticBaseModel,
     ConstrainedInt,
@@ -30,9 +34,10 @@ if TYPE_CHECKING:
 
 
 class BaseModel(APIModel):
-    pass
-    # class Config:
-    #     validate_all = True
+    """"""
+
+    class Config:
+        validate_all = True
 
 
 class NoneNegativeInt(ConstrainedInt):
@@ -173,7 +178,22 @@ class StandardListResponse(Generic[BT]):
 
 
 class LimitOffsetPagination(BaseModel):
-    class Config:
-        orm_mode = True
-
     count: int
+
+
+def camelcase_parameters(func: Any) -> Any:
+    func_sig = signature(func)
+    parameters = list(func_sig.parameters.values())
+    for parameter in parameters:
+        if parameter.default and isinstance(
+            parameter.default, (params.Query, params.Path)
+        ):
+            parameter.default.alias = snake2camel(parameter.name, start_lower=True)
+
+    new_sig = func_sig.replace(parameters=parameters)
+
+    @wraps(func, new_sig=new_sig)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        return func(*args, **kwargs)
+
+    return wrapper

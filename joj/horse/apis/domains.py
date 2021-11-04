@@ -9,6 +9,7 @@ from uvicorn.config import logger
 from joj.horse import models, schemas
 from joj.horse.models.permission import FIXED_ROLES, READONLY_ROLES
 from joj.horse.schemas import Empty, StandardListResponse, StandardResponse
+from joj.horse.schemas.base import camelcase_parameters
 from joj.horse.schemas.permission import (
     DEFAULT_DOMAIN_PERMISSION,
     DefaultRole,
@@ -422,6 +423,7 @@ async def update_domain_invitation(
 
 
 @router.post("/{domain}/join", dependencies=[Depends(ensure_permission())])
+@camelcase_parameters
 async def join_domain_by_invitation(
     invitation_code: str = Query(...),
     domain: models.Domain = Depends(parse_domain_from_auth),
