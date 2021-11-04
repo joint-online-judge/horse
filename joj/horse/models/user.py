@@ -44,11 +44,11 @@ class UserBase(BaseORMModel):
 
 class UserDetail(UserBase):
     # register_at = fields.DatetimeField(auto_now_add=True)
-    register_ip: str = Field(default="0.0.0.0", index=False)
+    register_ip: str = Field(default="127.0.0.1", index=False)
     login_at: datetime = Field(
         sa_column=get_datetime_column(index=False, server_default=utcnow())
     )
-    login_ip: str = Field(default="0.0.0.0", index=False)
+    login_ip: str = Field(default="127.0.0.1", index=False)
 
 
 class User(UserDetail, table=True):  # type: ignore[call-arg]
