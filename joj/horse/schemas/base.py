@@ -1,6 +1,6 @@
 import re
 from functools import lru_cache
-from inspect import signature
+from inspect import Parameter, signature
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -15,7 +15,7 @@ from typing import (
     Union,
 )
 
-from fastapi import params
+from fastapi import Depends, Request, params
 from fastapi_utils.api_model import APIModel
 from fastapi_utils.camelcase import snake2camel
 from makefun import wraps
@@ -25,6 +25,7 @@ from pydantic import (
     ConstrainedStr,
     create_model,
 )
+from starlette.datastructures import MultiDict
 
 from joj.horse.utils.base import is_uuid
 from joj.horse.utils.errors import ErrorCode
@@ -190,16 +191,42 @@ class LimitOffsetPagination(BaseModel):
 def camelcase_parameters(func: Any) -> Any:
     func_sig = signature(func)
     parameters = list(func_sig.parameters.values())
-    for parameter in parameters:
+    start_index = -1
+    for i, parameter in enumerate(parameters):
         if parameter.default and isinstance(
             parameter.default, (params.Query, params.Path)
         ):
+            if start_index < 0:
+                start_index = i
             parameter.default.alias = snake2camel(parameter.name, start_lower=True)
 
+    if start_index >= 0:
+        parameters.insert(
+            start_index,
+            Parameter(
+                "camelcase_parameters_dependency",
+                kind=Parameter.POSITIONAL_OR_KEYWORD,
+                default=Depends(camelcase_parameters_dependency),
+            ),
+        )
     new_sig = func_sig.replace(parameters=parameters)
 
     @wraps(func, new_sig=new_sig)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
+        if "camelcase_parameters_dependency" in kwargs:
+            del kwargs["camelcase_parameters_dependency"]
         return func(*args, **kwargs)
 
     return wrapper
+
+
+def camelcase_parameters_dependency(request: Request) -> None:
+    query_params = request.query_params
+    new_params = MultiDict()
+    for k, v in query_params.multi_items():
+        if "_" in k:
+            camel = snake2camel(k, start_lower=True)
+            new_params.append(camel, v)
+        else:
+            new_params.append(k, v)
+    request._query_params = new_params
