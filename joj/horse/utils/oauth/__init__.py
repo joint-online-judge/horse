@@ -248,14 +248,14 @@ class OAuth2Dependency:
     def oauth_client(self) -> Any:
         @camelcase_parameters
         def func(
-            oauth_name: str = Path(..., description="OAuth client name")
+            oauth2: str = Path(..., description="OAuth client name")
         ) -> BaseOAuth2[Any]:
             for oauth_client in self.oauth_clients:
-                if oauth_name == oauth_client.name:
+                if oauth2 == oauth_client.name:
                     return oauth_client
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"OAuth client {oauth_name} not found!",
+                detail=f"OAuth client {oauth2} not found!",
             )
 
         return func
@@ -276,7 +276,7 @@ class OAuth2Dependency:
 
             if self.route_name:
                 redirect_url = request.url_for(
-                    self.route_name, oauth_name=oauth_client.name
+                    self.route_name, oauth2=oauth_client.name
                 )
             elif self.redirect_url:
                 redirect_url = self.redirect_url

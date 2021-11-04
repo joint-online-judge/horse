@@ -130,8 +130,14 @@ def get_standard_response_model(
     )
 
 
-class Empty(PydanticBaseModel):
+class Empty(BaseModel):
     pass
+
+
+class StandardErrorResponse(BaseModel):
+    error_code: ErrorCode
+    error_msg: Optional[str] = None
+    data: Optional[Any] = None
 
 
 class StandardResponse(Generic[BT]):

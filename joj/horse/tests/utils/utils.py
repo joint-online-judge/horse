@@ -29,7 +29,7 @@ def get_data_from_response(
 ) -> Dict[str, Any]:
     assert response.status_code == 200
     res = response.json()
-    assert res["error_code"] == error_code
+    assert res["errorCode"] == error_code
     assert res["data"]
     return res["data"]
 
@@ -83,7 +83,7 @@ async def create_test_user(
     response = await client.post(
         f"{base_auth_url}/register",
         json=jsonable_encoder(user_create.dict()),
-        params={"response_type": "json", "cookie": False},
+        params={"responseType": "json", "cookie": False},
     )
     return response
 
@@ -100,7 +100,7 @@ async def login_test_user(
             "username": username,
             "password": password,
         },
-        params={"response_type": "json", "cookie": False},
+        params={"responseType": "json", "cookie": False},
     )
     return response
 
@@ -111,12 +111,12 @@ async def validate_test_user(
 ) -> Tuple[models.User, str, str]:
     assert response.status_code == 200
     res = response.json()
-    assert res["error_code"] == ErrorCode.Success
+    assert res["errorCode"] == ErrorCode.Success
     res = res["data"]
-    assert res["access_token"]
-    assert res["refresh_token"]
+    assert res["accessToken"]
+    assert res["refreshToken"]
     payload = jwt.decode(
-        res["access_token"],
+        res["accessToken"],
         key=settings.jwt_secret,
         verify=False,
         algorithms=[settings.jwt_algorithm],
@@ -125,7 +125,7 @@ async def validate_test_user(
     assert payload["sub"]
     user = await models.User.get_or_none(id=payload["sub"])
     assert user
-    return user, res["access_token"], res["refresh_token"]
+    return user, res["accessToken"], res["refreshToken"]
 
 
 async def create_test_domain(
@@ -146,14 +146,14 @@ async def validate_test_domain(
 ) -> models.Domain:
     assert response.status_code == 200
     res = response.json()
-    assert res["error_code"] == ErrorCode.Success
+    assert res["errorCode"] == ErrorCode.Success
     res = res["data"]
     assert res["id"]
 
     if isinstance(domain, dict):
         data = domain
     elif isinstance(domain, models.Domain):
-        data = domain.dict()
+        data = domain.dict(by_alias=True)
     else:
         assert False
 
@@ -166,9 +166,9 @@ async def validate_test_domain(
     assert res["gravatar"] == data.get("gravatar", "")
 
     if isinstance(domain, dict):
-        assert res["owner_id"] == str(owner.id)
+        assert res["ownerId"] == str(owner.id)
     elif isinstance(domain, models.Domain):
-        assert res["owner_id"] == str(data["owner_id"])
+        assert res["ownerId"] == str(data["ownerId"])
 
     if isinstance(domain, dict):
         domain = await models.Domain.get_or_none(id=res["id"])

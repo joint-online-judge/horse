@@ -153,11 +153,11 @@ def auth_jwt_encode_user(
 
     access_token = auth_jwt.create_access_token(
         subject=subject,
-        user_claims=user_claims.dict(),
+        user_claims=user_claims.dict(by_alias=True),
         fresh=fresh,
     )
     refresh_token = auth_jwt.create_refresh_token(
-        subject=subject, user_claims={"oauth_name": user_claims.oauth_name}
+        subject=subject, user_claims={"oauthName": user_claims.oauth_name}
     )
     return access_token, refresh_token
 

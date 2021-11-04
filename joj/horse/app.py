@@ -15,6 +15,7 @@ from tenacity import RetryError
 
 import joj.horse.models  # noqa: F401
 from joj.horse.config import get_settings
+from joj.horse.schemas.base import StandardErrorResponse
 from joj.horse.utils.db import db_session_dependency, try_init_db
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.lakefs import (
@@ -80,7 +81,7 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException) -> JSONRe
 def business_exception_response(exc: BizError) -> JSONResponse:
     return JSONResponse(
         jsonable_encoder(
-            {"error_code": exc.error_code, "error_msg": exc.error_msg, "data": {}}
+            StandardErrorResponse(error_code=exc.error_code, error_msg=exc.error_msg)
         ),
         status_code=status.HTTP_200_OK,
     )

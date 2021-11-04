@@ -139,7 +139,7 @@ def get_oauth_router(
         ]
         return schemas.StandardListResponse(result)
 
-    @oauth_router.get("/{oauth_name}/authorize", name=authorize_route_name)
+    @oauth_router.get("/{oauth2}/authorize", name=authorize_route_name)
     async def authorize(
         request: Request,
         oauth_client: BaseOAuth2 = Depends(oauth2_dependency.oauth_client()),
@@ -151,7 +151,7 @@ def get_oauth_router(
             authorize_redirect_url = callback_redirect_url
         else:
             authorize_redirect_url = request.url_for(
-                callback_route_name, oauth_name=oauth_client.name
+                callback_route_name, oauth2=oauth_client.name
             )
 
         state_data = {"auth_parameters": auth_parameters.dict()}
@@ -167,7 +167,7 @@ def get_oauth_router(
         )
 
     @oauth_router.get(
-        "/{oauth_name}/callback", name=callback_route_name, include_in_schema=False
+        "/{oauth2}/callback", name=callback_route_name, include_in_schema=False
     )
     async def callback(
         request: Request,
