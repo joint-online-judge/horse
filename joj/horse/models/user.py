@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from pydantic import EmailStr, root_validator, validator
+from sqlalchemy.sql.expression import Select
 from sqlmodel import Field, Relationship
 from uvicorn.config import logger
 
@@ -13,7 +14,6 @@ from joj.horse.utils.errors import BizError, ErrorCode
 
 if TYPE_CHECKING:
     from joj.horse.models import Domain, DomainUser, Problem, ProblemSet
-    from joj.horse.schemas.query import OrderingQuery, PaginationQuery
     from joj.horse.utils.auth import JWTAccessToken
 
 
@@ -40,6 +40,17 @@ class UserBase(BaseORMModel):
     real_name: str = Field(default="")
     role: str = Field(default=str(DefaultRole.USER))
     is_active: bool = Field(default=False, index=False)
+
+    def find_domains(self, role: Optional[List[str]]) -> Select:
+        from joj.horse import models
+
+        statement = models.Domain.sql_select().outerjoin(models.DomainUser).distinct()
+        # if user.role != "root":
+        #     # root user can view all domains
+        statement = statement.where(models.DomainUser.user_id == self.id)
+        if role is not None:
+            statement = statement.where(models.DomainUser.role.in_(role))
+        return statement
 
 
 class UserDetail(UserBase):
@@ -77,26 +88,6 @@ class User(UserDetail, table=True):  # type: ignore[call-arg]
     @classmethod
     async def find_by_uname(cls, scope: str, uname: str) -> Optional["User"]:
         return await User.get_or_none(scope=scope, uname_lower=uname.strip().lower())
-
-    async def find_domains(
-        self,
-        role: Optional[List[str]],
-        ordering: Optional["OrderingQuery"] = None,
-        pagination: Optional["PaginationQuery"] = None,
-    ) -> Tuple[List["Domain"], int]:
-        if self.role != "root":
-            # TODO: root user can view all domains
-            pass
-        query_set = self.domains.all()
-        if role is not None:
-            query_set = query_set.filter(role__in=role)
-        query_set = query_set.select_related("domain", "domain__owner")
-        query_set = self.apply_ordering(query_set, ordering, prefix="domain__")
-        count = await query_set.count()
-        query_set = self.apply_pagination(query_set, pagination)
-        domain_users = await query_set
-        domains = [domain_user.domain for domain_user in domain_users]
-        return domains, count
 
     @classmethod
     async def login_by_jaccount(

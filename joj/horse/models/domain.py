@@ -3,12 +3,11 @@ from uuid import UUID
 
 from sqlalchemy import event
 from sqlalchemy.schema import Column, ForeignKey
-from sqlmodel import Field, Relationship
+from sqlalchemy.sql.expression import Select
+from sqlmodel import Field, Relationship, select
 from sqlmodel.sql.sqltypes import GUID
 
 from joj.horse.models.base import URLMixin, URLORMModel, url_pre_save
-
-# from joj.horse.models.user import User
 from joj.horse.schemas.base import (
     BaseModel,
     LongStr,
@@ -48,6 +47,16 @@ class DomainBase(URLMixin):
         nullable=False,
         description="is the domain hidden",
     )
+
+    def find_domain_users_statement(self) -> Select:
+        from joj.horse import models
+
+        statement = (
+            select(models.DomainUser, models.User)
+            .where(models.DomainUser.domain_id == self.id)
+            .where(models.DomainUser.user_id == models.User.id)
+        )
+        return statement
 
 
 class DomainCreate(DomainBase):

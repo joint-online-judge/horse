@@ -39,11 +39,13 @@ async def list_domains(
     role: Optional[List[str]] = Query(None),
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["name"])),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
-    user: models.User = Depends(parse_user_from_auth),
+    user: models.UserBase = Depends(parse_user_from_auth),
 ) -> StandardListResponse[models.Domain]:
     """List all domains that the current user has a role."""
-    domains, count = await user.find_domains(role, ordering, pagination)
-    domains = [models.Domain.from_orm(domain) for domain in domains]
+    statement = user.find_domains(role)
+    domains, count = await models.Domain.execute_list_statement(
+        statement, ordering, pagination
+    )
     return StandardListResponse(domains, count)
 
 
@@ -162,10 +164,20 @@ async def transfer_domain(
 )
 async def list_domain_users(
     domain: models.Domain = Depends(parse_domain_from_auth),
+    ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["name"])),
+    pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
 ) -> StandardListResponse[models.DomainUser]:
-    users = await domain.users.all()
-    domain_users = [models.DomainUser.from_orm(user) for user in users]
-    return StandardListResponse(domain_users)
+    statement = domain.find_domain_users_statement()
+    rows, count = await models.DomainUser.execute_list_statement(
+        statement, ordering, pagination
+    )
+    domain_users, users = models.BaseORMModel.parse_rows(
+        rows, models.DomainUser, models.User
+    )
+    logger.info(domain_users)
+    logger.info(users)
+    logger.info(count)
+    return StandardListResponse(domain_users, count)
 
 
 @router.post(

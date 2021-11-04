@@ -1,3 +1,4 @@
+from joj.horse.models.base import BaseORMModel as BaseORMModel
 from joj.horse.models.domain import (
     Domain as Domain,
     DomainCreate as DomainCreate,
