@@ -17,6 +17,7 @@ from joj.horse.tests.utils.utils import (
     create_test_domain,
     login_test_user,
     user_access_tokens,
+    user_refresh_tokens,
     validate_test_domain,
     validate_test_user,
 )
@@ -57,8 +58,9 @@ async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, Any]:
 
 async def login_and_validate_user(client: AsyncClient, username: str) -> models.User:
     response = await login_test_user(client, username)
-    user, access_token = await validate_test_user(response, username)
+    user, access_token, refresh_token = await validate_test_user(response, username)
     user_access_tokens[user.id] = access_token
+    user_refresh_tokens[user.id] = refresh_token
     return user
 
 

@@ -57,6 +57,7 @@ class TestUserGet:
 
 
 @pytest.mark.asyncio
+@pytest.mark.depends(name="TestUserGetError", on=["TestAuthLogin"])
 class TestUserGetError:
     # @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
     # async def test_scope_error_user(self, client: AsyncClient, user: User) -> None:

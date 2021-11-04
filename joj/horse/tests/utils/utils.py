@@ -1,6 +1,7 @@
 import random
 import string
 from typing import Any, Dict, Optional, Tuple, Union
+from uuid import UUID
 
 import jwt
 from fastapi.encoders import jsonable_encoder
@@ -19,7 +20,18 @@ def random_ip() -> str:
     return ".".join(map(str, (random.randint(0, 255) for _ in range(4))))
 
 
-user_access_tokens: Dict[str, str] = {}
+user_access_tokens: Dict[UUID, str] = {}
+user_refresh_tokens: Dict[UUID, str] = {}
+
+
+def get_data_from_response(
+    response: Response, error_code: ErrorCode = ErrorCode.Success
+) -> Dict[str, Any]:
+    assert response.status_code == 200
+    res = response.json()
+    assert res["error_code"] == error_code
+    assert res["data"]
+    return res["data"]
 
 
 def generate_auth_headers(user: models.User) -> Dict[str, str]:
@@ -43,8 +55,10 @@ async def do_api_request(
     user: models.User,
     query: Optional[Dict[str, str]] = None,
     data: Optional[Dict[str, str]] = None,
+    headers: Optional[Dict[str, str]] = None,
 ) -> Response:
-    headers = generate_auth_headers(user)
+    if headers is None:
+        headers = generate_auth_headers(user)
     response = await client.request(
         method=method,
         url=url,
@@ -95,12 +109,13 @@ async def login_test_user(
 async def validate_test_user(
     response: Response,
     username: str,
-) -> Tuple[models.User, str]:
+) -> Tuple[models.User, str, str]:
     assert response.status_code == 200
     res = response.json()
     assert res["error_code"] == ErrorCode.Success
     res = res["data"]
     assert res["access_token"]
+    assert res["refresh_token"]
     payload = jwt.decode(
         res["access_token"],
         key=settings.jwt_secret,
@@ -111,7 +126,7 @@ async def validate_test_user(
     assert payload["sub"]
     user = await models.User.get_or_none(id=payload["sub"])
     assert user
-    return user, res["access_token"]
+    return user, res["access_token"], res["refresh_token"]
 
 
 async def create_test_domain(
