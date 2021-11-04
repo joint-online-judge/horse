@@ -22,7 +22,6 @@ from joj.horse.utils.auth import (
     auth_jwt_raw_access_token,
     auth_jwt_raw_refresh_token,
 )
-from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.oauth import BaseOAuth2, OAuth2Dependency, OAuth2Token
 from joj.horse.utils.oauth.github import GitHubOAuth2
 from joj.horse.utils.oauth.jaccount import JaccountOAuth2
@@ -65,7 +64,6 @@ async def get_login_response(
     access_token: str,
     refresh_token: str,
 ) -> Any:
-    print(access_token)
     if parameters.cookie:
         if access_token:
             auth_jwt.set_access_cookies(access_token, response)
@@ -235,7 +233,7 @@ def get_auth_router(
         auth_jwt: AuthJWT = Depends(AuthJWT),
         credentials: OAuth2PasswordRequestForm = Depends(),
     ) -> schemas.StandardResponse[schemas.AuthTokens]:
-        user = await models.User.get_or_none(id=credentials.username)
+        user = await models.User.get_or_none(username=credentials.username)
         user.login_at = datetime.now(tz=timezone.utc)
         user.login_ip = request.client.host
         await user.save_model()
@@ -272,10 +270,11 @@ def get_auth_router(
         ),
     ) -> schemas.StandardResponse[schemas.AuthTokens]:
         if jwt_access_token is not None and jwt_access_token.category == "user":
-            raise BizError(
-                ErrorCode.UserRegisterError,
-                "user already login, please logout before register",
-            )
+            jwt_access_token = None
+            # raise BizError(
+            #     ErrorCode.UserRegisterError,
+            #     "user already login, please logout before register",
+            # )
         user_model = await models.User.create(
             user_create=user_create,
             jwt_access_token=jwt_access_token,

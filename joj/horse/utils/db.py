@@ -30,7 +30,7 @@ def get_db_url() -> str:
 @lru_cache()
 def get_db_engine() -> AsyncEngine:
     db_url = get_db_url()
-    engine = create_async_engine(db_url, future=True, echo=True)
+    engine = create_async_engine(db_url, future=True, echo=settings.db_echo)
     return engine
 
 
@@ -69,7 +69,8 @@ async def ensure_db() -> None:
         await greenlet_spawn(create_database, engine.url)
         logger.info("Database {} created.", settings.db_name)
     else:
-        logger.info("Database {} already exists.", settings.db_name)
+        logger.info("Database {} already exists.", settings.db_name)  # pragma: no cover
+    await generate_schema()
 
 
 async def generate_schema() -> None:
@@ -80,13 +81,13 @@ async def generate_schema() -> None:
 
 @retry(stop=stop_after_attempt(5), wait=wait_exponential(2))
 async def try_init_db() -> None:
-    attempt_number = try_init_db.retry.statistics["attempt_number"]  # type: ignore
+    attempt_number = try_init_db.retry.statistics["attempt_number"]
     try:
         await ensure_db()
         # if settings.debug:
         #     await generate_schema()
     except Exception as e:
-        max_attempt_number = try_init_db.retry.stop.max_attempt_number  # type: ignore
+        max_attempt_number = try_init_db.retry.stop.max_attempt_number
         msg = "SQLModel: initialization failed ({}/{})".format(
             attempt_number, max_attempt_number
         )

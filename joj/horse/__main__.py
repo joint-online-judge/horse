@@ -6,7 +6,7 @@ from joj.horse.utils.logger import log_config
 
 
 @cli_command()
-def main() -> None:
+def main() -> None:  # pragma: no cover
     settings = get_settings()
     uvicorn.run(
         "joj.horse.app:app",
