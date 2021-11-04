@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: bd11f07@2021-11-03T11:20:31Z",
+    "description": "Git version: 3474762@2021-11-04T11:53:49Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -6318,7 +6318,7 @@
           "register_ip": {
             "title": "Register Ip",
             "type": "string",
-            "default": "0.0.0.0"
+            "default": "127.0.0.1"
           },
           "login_at": {
             "title": "Login At",
@@ -6328,7 +6328,7 @@
           "login_ip": {
             "title": "Login Ip",
             "type": "string",
-            "default": "0.0.0.0"
+            "default": "127.0.0.1"
           },
           "hashed_password": {
             "title": "Hashed Password",
@@ -6549,7 +6549,7 @@
           "register_ip": {
             "title": "Register Ip",
             "type": "string",
-            "default": "0.0.0.0"
+            "default": "127.0.0.1"
           },
           "login_at": {
             "title": "Login At",
@@ -6559,7 +6559,7 @@
           "login_ip": {
             "title": "Login Ip",
             "type": "string",
-            "default": "0.0.0.0"
+            "default": "127.0.0.1"
           }
         }
       },
