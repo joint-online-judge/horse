@@ -1,13 +1,14 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 from uuid import UUID, uuid4
 
 from pydantic.datetime_parse import parse_datetime
-from sqlalchemy.engine import Connection
+from sqlalchemy.engine import Connection, Row
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.orm import Mapper
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.sql.expression import Delete, Select, Update
-from sqlalchemy.sql.functions import FunctionElement
+from sqlalchemy.sql.functions import FunctionElement, count
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.types import DateTime
 from sqlmodel import Field, SQLModel, delete, select, update
@@ -119,28 +120,47 @@ class BaseORMModel(SQLModel, BaseModel):
 
     @classmethod
     def apply_ordering(
-        __base_orm_model_cls__: Type["BaseORMModelType"],
+        cls: Type["BaseORMModelType"],
         statement: Select,
         ordering: Optional["OrderingQuery"],
-        prefix: str = "",
     ) -> Select:
-        # def add_prefix(x: str) -> str:
-        #     if x.startswith("-"):
-        #         return f"-{prefix}{x[1:]}"
-        #     return f"{prefix}{x}"
-
-        if ordering is not None and ordering.orderings:
-            for x in ordering.orderings:
-                if x.startswith("-"):
-                    # TODO: write this
-                    pass
-            # if prefix:
-            #     orderings = [add_prefix(x) for x in ordering.orderings]
-            # else:
-            #     orderings = ordering.orderings
-            # statement.order_by()
-            # query_set = query_set.order_by(*orderings)
+        if ordering is None or not ordering.orderings:
+            return statement
+        order_by_clause = []
+        for x in ordering.orderings:
+            asc: Optional[bool] = None
+            if x.startswith("-"):
+                asc = False
+                field = x[1:]
+            elif x.startswith("+"):
+                asc = True
+                field = x[1:]
+            else:
+                asc = None
+                field = x
+            if field.startswith("_"):
+                continue
+            sa_column = getattr(cls, field, None)
+            if sa_column is not None and isinstance(sa_column, InstrumentedAttribute):
+                if asc is None:
+                    order_by_clause.append(sa_column)
+                elif asc:
+                    order_by_clause.append(sa_column.asc())
+                else:
+                    order_by_clause.append(sa_column.desc())
+        if len(order_by_clause) > 0:
+            statement = statement.order_by(*order_by_clause)
         return statement
+
+    @classmethod
+    def apply_count(
+        cls: Type["BaseORMModelType"],
+        statement: Select,
+        # alt_cls: Optional[Type["BaseORMModelType"]] = None,
+    ) -> Select:
+        # if alt_cls is None:
+        #     alt_cls = cls
+        return statement.with_only_columns(count(), maintain_column_froms=True)
 
     @staticmethod
     def apply_pagination(
@@ -161,6 +181,33 @@ class BaseORMModel(SQLModel, BaseModel):
         for k, v in kwargs.items():
             statement = statement.where(getattr(__base_orm_model_cls__, k) == v)
         return statement
+
+    @classmethod
+    async def execute_list_statement(
+        cls: Type["BaseORMModelType"],
+        statement: Select,
+        ordering: Optional["OrderingQuery"] = None,
+        pagination: Optional["PaginationQuery"] = None,
+    ) -> Tuple[Union[List["BaseORMModelType"], List[Row]], int]:
+        count_statement = cls.apply_count(statement)
+        statement = cls.apply_ordering(statement, ordering)
+        statement = cls.apply_pagination(statement, pagination)
+
+        async with db_session() as session:
+            row_count = await session.exec(count_statement)
+            results = await session.exec(statement)
+            row_count_value = row_count.one()
+            if not isinstance(row_count_value, int):
+                row_count_value = row_count_value[0]
+            return results.all(), row_count_value
+
+    @staticmethod
+    def parse_rows(
+        rows: List[Row], *tables: Type["BaseORMModelType"]
+    ) -> Tuple[List["BaseORMModelType"], ...]:
+        if len(rows) == 0:
+            return tuple([] for _ in tables)
+        return tuple(list(x) for x in zip(*rows))
 
 
 BaseORMModelType = TypeVar("BaseORMModelType", bound=BaseORMModel)
