@@ -115,7 +115,7 @@ router_prefix = "/api/v1"
 #     access_jwt = auth_jwt_encode_user(auth_jwt=auth_jwt, user=user)
 #
 #     logger.info(models.User.from_orm(user))
-#     logger.info("jwt=%s", access_jwt)
+#     logger.info("jwt=%s" % access_jwt)
 #
 #     response = RedirectResponse(redirect_url)
 #     response.delete_cookie(key="jaccount_state")

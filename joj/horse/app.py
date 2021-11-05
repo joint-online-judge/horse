@@ -13,7 +13,7 @@ from starlette_context import plugins
 from starlette_context.middleware import RawContextMiddleware
 from tenacity import RetryError
 
-import joj.horse.models  # noqa: F401
+import joj.horse.models
 import joj.horse.utils.monkey_patch  # noqa: F401
 from joj.horse.config import get_settings
 from joj.horse.schemas.base import StandardErrorResponse
@@ -24,6 +24,7 @@ from joj.horse.utils.lakefs import (
     examine_lakefs_buckets,
     try_init_lakefs,
 )
+from joj.horse.utils.logger import init_logging  # noqa: F401
 from joj.horse.utils.url import get_base_url
 from joj.horse.utils.version import get_git_version, get_version
 
@@ -37,6 +38,7 @@ app = FastAPI(
     redoc_url="/api/v1/redoc",
     dependencies=[Depends(db_session_dependency)],
 )
+init_logging()
 
 
 @app.on_event("startup")

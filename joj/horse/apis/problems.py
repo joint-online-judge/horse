@@ -2,8 +2,8 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import BackgroundTasks, Depends, File, Form, Query, UploadFile
+from loguru import logger
 from sqlmodel.ext.asyncio.session import AsyncSession
-from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.apis import records
@@ -69,7 +69,7 @@ async def create_problem(
     try:
         problem_group = models.ProblemGroup()
         session.sync_session.add(problem_group)
-        logger.info("problem group created: %s", problem_group)
+        logger.info("problem group created: %s" % problem_group)
         problem = models.Problem(
             **problem_create.dict(),
             domain_id=domain.id,
@@ -77,11 +77,11 @@ async def create_problem(
             problem_group_id=problem_group.id,
         )
         session.sync_session.add(problem)
-        logger.info("problem created: %s", problem)
+        logger.info("problem created: %s" % problem)
         await session.commit()
         await session.refresh(problem)
     except Exception as e:
-        logger.exception("problem creation failed: %s", problem_create)
+        logger.exception("problem creation failed: %s" % problem_create)
         raise e
     lakefs_problem_config = LakeFSProblemConfig(problem)
     background_tasks.add_task(lakefs_problem_config.ensure_branch)
@@ -169,9 +169,9 @@ async def clone_problem(
             new_problem = models.Problem(**new_problem.to_model())
             await new_problem.commit()
             res.append(models.Problem.from_orm(new_problem))
-            logger.info("problem cloned: %s", new_problem)
+            logger.info("problem cloned: %s" % new_problem)
     except Exception as e:
-        logger.exception("problems clone to problem set failed: %s", problem_set)
+        logger.exception("problems clone to problem set failed: %s" % problem_set)
         raise e
     return StandardListResponse(res)
 
@@ -208,9 +208,9 @@ async def submit_solution_to_problem(
         await record_model.commit()
         problem.num_submit += 1
         await problem.commit()
-        logger.info("problem submitted with record: %s", record_model.id)
+        logger.info("problem submitted with record: %s" % record_model.id)
     except Exception as e:
-        logger.exception("problem submission failed: %s", problem.id)
+        logger.exception("problem submission failed: %s" % problem.id)
         raise e
     record_schema = models.Record.from_orm(record_model)
     http_url = generate_url(

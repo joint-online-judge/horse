@@ -42,6 +42,7 @@ class ServerSettings(BaseModel):
         description="Comma separated list of IPs to trust with proxy headers. "
         "A wildcard '*' means always trust.",
     )
+    log_file_path: str = Field("joj.horse.log", description="Log file path.")
 
 
 class DatabaseSettings(BaseModel):

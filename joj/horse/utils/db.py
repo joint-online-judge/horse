@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from functools import lru_cache
 from typing import AsyncGenerator
@@ -63,6 +64,9 @@ async def ensure_db() -> None:
     engine = get_db_engine()
     try:
         exists = await greenlet_spawn(database_exists, engine.url)
+        logging.getLogger(
+            "sqlalchemy.engine.Engine"
+        ).handlers = []  # remove log to stdout
     except Exception:
         exists = False
     if not exists:  # pragma: no cover
