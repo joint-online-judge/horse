@@ -93,9 +93,9 @@ async def get_logout_response(
     oauth_name: Optional[str],
 ) -> Any:
     if parameters.cookie:
-        auth_jwt.unset_jwt_cookies()
+        auth_jwt.unset_jwt_cookies(response)
     if parameters.response_type == "json":
-        return schemas.StandardResponse[schemas.Empty]
+        return schemas.StandardResponse()
     if parameters.response_type == "redirect":
         for oauth_client in _oauth_clients:
             if oauth_client.name == oauth_name:
