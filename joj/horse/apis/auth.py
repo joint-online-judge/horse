@@ -162,8 +162,7 @@ def get_oauth_router(
             scopes,
         )
         if auth_parameters.response_type == "redirect":
-            # https://tools.ietf.org/id/draft-ietf-oauth-security-topics-08.html#rfc.section.3.9
-            return RedirectResponse(authorization_url, status.HTTP_303_SEE_OTHER)
+            return RedirectResponse(authorization_url, status.HTTP_302_FOUND)
         return schemas.StandardResponse(
             schemas.Redirect(redirect_url=authorization_url)
         )
