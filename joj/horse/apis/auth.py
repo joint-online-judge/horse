@@ -5,6 +5,7 @@ from urllib.parse import quote_plus
 from fastapi import Depends, HTTPException, Query, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_jwt_auth import AuthJWT
+from starlette.responses import RedirectResponse
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
@@ -93,13 +94,13 @@ async def get_logout_response(
     oauth_name: Optional[str],
 ) -> Any:
     if parameters.cookie:
-        auth_jwt.unset_jwt_cookies()
+        auth_jwt.unset_jwt_cookies(response)
     if parameters.response_type == "json":
-        return schemas.StandardResponse[schemas.Empty]
+        return schemas.StandardResponse()
     if parameters.response_type == "redirect":
         for oauth_client in _oauth_clients:
             if oauth_client.name == oauth_name:
-                pass
+                pass  # TODO: oauth logout
         redirect_url = parameters.redirect_url or str(get_base_url(request))
         if set_redirect_response(response, redirect_url):
             return None
@@ -160,7 +161,9 @@ def get_oauth_router(
             state,
             scopes,
         )
-
+        if auth_parameters.response_type == "redirect":
+            # https://tools.ietf.org/id/draft-ietf-oauth-security-topics-08.html#rfc.section.3.9
+            return RedirectResponse(authorization_url, status.HTTP_303_SEE_OTHER)
         return schemas.StandardResponse(
             schemas.Redirect(redirect_url=authorization_url)
         )
@@ -325,7 +328,7 @@ async def refresh(
     )
 
 
-_oauth_clients = []
+_oauth_clients: List[BaseOAuth2] = []
 
 if settings.oauth_jaccount:
     _oauth_clients.append(
