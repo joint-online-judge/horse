@@ -62,7 +62,7 @@ class TestDomainCreate:
         response = await create_test_domain(client, global_root_user, data)
         assert response.status_code == 200
         res = response.json()
-        assert res["error_code"] == ErrorCode.IntegrityError
+        assert res["errorCode"] == ErrorCode.IntegrityError
 
     @pytest.mark.depends(on="test_global_domains")
     async def test_no_name(
@@ -134,7 +134,7 @@ class TestDomainGet:
         response = await do_api_request(client, "GET", url, user)
         assert response.status_code == 200
         res = response.json()
-        assert res["error_code"] == ErrorCode.DomainNotFoundError
+        assert res["errorCode"] == ErrorCode.DomainNotFoundError
 
 
 @pytest.mark.asyncio
@@ -195,7 +195,7 @@ class TestDomainUpdate:
         )
         assert response.status_code == 200
         res = response.json()
-        assert res["error_code"] == ErrorCode.IntegrityError
+        assert res["errorCode"] == ErrorCode.IntegrityError
 
 
 @pytest.mark.asyncio
@@ -213,7 +213,7 @@ class TestDomainDelete:
         response = await do_api_request(client, "DELETE", url, user)
         assert response.status_code == 200
         res = response.json()
-        assert res["error_code"] == ErrorCode.APINotImplementedError
+        assert res["errorCode"] == ErrorCode.APINotImplementedError
 
 
 @pytest.mark.asyncio
@@ -257,7 +257,7 @@ class TestDomainList:
         )
         assert response.status_code == 200
         res = response.json()
-        assert res["error_code"] == ErrorCode.IllegalFieldError
+        assert res["errorCode"] == ErrorCode.IllegalFieldError
 
 
 @pytest.mark.asyncio
@@ -286,10 +286,10 @@ class TestDomainUserAdd:
     ) -> None:
         assert response.status_code == 200
         res = response.json()
-        assert res["error_code"] == ErrorCode.Success
+        assert res["errorCode"] == ErrorCode.Success
         res = res["data"]
-        assert res["domain_id"] == str(domain.id)
-        assert res["user_id"] == str(user.id)
+        assert res["domainId"] == str(domain.id)
+        assert res["userId"] == str(user.id)
         assert res["role"] == role
 
     @pytest.mark.parametrize(
@@ -360,7 +360,7 @@ class TestDomainUserAdd:
         )
         assert response.status_code == 200
         res = response.json()
-        assert res["error_code"] == ErrorCode.UserAlreadyInDomainBadRequestError
+        assert res["errorCode"] == ErrorCode.UserAlreadyInDomainBadRequestError
 
     @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_with_url")])
     @pytest.mark.depends(on="test_add_domain_default_user")
@@ -406,7 +406,7 @@ class TestDomainUserRemove:
         response = await do_api_request(client, "DELETE", url, global_root_user)
         assert response.status_code == 200
         res = response.json()
-        assert res["error_code"] == ErrorCode.Success
+        assert res["errorCode"] == ErrorCode.Success
 
         url = app.url_path_for(
             TestDomainUserGet.url_base,
@@ -416,7 +416,7 @@ class TestDomainUserRemove:
         response = await do_api_request(client, "GET", url, global_root_user)
         assert response.status_code == 200
         res = response.json()
-        assert res["error_code"] == ErrorCode.DomainUserNotFoundError
+        assert res["errorCode"] == ErrorCode.DomainUserNotFoundError
 
 
 @pytest.mark.asyncio
@@ -468,7 +468,7 @@ class TestDomainTransfer:
         else:
             assert response.status_code == 200
             res = response.json()
-            assert res["error_code"] == error_code
+            assert res["errorCode"] == error_code
 
     async def test_basic(
         self,
@@ -505,7 +505,7 @@ class TestDomainTransfer:
 #     r = client.get(f"{base_domain_url}", headers=test_user_token_headers)
 #     assert r.status_code == 200
 #     res = r.json()
-#     assert res["error_code"] == ErrorCode.Success
+#     assert res["errorCode"] == ErrorCode.Success
 #     res = res["data"]["results"]
 #     assert len(res) == 1
 #     assert res[0] == NEW_DOMAIN
@@ -517,7 +517,7 @@ class TestDomainTransfer:
 #     r = client.get(f"{base_domain_url}/{domain.url}", headers=test_user_token_headers)
 #     assert r.status_code == 200
 #     res = r.json()
-#     assert res["error_code"] == ErrorCode.Success
+#     assert res["errorCode"] == ErrorCode.Success
 #     res = res["data"]
 #     assert NEW_DOMAIN["owner"] == res["owner"]["id"]
 #     res["owner"] = NEW_DOMAIN["owner"]
@@ -537,7 +537,7 @@ class TestDomainTransfer:
 #     )
 #     assert r.status_code == 200
 #     res = r.json()
-#     assert res["error_code"] == ErrorCode.DomainInvitationBadRequestError
+#     assert res["errorCode"] == ErrorCode.DomainInvitationBadRequestError
 
 
 # def test_update_domain(
@@ -550,7 +550,7 @@ class TestDomainTransfer:
 #     )
 #     assert r.status_code == 200
 #     res = r.json()
-#     assert res["error_code"] == ErrorCode.Success
+#     assert res["errorCode"] == ErrorCode.Success
 #     res = res["data"]
 #     assert res["url"] == domain.url
 #     assert res["name"] == domain_edit.name
@@ -572,7 +572,7 @@ class TestDomainTransfer:
 #     )
 #     assert r.status_code == 200
 #     res = r.json()
-#     assert res["error_code"] == ErrorCode.UserAlreadyInDomainBadRequestError
+#     assert res["errorCode"] == ErrorCode.UserAlreadyInDomainBadRequestError
 #     # add new member
 #     r = client.post(
 #         f"{base_domain_url}/{domain.url}/members/{global_test_user.id}",
@@ -580,7 +580,7 @@ class TestDomainTransfer:
 #     )
 #     assert r.status_code == 200
 #     res = r.json()
-#     assert res["error_code"] == ErrorCode.Success
+#     assert res["errorCode"] == ErrorCode.Success
 #     # add new duplicate member
 #     r = client.post(
 #         f"{base_domain_url}/{domain.url}/members/{global_test_user.id}",
@@ -588,7 +588,7 @@ class TestDomainTransfer:
 #     )
 #     assert r.status_code == 200
 #     res = r.json()
-#     assert res["error_code"] == ErrorCode.UserAlreadyInDomainBadRequestError
+#     assert res["errorCode"] == ErrorCode.UserAlreadyInDomainBadRequestError
 
 
 # def test_list_members_in_domain(
@@ -602,7 +602,7 @@ class TestDomainTransfer:
 #     )
 #     assert r.status_code == 200
 #     res = r.json()
-#     assert res["error_code"] == ErrorCode.Success
+#     assert res["errorCode"] == ErrorCode.Success
 #     res = res["data"]["results"]
 #     assert len(res) == 2
 #     for item in res:
@@ -628,14 +628,14 @@ class TestDomainTransfer:
 #     )
 #     assert r.status_code == 200
 #     res = r.json()
-#     assert res["error_code"] == ErrorCode.Success
+#     assert res["errorCode"] == ErrorCode.Success
 #     # TODO: what about the last user / creator of the domain is deleted?
 #     r = client.get(
 #         f"{base_domain_url}/{domain.url}/members", headers=test_user_token_headers
 #     )
 #     assert r.status_code == 200
 #     res = r.json()
-#     assert res["error_code"] == ErrorCode.Success
+#     assert res["errorCode"] == ErrorCode.Success
 #     res = res["data"]["results"]
 #     assert len(res) == 1
 #     res = res[0]
@@ -657,13 +657,13 @@ class TestDomainTransfer:
 #     )
 #     assert r.status_code == 200
 #     res = r.json()
-#     assert res["error_code"] == ErrorCode.DomainInvitationBadRequestError
+#     assert res["errorCode"] == ErrorCode.DomainInvitationBadRequestError
 #     r = client.get(
 #         f"{base_domain_url}/{domain.url}/members", headers=test_user_token_headers
 #     )
 #     assert r.status_code == 200
 #     res = r.json()
-#     assert res["error_code"] == ErrorCode.Success
+#     assert res["errorCode"] == ErrorCode.Success
 #     res = res["data"]
 #     assert len(res) == 1
 #     # right invitation code
@@ -673,13 +673,13 @@ class TestDomainTransfer:
 #     )
 #     assert r.status_code == 200
 #     res = r.json()
-#     assert res["error_code"] == ErrorCode.Success
+#     assert res["errorCode"] == ErrorCode.Success
 #     r = client.get(
 #         f"{base_domain_url}/{domain.url}/members", headers=test_user_token_headers
 #     )
 #     assert r.status_code == 200
 #     res = r.json()
-#     assert res["error_code"] == ErrorCode.Success
+#     assert res["errorCode"] == ErrorCode.Success
 #     res = res["data"]["results"]
 #     assert len(res) == 2
 #     for item in res:

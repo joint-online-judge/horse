@@ -39,7 +39,7 @@ class GitHubOAuth2(BaseOAuth2[GitHubOAuth2AuthorizeParams]):
 
     async def get_profile(
         self, token: Dict[str, Any]
-    ) -> Tuple[OAuth2Profile, Dict[str, Any]]:
+    ) -> Tuple[OAuth2Profile, Dict[str, Any]]:  # pragma: no cover
         async with httpx.AsyncClient(
             headers={
                 **self.request_headers,

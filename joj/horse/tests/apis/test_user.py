@@ -47,13 +47,13 @@ class TestUserGet:
         r = await client.get(base_user_url, headers=headers)
         assert r.status_code == 200
         res = r.json()
-        assert res["error_code"] == ErrorCode.Success
+        assert res["errorCode"] == ErrorCode.Success
         res = res["data"]
         assert res["username"] == user.username
         assert res["email"] == user.email
-        assert res["student_id"] == user.student_id
-        assert res["real_name"] == user.real_name
-        assert res["login_ip"] == user.login_ip
+        assert res["studentId"] == user.student_id
+        assert res["realName"] == user.real_name
+        assert res["loginIp"] == user.login_ip
 
 
 @pytest.mark.asyncio
@@ -111,7 +111,7 @@ class TestUserGetError:
 #     r = client.get(f"{base_user_url}/problems", headers=test_user_token_headers)
 #     assert r.status_code == 200
 #     res = r.json()
-#     assert res["error_code"] == ErrorCode.Success
+#     assert res["errorCode"] == ErrorCode.Success
 #     res = res["data"]["results"]
 #     assert len(res) == 1
 #     res = res[0]
