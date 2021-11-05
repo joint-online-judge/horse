@@ -5,7 +5,6 @@ from urllib.parse import quote_plus
 from fastapi import Depends, HTTPException, Query, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_jwt_auth import AuthJWT
-from starlette.responses import RedirectResponse
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
@@ -161,8 +160,6 @@ def get_oauth_router(
             state,
             scopes,
         )
-        if auth_parameters.response_type == "redirect":
-            return RedirectResponse(authorization_url, status.HTTP_302_FOUND)
         return schemas.StandardResponse(
             schemas.Redirect(redirect_url=authorization_url)
         )
