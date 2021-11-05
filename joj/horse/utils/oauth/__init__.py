@@ -219,7 +219,7 @@ class BaseOAuth2(Generic[T]):
 
     async def get_profile(
         self, token: Dict[str, Any]
-    ) -> Tuple[OAuth2Profile, Dict[str, Any]]:
+    ) -> Tuple[OAuth2Profile, Dict[str, Any]]:  # pragma: no cover
         raise NotImplementedError()
 
 

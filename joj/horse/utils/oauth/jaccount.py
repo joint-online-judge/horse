@@ -38,7 +38,7 @@ class JaccountOAuth2(BaseOAuth2[JaccountOAuth2AuthorizeParams]):
 
     async def get_profile(
         self, token: Dict[str, Any]
-    ) -> Tuple[OAuth2Profile, Dict[str, Any]]:
+    ) -> Tuple[OAuth2Profile, Dict[str, Any]]:  # pragma: no cover
         async with httpx.AsyncClient(headers=self.request_headers) as client:
             response = await client.get(
                 PROFILE_ENDPOINT, params={"access_token": token["access_token"]}
