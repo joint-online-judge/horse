@@ -18,7 +18,7 @@ The new generation of JOJ Backend. "Horse" is related to speed, an excellent fea
 Refer to <https://joint-online-judge.github.io/horse/> to prepare your environment.
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 -
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
 poetry install --no-dev
 vi .env # configure environment
 ```
@@ -33,7 +33,7 @@ poetry run pytest -svv
 ## Usage
 
 ```bash
-poetry run python3 -m joj.horse
+poetry run python -m joj.horse
 ```
 
 Check <http://127.0.0.1:34765/api/v1> for api documentation.
