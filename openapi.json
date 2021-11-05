@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 3474762@2021-11-04T11:53:49Z",
+    "description": "Git version: fcd1dab@2021-11-05T13:40:36Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -1371,10 +1371,10 @@
           {
             "required": true,
             "schema": {
-              "title": "Invitation Code",
+              "title": "Invitationcode",
               "type": "string"
             },
-            "name": "invitation_code",
+            "name": "invitationCode",
             "in": "query"
           }
         ],
@@ -1466,7 +1466,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListProblemSetsResp"
+                  "$ref": "#/components/schemas/ProblemSetListResp"
                 }
               }
             }
@@ -1578,11 +1578,11 @@
             "description": "url or id of the problem set",
             "required": true,
             "schema": {
-              "title": "Problem Set",
+              "title": "Problemset",
               "type": "string",
               "description": "url or id of the problem set"
             },
-            "name": "problem_set",
+            "name": "problemSet",
             "in": "path"
           },
           {
@@ -1646,11 +1646,11 @@
             "description": "url or id of the problem set",
             "required": true,
             "schema": {
-              "title": "Problem Set",
+              "title": "Problemset",
               "type": "string",
               "description": "url or id of the problem set"
             },
-            "name": "problem_set",
+            "name": "problemSet",
             "in": "path"
           },
           {
@@ -1715,11 +1715,11 @@
             "description": "url or id of the problem set",
             "required": true,
             "schema": {
-              "title": "Problem Set",
+              "title": "Problemset",
               "type": "string",
               "description": "url or id of the problem set"
             },
-            "name": "problem_set",
+            "name": "problemSet",
             "in": "path"
           },
           {
@@ -1795,11 +1795,11 @@
             "description": "url or id of the problem set",
             "required": true,
             "schema": {
-              "title": "Problem Set",
+              "title": "Problemset",
               "type": "string",
               "description": "url or id of the problem set"
             },
-            "name": "problem_set",
+            "name": "problemSet",
             "in": "path"
           },
           {
@@ -1875,19 +1875,19 @@
           {
             "required": false,
             "schema": {
-              "title": "Problem Set",
+              "title": "Problemset",
               "type": "string"
             },
-            "name": "problem_set",
+            "name": "problemSet",
             "in": "query"
           },
           {
             "required": false,
             "schema": {
-              "title": "Problem Group",
+              "title": "Problemgroup",
               "type": "string"
             },
-            "name": "problem_group",
+            "name": "problemGroup",
             "in": "query"
           },
           {
@@ -2495,10 +2495,10 @@
           {
             "required": false,
             "schema": {
-              "title": "Problem Set",
+              "title": "Problemset",
               "type": "string"
             },
-            "name": "problem_set",
+            "name": "problemSet",
             "in": "query"
           },
           {
@@ -2552,7 +2552,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListRecordsResp"
+                  "$ref": "#/components/schemas/RecordListResp"
                 }
               }
             }
@@ -3264,25 +3264,25 @@
           {
             "required": true,
             "schema": {
-              "title": "Response Type",
+              "title": "Responsetype",
               "enum": [
                 "redirect",
                 "json"
               ],
               "type": "string"
             },
-            "name": "response_type",
+            "name": "responseType",
             "in": "query"
           },
           {
             "description": "The redirect url after the operation",
             "required": false,
             "schema": {
-              "title": "Redirect Url",
+              "title": "Redirecturl",
               "type": "string",
               "description": "The redirect url after the operation"
             },
-            "name": "redirect_url",
+            "name": "redirectUrl",
             "in": "query"
           }
         ],
@@ -3290,7 +3290,7 @@
           "content": {
             "application/x-www-form-urlencoded": {
               "schema": {
-                "$ref": "#/components/schemas/Body_login_api_v1_auth_login_post"
+                "$ref": "#/components/schemas/OAuth2PasswordRequestForm"
               }
             }
           },
@@ -3353,25 +3353,25 @@
           {
             "required": true,
             "schema": {
-              "title": "Response Type",
+              "title": "Responsetype",
               "enum": [
                 "redirect",
                 "json"
               ],
               "type": "string"
             },
-            "name": "response_type",
+            "name": "responseType",
             "in": "query"
           },
           {
             "description": "The redirect url after the operation",
             "required": false,
             "schema": {
-              "title": "Redirect Url",
+              "title": "Redirecturl",
               "type": "string",
               "description": "The redirect url after the operation"
             },
-            "name": "redirect_url",
+            "name": "redirectUrl",
             "in": "query"
           }
         ],
@@ -3437,25 +3437,25 @@
           {
             "required": true,
             "schema": {
-              "title": "Response Type",
+              "title": "Responsetype",
               "enum": [
                 "redirect",
                 "json"
               ],
               "type": "string"
             },
-            "name": "response_type",
+            "name": "responseType",
             "in": "query"
           },
           {
             "description": "The redirect url after the operation",
             "required": false,
             "schema": {
-              "title": "Redirect Url",
+              "title": "Redirecturl",
               "type": "string",
               "description": "The redirect url after the operation"
             },
-            "name": "redirect_url",
+            "name": "redirectUrl",
             "in": "query"
           }
         ],
@@ -3531,25 +3531,25 @@
           {
             "required": true,
             "schema": {
-              "title": "Response Type",
+              "title": "Responsetype",
               "enum": [
                 "redirect",
                 "json"
               ],
               "type": "string"
             },
-            "name": "response_type",
+            "name": "responseType",
             "in": "query"
           },
           {
             "description": "The redirect url after the operation",
             "required": false,
             "schema": {
-              "title": "Redirect Url",
+              "title": "Redirecturl",
               "type": "string",
               "description": "The redirect url after the operation"
             },
-            "name": "redirect_url",
+            "name": "redirectUrl",
             "in": "query"
           }
         ],
@@ -3610,25 +3610,25 @@
           {
             "required": true,
             "schema": {
-              "title": "Response Type",
+              "title": "Responsetype",
               "enum": [
                 "redirect",
                 "json"
               ],
               "type": "string"
             },
-            "name": "response_type",
+            "name": "responseType",
             "in": "query"
           },
           {
             "description": "The redirect url after the operation",
             "required": false,
             "schema": {
-              "title": "Redirect Url",
+              "title": "Redirecturl",
               "type": "string",
               "description": "The redirect url after the operation"
             },
-            "name": "redirect_url",
+            "name": "redirectUrl",
             "in": "query"
           }
         ],
@@ -3881,28 +3881,28 @@
           {
             "required": true,
             "schema": {
-              "title": "Student Id",
+              "title": "Studentid",
               "type": "string"
             },
-            "name": "student_id",
+            "name": "studentId",
             "in": "query"
           },
           {
             "required": true,
             "schema": {
-              "title": "Jaccount Name",
+              "title": "Jaccountname",
               "type": "string"
             },
-            "name": "jaccount_name",
+            "name": "jaccountName",
             "in": "query"
           },
           {
             "required": true,
             "schema": {
-              "title": "Real Name",
+              "title": "Realname",
               "type": "string"
             },
-            "name": "real_name",
+            "name": "realName",
             "in": "query"
           },
           {
@@ -4352,22 +4352,22 @@
       "AuthTokens": {
         "title": "AuthTokens",
         "required": [
-          "access_token",
-          "refresh_token",
-          "token_type"
+          "accessToken",
+          "refreshToken",
+          "tokenType"
         ],
         "type": "object",
         "properties": {
-          "access_token": {
-            "title": "Access Token",
+          "accessToken": {
+            "title": "Accesstoken",
             "type": "string"
           },
-          "refresh_token": {
-            "title": "Refresh Token",
+          "refreshToken": {
+            "title": "Refreshtoken",
             "type": "string"
           },
-          "token_type": {
-            "title": "Token Type",
+          "tokenType": {
+            "title": "Tokentype",
             "type": "string"
           }
         }
@@ -4375,55 +4375,19 @@
       "AuthTokensResp": {
         "title": "AuthTokensResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
             "$ref": "#/components/schemas/AuthTokens"
-          }
-        }
-      },
-      "Body_login_api_v1_auth_login_post": {
-        "title": "Body_login_api_v1_auth_login_post",
-        "required": [
-          "username",
-          "password"
-        ],
-        "type": "object",
-        "properties": {
-          "grant_type": {
-            "title": "Grant Type",
-            "pattern": "password",
-            "type": "string"
-          },
-          "username": {
-            "title": "Username",
-            "type": "string"
-          },
-          "password": {
-            "title": "Password",
-            "type": "string"
-          },
-          "scope": {
-            "title": "Scope",
-            "type": "string",
-            "default": ""
-          },
-          "client_id": {
-            "title": "Client Id",
-            "type": "string"
-          },
-          "client_secret": {
-            "title": "Client Secret",
-            "type": "string"
           }
         }
       },
@@ -4457,7 +4421,7 @@
         "required": [
           "url",
           "name",
-          "owner_id"
+          "ownerId"
         ],
         "type": "object",
         "properties": {
@@ -4497,18 +4461,18 @@
             "type": "string",
             "format": "uuid"
           },
-          "created_at": {
-            "title": "Created At",
+          "createdAt": {
+            "title": "Createdat",
             "type": "string",
             "format": "date-time"
           },
-          "updated_at": {
-            "title": "Updated At",
+          "updatedAt": {
+            "title": "Updatedat",
             "type": "string",
             "format": "date-time"
           },
-          "owner_id": {
-            "title": "Owner Id",
+          "ownerId": {
+            "title": "Ownerid",
             "type": "string",
             "format": "uuid"
           }
@@ -4589,7 +4553,7 @@
         "title": "DomainInvitation",
         "required": [
           "url",
-          "domain_id"
+          "domainId"
         ],
         "type": "object",
         "properties": {
@@ -4604,8 +4568,8 @@
             "description": "invitation code",
             "default": ""
           },
-          "expire_at": {
-            "title": "Expire At",
+          "expireAt": {
+            "title": "Expireat",
             "type": "string",
             "description": "expire time of invitation",
             "format": "date-time",
@@ -4622,18 +4586,18 @@
             "type": "string",
             "format": "uuid"
           },
-          "created_at": {
-            "title": "Created At",
+          "createdAt": {
+            "title": "Createdat",
             "type": "string",
             "format": "date-time"
           },
-          "updated_at": {
-            "title": "Updated At",
+          "updatedAt": {
+            "title": "Updatedat",
             "type": "string",
             "format": "date-time"
           },
-          "domain_id": {
-            "title": "Domain Id",
+          "domainId": {
+            "title": "Domainid",
             "type": "string",
             "format": "uuid"
           }
@@ -4642,7 +4606,7 @@
       "DomainInvitationCreate": {
         "title": "DomainInvitationCreate",
         "required": [
-          "expire_at"
+          "expireAt"
         ],
         "type": "object",
         "properties": {
@@ -4659,8 +4623,8 @@
             "description": "invitation code",
             "default": ""
           },
-          "expire_at": {
-            "title": "Expire At",
+          "expireAt": {
+            "title": "Expireat",
             "type": "string",
             "format": "date-time"
           },
@@ -4682,8 +4646,8 @@
             "type": "string",
             "description": "invitation code"
           },
-          "expire_at": {
-            "title": "Expire At",
+          "expireAt": {
+            "title": "Expireat",
             "type": "string",
             "description": "expire time of invitation",
             "format": "date-time"
@@ -4698,15 +4662,15 @@
       "DomainInvitationResp": {
         "title": "DomainInvitationResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
@@ -4736,15 +4700,15 @@
       "DomainListResp": {
         "title": "DomainListResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
@@ -4787,8 +4751,8 @@
               "view_config": false
             }
           },
-          "problem_set": {
-            "title": "Problem Set",
+          "problemSet": {
+            "title": "Problemset",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ProblemSetPermission"
@@ -4826,15 +4790,15 @@
       "DomainResp": {
         "title": "DomainResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
@@ -4847,7 +4811,7 @@
         "required": [
           "role",
           "permission",
-          "domain_id"
+          "domainId"
         ],
         "type": "object",
         "properties": {
@@ -4856,13 +4820,13 @@
             "type": "string",
             "format": "uuid"
           },
-          "created_at": {
-            "title": "Created At",
+          "createdAt": {
+            "title": "Createdat",
             "type": "string",
             "format": "date-time"
           },
-          "updated_at": {
-            "title": "Updated At",
+          "updatedAt": {
+            "title": "Updatedat",
             "type": "string",
             "format": "date-time"
           },
@@ -4874,8 +4838,8 @@
             "title": "Permission",
             "type": "object"
           },
-          "domain_id": {
-            "title": "Domain Id",
+          "domainId": {
+            "title": "Domainid",
             "type": "string",
             "format": "uuid"
           }
@@ -4978,15 +4942,15 @@
       "DomainRoleListResp": {
         "title": "DomainRoleListResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
@@ -4997,15 +4961,15 @@
       "DomainRoleResp": {
         "title": "DomainRoleResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
@@ -5016,12 +4980,12 @@
       "DomainTransfer": {
         "title": "DomainTransfer",
         "required": [
-          "target_user"
+          "targetUser"
         ],
         "type": "object",
         "properties": {
-          "target_user": {
-            "title": "Target User",
+          "targetUser": {
+            "title": "Targetuser",
             "type": "string",
             "description": "'me' or id of the user"
           }
@@ -5031,8 +4995,8 @@
         "title": "DomainUser",
         "required": [
           "role",
-          "domain_id",
-          "user_id"
+          "domainId",
+          "userId"
         ],
         "type": "object",
         "properties": {
@@ -5041,13 +5005,13 @@
             "type": "string",
             "format": "uuid"
           },
-          "created_at": {
-            "title": "Created At",
+          "createdAt": {
+            "title": "Createdat",
             "type": "string",
             "format": "date-time"
           },
-          "updated_at": {
-            "title": "Updated At",
+          "updatedAt": {
+            "title": "Updatedat",
             "type": "string",
             "format": "date-time"
           },
@@ -5055,13 +5019,13 @@
             "title": "Role",
             "type": "string"
           },
-          "domain_id": {
-            "title": "Domain Id",
+          "domainId": {
+            "title": "Domainid",
             "type": "string",
             "format": "uuid"
           },
-          "user_id": {
-            "title": "User Id",
+          "userId": {
+            "title": "Userid",
             "type": "string",
             "format": "uuid"
           }
@@ -5111,15 +5075,15 @@
       "DomainUserListResp": {
         "title": "DomainUserListResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
@@ -5130,12 +5094,12 @@
       "DomainUserPermission": {
         "title": "DomainUserPermission",
         "required": [
-          "domain_user",
+          "domainUser",
           "permission"
         ],
         "type": "object",
         "properties": {
-          "domain_user": {
+          "domainUser": {
             "$ref": "#/components/schemas/DomainUser"
           },
           "permission": {
@@ -5146,15 +5110,15 @@
       "DomainUserPermissionResp": {
         "title": "DomainUserPermissionResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
@@ -5165,15 +5129,15 @@
       "DomainUserResp": {
         "title": "DomainUserResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
@@ -5203,15 +5167,15 @@
       "EmptyResp": {
         "title": "EmptyResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
@@ -5264,13 +5228,13 @@
             "type": "boolean",
             "default": true
           },
-          "edit_permission": {
-            "title": "Edit Permission",
+          "editPermission": {
+            "title": "Editpermission",
             "type": "boolean",
             "default": false
           },
-          "view_mod_badge": {
-            "title": "View Mod Badge",
+          "viewModBadge": {
+            "title": "Viewmodbadge",
             "type": "boolean",
             "default": true
           },
@@ -5279,8 +5243,8 @@
             "type": "boolean",
             "default": false
           },
-          "unlimited_quota": {
-            "title": "Unlimited Quota",
+          "unlimitedQuota": {
+            "title": "Unlimitedquota",
             "type": "boolean",
             "default": false
           }
@@ -5324,9 +5288,9 @@
           "category",
           "username",
           "email",
-          "student_id",
-          "real_name",
-          "is_active"
+          "studentId",
+          "realName",
+          "isActive"
         ],
         "type": "object",
         "properties": {
@@ -5379,24 +5343,24 @@
             "title": "Email",
             "type": "string"
           },
-          "student_id": {
-            "title": "Student Id",
+          "studentId": {
+            "title": "Studentid",
             "type": "string"
           },
-          "real_name": {
-            "title": "Real Name",
+          "realName": {
+            "title": "Realname",
             "type": "string"
           },
           "role": {
             "title": "Role",
             "type": "string"
           },
-          "oauth_name": {
-            "title": "Oauth Name",
+          "oauthName": {
+            "title": "Oauthname",
             "type": "string"
           },
-          "is_active": {
-            "title": "Is Active",
+          "isActive": {
+            "title": "Isactive",
             "type": "boolean"
           }
         }
@@ -5404,15 +5368,15 @@
       "JWTAccessTokenResp": {
         "title": "JWTAccessTokenResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
@@ -5420,73 +5384,39 @@
           }
         }
       },
-      "ListProblemSets": {
-        "title": "ListProblemSets",
+      "OAuth2PasswordRequestForm": {
+        "title": "OAuth2PasswordRequestForm",
         "required": [
-          "results"
+          "username",
+          "password"
         ],
         "type": "object",
         "properties": {
-          "results": {
-            "title": "Results",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/joj__horse__schemas__problem_set__ProblemSet"
-            }
-          }
-        }
-      },
-      "ListProblemSetsResp": {
-        "title": "ListProblemSetsResp",
-        "required": [
-          "error_code"
-        ],
-        "type": "object",
-        "properties": {
-          "error_code": {
-            "$ref": "#/components/schemas/ErrorCode"
-          },
-          "error_msg": {
-            "title": "Error Msg",
+          "grantType": {
+            "title": "Granttype",
+            "pattern": "password",
             "type": "string"
           },
-          "data": {
-            "$ref": "#/components/schemas/ListProblemSets"
-          }
-        }
-      },
-      "ListRecords": {
-        "title": "ListRecords",
-        "required": [
-          "results"
-        ],
-        "type": "object",
-        "properties": {
-          "results": {
-            "title": "Results",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/joj__horse__schemas__record__Record"
-            }
-          }
-        }
-      },
-      "ListRecordsResp": {
-        "title": "ListRecordsResp",
-        "required": [
-          "error_code"
-        ],
-        "type": "object",
-        "properties": {
-          "error_code": {
-            "$ref": "#/components/schemas/ErrorCode"
-          },
-          "error_msg": {
-            "title": "Error Msg",
+          "username": {
+            "title": "Username",
             "type": "string"
           },
-          "data": {
-            "$ref": "#/components/schemas/ListRecords"
+          "password": {
+            "title": "Password",
+            "type": "string"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string",
+            "default": ""
+          },
+          "clientId": {
+            "title": "Clientid",
+            "type": "string"
+          },
+          "clientSecret": {
+            "title": "Clientsecret",
+            "type": "string"
           }
         }
       },
@@ -5495,9 +5425,9 @@
         "required": [
           "url",
           "title",
-          "domain_id",
-          "owner_id",
-          "problem_group_id"
+          "domainId",
+          "ownerId",
+          "problemGroupId"
         ],
         "type": "object",
         "properties": {
@@ -5529,28 +5459,28 @@
             "type": "string",
             "format": "uuid"
           },
-          "created_at": {
-            "title": "Created At",
+          "createdAt": {
+            "title": "Createdat",
             "type": "string",
             "format": "date-time"
           },
-          "updated_at": {
-            "title": "Updated At",
+          "updatedAt": {
+            "title": "Updatedat",
             "type": "string",
             "format": "date-time"
           },
-          "num_submit": {
-            "title": "Num Submit",
+          "numSubmit": {
+            "title": "Numsubmit",
             "type": "integer",
             "default": 0
           },
-          "num_accept": {
-            "title": "Num Accept",
+          "numAccept": {
+            "title": "Numaccept",
             "type": "integer",
             "default": 0
           },
-          "data_version": {
-            "title": "Data Version",
+          "dataVersion": {
+            "title": "Dataversion",
             "type": "integer",
             "default": 2
           },
@@ -5559,18 +5489,18 @@
             "type": "string",
             "default": "[]"
           },
-          "domain_id": {
-            "title": "Domain Id",
+          "domainId": {
+            "title": "Domainid",
             "type": "string",
             "format": "uuid"
           },
-          "owner_id": {
-            "title": "Owner Id",
+          "ownerId": {
+            "title": "Ownerid",
             "type": "string",
             "format": "uuid"
           },
-          "problem_group_id": {
-            "title": "Problem Group Id",
+          "problemGroupId": {
+            "title": "Problemgroupid",
             "type": "string",
             "format": "uuid"
           }
@@ -5580,7 +5510,7 @@
         "title": "ProblemClone",
         "required": [
           "problems",
-          "problem_set"
+          "problemSet"
         ],
         "type": "object",
         "properties": {
@@ -5591,13 +5521,13 @@
               "type": "string"
             }
           },
-          "problem_set": {
-            "title": "Problem Set",
+          "problemSet": {
+            "title": "Problemset",
             "type": "string",
             "description": "url or id of the problem set"
           },
-          "new_group": {
-            "title": "New Group",
+          "newGroup": {
+            "title": "Newgroup",
             "type": "boolean",
             "description": "whether to create new problem group",
             "default": false
@@ -5685,13 +5615,13 @@
             "type": "string",
             "format": "uuid"
           },
-          "created_at": {
-            "title": "Created At",
+          "createdAt": {
+            "title": "Createdat",
             "type": "string",
             "format": "date-time"
           },
-          "updated_at": {
-            "title": "Updated At",
+          "updatedAt": {
+            "title": "Updatedat",
             "type": "string",
             "format": "date-time"
           }
@@ -5719,15 +5649,15 @@
       "ProblemGroupListResp": {
         "title": "ProblemGroupListResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
@@ -5757,15 +5687,15 @@
       "ProblemListResp": {
         "title": "ProblemListResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
@@ -5787,8 +5717,8 @@
             "type": "boolean",
             "default": true
           },
-          "view_hidden": {
-            "title": "View Hidden",
+          "viewHidden": {
+            "title": "Viewhidden",
             "type": "boolean",
             "default": false
           },
@@ -5802,8 +5732,8 @@
             "type": "boolean",
             "default": false
           },
-          "view_config": {
-            "title": "View Config",
+          "viewConfig": {
+            "title": "Viewconfig",
             "type": "boolean",
             "default": false
           }
@@ -5812,15 +5742,15 @@
       "ProblemResp": {
         "title": "ProblemResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
@@ -5828,12 +5758,101 @@
           }
         }
       },
+      "ProblemSet": {
+        "title": "ProblemSet",
+        "required": [
+          "url",
+          "title",
+          "domainId",
+          "ownerId"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string",
+            "description": "title of the problem set"
+          },
+          "content": {
+            "title": "Content",
+            "maxLength": 65536,
+            "type": "string",
+            "description": "content of the problem set",
+            "default": ""
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "whether the problem set is hidden",
+            "default": false
+          },
+          "scoreboardHidden": {
+            "title": "Scoreboardhidden",
+            "type": "boolean",
+            "description": "whether the scoreboard of the problem set is hidden",
+            "default": false
+          },
+          "availableTime": {
+            "title": "Availabletime",
+            "type": "string",
+            "description": "the problem set is available from",
+            "format": "date-time"
+          },
+          "dueTime": {
+            "title": "Duetime",
+            "type": "string",
+            "description": "the problem set is due at",
+            "format": "date-time"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "numSubmit": {
+            "title": "Numsubmit",
+            "type": "integer",
+            "default": 0
+          },
+          "numAccept": {
+            "title": "Numaccept",
+            "type": "integer",
+            "default": 0
+          },
+          "domainId": {
+            "title": "Domainid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "ownerId": {
+            "title": "Ownerid",
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "ProblemSetCreate": {
         "title": "ProblemSetCreate",
         "required": [
           "title",
-          "available_time",
-          "due_time"
+          "availableTime",
+          "dueTime"
         ],
         "type": "object",
         "properties": {
@@ -5863,19 +5882,19 @@
             "description": "whether the problem set is hidden",
             "default": false
           },
-          "scoreboard_hidden": {
-            "title": "Scoreboard Hidden",
+          "scoreboardHidden": {
+            "title": "Scoreboardhidden",
             "type": "boolean",
             "description": "whether the scoreboard of the problem set is hidden",
             "default": false
           },
-          "available_time": {
-            "title": "Available Time",
+          "availableTime": {
+            "title": "Availabletime",
             "type": "string",
             "format": "date-time"
           },
-          "due_time": {
-            "title": "Due Time",
+          "dueTime": {
+            "title": "Duetime",
             "type": "string",
             "format": "date-time"
           }
@@ -5904,19 +5923,57 @@
             "title": "Hidden",
             "type": "boolean"
           },
-          "scoreboard_hidden": {
-            "title": "Scoreboard Hidden",
+          "scoreboardHidden": {
+            "title": "Scoreboardhidden",
             "type": "boolean"
           },
-          "available_time": {
-            "title": "Available Time",
+          "availableTime": {
+            "title": "Availabletime",
             "type": "string",
             "format": "date-time"
           },
-          "due_time": {
-            "title": "Due Time",
+          "dueTime": {
+            "title": "Duetime",
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "ProblemSetList": {
+        "title": "ProblemSetList",
+        "type": "object",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer",
+            "default": 0
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProblemSet"
+            },
+            "default": []
+          }
+        }
+      },
+      "ProblemSetListResp": {
+        "title": "ProblemSetListResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProblemSetList"
           }
         }
       },
@@ -5934,8 +5991,8 @@
             "type": "boolean",
             "default": true
           },
-          "view_hidden": {
-            "title": "View Hidden",
+          "viewHidden": {
+            "title": "Viewhidden",
             "type": "boolean",
             "default": false
           },
@@ -5959,8 +6016,8 @@
             "type": "boolean",
             "default": false
           },
-          "view_config": {
-            "title": "View Config",
+          "viewConfig": {
+            "title": "Viewconfig",
             "type": "boolean",
             "default": false
           }
@@ -5969,31 +6026,31 @@
       "ProblemSetResp": {
         "title": "ProblemSetResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
-            "$ref": "#/components/schemas/joj__horse__models__problem_set__ProblemSet"
+            "$ref": "#/components/schemas/ProblemSet"
           }
         }
       },
       "ProblemSolutionSubmit": {
         "title": "ProblemSolutionSubmit",
         "required": [
-          "code_type",
+          "codeType",
           "file"
         ],
         "type": "object",
         "properties": {
-          "code_type": {
+          "codeType": {
             "$ref": "#/components/schemas/RecordCodeType"
           },
           "file": {
@@ -6002,6 +6059,11 @@
             "format": "binary"
           }
         }
+      },
+      "Record": {
+        "title": "Record",
+        "type": "object",
+        "properties": {}
       },
       "RecordCase": {
         "title": "RecordCase",
@@ -6020,18 +6082,18 @@
             "type": "integer",
             "default": 0
           },
-          "time_ms": {
-            "title": "Time Ms",
+          "timeMs": {
+            "title": "Timems",
             "type": "integer",
             "default": 0
           },
-          "memory_kb": {
-            "title": "Memory Kb",
+          "memoryKb": {
+            "title": "Memorykb",
             "type": "integer",
             "default": 0
           },
-          "execute_status": {
-            "title": "Execute Status",
+          "executeStatus": {
+            "title": "Executestatus",
             "type": "integer",
             "default": 0
           },
@@ -6075,6 +6137,44 @@
         "type": "integer",
         "description": "An enumeration."
       },
+      "RecordList": {
+        "title": "RecordList",
+        "type": "object",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer",
+            "default": 0
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Record"
+            },
+            "default": []
+          }
+        }
+      },
+      "RecordListResp": {
+        "title": "RecordListResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RecordList"
+          }
+        }
+      },
       "RecordPermission": {
         "title": "RecordPermission",
         "type": "object",
@@ -6109,19 +6209,19 @@
       "RecordResp": {
         "title": "RecordResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
-            "$ref": "#/components/schemas/joj__horse__models__record__Record"
+            "$ref": "#/components/schemas/Record"
           }
         }
       },
@@ -6130,9 +6230,9 @@
         "required": [
           "status",
           "score",
-          "time_ms",
-          "memory_kb",
-          "judge_at"
+          "timeMs",
+          "memoryKb",
+          "judgeAt"
         ],
         "type": "object",
         "properties": {
@@ -6143,16 +6243,16 @@
             "title": "Score",
             "type": "integer"
           },
-          "time_ms": {
-            "title": "Time Ms",
+          "timeMs": {
+            "title": "Timems",
             "type": "integer"
           },
-          "memory_kb": {
-            "title": "Memory Kb",
+          "memoryKb": {
+            "title": "Memorykb",
             "type": "integer"
           },
-          "judge_at": {
-            "title": "Judge At",
+          "judgeAt": {
+            "title": "Judgeat",
             "type": "string",
             "format": "date-time"
           }
@@ -6182,8 +6282,8 @@
         "required": [
           "score",
           "time",
-          "full_score",
-          "time_spent",
+          "fullScore",
+          "timeSpent",
           "tried"
         ],
         "type": "object",
@@ -6197,12 +6297,12 @@
             "type": "string",
             "format": "date-time"
           },
-          "full_score": {
-            "title": "Full Score",
+          "fullScore": {
+            "title": "Fullscore",
             "type": "integer"
           },
-          "time_spent": {
-            "title": "Time Spent",
+          "timeSpent": {
+            "title": "Timespent",
             "type": "number",
             "format": "time-delta"
           },
@@ -6215,13 +6315,13 @@
       "ScoreBoard": {
         "title": "ScoreBoard",
         "required": [
-          "problem_ids",
+          "problemIds",
           "results"
         ],
         "type": "object",
         "properties": {
-          "problem_ids": {
-            "title": "Problem Ids",
+          "problemIds": {
+            "title": "Problemids",
             "type": "array",
             "items": {
               "type": "string"
@@ -6239,15 +6339,15 @@
       "ScoreBoardResp": {
         "title": "ScoreBoardResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
@@ -6260,9 +6360,9 @@
         "required": [
           "username",
           "email",
-          "login_at",
-          "username_lower",
-          "email_lower"
+          "loginAt",
+          "usernameLower",
+          "emailLower"
         ],
         "type": "object",
         "properties": {
@@ -6271,13 +6371,13 @@
             "type": "string",
             "format": "uuid"
           },
-          "created_at": {
-            "title": "Created At",
+          "createdAt": {
+            "title": "Createdat",
             "type": "string",
             "format": "date-time"
           },
-          "updated_at": {
-            "title": "Updated At",
+          "updatedAt": {
+            "title": "Updatedat",
             "type": "string",
             "format": "date-time"
           },
@@ -6295,13 +6395,13 @@
             "type": "string",
             "default": ""
           },
-          "student_id": {
-            "title": "Student Id",
+          "studentId": {
+            "title": "Studentid",
             "type": "string",
             "default": ""
           },
-          "real_name": {
-            "title": "Real Name",
+          "realName": {
+            "title": "Realname",
             "type": "string",
             "default": ""
           },
@@ -6310,37 +6410,37 @@
             "type": "string",
             "default": "user"
           },
-          "is_active": {
-            "title": "Is Active",
+          "isActive": {
+            "title": "Isactive",
             "type": "boolean",
             "default": false
           },
-          "register_ip": {
-            "title": "Register Ip",
+          "registerIp": {
+            "title": "Registerip",
             "type": "string",
             "default": "127.0.0.1"
           },
-          "login_at": {
-            "title": "Login At",
+          "loginAt": {
+            "title": "Loginat",
             "type": "string",
             "format": "date-time"
           },
-          "login_ip": {
-            "title": "Login Ip",
+          "loginIp": {
+            "title": "Loginip",
             "type": "string",
             "default": "127.0.0.1"
           },
-          "hashed_password": {
-            "title": "Hashed Password",
+          "hashedPassword": {
+            "title": "Hashedpassword",
             "type": "string",
             "default": ""
           },
-          "username_lower": {
-            "title": "Username Lower",
+          "usernameLower": {
+            "title": "Usernamelower",
             "type": "string"
           },
-          "email_lower": {
-            "title": "Email Lower",
+          "emailLower": {
+            "title": "Emaillower",
             "type": "string",
             "format": "email"
           }
@@ -6359,13 +6459,13 @@
             "type": "string",
             "format": "uuid"
           },
-          "created_at": {
-            "title": "Created At",
+          "createdAt": {
+            "title": "Createdat",
             "type": "string",
             "format": "date-time"
           },
-          "updated_at": {
-            "title": "Updated At",
+          "updatedAt": {
+            "title": "Updatedat",
             "type": "string",
             "format": "date-time"
           },
@@ -6383,13 +6483,13 @@
             "type": "string",
             "default": ""
           },
-          "student_id": {
-            "title": "Student Id",
+          "studentId": {
+            "title": "Studentid",
             "type": "string",
             "default": ""
           },
-          "real_name": {
-            "title": "Real Name",
+          "realName": {
+            "title": "Realname",
             "type": "string",
             "default": ""
           },
@@ -6398,8 +6498,8 @@
             "type": "string",
             "default": "user"
           },
-          "is_active": {
-            "title": "Is Active",
+          "isActive": {
+            "title": "Isactive",
             "type": "boolean",
             "default": false
           }
@@ -6427,15 +6527,15 @@
       "UserBaseListResp": {
         "title": "UserBaseListResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
@@ -6446,15 +6546,15 @@
       "UserBaseResp": {
         "title": "UserBaseResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
@@ -6493,7 +6593,7 @@
         "required": [
           "username",
           "email",
-          "login_at"
+          "loginAt"
         ],
         "type": "object",
         "properties": {
@@ -6502,13 +6602,13 @@
             "type": "string",
             "format": "uuid"
           },
-          "created_at": {
-            "title": "Created At",
+          "createdAt": {
+            "title": "Createdat",
             "type": "string",
             "format": "date-time"
           },
-          "updated_at": {
-            "title": "Updated At",
+          "updatedAt": {
+            "title": "Updatedat",
             "type": "string",
             "format": "date-time"
           },
@@ -6526,13 +6626,13 @@
             "type": "string",
             "default": ""
           },
-          "student_id": {
-            "title": "Student Id",
+          "studentId": {
+            "title": "Studentid",
             "type": "string",
             "default": ""
           },
-          "real_name": {
-            "title": "Real Name",
+          "realName": {
+            "title": "Realname",
             "type": "string",
             "default": ""
           },
@@ -6541,23 +6641,23 @@
             "type": "string",
             "default": "user"
           },
-          "is_active": {
-            "title": "Is Active",
+          "isActive": {
+            "title": "Isactive",
             "type": "boolean",
             "default": false
           },
-          "register_ip": {
-            "title": "Register Ip",
+          "registerIp": {
+            "title": "Registerip",
             "type": "string",
             "default": "127.0.0.1"
           },
-          "login_at": {
-            "title": "Login At",
+          "loginAt": {
+            "title": "Loginat",
             "type": "string",
             "format": "date-time"
           },
-          "login_ip": {
-            "title": "Login Ip",
+          "loginIp": {
+            "title": "Loginip",
             "type": "string",
             "default": "127.0.0.1"
           }
@@ -6566,15 +6666,15 @@
       "UserDetailResp": {
         "title": "UserDetailResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
@@ -6604,15 +6704,15 @@
       "UserListResp": {
         "title": "UserListResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
@@ -6623,15 +6723,15 @@
       "UserResp": {
         "title": "UserResp",
         "required": [
-          "error_code"
+          "errorCode"
         ],
         "type": "object",
         "properties": {
-          "error_code": {
+          "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
-          "error_msg": {
-            "title": "Error Msg",
+          "errorMsg": {
+            "title": "Errormsg",
             "type": "string"
           },
           "data": {
@@ -6643,8 +6743,8 @@
         "title": "UserScore",
         "required": [
           "user",
-          "total_score",
-          "total_time_spent",
+          "totalScore",
+          "totalTimeSpent",
           "scores"
         ],
         "type": "object",
@@ -6652,12 +6752,12 @@
           "user": {
             "$ref": "#/components/schemas/UserBase"
           },
-          "total_score": {
-            "title": "Total Score",
+          "totalScore": {
+            "title": "Totalscore",
             "type": "integer"
           },
-          "total_time_spent": {
-            "title": "Total Time Spent",
+          "totalTimeSpent": {
+            "title": "Totaltimespent",
             "type": "number",
             "format": "time-delta"
           },
@@ -6713,110 +6813,6 @@
             "type": "string"
           }
         }
-      },
-      "joj__horse__models__problem_set__ProblemSet": {
-        "title": "ProblemSet",
-        "required": [
-          "url",
-          "title",
-          "domain_id",
-          "owner_id"
-        ],
-        "type": "object",
-        "properties": {
-          "url": {
-            "title": "Url",
-            "type": "string"
-          },
-          "title": {
-            "title": "Title",
-            "maxLength": 256,
-            "minLength": 1,
-            "type": "string",
-            "description": "title of the problem set"
-          },
-          "content": {
-            "title": "Content",
-            "maxLength": 65536,
-            "type": "string",
-            "description": "content of the problem set",
-            "default": ""
-          },
-          "hidden": {
-            "title": "Hidden",
-            "type": "boolean",
-            "description": "whether the problem set is hidden",
-            "default": false
-          },
-          "scoreboard_hidden": {
-            "title": "Scoreboard Hidden",
-            "type": "boolean",
-            "description": "whether the scoreboard of the problem set is hidden",
-            "default": false
-          },
-          "available_time": {
-            "title": "Available Time",
-            "type": "string",
-            "description": "the problem set is available from",
-            "format": "date-time"
-          },
-          "due_time": {
-            "title": "Due Time",
-            "type": "string",
-            "description": "the problem set is due at",
-            "format": "date-time"
-          },
-          "id": {
-            "title": "Id",
-            "type": "string",
-            "format": "uuid"
-          },
-          "created_at": {
-            "title": "Created At",
-            "type": "string",
-            "format": "date-time"
-          },
-          "updated_at": {
-            "title": "Updated At",
-            "type": "string",
-            "format": "date-time"
-          },
-          "num_submit": {
-            "title": "Num Submit",
-            "type": "integer",
-            "default": 0
-          },
-          "num_accept": {
-            "title": "Num Accept",
-            "type": "integer",
-            "default": 0
-          },
-          "domain_id": {
-            "title": "Domain Id",
-            "type": "string",
-            "format": "uuid"
-          },
-          "owner_id": {
-            "title": "Owner Id",
-            "type": "string",
-            "format": "uuid"
-          }
-        }
-      },
-      "joj__horse__models__record__Record": {
-        "title": "Record",
-        "type": "object",
-        "properties": {}
-      },
-      "joj__horse__schemas__problem_set__ProblemSet": {
-        "title": "ProblemSet",
-        "type": "object",
-        "properties": {}
-      },
-      "joj__horse__schemas__record__Record": {
-        "title": "Record",
-        "type": "object",
-        "properties": {}
       }
     },
     "securitySchemes": {
