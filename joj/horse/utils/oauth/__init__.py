@@ -246,7 +246,7 @@ class OAuth2Dependency:
         self.redirect_url = redirect_url
 
     def oauth_client(self) -> Any:
-        @camelcase_parameters
+        # @camelcase_parameters
         def func(
             oauth2: str = Path(..., description="OAuth client name")
         ) -> BaseOAuth2[Any]:

@@ -9,7 +9,6 @@ from uvicorn.config import logger
 
 from joj.horse import models, schemas
 from joj.horse.config import settings
-from joj.horse.schemas.base import camelcase_parameters
 from joj.horse.utils.auth import (
     AuthParams,
     JWTAccessToken,
@@ -35,7 +34,7 @@ router_tag = "auth"
 router_prefix = "/api/v1"
 
 
-@camelcase_parameters
+# @camelcase_parameters
 def auth_parameters_dependency(
     cookie: bool = Query(True, description="Add Set/Delete-Cookie on response header"),
     response_type: Literal["redirect", "json"] = Query(...),
