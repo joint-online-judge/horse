@@ -40,7 +40,7 @@ def generate_auth_headers(user: models.User) -> Dict[str, str]:
 def get_path_by_url_type(model: Any, url_type: str) -> str:
     if url_type == "url":
         return model.url
-    elif url_type == "id" or url_type == "pk":
+    if url_type == "id" or url_type == "pk":
         return model.id
     assert False
 

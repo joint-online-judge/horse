@@ -17,11 +17,10 @@ async def parse_uid(
 ) -> models.UserBase:
     if uid == "me":
         return parse_user_from_auth(auth)
-    else:
-        user = await models.User.get_or_none(id=uid)
-        if user:
-            return user
-        raise BizError(ErrorCode.UserNotFoundError)
+    user = await models.User.get_or_none(id=uid)
+    if user:
+        return user
+    raise BizError(ErrorCode.UserNotFoundError)
 
 
 async def parse_uid_or_none(
