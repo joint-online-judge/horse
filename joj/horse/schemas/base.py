@@ -193,8 +193,10 @@ def camelcase_parameters(func: Any) -> Any:
     parameters = list(func_sig.parameters.values())
     start_index = -1
     for i, parameter in enumerate(parameters):
-        if parameter.default and isinstance(
-            parameter.default, (params.Query, params.Path)
+        if (
+            parameter.default
+            and isinstance(parameter.default, (params.Query, params.Path))
+            and parameter.default.alias is None
         ):
             if start_index < 0:
                 start_index = i
