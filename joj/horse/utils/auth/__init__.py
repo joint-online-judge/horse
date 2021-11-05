@@ -120,7 +120,7 @@ def auth_jwt_encode_user(
         raise UnauthorizedError(
             "At least one of user and oauth2_profile should be provided."
         )
-    elif user is not None and oauth is not None:
+    if user is not None and oauth is not None:
         raise UnauthorizedError(
             "At most one of user and oauth2_profile should be provided."
         )
@@ -297,8 +297,7 @@ def get_site_role(
 def get_site_permission(site_role: str = Depends(get_site_role)) -> SitePermission:
     if site_role in DEFAULT_SITE_PERMISSION:
         return DEFAULT_SITE_PERMISSION[DefaultRole(site_role)]
-    else:
-        return DEFAULT_SITE_PERMISSION[DefaultRole.GUEST]
+    return DEFAULT_SITE_PERMISSION[DefaultRole.GUEST]
 
 
 async def get_domain(
@@ -344,10 +343,9 @@ async def get_domain_permission(
         _domain_role = None
     if _domain_role:
         return DomainPermission(**_domain_role.permission)
-    elif domain_role in DEFAULT_DOMAIN_PERMISSION:
+    if domain_role in DEFAULT_DOMAIN_PERMISSION:
         return DEFAULT_DOMAIN_PERMISSION[DefaultRole(domain_role)]
-    else:
-        return DEFAULT_DOMAIN_PERMISSION[DefaultRole.GUEST]
+    return DEFAULT_DOMAIN_PERMISSION[DefaultRole.GUEST]
 
 
 def is_domain_permission(scope: ScopeType) -> bool:
@@ -486,19 +484,18 @@ class PermissionChecker:
         if isinstance(perm, PermKey):
             if auth.check(perm.scope, perm.permission):
                 return None
-            else:
-                return perm
+            return perm
 
         for child in perm.permissions:
             result = self.check(auth, child)
             if result is None and perm.action == "OR":
                 return None
-            elif result is not None and perm.action == "AND":
+            if result is not None and perm.action == "AND":
                 return result
 
         if perm.action == "OR":
             return PermKey(ScopeType.UNKNOWN, PermissionType.unknown)
-        elif perm.action == "AND":
+        if perm.action == "AND":
             return None
 
         return PermKey(ScopeType.UNKNOWN, PermissionType.unknown)
@@ -600,5 +597,4 @@ def ensure_permission(
     perm = construct_perm(arg1, arg2)
     if contains_domain(perm):
         return DomainPermissionChecker(perm)
-    else:
-        return UserPermissionChecker(perm)
+    return UserPermissionChecker(perm)
