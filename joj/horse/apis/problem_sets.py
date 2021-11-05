@@ -5,11 +5,8 @@ from fastapi import Depends
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
-from joj.horse.schemas import Empty, StandardResponse
+from joj.horse.schemas import Empty, StandardListResponse, StandardResponse
 from joj.horse.schemas.permission import Permission
-from joj.horse.schemas.problem_set import ListProblemSets
-from joj.horse.schemas.record import RecordStatus
-from joj.horse.schemas.score import Score, ScoreBoard, UserScore
 from joj.horse.utils.auth import Authentication, ensure_permission
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
@@ -34,13 +31,13 @@ async def list_problem_sets(
     domain: models.Domain = Depends(parse_domain_from_auth),
     query: schemas.PaginationQuery = Depends(parse_pagination_query),
     auth: Authentication = Depends(),
-) -> StandardResponse[ListProblemSets]:
+) -> StandardListResponse[models.ProblemSet]:
     condition = {"owner": auth.user.id}
     if domain is not None:
         condition["domain"] = str(domain.id)
     cursor = models.ProblemSet.cursor_find(condition, query)
     res = await models.ProblemSet.to_list(cursor)
-    return StandardResponse(ListProblemSets(results=res))
+    return StandardResponse(res)
 
 
 @router.post(
@@ -90,7 +87,7 @@ async def update_problem_set(
 async def get_scoreboard(
     problem_set: models.ProblemSet = Depends(parse_problem_set_with_time),
     domain: models.Domain = Depends(parse_domain_from_auth),
-) -> StandardResponse[ScoreBoard]:
+) -> StandardResponse[models.ScoreBoard]:
     if problem_set.scoreboard_hidden:
         raise BizError(ErrorCode.ScoreboardHiddenBadRequestError)
     # domain: models.Domain = await problem_set.domain.fetch()
@@ -98,11 +95,11 @@ async def get_scoreboard(
         field="user", condition={"domain": domain.id}
     )
     users = await models.User.to_list(cursor)
-    results: List[UserScore] = []
+    results: List[models.UserScore] = []
     problem_ids: List[str] = []
     firstUser = True
     for user in users:
-        scores: List[Score] = []
+        scores: List[models.Score] = []
         total_score = 0
         total_time_spent = timedelta(0)
         problem: models.Problem
@@ -110,12 +107,12 @@ async def get_scoreboard(
             if firstUser:
                 problem_ids.append(problem.id)
             record_model: models.Record = await models.Record.find_one(
-                {
-                    "user": str(user.id),
-                    "problem": problem.id,
-                    "submit_at": {"$gte": problem_set.available_time},
-                    "status": {"$nin": [RecordStatus.waiting, RecordStatus.judging]},
-                },
+                # {
+                #     "user": str(user.id),
+                #     "problem": problem.id,
+                #     "submit_at": {"$gte": problem_set.available_time},
+                #     "status": {"$nin": [RecordStatus.waiting, RecordStatus.judging]},
+                # },
                 sort=[("submit_at", "DESCENDING")],
             )
             tried = record_model is not None
@@ -131,7 +128,7 @@ async def get_scoreboard(
             total_score += score
             total_time_spent += time_spent
             scores.append(
-                Score(
+                models.Score(
                     score=score,
                     time=time,
                     full_score=full_score,
@@ -139,7 +136,7 @@ async def get_scoreboard(
                     tried=tried,
                 )
             )
-        user_score = UserScore(
+        user_score = models.UserScore(
             user=user,
             total_score=total_score,
             total_time_spent=total_time_spent,
@@ -148,4 +145,4 @@ async def get_scoreboard(
         results.append(user_score)
         firstUser = False
     results.sort(key=lambda x: (x.total_score, x.total_time_spent))
-    return StandardResponse(ScoreBoard(results=results, problem_ids=problem_ids))
+    return StandardResponse(models.ScoreBoard(results=results, problem_ids=problem_ids))

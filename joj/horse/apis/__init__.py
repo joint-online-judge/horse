@@ -14,6 +14,7 @@ from joj.horse.apis import (
     user as user,
     users as users,
 )
+from joj.horse.apis.auth import login
 from joj.horse.apis.problems import submit_solution_to_problem, update_problem_config
 from joj.horse.app import app
 
@@ -65,3 +66,4 @@ def update_schema_name(
 
 update_schema_name(app, submit_solution_to_problem, "ProblemSolutionSubmit")
 update_schema_name(app, update_problem_config, "ProblemConfigEdit")
+update_schema_name(app, login, "OAuth2PasswordRequestForm")

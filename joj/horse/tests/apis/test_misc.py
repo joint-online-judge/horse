@@ -48,11 +48,11 @@ class TestMisc:
             "category",
             "username",
             "email",
-            "student_id",
-            "real_name",
+            "studentId",
+            "realName",
             "role",
-            "oauth_name",
-            "is_active",
+            "oauthName",
+            "isActive",
         ]:
             assert res_jwt_dict.get(key) == header_jwt_dict.get(key)
 

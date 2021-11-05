@@ -35,9 +35,9 @@ class TestAuthRegister:
     async def test_global_users(self, client: AsyncClient, username: str) -> None:
         response = await create_test_user(client, username)
         res = get_data_from_response(response)
-        assert res["access_token"]
-        assert res["refresh_token"]
-        assert res["token_type"] == "bearer"
+        assert res["accessToken"]
+        assert res["refreshToken"]
+        assert res["tokenType"] == "bearer"
 
 
 @pytest.mark.asyncio
@@ -68,39 +68,39 @@ class TestAuthToken:
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
     async def test_get_access_token(self, client: AsyncClient, user: User) -> None:
         url = f"{base_auth_url}/token"
-        query = {"response_type": "json", "cookie": False}
+        query = {"responseType": "json", "cookie": False}
         access_token = user_access_tokens[user.id]
         headers = {"Authorization": f"Bearer {access_token}"}
         response = await do_api_request(
             client, "GET", url, user, query=query, headers=headers
         )
         res = get_data_from_response(response)
-        assert res["access_token"] == access_token
-        assert res["token_type"] == "bearer"
+        assert res["accessToken"] == access_token
+        assert res["tokenType"] == "bearer"
 
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
     async def test_get_refresh_token(self, client: AsyncClient, user: User) -> None:
         url = f"{base_auth_url}/token"
-        query = {"response_type": "json", "cookie": False}
+        query = {"responseType": "json", "cookie": False}
         refresh_token = user_refresh_tokens[user.id]
         headers = {"Authorization": f"Bearer {refresh_token}"}
         response = await do_api_request(
             client, "GET", url, user, query=query, headers=headers
         )
         res = get_data_from_response(response)
-        assert res["refresh_token"] == refresh_token
-        assert res["token_type"] == "bearer"
+        assert res["refreshToken"] == refresh_token
+        assert res["tokenType"] == "bearer"
 
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
     async def test_refresh(self, client: AsyncClient, user: User) -> None:
         url = f"{base_auth_url}/refresh"
-        query = {"response_type": "json", "cookie": False}
+        query = {"responseType": "json", "cookie": False}
         refresh_token = user_refresh_tokens[user.id]
         headers = {"Authorization": f"Bearer {refresh_token}"}
         response = await do_api_request(
             client, "POST", url, user, query=query, headers=headers
         )
         res = get_data_from_response(response)
-        assert res["access_token"]
-        assert res["refresh_token"]
-        assert res["token_type"] == "bearer"
+        assert res["accessToken"]
+        assert res["refreshToken"]
+        assert res["tokenType"] == "bearer"

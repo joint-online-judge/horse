@@ -34,6 +34,7 @@ router_tag = "auth"
 router_prefix = "/api/v1"
 
 
+# @camelcase_parameters
 def auth_parameters_dependency(
     cookie: bool = Query(True, description="Add Set/Delete-Cookie on response header"),
     response_type: Literal["redirect", "json"] = Query(...),
@@ -137,7 +138,7 @@ def get_oauth_router(
         ]
         return schemas.StandardListResponse(result)
 
-    @oauth_router.get("/{oauth_name}/authorize", name=authorize_route_name)
+    @oauth_router.get("/{oauth2}/authorize", name=authorize_route_name)
     async def authorize(
         request: Request,
         oauth_client: BaseOAuth2 = Depends(oauth2_dependency.oauth_client()),
@@ -149,7 +150,7 @@ def get_oauth_router(
             authorize_redirect_url = callback_redirect_url
         else:
             authorize_redirect_url = request.url_for(
-                callback_route_name, oauth_name=oauth_client.name
+                callback_route_name, oauth2=oauth_client.name
             )
 
         state_data = {"auth_parameters": auth_parameters.dict()}
@@ -165,7 +166,7 @@ def get_oauth_router(
         )
 
     @oauth_router.get(
-        "/{oauth_name}/callback", name=callback_route_name, include_in_schema=False
+        "/{oauth2}/callback", name=callback_route_name, include_in_schema=False
     )
     async def callback(
         request: Request,
@@ -220,111 +221,108 @@ def get_oauth_router(
     return oauth_router
 
 
-def get_auth_router(
-    oauth_clients: List[BaseOAuth2],
-) -> MyRouter:
-    auth_router = MyRouter()
+@router.post("/login")
+async def login(
+    request: Request,
+    response: Response,
+    auth_parameters: AuthParams = Depends(auth_parameters_dependency),
+    auth_jwt: AuthJWT = Depends(AuthJWT),
+    credentials: OAuth2PasswordRequestForm = Depends(),
+) -> schemas.StandardResponse[schemas.AuthTokens]:
+    user = await models.User.get_or_none(username=credentials.username)
+    user.login_at = datetime.now(tz=timezone.utc)
+    user.login_ip = request.client.host
+    await user.save_model()
+    logger.info("user login: %s", user)
+    access_token, refresh_token = auth_jwt_encode_user(auth_jwt, user=user)
+    return await get_login_response(
+        request, response, auth_jwt, auth_parameters, access_token, refresh_token
+    )
 
-    @auth_router.post("/login")
-    async def login(
-        request: Request,
-        response: Response,
-        auth_parameters: AuthParams = Depends(auth_parameters_dependency),
-        auth_jwt: AuthJWT = Depends(AuthJWT),
-        credentials: OAuth2PasswordRequestForm = Depends(),
-    ) -> schemas.StandardResponse[schemas.AuthTokens]:
-        user = await models.User.get_or_none(username=credentials.username)
-        user.login_at = datetime.now(tz=timezone.utc)
-        user.login_ip = request.client.host
-        await user.save_model()
-        logger.info("user login: %s", user)
-        access_token, refresh_token = auth_jwt_encode_user(auth_jwt, user=user)
-        return await get_login_response(
-            request, response, auth_jwt, auth_parameters, access_token, refresh_token
-        )
+    # raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
-        # raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
-    @auth_router.post("/logout")
-    async def logout(
-        request: Request,
-        response: Response,
-        auth_parameters: AuthParams = Depends(auth_parameters_dependency),
-        auth_jwt: AuthJWT = Depends(AuthJWT),
-        jwt_access_token: JWTAccessToken = Depends(auth_jwt_decode_access_token),
-    ) -> Any:
-        oauth = jwt_access_token.oauth_name
-        return await get_logout_response(
-            request, response, auth_jwt, auth_parameters, oauth
-        )
+@router.post("/logout")
+async def logout(
+    request: Request,
+    response: Response,
+    auth_parameters: AuthParams = Depends(auth_parameters_dependency),
+    auth_jwt: AuthJWT = Depends(AuthJWT),
+    jwt_access_token: JWTAccessToken = Depends(auth_jwt_decode_access_token),
+) -> Any:
+    oauth = jwt_access_token.oauth_name
+    return await get_logout_response(
+        request, response, auth_jwt, auth_parameters, oauth
+    )
 
-    @auth_router.post("/register")
-    async def register(
-        request: Request,
-        response: Response,
-        user_create: models.UserCreate,
-        auth_parameters: AuthParams = Depends(auth_parameters_dependency),
-        auth_jwt: AuthJWT = Depends(AuthJWT),
-        jwt_access_token: Optional[JWTAccessToken] = Depends(
-            auth_jwt_decode_access_token_optional
-        ),
-    ) -> schemas.StandardResponse[schemas.AuthTokens]:
-        if jwt_access_token is not None and jwt_access_token.category == "user":
-            jwt_access_token = None
-            # raise BizError(
-            #     ErrorCode.UserRegisterError,
-            #     "user already login, please logout before register",
-            # )
-        user_model = await models.User.create(
-            user_create=user_create,
-            jwt_access_token=jwt_access_token,
-            register_ip=request.client.host,
-        )
+
+@router.post("/register")
+async def register(
+    request: Request,
+    response: Response,
+    user_create: models.UserCreate,
+    auth_parameters: AuthParams = Depends(auth_parameters_dependency),
+    auth_jwt: AuthJWT = Depends(AuthJWT),
+    jwt_access_token: Optional[JWTAccessToken] = Depends(
+        auth_jwt_decode_access_token_optional
+    ),
+) -> schemas.StandardResponse[schemas.AuthTokens]:
+    if jwt_access_token is not None and jwt_access_token.category == "user":
+        jwt_access_token = None
+        # raise BizError(
+        #     ErrorCode.UserRegisterError,
+        #     "user already login, please logout before register",
+        # )
+    user_model = await models.User.create(
+        user_create=user_create,
+        jwt_access_token=jwt_access_token,
+        register_ip=request.client.host,
+    )
+    access_token, refresh_token = auth_jwt_encode_user(
+        auth_jwt, user=user_model, oauth_name=user_create.oauth_name
+    )
+    return await get_login_response(
+        request, response, auth_jwt, auth_parameters, access_token, refresh_token
+    )
+
+
+@router.get("/token")
+async def get_token(
+    request: Request,
+    response: Response,
+    auth_parameters: AuthParams = Depends(auth_parameters_dependency),
+    auth_jwt: AuthJWT = Depends(AuthJWT),
+    access_token: str = Depends(auth_jwt_raw_access_token),
+    refresh_token: str = Depends(auth_jwt_raw_refresh_token),
+) -> schemas.StandardResponse[schemas.AuthTokens]:
+    return await get_login_response(
+        request,
+        response,
+        auth_jwt,
+        auth_parameters,
+        access_token,
+        refresh_token,
+    )
+
+
+@router.post("/refresh")
+async def refresh(
+    request: Request,
+    response: Response,
+    auth_parameters: AuthParams = Depends(auth_parameters_dependency),
+    auth_jwt: AuthJWT = Depends(AuthJWT),
+    jwt_refresh_token: JWTToken = Depends(auth_jwt_decode_refresh_token),
+) -> schemas.StandardResponse[schemas.AuthTokens]:
+    user = await models.User.get_or_none(id=jwt_refresh_token.id)
+    if user is None:
+        access_token, refresh_token = "", ""
+    else:
         access_token, refresh_token = auth_jwt_encode_user(
-            auth_jwt, user=user_model, oauth_name=user_create.oauth_name
+            auth_jwt, user=user, fresh=False
         )
-        return await get_login_response(
-            request, response, auth_jwt, auth_parameters, access_token, refresh_token
-        )
-
-    @auth_router.get("/token")
-    async def get_token(
-        request: Request,
-        response: Response,
-        auth_parameters: AuthParams = Depends(auth_parameters_dependency),
-        auth_jwt: AuthJWT = Depends(AuthJWT),
-        access_token: str = Depends(auth_jwt_raw_access_token),
-        refresh_token: str = Depends(auth_jwt_raw_refresh_token),
-    ) -> schemas.StandardResponse[schemas.AuthTokens]:
-        return await get_login_response(
-            request,
-            response,
-            auth_jwt,
-            auth_parameters,
-            access_token,
-            refresh_token,
-        )
-
-    @auth_router.post("/refresh")
-    async def refresh(
-        request: Request,
-        response: Response,
-        auth_parameters: AuthParams = Depends(auth_parameters_dependency),
-        auth_jwt: AuthJWT = Depends(AuthJWT),
-        jwt_refresh_token: JWTToken = Depends(auth_jwt_decode_refresh_token),
-    ) -> schemas.StandardResponse[schemas.AuthTokens]:
-        user = await models.User.get_or_none(id=jwt_refresh_token.id)
-        if user is None:
-            access_token, refresh_token = "", ""
-        else:
-            access_token, refresh_token = auth_jwt_encode_user(
-                auth_jwt, user=user, fresh=False
-            )
-        return await get_login_response(
-            request, response, auth_jwt, auth_parameters, access_token, refresh_token
-        )
-
-    return auth_router
+    return await get_login_response(
+        request, response, auth_jwt, auth_parameters, access_token, refresh_token
+    )
 
 
 _oauth_clients = []
@@ -344,5 +342,3 @@ for _oauth_client in _oauth_clients:
         get_oauth_router(_oauth_clients),
         prefix="/oauth2",
     )
-
-router.include_router(get_auth_router(_oauth_clients))

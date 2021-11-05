@@ -13,7 +13,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.types import DateTime
 from sqlmodel import Field, SQLModel, delete, select, update
 
-from joj.horse.schemas.base import UserInputURL
+from joj.horse.schemas.base import BaseModel, UserInputURL
 from joj.horse.utils.base import is_uuid
 from joj.horse.utils.db import db_session
 
@@ -56,7 +56,7 @@ class UTCDatetime(datetime):
         return datetime.fromtimestamp(parse_datetime(v).timestamp())
 
 
-class BaseORMModel(SQLModel):
+class BaseORMModel(SQLModel, BaseModel):
     id: UUID = Field(default_factory=uuid4, primary_key=True, nullable=False)
     created_at: Optional[datetime] = Field(
         None, sa_column=get_datetime_column(server_default=utcnow())
@@ -91,7 +91,6 @@ class BaseORMModel(SQLModel):
                 select(__base_orm_model_cls__), **kwargs
             )
             results = await session.exec(statement)
-            session.sync_session.query()
             return results.one_or_none()
 
     @classmethod
@@ -214,7 +213,7 @@ class BaseORMModel(SQLModel):
 BaseORMModelType = TypeVar("BaseORMModelType", bound=BaseORMModel)
 
 
-class URLMixin(BaseORMModel):
+class URLMixin(SQLModel, BaseModel):
     url: UserInputURL = Field("", description="(unique) url of the domain")
 
 

@@ -34,7 +34,17 @@ from joj.horse.models.problem_set import (
     ProblemSetCreate as ProblemSetCreate,
     ProblemSetEdit as ProblemSetEdit,
 )
-from joj.horse.models.record import Record as Record, RecordCodeType as RecordCodeType
+from joj.horse.models.record import (
+    Record as Record,
+    RecordCaseResult as RecordCaseResult,
+    RecordCodeType as RecordCodeType,
+    RecordResult as RecordResult,
+)
+from joj.horse.models.score import (
+    Score as Score,
+    ScoreBoard as ScoreBoard,
+    UserScore as UserScore,
+)
 from joj.horse.models.user import (
     User as User,
     UserBase as UserBase,
