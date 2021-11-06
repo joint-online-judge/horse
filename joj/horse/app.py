@@ -44,7 +44,7 @@ init_logging()
 @app.on_event("startup")
 async def startup_event() -> None:  # pragma: no cover
     try:
-        logger.info("Using %s." % asyncio.get_running_loop().__module__)
+        logger.info(f"Using {asyncio.get_running_loop().__module__}.")
         await try_init_db()
 
         if settings.lakefs_host:
