@@ -150,6 +150,11 @@ class User(UserDetail, table=True):  # type: ignore[call-arg]
                 username = oauth_account.account_name
             if not user_create.email:
                 email = oauth_account.account_email
+            elif user_create.email != oauth_account.account_email:
+                raise BizError(
+                    ErrorCode.UserRegisterError,
+                    "email must be same as the primary email of oauth account",
+                )
             student_id = jwt_access_token.student_id
             real_name = jwt_access_token.real_name
             is_active = True
