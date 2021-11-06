@@ -13,7 +13,8 @@ def main() -> None:  # pragma: no cover
         port=settings.port,
         reload=settings.debug,
         forwarded_allow_ips=settings.forwarded_allow_ips,
-        reload_dirs=["joj"],
+        reload_dirs=(["joj"] if settings.debug else None),
+        workers=settings.workers,
     )
 
 

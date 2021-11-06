@@ -24,6 +24,7 @@ class ServerSettings(BaseModel):
 
     host: str = Field("127.0.0.1", description="Bind socket to this host.")
     port: int = Field(34765, description="Bind socket to this port.")
+    workers: int = Field(1, description="Uvicorn workers count.")
 
     """
     Examples of  domain and root_path
@@ -42,7 +43,6 @@ class ServerSettings(BaseModel):
         description="Comma separated list of IPs to trust with proxy headers. "
         "A wildcard '*' means always trust.",
     )
-    log_file_path: str = Field("joj.horse.log", description="Log file path.")
 
 
 class DatabaseSettings(BaseModel):
