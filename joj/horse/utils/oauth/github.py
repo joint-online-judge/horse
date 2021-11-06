@@ -63,8 +63,11 @@ class GitHubOAuth2(BaseOAuth2[GitHubOAuth2AuthorizeParams]):
                     raise GetProfileError(response.json())
 
                 emails = cast(List[Dict[str, Any]], response.json())
-
-                account_email = emails[0]["email"]
+                for email in emails:
+                    if email["primary"]:
+                        account_email = email["email"]
+                if account_email is None:
+                    raise GetProfileError(response.json())
 
             return (
                 OAuth2Profile(
