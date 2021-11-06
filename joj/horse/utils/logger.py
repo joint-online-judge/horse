@@ -38,7 +38,7 @@ class InterceptHandler(logging.Handler):
         logger.opt(depth=depth, exception=record.exc_info).log(level, msg)
 
 
-def init_logging() -> None:
+def init_logging(test: bool = False) -> None:
     """
     Replaces logging handlers with a handler for using the custom handler.
 
@@ -70,19 +70,21 @@ def init_logging() -> None:
     logging.getLogger("sqlalchemy").handlers = [InterceptHandler()]
 
     # set logs output, level and format
-    logger.configure(handlers=[dict(sink=sys.stderr, level="DEBUG", enqueue=True)])
-    logger.add(
-        "uvicorn.log",
-        filter=lambda record: record["name"].startswith("uvicorn"),
-        enqueue=True,
-    )
-    logger.add(
-        "joj.horse.log",
-        filter=lambda record: record["name"].startswith("joj.horse"),
-        enqueue=True,
-    )
-    logger.add(
-        "sqlalchemy.log",
-        filter=lambda record: record["name"].startswith("sqlalchemy"),
-        enqueue=True,
-    )
+    logger.remove()
+    if not test:
+        logger.add(sys.stderr, level="DEBUG", enqueue=True)
+        logger.add(
+            "uvicorn.log",
+            filter=lambda record: record["name"].startswith("uvicorn"),
+            enqueue=True,
+        )
+        logger.add(
+            "joj.horse.log",
+            filter=lambda record: record["name"].startswith("joj.horse"),
+            enqueue=True,
+        )
+        logger.add(
+            "sqlalchemy.log",
+            filter=lambda record: record["name"].startswith("sqlalchemy"),
+            enqueue=True,
+        )
