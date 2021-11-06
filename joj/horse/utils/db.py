@@ -74,11 +74,7 @@ async def ensure_db() -> None:
         logger.info("Database {} created.", settings.db_name)
     else:  # pragma: no cover
         logger.info("Database {} already exists.", settings.db_name)
-    await generate_schema()
-
-
-async def generate_schema() -> None:
-    async with get_db_engine().begin() as conn:  # pragma: no cover
+    async with engine.begin() as conn:  # pragma: no cover
         await conn.run_sync(SQLModel.metadata.create_all)
         logger.info("SQLModel generated schema.")
 
@@ -88,8 +84,6 @@ async def try_init_db() -> None:
     attempt_number = try_init_db.retry.statistics["attempt_number"]
     try:
         await ensure_db()
-        # if settings.debug:
-        #     await generate_schema()
     except Exception as e:
         max_attempt_number = try_init_db.retry.stop.max_attempt_number
         msg = "SQLModel: initialization failed ({}/{})".format(
