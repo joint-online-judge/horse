@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import List
 
 from fastapi import Depends
-from uvicorn.config import logger
+from loguru import logger
 
 from joj.horse import models, schemas
 from joj.horse.schemas import Empty, StandardListResponse, StandardResponse
@@ -53,7 +53,7 @@ async def create_problem_set(
         domain_id=domain.id,
         owner_id=user.id,
     )
-    logger.info("create problem set: %s", problem_set)
+    logger.info(f"create problem set: {problem_set}")
     await problem_set.save_model()
     return StandardResponse(problem_set)
 

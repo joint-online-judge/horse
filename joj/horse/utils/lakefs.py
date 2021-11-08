@@ -4,10 +4,10 @@ import boto3
 from lakefs_client import Configuration, __version__ as lakefs_client_version, models
 from lakefs_client.client import LakeFSClient
 from lakefs_client.exceptions import ApiException as LakeFSApiException
+from loguru import logger
 from tenacity import retry
 from tenacity.stop import stop_after_attempt
 from tenacity.wait import wait_exponential
-from uvicorn.config import logger
 
 from joj.horse.config import settings
 
@@ -29,9 +29,8 @@ def init_lakefs() -> None:
     server_version = response["version"]
     __client = client
     logger.info(
-        "LakeFS connected: client version %s, server version %s.",
-        lakefs_client_version,
-        server_version,
+        f"LakeFS connected: client version {lakefs_client_version}, "
+        f"server version {server_version}."
     )
 
 
@@ -65,7 +64,7 @@ def create_bucket(bucket: str) -> None:
         raise ValueError("only s3 bucket can be automatically created")
     if not settings.s3_host or not settings.s3_port:
         raise ValueError("s3 host or port not defined")
-    logger.info("LakeFS: create bucket %s automatically.", bucket)
+    logger.info(f"LakeFS: create bucket {bucket} automatically.")
     try:
         s3 = boto3.resource(
             "s3",
@@ -77,7 +76,7 @@ def create_bucket(bucket: str) -> None:
         )
         s3.create_bucket(Bucket=bucket[5:])
     except Exception as e:
-        logger.error("LakeFS: create bucket %s failed.", bucket)
+        logger.error(f"LakeFS: create bucket {bucket} failed.")
         logger.error("Please check the s3 settings or create the bucket yourselves.")
         raise e
 
@@ -93,7 +92,7 @@ def examine_bucket(bucket: str) -> None:
 
     repo_name = "joj-generated-for-test-do-not-edit"
     namespace = f"{bucket}/{repo_name}"
-    logger.info("LakeFS: examine bucket %s.", bucket)
+    logger.info(f"LakeFS: examine bucket {bucket}.")
     # delete the test repo if exists
     delete_test_repo(repo_name)
     # create the test repo
@@ -101,7 +100,7 @@ def examine_bucket(bucket: str) -> None:
     client.repositories.create_repository(new_repo)
     # delete the test repo again
     delete_test_repo(repo_name)
-    logger.info("LakeFS: examine bucket %s succeeded.", bucket)
+    logger.info(f"LakeFS: examine bucket {bucket} succeeded.")
 
 
 def examine_lakefs_buckets() -> None:
@@ -112,7 +111,7 @@ def examine_lakefs_buckets() -> None:
         try:
             examine_bucket(bucket)
         except LakeFSApiException:
-            logger.warning("LakeFS: examine bucket %s failed.", bucket)
+            logger.warning(f"LakeFS: examine bucket {bucket} failed.")
             create_bucket(bucket)
             examine_bucket(bucket)
 
@@ -139,7 +138,7 @@ class LakeFSProblemConfig:
             self.repo = self.client.repositories.get_repository(
                 repository=self.repo_name
             )
-            logger.info("LakeFS get repo: %s", self.repo)
+            logger.info(f"LakeFS get repo: {self.repo}")
         except LakeFSApiException:
             namespace = f"{settings.bucket_config}/{self.repo_id}"
             new_repo = models.RepositoryCreation(
@@ -148,7 +147,7 @@ class LakeFSProblemConfig:
                 default_branch=self.branch_name,
             )
             self.repo = self.client.repositories.create_repository(new_repo)
-            logger.info("LakeFS create repo: %s", self.repo)
+            logger.info(f"LakeFS create repo: {self.repo}")
 
     def ensure_branch(self, problem_base: Optional["Problem"] = None) -> None:
         self.ensure_repo()
@@ -158,7 +157,7 @@ class LakeFSProblemConfig:
             self.branch = self.client.branches.get_branch(
                 repository=self.repo_name, branch=self.branch_name
             )
-            logger.info("LakeFS get branch: %s", self.branch)
+            logger.info(f"LakeFS get branch: {self.branch}")
         except LakeFSApiException:
             if problem_base is None:
                 assert self.repo is not None
@@ -171,4 +170,4 @@ class LakeFSProblemConfig:
             self.branch = self.client.branches.create_branch(
                 repository=self.repo_name, branch_creation=new_branch
             )
-            logger.info("LakeFS create branch: %s", self.branch)
+            logger.info(f"LakeFS create branch: {self.branch}")

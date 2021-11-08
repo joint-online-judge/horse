@@ -24,6 +24,7 @@ class ServerSettings(BaseModel):
 
     host: str = Field("127.0.0.1", description="Bind socket to this host.")
     port: int = Field(34765, description="Bind socket to this port.")
+    workers: int = Field(1, description="Uvicorn workers count.")
 
     """
     Examples of  domain and root_path

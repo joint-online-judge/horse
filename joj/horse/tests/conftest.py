@@ -5,7 +5,6 @@ import pytest
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
 from httpx import AsyncClient
-from loguru import logger
 from sqlalchemy.util.concurrency import greenlet_spawn
 from sqlalchemy_utils import drop_database
 
@@ -22,6 +21,17 @@ from joj.horse.tests.utils.utils import (
     validate_test_user,
 )
 from joj.horse.utils.db import get_db_engine
+from joj.horse.utils.logger import init_logging
+
+
+@pytest.fixture(scope="session", autouse=True)
+async def postgres(request: Any) -> None:
+    init_logging(test=True)
+    settings.db_name += "_test"
+    settings.db_echo = False
+    request.addfinalizer(
+        lambda: asyncio.run(greenlet_spawn(drop_database, get_db_engine().url))
+    )
 
 
 @pytest.yield_fixture(scope="session")
@@ -29,19 +39,6 @@ def event_loop(request: Any) -> Generator[asyncio.AbstractEventLoop, Any, Any]:
     loop = asyncio.get_event_loop_policy().get_event_loop()
     yield loop
     # loop.close()
-
-
-async def drop_db() -> None:
-    engine = get_db_engine()
-    await greenlet_spawn(drop_database, engine.url)
-    logger.info("Database {} dropped.", settings.db_name)
-
-
-@pytest.fixture(scope="session", autouse=True)
-async def postgres(request: Any) -> None:
-    settings.db_name += "_test"
-    settings.db_echo = False
-    request.addfinalizer(lambda: asyncio.run(drop_db()))
 
 
 @pytest.fixture(scope="session")

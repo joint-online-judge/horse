@@ -1,7 +1,7 @@
 from asyncio import create_task
 from typing import Any, Dict
 
-from uvicorn.config import logger
+from loguru import logger
 
 from joj.horse import models
 from joj.horse.tasks import celery_app

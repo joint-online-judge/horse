@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from functools import lru_cache
 from typing import AsyncGenerator
@@ -31,6 +32,7 @@ def get_db_url() -> str:
 def get_db_engine() -> AsyncEngine:
     db_url = get_db_url()
     engine = create_async_engine(db_url, future=True, echo=settings.db_echo)
+    logging.getLogger("sqlalchemy.engine.Engine").handlers = [logging.NullHandler()]
     return engine
 
 
@@ -68,15 +70,11 @@ async def ensure_db() -> None:
     if not exists:  # pragma: no cover
         await greenlet_spawn(create_database, engine.url)
         logger.info("Database {} created.", settings.db_name)
+        async with engine.begin() as conn:
+            await conn.run_sync(SQLModel.metadata.create_all)
+            logger.info("SQLModel generated schema.")
     else:  # pragma: no cover
         logger.info("Database {} already exists.", settings.db_name)
-    await generate_schema()
-
-
-async def generate_schema() -> None:
-    async with get_db_engine().begin() as conn:  # pragma: no cover
-        await conn.run_sync(SQLModel.metadata.create_all)
-        logger.info("SQLModel generated schema.")
 
 
 @retry(stop=stop_after_attempt(5), wait=wait_exponential(2))
@@ -84,8 +82,6 @@ async def try_init_db() -> None:
     attempt_number = try_init_db.retry.statistics["attempt_number"]
     try:
         await ensure_db()
-        # if settings.debug:
-        #     await generate_schema()
     except Exception as e:
         max_attempt_number = try_init_db.retry.stop.max_attempt_number
         msg = "SQLModel: initialization failed ({}/{})".format(

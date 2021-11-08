@@ -2,7 +2,7 @@ from typing import Any, Optional
 
 from fastapi import Depends
 from fastapi.param_functions import Query
-from uvicorn.config import logger
+from loguru import logger
 
 from joj.horse import models, schemas
 from joj.horse.models.permission import DefaultRole
