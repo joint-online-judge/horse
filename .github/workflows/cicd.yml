@@ -103,6 +103,11 @@ jobs:
         run: |
           docker run --name horse --network host ${{ needs.build.outputs.tag }} /bin/bash -c "poetry install --no-dev -E test; pytest --cov=./ --cov-report=xml"
           docker cp horse:/root/coverage.xml .
+      - name: Run codacy-coverage-reporter
+        uses: codacy/codacy-coverage-reporter-action@v1
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: coverage.xml
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
