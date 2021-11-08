@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 import git
 import pbr.version
-from uvicorn.config import logger
+from loguru import logger
 
 
 def get_version() -> str:
@@ -23,5 +23,5 @@ def get_git_version() -> str:
         git.InvalidGitRepositoryError,
         git.GitCommandError,
     ) as e:  # pragma: no cover
-        logger.error("Failed to get repository: %s", repr(e))
+        logger.error(f"Failed to get repository: {repr(e)}")
         return "unknown"

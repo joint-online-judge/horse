@@ -8,7 +8,7 @@ from joj.horse.config import settings
 # from tenacity import retry
 # from tenacity.stop import stop_after_attempt
 # from tenacity.wait import wait_fixed
-# from uvicorn.config import logger
+# from loguru import logger
 
 
 @lru_cache()

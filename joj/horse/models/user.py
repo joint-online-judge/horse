@@ -2,10 +2,10 @@ import re
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
+from loguru import logger
 from pydantic import EmailStr, root_validator, validator
 from sqlalchemy.sql.expression import Select
 from sqlmodel import Field, Relationship
-from uvicorn.config import logger
 
 from joj.horse.models.base import BaseORMModel, SQLModel, get_datetime_column, utcnow
 from joj.horse.models.permission import DefaultRole
