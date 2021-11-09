@@ -38,8 +38,8 @@ async def jwt_decoded(
     return StandardResponse(jwt_access_token)
 
 
-@router.get("/test/sentry")
-async def test_sentry() -> None:
+@router.get("/test/report")
+async def test_error_report() -> None:
     assert False
 
 
