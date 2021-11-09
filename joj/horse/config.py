@@ -114,6 +114,9 @@ class AuthSettings(BaseModel):
     dsn: str = ""
     traces_sample_rate: float = 1
 
+    # rollbar config
+    rollbar_access_token: str = ""
+
 
 AllSettings: List[Type[BaseModel]] = [
     ServerSettings,
