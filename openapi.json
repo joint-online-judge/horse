@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 232bf8a@2021-11-09T06:46:30Z",
+    "description": "Git version: 307ba8d@2021-11-11T16:39:45Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -3733,20 +3733,20 @@
         ]
       }
     },
-    "/api/v1/test/sentry": {
+    "/api/v1/test/report": {
       "get": {
         "tags": [
           "miscellaneous"
         ],
-        "summary": "Test Sentry",
-        "operationId": "test_sentry_api_v1_test_sentry_get",
+        "summary": "Test Error Report",
+        "operationId": "test_error_report_api_v1_test_report_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Response Test Sentry Api V1 Test Sentry Get",
+                  "title": "Response Test Error Report Api V1 Test Report Get",
                   "type": "null"
                 }
               }
