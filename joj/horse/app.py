@@ -1,12 +1,14 @@
 import asyncio
 from typing import Any
 
+import rollbar
 import sentry_sdk
 import sqlalchemy.exc
 from fastapi import Depends, FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from loguru import logger
+from rollbar.contrib.fastapi import ReporterMiddleware as RollbarMiddleware
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.responses import JSONResponse, RedirectResponse
 from starlette_context import plugins
@@ -56,7 +58,6 @@ async def startup_event() -> None:  # pragma: no cover
     except (RetryError, LakeFSApiException) as e:
         logger.error("Initialization failed, exiting.")
         logger.error(e)
-        logger.disabled = True
         exit(-1)
 
 
@@ -121,12 +122,21 @@ async def catch_exceptions_middleware(request: Request, call_next: Any) -> JSONR
 
 if settings.dsn:  # pragma: no cover
     sentry_sdk.init(dsn=settings.dsn, traces_sample_rate=settings.traces_sample_rate)
-app.add_middleware(SentryAsgiMiddleware)
-app.middleware("http")(catch_exceptions_middleware)
+    app.add_middleware(SentryAsgiMiddleware)
+    logger.info("sentry activated")
 app.add_middleware(
     RawContextMiddleware,
     plugins=(plugins.RequestIdPlugin(), plugins.CorrelationIdPlugin()),
 )
+if settings.rollbar_access_token and not settings.dsn:  # pragma: no cover
+    rollbar.init(
+        settings.rollbar_access_token,
+        environment="production" if not settings.debug else "debug",
+        handler="async",
+    )
+    app.add_middleware(RollbarMiddleware)
+    logger.info("rollbar activated")
+app.middleware("http")(catch_exceptions_middleware)
 
 
 import joj.horse.apis  # noqa: F401
