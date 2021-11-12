@@ -3,7 +3,7 @@ from typing import Callable, List, Optional
 
 from fastapi import Depends, Path, Query
 
-from joj.horse import models
+from joj.horse import models, schemas
 from joj.horse.models.permission import PermissionType, ScopeType
 from joj.horse.schemas.base import NoneEmptyLongStr, NoneNegativeInt, PaginationLimit
 from joj.horse.schemas.query import OrderingQuery, PaginationQuery
@@ -14,7 +14,7 @@ from joj.horse.utils.errors import BizError, ErrorCode
 async def parse_uid(
     uid: str = Query("me", description="'me' or id of the user"),
     auth: Authentication = Depends(),
-) -> models.UserBase:
+) -> models.User:
     if uid == "me":
         return parse_user_from_auth(auth)
     user = await models.User.get_or_none(id=uid)
@@ -26,23 +26,23 @@ async def parse_uid(
 async def parse_uid_or_none(
     uid: Optional[str] = Query("", description="user id or 'me' or empty"),
     auth: Authentication = Depends(),
-) -> Optional[models.UserBase]:
+) -> Optional[models.User]:
     return await parse_uid(uid, auth) if uid else None
 
 
 async def parse_user_from_path_or_query(
     user: str = Path("me", description="user id or 'me' or empty"),
     auth: Authentication = Depends(),
-) -> models.UserBase:
+) -> models.User:
     return await parse_uid(user, auth)
 
 
 def parse_user_from_auth(
     auth: Authentication = Depends(Authentication),
-) -> models.UserBase:
+) -> models.User:
     if auth.jwt.category != "user":
         raise BizError(ErrorCode.UserNotFoundError)
-    return models.UserBase(
+    return models.User(
         id=auth.jwt.id,
         username=auth.jwt.username,
         email=auth.jwt.email,
@@ -145,8 +145,8 @@ async def parse_problem_group(problem_group: str) -> models.ProblemSet:
     raise BizError(ErrorCode.ProblemGroupNotFoundError)
 
 
-async def parse_record(record: str, auth: Authentication = Depends()) -> models.Record:
-    record_model = await models.Record.find_by_id(record)
+async def parse_record(record: str, auth: Authentication = Depends()) -> schemas.Record:
+    record_model = await schemas.Record.find_by_id(record)
     if record_model and record_model.user == auth.user:
         return record_model
     raise BizError(ErrorCode.RecordNotFoundError)
@@ -154,8 +154,8 @@ async def parse_record(record: str, auth: Authentication = Depends()) -> models.
 
 async def parse_record_judger(
     record: str, auth: Authentication = Depends()
-) -> models.Record:
-    record_model = await models.Record.find_by_id(record)
+) -> schemas.Record:
+    record_model = await schemas.Record.find_by_id(record)
     if record_model:
         return record_model
     raise BizError(ErrorCode.RecordNotFoundError)

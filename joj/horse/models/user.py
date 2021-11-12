@@ -1,15 +1,14 @@
-import re
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from loguru import logger
-from pydantic import EmailStr, root_validator, validator
+from pydantic import EmailStr, root_validator
 from sqlalchemy.sql.expression import Select
 from sqlmodel import Field, Relationship
 
-from joj.horse.models.base import BaseORMModel, SQLModel, get_datetime_column, utcnow
-from joj.horse.models.permission import DefaultRole
+from joj.horse.models.base import BaseORMModel
 from joj.horse.models.user_oauth_account import UserOAuthAccount
+from joj.horse.schemas.user import UserCreate, UserDetail
 from joj.horse.utils.db import db_session
 from joj.horse.utils.errors import BizError, ErrorCode
 
@@ -18,56 +17,7 @@ if TYPE_CHECKING:
     from joj.horse.utils.auth import JWTAccessToken
 
 
-UID_RE = re.compile(r"-?\d+")
-UNAME_RE = re.compile(r"[^\s\u3000](.{,254}[^\s\u3000])?")
-
-
-class UserCreate(SQLModel):
-    username: Optional[str] = None
-    email: Optional[str] = None
-    password: Optional[str] = None
-    oauth_name: Optional[str] = None
-    oauth_account_id: Optional[str] = None
-
-    @validator("email", pre=True, always=True)
-    def validate_email(cls, v: Any) -> Optional[EmailStr]:
-        if not v:
-            return None
-        return EmailStr(v)
-
-
-class UserBase(BaseORMModel):
-    username: str = Field(index=False)
-    email: EmailStr = Field(index=False)
-
-    gravatar: str = Field(default="", index=False)
-    student_id: str = Field(default="")
-    real_name: str = Field(default="")
-    role: str = Field(default=str(DefaultRole.USER))
-    is_active: bool = Field(default=False, index=False)
-
-    def find_domains(self, role: Optional[List[str]]) -> Select:
-        from joj.horse import models
-
-        statement = models.Domain.sql_select().outerjoin(models.DomainUser).distinct()
-        # if user.role != "root":
-        #     # root user can view all domains
-        statement = statement.where(models.DomainUser.user_id == self.id)
-        if role is not None:
-            statement = statement.where(models.DomainUser.role.in_(role))
-        return statement
-
-
-class UserDetail(UserBase):
-    # register_at = fields.DatetimeField(auto_now_add=True)
-    register_ip: str = Field(default="127.0.0.1", index=False)
-    login_at: datetime = Field(
-        sa_column=get_datetime_column(index=False, server_default=utcnow())
-    )
-    login_ip: str = Field(default="127.0.0.1", index=False)
-
-
-class User(UserDetail, table=True):  # type: ignore[call-arg]
+class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
     __tablename__ = "users"
 
     hashed_password: str = Field(default="", index=False)
@@ -124,7 +74,7 @@ class User(UserDetail, table=True):  # type: ignore[call-arg]
     @classmethod
     async def create(
         cls,
-        user_create: UserCreate,
+        user_create: "UserCreate",
         jwt_access_token: Optional["JWTAccessToken"],
         register_ip: str,
     ) -> "User":
@@ -197,3 +147,14 @@ class User(UserDetail, table=True):  # type: ignore[call-arg]
             await session.commit()
             await session.refresh(user)
             return user
+
+    def find_domains(self, role: Optional[List[str]]) -> Select:
+        from joj.horse import models
+
+        statement = models.Domain.sql_select().outerjoin(models.DomainUser).distinct()
+        # if user.role != "root":
+        #     # root user can view all domains
+        statement = statement.where(models.DomainUser.user_id == self.id)
+        if role is not None:
+            statement = statement.where(models.DomainUser.role.in_(role))
+        return statement

@@ -2,58 +2,20 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 from uuid import UUID, uuid4
 
-from pydantic.datetime_parse import parse_datetime
 from sqlalchemy.engine import Connection, Row
-from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.orm import Mapper
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.sql.expression import Delete, Select, Update
-from sqlalchemy.sql.functions import FunctionElement, count
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.types import DateTime
+from sqlalchemy.sql.functions import count
 from sqlmodel import Field, SQLModel, delete, select, update
 
-from joj.horse.schemas.base import BaseModel, UserInputURL
+from joj.horse.schemas.base import BaseModel, UserInputURL, get_datetime_column, utcnow
 from joj.horse.utils.base import is_uuid
 from joj.horse.utils.db import db_session
 
 if TYPE_CHECKING:
     from joj.horse.models.domain import Domain
     from joj.horse.schemas.query import OrderingQuery, PaginationQuery
-
-
-class utcnow(FunctionElement):
-    type = DateTime()
-
-
-@compiles(utcnow, "postgresql")
-def pg_utcnow(element: Any, compiler: Any, **kwargs: Any) -> str:
-    return "TIMEZONE('utc', CURRENT_TIMESTAMP)"
-
-
-@compiles(utcnow, "mssql")
-def ms_utcnow(element: Any, compiler: Any, **kwargs: Any) -> str:
-    return "GETUTCDATE()"
-
-
-def get_datetime_column(**kwargs: Any) -> Column:
-    if "index" not in kwargs:
-        kwargs["index"] = True
-    if "nullable" not in kwargs:
-        kwargs["nullable"] = False
-    return Column(DateTime(timezone=True), **kwargs)
-
-
-class UTCDatetime(datetime):
-    """parse a datetime and convert in into UTC format"""
-
-    @classmethod
-    def __get_validators__(cls) -> Any:
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v: Any) -> datetime:
-        return datetime.fromtimestamp(parse_datetime(v).timestamp())
 
 
 class BaseORMModel(SQLModel, BaseModel):
@@ -218,7 +180,16 @@ class URLMixin(BaseORMModel):
     url: UserInputURL = Field("", description="(unique) url of the domain")
 
 
-class URLORMModel(URLMixin, BaseORMModel):
+class TimeStampMixin(SQLModel):
+    created_at: Optional[datetime] = Field(
+        None, sa_column=get_datetime_column(server_default=utcnow())
+    )
+    updated_at: Optional[datetime] = Field(
+        None, sa_column=get_datetime_column(server_default=utcnow(), onupdate=utcnow())
+    )
+
+
+class URLORMModel(BaseORMModel):
     url: str = Field(..., sa_column_kwargs={"unique": True})
 
     @classmethod

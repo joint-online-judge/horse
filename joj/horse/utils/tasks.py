@@ -3,12 +3,12 @@ from typing import Any, Dict
 
 from loguru import logger
 
-from joj.horse import models
+from joj.horse import schemas
 from joj.horse.tasks import celery_app
 
 
 class CeleryWorker:
-    def __init__(self, record_model: models.Record, record_schema: models.Record):
+    def __init__(self, record_model: schemas.Record, record_schema: schemas.Record):
         self.record_model = record_model
         self.record_schema = record_schema
 

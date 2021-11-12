@@ -31,7 +31,7 @@ async def list_problem_sets(
     domain: models.Domain = Depends(parse_domain_from_auth),
     query: schemas.PaginationQuery = Depends(parse_pagination_query),
     auth: Authentication = Depends(),
-) -> StandardListResponse[models.ProblemSet]:
+) -> StandardListResponse[schemas.ProblemSet]:
     condition = {"owner": auth.user.id}
     if domain is not None:
         condition["domain"] = str(domain.id)
@@ -44,10 +44,10 @@ async def list_problem_sets(
     "", dependencies=[Depends(ensure_permission(Permission.DomainProblem.create))]
 )
 async def create_problem_set(
-    problem_set_create: models.ProblemSetCreate,
+    problem_set_create: schemas.ProblemSetCreate,
     domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_auth),
-) -> StandardResponse[models.ProblemSet]:
+) -> StandardResponse[schemas.ProblemSet]:
     problem_set = models.ProblemSet(
         **problem_set_create.dict(),
         domain_id=domain.id,
@@ -61,7 +61,7 @@ async def create_problem_set(
 @router.get("/{problem_set}")
 async def get_problem_set(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
-) -> StandardResponse[models.ProblemSet]:
+) -> StandardResponse[schemas.ProblemSet]:
     return StandardResponse(problem_set)
 
 
@@ -75,9 +75,9 @@ async def delete_problem_set(
 
 @router.patch("/{problem_set}")
 async def update_problem_set(
-    edit_problem_set: models.ProblemSetEdit,
+    edit_problem_set: schemas.ProblemSetEdit,
     problem_set: models.ProblemSet = Depends(parse_problem_set),
-) -> StandardResponse[models.ProblemSet]:
+) -> StandardResponse[schemas.ProblemSet]:
     problem_set.update_from_dict(edit_problem_set.dict())
     await problem_set.save_model()
     return StandardResponse(problem_set)
@@ -87,7 +87,7 @@ async def update_problem_set(
 async def get_scoreboard(
     problem_set: models.ProblemSet = Depends(parse_problem_set_with_time),
     domain: models.Domain = Depends(parse_domain_from_auth),
-) -> StandardResponse[models.ScoreBoard]:
+) -> StandardResponse[schemas.ScoreBoard]:
     if problem_set.scoreboard_hidden:
         raise BizError(ErrorCode.ScoreboardHiddenBadRequestError)
     # domain: models.Domain = await problem_set.domain.fetch()
@@ -106,7 +106,7 @@ async def get_scoreboard(
         async for problem in models.Problem.find({"problem_set": problem_set.id}):
             if firstUser:
                 problem_ids.append(problem.id)
-            record_model: models.Record = await models.Record.find_one(
+            record_model: schemas.Record = await schemas.Record.find_one(
                 # {
                 #     "user": str(user.id),
                 #     "problem": problem.id,
@@ -116,7 +116,7 @@ async def get_scoreboard(
                 sort=[("submit_at", "DESCENDING")],
             )
             tried = record_model is not None
-            record = models.Record.from_orm(record_model) if record_model else None
+            record = schemas.Record.from_orm(record_model) if record_model else None
             score = 0
             time = datetime(1970, 1, 1)
             time_spent = datetime.utcnow() - problem_set.available_time

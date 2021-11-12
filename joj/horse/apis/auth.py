@@ -259,7 +259,7 @@ async def logout(
 async def register(
     request: Request,
     response: Response,
-    user_create: models.UserCreate,
+    user_create: schemas.UserCreate,
     auth_parameters: AuthParams = Depends(auth_parameters_dependency),
     auth_jwt: AuthJWT = Depends(AuthJWT),
     jwt_access_token: Optional[JWTAccessToken] = Depends(
