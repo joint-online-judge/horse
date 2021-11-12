@@ -16,7 +16,7 @@ router_prefix = "/api/v1"
 async def list_problem_groups(
     query: schemas.PaginationQuery = Depends(parse_pagination_query),
     auth: Authentication = Depends(),
-) -> StandardListResponse[models.ProblemGroup]:
+) -> StandardListResponse[schemas.ProblemGroup]:
     cursor = models.ProblemGroup.cursor_find({}, query)
     res = await models.ProblemGroup.to_list(cursor)
     return StandardListResponse(res)

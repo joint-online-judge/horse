@@ -110,11 +110,11 @@ async def catch_exceptions_middleware(request: Request, call_next: Any) -> JSONR
         logger.exception(f"Unexcepted Error: {e.__class__.__name__}")
         return JSONResponse(
             jsonable_encoder(
-                {
-                    "error_code": ErrorCode.InternalServerError,
-                    "error_msg": e.__class__.__name__,
-                    "data": {},
-                }
+                StandardErrorResponse(
+                    error_code=ErrorCode.InternalServerError,
+                    # error_msg=e.__class__.__name__,
+                    error_msg=str(e),
+                )
             ),
             status_code=status.HTTP_200_OK,
         )

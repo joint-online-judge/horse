@@ -23,7 +23,7 @@ router_prefix = "/api/v1"
 async def list_users(
     query: schemas.PaginationQuery = Depends(parse_pagination_query),
     auth: Authentication = Depends(),
-) -> StandardListResponse[models.UserBase]:
+) -> StandardListResponse[schemas.User]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
     cursor = models.User.cursor_find({}, query)
@@ -38,7 +38,7 @@ async def create_user(
     real_name: str,
     ip: str,
     auth: Authentication = Depends(),
-) -> StandardResponse[models.User]:
+) -> StandardResponse[schemas.User]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
     user = await models.User.login_by_jaccount(
@@ -58,23 +58,23 @@ async def delete_user(
     return StandardResponse()
 
 
-@router.get("/domain_users")
-async def list_domain_users(
-    query: schemas.PaginationQuery = Depends(parse_pagination_query),
-    auth: Authentication = Depends(),
-) -> StandardListResponse[models.DomainUser]:
-    if auth.user.role != DefaultRole.ROOT:
-        raise ForbiddenError()
-    cursor = models.DomainUser.cursor_find({}, query)
-    res = await models.DomainUser.to_list(cursor)
-    return StandardListResponse(res)
+# @router.get("/domain_users")
+# async def list_domain_users(
+#     query: schemas.PaginationQuery = Depends(parse_pagination_query),
+#     auth: Authentication = Depends(),
+# ) -> StandardListResponse[models.DomainUser]:
+#     if auth.user.role != DefaultRole.ROOT:
+#         raise ForbiddenError()
+#     cursor = models.DomainUser.cursor_find({}, query)
+#     res = await models.DomainUser.to_list(cursor)
+#     return StandardListResponse(res)
 
 
 @router.get("/domain_roles")
 async def list_domain_roles(
     query: schemas.PaginationQuery = Depends(parse_pagination_query),
     auth: Authentication = Depends(),
-) -> StandardListResponse[models.DomainRole]:
+) -> StandardListResponse[schemas.DomainRole]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
     cursor = models.DomainRole.cursor_find({}, query)
@@ -86,7 +86,7 @@ async def list_domain_roles(
 async def list_judgers(
     query: schemas.PaginationQuery = Depends(parse_pagination_query),
     auth: Authentication = Depends(),
-) -> StandardListResponse[models.User]:
+) -> StandardListResponse[schemas.User]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
     condition = {"role": DefaultRole.JUDGE}
@@ -98,7 +98,7 @@ async def list_judgers(
 @router.post("/judgers")
 async def create_judger(
     uname: str, mail: EmailStr, auth: Authentication = Depends()
-) -> StandardResponse[models.User]:
+) -> StandardResponse[schemas.User]:
     if auth.user.role != DefaultRole.ROOT:
         raise ForbiddenError()
     user_schema = models.User(

@@ -87,6 +87,7 @@ test = [
 [tool.pytest.ini_options]
 filterwarnings = "ignore::DeprecationWarning"
 log_cli = 1
+log_cli_level = "INFO"
 
 [tool.semantic_release]
 branch = "master"

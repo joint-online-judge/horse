@@ -3,18 +3,11 @@ from uuid import UUID
 
 from sqlalchemy import event
 from sqlalchemy.schema import Column, ForeignKey
-from sqlalchemy.sql.expression import Select
-from sqlmodel import Field, Relationship, select
+from sqlmodel import Field, Relationship
 from sqlmodel.sql.sqltypes import GUID
 
-from joj.horse.models.base import URLMixin, URLORMModel, url_pre_save
-from joj.horse.schemas.base import (
-    BaseModel,
-    LongStr,
-    LongText,
-    NoneEmptyLongStr,
-    UserInputURL,
-)
+from joj.horse.models.base import URLORMModel, url_pre_save
+from joj.horse.schemas.domain import DomainDetail
 
 if TYPE_CHECKING:
     from joj.horse.models import (
@@ -29,53 +22,7 @@ if TYPE_CHECKING:
     from joj.horse.schemas.query import OrderingQuery, PaginationQuery
 
 
-class DomainBase(URLMixin):
-    name: NoneEmptyLongStr = Field(
-        ...,
-        nullable=False,
-        description="displayed name of the domain",
-    )
-    gravatar: LongStr = Field(
-        "", index=False, nullable=True, description="gravatar url of the domain"
-    )
-    bulletin: LongText = Field(
-        "", index=False, nullable=True, description="bulletin of the domain"
-    )
-    hidden: bool = Field(
-        True,
-        index=False,
-        nullable=False,
-        description="is the domain hidden",
-    )
-
-    def find_domain_users_statement(self) -> Select:
-        from joj.horse import models
-
-        statement = (
-            select(models.DomainUser, models.User)
-            .where(models.DomainUser.domain_id == self.id)
-            .where(models.DomainUser.user_id == models.User.id)
-        )
-        return statement
-
-
-class DomainCreate(DomainBase):
-    pass
-
-
-class DomainEdit(BaseModel):
-    url: Optional[UserInputURL]
-    name: Optional[LongStr]
-    gravatar: Optional[LongStr]
-    bulletin: Optional[LongText]
-    hidden: Optional[bool]
-
-
-class DomainTransfer(BaseModel):
-    target_user: str = Field(..., description="'me' or id of the user")
-
-
-class Domain(URLORMModel, DomainBase, table=True):  # type: ignore[call-arg]
+class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
     __tablename__ = "domains"
 
     owner_id: UUID = Field(

@@ -288,9 +288,9 @@ class TestDomainUserAdd:
         res = response.json()
         assert res["errorCode"] == ErrorCode.Success
         res = res["data"]
+        assert res["id"] == str(user.id)
         assert res["domainId"] == str(domain.id)
-        assert res["userId"] == str(user.id)
-        assert res["role"] == role
+        assert res["domainRole"] == role
 
     @pytest.mark.parametrize(
         "domain",
