@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 307ba8d@2021-11-11T16:39:45Z",
+    "description": "Git version: bef9fbf@2021-11-13T17:48:31Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -214,7 +214,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DomainResp"
+                  "$ref": "#/components/schemas/DomainDetailResp"
                 }
               }
             }
@@ -460,6 +460,41 @@
             },
             "name": "domain",
             "in": "path"
+          },
+          {
+            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: name",
+            "required": false,
+            "schema": {
+              "title": "Ordering",
+              "type": "string",
+              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: name",
+              "default": ""
+            },
+            "name": "ordering",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Offset",
+              "minimum": 0.0,
+              "type": "integer",
+              "default": 0
+            },
+            "name": "offset",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Limit",
+              "maximum": 500.0,
+              "exclusiveMinimum": 0.0,
+              "type": "integer",
+              "default": 100
+            },
+            "name": "limit",
+            "in": "query"
           }
         ],
         "responses": {
@@ -468,7 +503,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DomainUserListResp"
+                  "$ref": "#/components/schemas/UserWithDomainRoleListResp"
                 }
               }
             }
@@ -535,7 +570,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DomainUserResp"
+                  "$ref": "#/components/schemas/UserWithDomainRoleResp"
                 }
               }
             }
@@ -605,7 +640,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DomainUserResp"
+                  "$ref": "#/components/schemas/UserWithDomainRoleResp"
                 }
               }
             }
@@ -751,7 +786,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DomainUserResp"
+                  "$ref": "#/components/schemas/UserWithDomainRoleResp"
                 }
               }
             }
@@ -981,6 +1016,76 @@
       }
     },
     "/api/v1/domains/{domain}/roles/{role}": {
+      "get": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "Get Domain Role",
+        "operationId": "get_domain_role_api_v1_domains__domain__roles__role__get",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "name of the domain role",
+            "required": true,
+            "schema": {
+              "title": "Role",
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string",
+              "description": "name of the domain role"
+            },
+            "name": "role",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DomainRoleDetailResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
       "delete": {
         "tags": [
           "domain"
@@ -1384,7 +1489,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DomainUserResp"
+                  "$ref": "#/components/schemas/UserWithDomainRoleResp"
                 }
               }
             }
@@ -3035,7 +3140,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserBaseResp"
+                  "$ref": "#/components/schemas/UserResp"
                 }
               }
             }
@@ -3073,8 +3178,8 @@
         "tags": [
           "user"
         ],
-        "summary": "Get User Domains",
-        "operationId": "get_user_domains_api_v1_users__uid__domains_get",
+        "summary": "List User Domains",
+        "operationId": "list_user_domains_api_v1_users__uid__domains_get",
         "parameters": [
           {
             "required": true,
@@ -3092,10 +3197,21 @@
               "type": "array",
               "items": {
                 "type": "string"
-              },
-              "default": []
+              }
             },
             "name": "role",
+            "in": "query"
+          },
+          {
+            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: name",
+            "required": false,
+            "schema": {
+              "title": "Ordering",
+              "type": "string",
+              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: name",
+              "default": ""
+            },
+            "name": "ordering",
             "in": "query"
           },
           {
@@ -3128,7 +3244,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DomainUserListResp"
+                  "$ref": "#/components/schemas/DomainListResp"
                 }
               }
             }
@@ -3778,7 +3894,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserBaseResp"
+                  "$ref": "#/components/schemas/UserResp"
                 }
               }
             }
@@ -3839,7 +3955,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserBaseListResp"
+                  "$ref": "#/components/schemas/UserListResp"
                 }
               }
             }
@@ -3979,77 +4095,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/EmptyResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/domain_users": {
-      "get": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "List Domain Users",
-        "operationId": "list_domain_users_api_v1_admin_domain_users_get",
-        "parameters": [
-          {
-            "required": false,
-            "schema": {
-              "title": "Offset",
-              "minimum": 0.0,
-              "type": "integer",
-              "default": 0
-            },
-            "name": "offset",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Limit",
-              "maximum": 500.0,
-              "exclusiveMinimum": 0.0,
-              "type": "integer",
-              "default": 100
-            },
-            "name": "limit",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DomainUserListResp"
                 }
               }
             }
@@ -4419,15 +4464,22 @@
       "Domain": {
         "title": "Domain",
         "required": [
-          "url",
+          "id",
           "name",
           "ownerId"
         ],
         "type": "object",
         "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
           "url": {
             "title": "Url",
-            "type": "string"
+            "type": "string",
+            "description": "(unique) url of the domain",
+            "default": ""
           },
           "name": {
             "title": "Name",
@@ -4455,21 +4507,6 @@
             "type": "boolean",
             "description": "is the domain hidden",
             "default": true
-          },
-          "id": {
-            "title": "Id",
-            "type": "string",
-            "format": "uuid"
-          },
-          "createdAt": {
-            "title": "Createdat",
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "title": "Updatedat",
-            "type": "string",
-            "format": "date-time"
           },
           "ownerId": {
             "title": "Ownerid",
@@ -4520,6 +4557,91 @@
           }
         }
       },
+      "DomainDetail": {
+        "title": "DomainDetail",
+        "required": [
+          "id",
+          "name",
+          "ownerId",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string",
+            "description": "(unique) url of the domain",
+            "default": ""
+          },
+          "name": {
+            "title": "Name",
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string",
+            "description": "displayed name of the domain"
+          },
+          "gravatar": {
+            "title": "Gravatar",
+            "maxLength": 256,
+            "type": "string",
+            "description": "gravatar url of the domain",
+            "default": ""
+          },
+          "bulletin": {
+            "title": "Bulletin",
+            "maxLength": 65536,
+            "type": "string",
+            "description": "bulletin of the domain",
+            "default": ""
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "is the domain hidden",
+            "default": true
+          },
+          "ownerId": {
+            "title": "Ownerid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "DomainDetailResp": {
+        "title": "DomainDetailResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DomainDetail"
+          }
+        }
+      },
       "DomainEdit": {
         "title": "DomainEdit",
         "type": "object",
@@ -4552,14 +4674,26 @@
       "DomainInvitation": {
         "title": "DomainInvitation",
         "required": [
-          "url",
+          "id",
           "domainId"
         ],
         "type": "object",
         "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "domainId": {
+            "title": "Domainid",
+            "type": "string",
+            "format": "uuid"
+          },
           "url": {
             "title": "Url",
-            "type": "string"
+            "type": "string",
+            "description": "(unique) url of the domain",
+            "default": ""
           },
           "code": {
             "title": "Code",
@@ -4580,26 +4714,6 @@
             "type": "string",
             "description": "domain role after invitation",
             "default": "user"
-          },
-          "id": {
-            "title": "Id",
-            "type": "string",
-            "format": "uuid"
-          },
-          "createdAt": {
-            "title": "Createdat",
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "title": "Updatedat",
-            "type": "string",
-            "format": "date-time"
-          },
-          "domainId": {
-            "title": "Domainid",
-            "type": "string",
-            "format": "uuid"
           }
         }
       },
@@ -4809,9 +4923,10 @@
       "DomainRole": {
         "title": "DomainRole",
         "required": [
+          "id",
+          "domainId",
           "role",
-          "permission",
-          "domainId"
+          "permission"
         ],
         "type": "object",
         "properties": {
@@ -4820,35 +4935,27 @@
             "type": "string",
             "format": "uuid"
           },
-          "createdAt": {
-            "title": "Createdat",
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "title": "Updatedat",
-            "type": "string",
-            "format": "date-time"
-          },
-          "role": {
-            "title": "Role",
-            "type": "string"
-          },
-          "permission": {
-            "title": "Permission",
-            "type": "object"
-          },
           "domainId": {
             "title": "Domainid",
             "type": "string",
             "format": "uuid"
+          },
+          "role": {
+            "title": "Role",
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "permission": {
+            "$ref": "#/components/schemas/DomainPermission"
           }
         }
       },
       "DomainRoleCreate": {
         "title": "DomainRoleCreate",
         "required": [
-          "role"
+          "role",
+          "permission"
         ],
         "type": "object",
         "properties": {
@@ -4859,46 +4966,69 @@
             "type": "string"
           },
           "permission": {
-            "title": "Permission",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/DomainPermission"
-              }
-            ],
-            "default": {
-              "general": {
-                "view": true,
-                "edit_permission": false,
-                "view_mod_badge": true,
-                "edit": false,
-                "unlimited_quota": false
-              },
-              "problem": {
-                "create": false,
-                "view": true,
-                "view_hidden": false,
-                "submit": true,
-                "edit": false,
-                "view_config": false
-              },
-              "problem_set": {
-                "create": false,
-                "view": true,
-                "view_hidden": false,
-                "claim": true,
-                "scoreboard": false,
-                "manage": false,
-                "edit": false,
-                "view_config": false
-              },
-              "record": {
-                "view": true,
-                "detail": false,
-                "code": false,
-                "judge": false,
-                "rejudge": false
-              }
-            }
+            "$ref": "#/components/schemas/DomainPermission"
+          }
+        }
+      },
+      "DomainRoleDetail": {
+        "title": "DomainRoleDetail",
+        "required": [
+          "id",
+          "domainId",
+          "role",
+          "permission",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "domainId": {
+            "title": "Domainid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "role": {
+            "title": "Role",
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "permission": {
+            "$ref": "#/components/schemas/DomainPermission"
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "DomainRoleDetailResp": {
+        "title": "DomainRoleDetailResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DomainRoleDetail"
           }
         }
       },
@@ -4991,46 +5121,6 @@
           }
         }
       },
-      "DomainUser": {
-        "title": "DomainUser",
-        "required": [
-          "role",
-          "domainId",
-          "userId"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "title": "Id",
-            "type": "string",
-            "format": "uuid"
-          },
-          "createdAt": {
-            "title": "Createdat",
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "title": "Updatedat",
-            "type": "string",
-            "format": "date-time"
-          },
-          "role": {
-            "title": "Role",
-            "type": "string"
-          },
-          "domainId": {
-            "title": "Domainid",
-            "type": "string",
-            "format": "uuid"
-          },
-          "userId": {
-            "title": "Userid",
-            "type": "string",
-            "format": "uuid"
-          }
-        }
-      },
       "DomainUserAdd": {
         "title": "DomainUserAdd",
         "required": [
@@ -5053,54 +5143,29 @@
           }
         }
       },
-      "DomainUserList": {
-        "title": "DomainUserList",
-        "type": "object",
-        "properties": {
-          "count": {
-            "title": "Count",
-            "type": "integer",
-            "default": 0
-          },
-          "results": {
-            "title": "Results",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DomainUser"
-            },
-            "default": []
-          }
-        }
-      },
-      "DomainUserListResp": {
-        "title": "DomainUserListResp",
-        "required": [
-          "errorCode"
-        ],
-        "type": "object",
-        "properties": {
-          "errorCode": {
-            "$ref": "#/components/schemas/ErrorCode"
-          },
-          "errorMsg": {
-            "title": "Errormsg",
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/DomainUserList"
-          }
-        }
-      },
       "DomainUserPermission": {
         "title": "DomainUserPermission",
         "required": [
-          "domainUser",
+          "domainId",
+          "userId",
+          "role",
           "permission"
         ],
         "type": "object",
         "properties": {
-          "domainUser": {
-            "$ref": "#/components/schemas/DomainUser"
+          "domainId": {
+            "title": "Domainid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "title": "Userid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
           },
           "permission": {
             "$ref": "#/components/schemas/DomainPermission"
@@ -5123,25 +5188,6 @@
           },
           "data": {
             "$ref": "#/components/schemas/DomainUserPermission"
-          }
-        }
-      },
-      "DomainUserResp": {
-        "title": "DomainUserResp",
-        "required": [
-          "errorCode"
-        ],
-        "type": "object",
-        "properties": {
-          "errorCode": {
-            "$ref": "#/components/schemas/ErrorCode"
-          },
-          "errorMsg": {
-            "title": "Errormsg",
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/DomainUser"
           }
         }
       },
@@ -5423,17 +5469,29 @@
       "Problem": {
         "title": "Problem",
         "required": [
-          "url",
-          "title",
+          "id",
           "domainId",
+          "title",
           "ownerId",
           "problemGroupId"
         ],
         "type": "object",
         "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "domainId": {
+            "title": "Domainid",
+            "type": "string",
+            "format": "uuid"
+          },
           "url": {
             "title": "Url",
-            "type": "string"
+            "type": "string",
+            "description": "(unique) url of the domain",
+            "default": ""
           },
           "title": {
             "title": "Title",
@@ -5454,21 +5512,6 @@
             "description": "is the problem hidden",
             "default": false
           },
-          "id": {
-            "title": "Id",
-            "type": "string",
-            "format": "uuid"
-          },
-          "createdAt": {
-            "title": "Createdat",
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "title": "Updatedat",
-            "type": "string",
-            "format": "date-time"
-          },
           "numSubmit": {
             "title": "Numsubmit",
             "type": "integer",
@@ -5488,11 +5531,6 @@
             "title": "Languages",
             "type": "string",
             "default": "[]"
-          },
-          "domainId": {
-            "title": "Domainid",
-            "type": "string",
-            "format": "uuid"
           },
           "ownerId": {
             "title": "Ownerid",
@@ -5608,22 +5646,15 @@
       },
       "ProblemGroup": {
         "title": "ProblemGroup",
+        "required": [
+          "id"
+        ],
         "type": "object",
         "properties": {
           "id": {
             "title": "Id",
             "type": "string",
             "format": "uuid"
-          },
-          "createdAt": {
-            "title": "Createdat",
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "title": "Updatedat",
-            "type": "string",
-            "format": "date-time"
           }
         }
       },
@@ -5761,16 +5792,28 @@
       "ProblemSet": {
         "title": "ProblemSet",
         "required": [
-          "url",
-          "title",
+          "id",
           "domainId",
+          "title",
           "ownerId"
         ],
         "type": "object",
         "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "domainId": {
+            "title": "Domainid",
+            "type": "string",
+            "format": "uuid"
+          },
           "url": {
             "title": "Url",
-            "type": "string"
+            "type": "string",
+            "description": "(unique) url of the domain",
+            "default": ""
           },
           "title": {
             "title": "Title",
@@ -5810,21 +5853,6 @@
             "description": "the problem set is due at",
             "format": "date-time"
           },
-          "id": {
-            "title": "Id",
-            "type": "string",
-            "format": "uuid"
-          },
-          "createdAt": {
-            "title": "Createdat",
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "title": "Updatedat",
-            "type": "string",
-            "format": "date-time"
-          },
           "numSubmit": {
             "title": "Numsubmit",
             "type": "integer",
@@ -5834,11 +5862,6 @@
             "title": "Numaccept",
             "type": "integer",
             "default": 0
-          },
-          "domainId": {
-            "title": "Domainid",
-            "type": "string",
-            "format": "uuid"
           },
           "ownerId": {
             "title": "Ownerid",
@@ -6358,97 +6381,7 @@
       "User": {
         "title": "User",
         "required": [
-          "username",
-          "email",
-          "loginAt",
-          "usernameLower",
-          "emailLower"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "title": "Id",
-            "type": "string",
-            "format": "uuid"
-          },
-          "createdAt": {
-            "title": "Createdat",
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "title": "Updatedat",
-            "type": "string",
-            "format": "date-time"
-          },
-          "username": {
-            "title": "Username",
-            "type": "string"
-          },
-          "email": {
-            "title": "Email",
-            "type": "string",
-            "format": "email"
-          },
-          "gravatar": {
-            "title": "Gravatar",
-            "type": "string",
-            "default": ""
-          },
-          "studentId": {
-            "title": "Studentid",
-            "type": "string",
-            "default": ""
-          },
-          "realName": {
-            "title": "Realname",
-            "type": "string",
-            "default": ""
-          },
-          "role": {
-            "title": "Role",
-            "type": "string",
-            "default": "user"
-          },
-          "isActive": {
-            "title": "Isactive",
-            "type": "boolean",
-            "default": false
-          },
-          "registerIp": {
-            "title": "Registerip",
-            "type": "string",
-            "default": "127.0.0.1"
-          },
-          "loginAt": {
-            "title": "Loginat",
-            "type": "string",
-            "format": "date-time"
-          },
-          "loginIp": {
-            "title": "Loginip",
-            "type": "string",
-            "default": "127.0.0.1"
-          },
-          "hashedPassword": {
-            "title": "Hashedpassword",
-            "type": "string",
-            "default": ""
-          },
-          "usernameLower": {
-            "title": "Usernamelower",
-            "type": "string"
-          },
-          "emailLower": {
-            "title": "Emaillower",
-            "type": "string",
-            "format": "email"
-          }
-        }
-      },
-      "UserBase": {
-        "title": "UserBase",
-        "required": [
+          "id",
           "username",
           "email"
         ],
@@ -6459,16 +6392,6 @@
             "type": "string",
             "format": "uuid"
           },
-          "createdAt": {
-            "title": "Createdat",
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "title": "Updatedat",
-            "type": "string",
-            "format": "date-time"
-          },
           "username": {
             "title": "Username",
             "type": "string"
@@ -6502,63 +6425,6 @@
             "title": "Isactive",
             "type": "boolean",
             "default": false
-          }
-        }
-      },
-      "UserBaseList": {
-        "title": "UserBaseList",
-        "type": "object",
-        "properties": {
-          "count": {
-            "title": "Count",
-            "type": "integer",
-            "default": 0
-          },
-          "results": {
-            "title": "Results",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UserBase"
-            },
-            "default": []
-          }
-        }
-      },
-      "UserBaseListResp": {
-        "title": "UserBaseListResp",
-        "required": [
-          "errorCode"
-        ],
-        "type": "object",
-        "properties": {
-          "errorCode": {
-            "$ref": "#/components/schemas/ErrorCode"
-          },
-          "errorMsg": {
-            "title": "Errormsg",
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/UserBaseList"
-          }
-        }
-      },
-      "UserBaseResp": {
-        "title": "UserBaseResp",
-        "required": [
-          "errorCode"
-        ],
-        "type": "object",
-        "properties": {
-          "errorCode": {
-            "$ref": "#/components/schemas/ErrorCode"
-          },
-          "errorMsg": {
-            "title": "Errormsg",
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/UserBase"
           }
         }
       },
@@ -6591,8 +6457,11 @@
       "UserDetail": {
         "title": "UserDetail",
         "required": [
+          "id",
           "username",
           "email",
+          "createdAt",
+          "updatedAt",
           "loginAt"
         ],
         "type": "object",
@@ -6601,16 +6470,6 @@
             "title": "Id",
             "type": "string",
             "format": "uuid"
-          },
-          "createdAt": {
-            "title": "Createdat",
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "title": "Updatedat",
-            "type": "string",
-            "format": "date-time"
           },
           "username": {
             "title": "Username",
@@ -6645,6 +6504,16 @@
             "title": "Isactive",
             "type": "boolean",
             "default": false
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
           },
           "registerIp": {
             "title": "Registerip",
@@ -6750,7 +6619,7 @@
         "type": "object",
         "properties": {
           "user": {
-            "$ref": "#/components/schemas/UserBase"
+            "$ref": "#/components/schemas/User"
           },
           "totalScore": {
             "title": "Totalscore",
@@ -6767,6 +6636,124 @@
             "items": {
               "$ref": "#/components/schemas/Score"
             }
+          }
+        }
+      },
+      "UserWithDomainRole": {
+        "title": "UserWithDomainRole",
+        "required": [
+          "id",
+          "username",
+          "email",
+          "domainId",
+          "domainRole"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string",
+            "format": "email"
+          },
+          "gravatar": {
+            "title": "Gravatar",
+            "type": "string",
+            "default": ""
+          },
+          "studentId": {
+            "title": "Studentid",
+            "type": "string",
+            "default": ""
+          },
+          "realName": {
+            "title": "Realname",
+            "type": "string",
+            "default": ""
+          },
+          "role": {
+            "title": "Role",
+            "type": "string",
+            "default": "user"
+          },
+          "isActive": {
+            "title": "Isactive",
+            "type": "boolean",
+            "default": false
+          },
+          "domainId": {
+            "title": "Domainid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "domainRole": {
+            "title": "Domainrole",
+            "type": "string"
+          }
+        }
+      },
+      "UserWithDomainRoleList": {
+        "title": "UserWithDomainRoleList",
+        "type": "object",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer",
+            "default": 0
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserWithDomainRole"
+            },
+            "default": []
+          }
+        }
+      },
+      "UserWithDomainRoleListResp": {
+        "title": "UserWithDomainRoleListResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserWithDomainRoleList"
+          }
+        }
+      },
+      "UserWithDomainRoleResp": {
+        "title": "UserWithDomainRoleResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserWithDomainRole"
           }
         }
       },
