@@ -1,7 +1,7 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from joj.horse import models
+from joj.horse import models, schemas
 from joj.horse.models.permission import DefaultRole
 from joj.horse.schemas.base import StandardResponse
 from joj.horse.schemas.misc import Version
@@ -45,9 +45,9 @@ async def test_error_report() -> None:
 
 @router.post("/set_root_user")
 async def set_root_user(
-    user: models.UserBase = Depends(parse_user_from_auth),
+    user: models.User = Depends(parse_user_from_auth),
     session: AsyncSession = Depends(db_session_dependency),
-) -> StandardResponse[models.UserBase]:
+) -> StandardResponse[schemas.User]:
     root_user = await models.User.get_or_none(role=DefaultRole.ROOT)
     if root_user is not None:
         raise BizError(ErrorCode.Error)

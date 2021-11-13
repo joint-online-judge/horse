@@ -5,7 +5,7 @@ import jwt
 from fastapi.encoders import jsonable_encoder
 from httpx import AsyncClient, Response
 
-from joj.horse import apis, models
+from joj.horse import apis, models, schemas
 from joj.horse.config import settings
 from joj.horse.utils.errors import ErrorCode
 
@@ -71,7 +71,7 @@ async def create_test_user(
 ) -> Response:
     if password is None:
         password = username
-    user_create = models.UserCreate(
+    user_create = schemas.UserCreate(
         username=username,
         email=username + "@sjtu.edu.cn",
         password=password,

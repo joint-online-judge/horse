@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 from functools import lru_cache
 from inspect import Parameter, signature
 from typing import (
@@ -14,6 +15,7 @@ from typing import (
     TypeVar,
     Union,
 )
+from uuid import UUID
 
 from fastapi import Depends, Request, params
 from fastapi_utils.api_model import APIModel
@@ -25,6 +27,12 @@ from pydantic import (
     ConstrainedStr,
     create_model,
 )
+from pydantic.datetime_parse import parse_datetime
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.sql.functions import FunctionElement
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.types import DateTime
+from sqlmodel import Field, SQLModel
 from starlette.datastructures import MultiDict
 
 from joj.horse.utils.base import is_uuid
@@ -87,6 +95,65 @@ class UserInputURL(str):
 
 class LongText(ConstrainedStr):
     max_length = 65536
+
+
+class utcnow(FunctionElement):
+    type = DateTime()
+
+
+@compiles(utcnow, "postgresql")
+def pg_utcnow(element: Any, compiler: Any, **kwargs: Any) -> str:
+    return "TIMEZONE('utc', CURRENT_TIMESTAMP)"
+
+
+@compiles(utcnow, "mssql")
+def ms_utcnow(element: Any, compiler: Any, **kwargs: Any) -> str:
+    return "GETUTCDATE()"
+
+
+def get_datetime_column(**kwargs: Any) -> Column:
+    if "index" not in kwargs:
+        kwargs["index"] = True
+    if "nullable" not in kwargs:
+        kwargs["nullable"] = False
+    return Column(DateTime(timezone=True), **kwargs)
+
+
+class UTCDatetime(datetime):
+    """parse a datetime and convert in into UTC format"""
+
+    @classmethod
+    def __get_validators__(cls) -> Any:
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v: Any) -> datetime:
+        return datetime.fromtimestamp(parse_datetime(v).timestamp())
+
+
+class BaseORMSchema(SQLModel, BaseModel):
+    pass
+
+
+class URLORMSchema(BaseORMSchema):
+    url: str = Field("", description="(unique) url of the domain")
+
+
+class URLCreateMixin(BaseModel):
+    url: UserInputURL = Field("", description="(unique) url of the domain")
+
+
+class DomainMixin(BaseModel):
+    domain_id: UUID
+
+
+class IDMixin(BaseModel):
+    id: UUID
+
+
+class TimestampMixin(BaseModel):
+    created_at: datetime
+    updated_at: datetime
 
 
 BT = TypeVar("BT", bound=PydanticBaseModel)

@@ -41,10 +41,12 @@ async def list_domains(
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["name"])),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     user: models.User = Depends(parse_user_from_auth),
-) -> StandardListResponse[models.Domain]:
+) -> StandardListResponse[schemas.Domain]:
     """List all domains that the current user has a role."""
-    domains, count = await user.find_domains(role, ordering, pagination)
-    domains = [models.Domain.from_orm(domain) for domain in domains]
+    statement = user.find_domains_statement(role)
+    domains, count = await models.Domain.execute_list_statement(
+        statement, ordering, pagination
+    )
     return StandardListResponse(domains, count)
 
 
@@ -52,10 +54,10 @@ async def list_domains(
     "", dependencies=[Depends(ensure_permission(Permission.SiteDomain.create))]
 )
 async def create_domain(
-    domain_create: models.DomainCreate,
-    user: models.UserBase = Depends(parse_user_from_auth),
+    domain_create: schemas.DomainCreate,
+    user: models.User = Depends(parse_user_from_auth),
     session: AsyncSession = Depends(db_session_dependency),
-) -> StandardResponse[models.Domain]:
+) -> StandardResponse[schemas.Domain]:
     try:
         domain = models.Domain(**domain_create.dict(), owner_id=user.id)
         session.sync_session.add(domain)
@@ -92,7 +94,7 @@ async def create_domain(
 )
 async def get_domain(
     domain: models.Domain = Depends(parse_domain_from_auth),
-) -> StandardResponse[models.Domain]:
+) -> StandardResponse[schemas.DomainDetail]:
     # await domain.owner.fetch()
     return StandardResponse(domain)
 
@@ -119,9 +121,9 @@ async def delete_domain(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def update_domain(
-    domain_edit: models.DomainEdit,
+    domain_edit: schemas.DomainEdit,
     domain: models.Domain = Depends(parse_domain_from_auth),
-) -> StandardResponse[models.Domain]:
+) -> StandardResponse[schemas.Domain]:
     domain.update_from_dict(domain_edit.dict())
     logger.info(f"update domain: {domain}")
     await domain.save_model()
@@ -133,11 +135,11 @@ async def update_domain(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
 )
 async def transfer_domain(
-    domain_transfer: models.DomainTransfer,
+    domain_transfer: schemas.DomainTransfer,
     domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_auth),
     auth: Authentication = Depends(),
-) -> StandardResponse[models.Domain]:
+) -> StandardResponse[schemas.Domain]:
     target_user = await parse_uid(domain_transfer.target_user, auth)
     # only domain owner (or site root) can transfer the domain
     if user.id != domain.owner_id and not auth.is_root():
@@ -165,10 +167,15 @@ async def transfer_domain(
 )
 async def list_domain_users(
     domain: models.Domain = Depends(parse_domain_from_auth),
-) -> StandardListResponse[models.DomainUser]:
-    users = await domain.users.all()
-    domain_users = [models.DomainUser.from_orm(user) for user in users]
-    return StandardListResponse(domain_users)
+    ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["name"])),
+    pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
+) -> StandardListResponse[schemas.UserWithDomainRole]:
+    statement = domain.find_domain_users_statement()
+    rows, count = await models.DomainUser.execute_list_statement(
+        statement, ordering, pagination
+    )
+    domain_users = [schemas.UserWithDomainRole.from_domain_user(*row) for row in rows]
+    return StandardListResponse(domain_users, count)
 
 
 @router.post(
@@ -176,12 +183,13 @@ async def list_domain_users(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def add_domain_user(
-    domain_user_add: models.DomainUserAdd,
+    domain_user_add: schemas.DomainUserAdd,
     domain: models.Domain = Depends(parse_domain_from_auth),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
-) -> StandardResponse[models.DomainUser]:
+) -> StandardResponse[schemas.UserWithDomainRole]:
     role = domain_user_add.role
     user = await parse_uid(domain_user_add.user, domain_auth.auth)
+    user_dict = user.dict()
     # only root member (or site root) can add root member
     if role == DefaultRole.ROOT and not domain_auth.auth.is_domain_root():
         raise BizError(ErrorCode.DomainNotRootError)
@@ -191,7 +199,9 @@ async def add_domain_user(
     )
     logger.info(f"create domain user: {domain_user}")
     await domain_user.save_model()
-    return StandardResponse(domain_user)
+    return StandardResponse(
+        schemas.UserWithDomainRole.from_domain_user(domain_user, user_dict)
+    )
 
 
 @router.get(
@@ -201,13 +211,15 @@ async def add_domain_user(
 async def get_domain_user(
     domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_path_or_query),
-) -> StandardResponse[models.DomainUser]:
+) -> StandardResponse[schemas.UserWithDomainRole]:
     domain_user = await models.DomainUser.get_or_none(
         domain_id=domain.id, user_id=user.id
     )
     if domain_user is None:
         raise BizError(ErrorCode.DomainUserNotFoundError)
-    return StandardResponse(domain_user)
+    return StandardResponse(
+        schemas.UserWithDomainRole.from_domain_user(domain_user, user)
+    )
 
 
 @router.delete(
@@ -240,11 +252,11 @@ async def remove_domain_user(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def update_domain_user(
-    domain_user_update: models.DomainUserUpdate,
+    domain_user_update: schemas.DomainUserUpdate,
     domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_path_or_query),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
-) -> StandardResponse[models.DomainUser]:
+) -> StandardResponse[schemas.UserWithDomainRole]:
     # domain owner must be root member
     role = domain_user_update.role
     if role != DefaultRole.ROOT and domain_auth.auth.is_domain_owner():
@@ -258,7 +270,9 @@ async def update_domain_user(
     )
     logger.info(f"update domain user: {domain_user}")
     await domain_user.save_model()
-    return StandardResponse(domain_user)
+    return StandardResponse(
+        schemas.UserWithDomainRole.from_domain_user(domain_user, user)
+    )
 
 
 @router.get(
@@ -268,7 +282,7 @@ async def update_domain_user(
 async def get_domain_user_permission(
     domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_path_or_query),
-) -> StandardResponse[models.DomainUserPermission]:
+) -> StandardResponse[schemas.DomainUserPermission]:
     domain_user = await models.DomainUser.get_or_none(
         domain_id=domain.id, user_id=user.id
     )
@@ -281,7 +295,10 @@ async def get_domain_user_permission(
         raise BizError(ErrorCode.DomainRoleNotFoundError)
 
     permission = schemas.DomainPermission(**domain_role.permission)
-    result = models.DomainUserPermission(domain_user=domain_user, permission=permission)
+    result = schemas.DomainUserPermission(
+        **domain_user.dict(),
+        permission=permission,
+    )
     return StandardResponse(result)
 
 
@@ -291,10 +308,10 @@ async def get_domain_user_permission(
 )
 async def list_domain_roles(
     domain: models.Domain = Depends(parse_domain_from_auth),
-) -> StandardListResponse[models.DomainRole]:
-    roles = await domain.roles.all()
-    domain_roles = [models.DomainRole.from_orm(role) for role in roles]
-    return StandardListResponse(domain_roles)
+) -> StandardListResponse[schemas.DomainRole]:
+    statement = domain.find_domain_roles_statement()
+    domain_roles, count = await models.DomainRole.execute_list_statement(statement)
+    return StandardListResponse(domain_roles, count)
 
 
 @router.post(
@@ -302,9 +319,9 @@ async def list_domain_roles(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def create_domain_role(
-    domain_role_create: models.DomainRoleCreate,
+    domain_role_create: schemas.DomainRoleCreate,
     domain: models.Domain = Depends(parse_domain_from_auth),
-) -> StandardResponse[models.DomainRole]:
+) -> StandardResponse[schemas.DomainRole]:
     if domain_role_create.role in READONLY_ROLES:
         raise BizError(ErrorCode.DomainRoleReadOnlyError)
     if await models.DomainRole.get_or_none(
@@ -321,6 +338,18 @@ async def create_domain_role(
     return StandardResponse(domain_role)
 
 
+@router.get(
+    "/{domain}/roles/{role}",
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
+)
+async def get_domain_role(
+    domain_role: models.DomainRole = Depends(parse_domain_role),
+) -> StandardResponse[schemas.DomainRoleDetail]:
+    if domain_role is None:
+        raise BizError(ErrorCode.DomainRoleNotFoundError)
+    return StandardResponse(domain_role)
+
+
 @router.delete(
     "/{domain}/roles/{role}",
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
@@ -328,7 +357,6 @@ async def create_domain_role(
 async def delete_domain_role(
     domain_role: models.DomainRole = Depends(parse_domain_role),
     domain: models.Domain = Depends(parse_domain_from_auth),
-    session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardResponse[Empty]:
     if domain_role.role in READONLY_ROLES:
         raise BizError(ErrorCode.DomainRoleReadOnlyError)
@@ -344,11 +372,11 @@ async def delete_domain_role(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def update_domain_role(
-    domain_role_edit: models.DomainRoleEdit,
+    domain_role_edit: schemas.DomainRoleEdit,
     domain_role: models.DomainRole = Depends(parse_domain_role),
     domain: models.Domain = Depends(parse_domain_from_auth),
     session: AsyncSession = Depends(db_session_dependency),
-) -> StandardResponse[models.DomainRole]:
+) -> StandardResponse[schemas.DomainRole]:
     if domain_role_edit.role:
         if (
             domain_role.role in READONLY_ROLES
@@ -379,13 +407,16 @@ async def update_domain_role(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def create_domain_invitation(
-    invitation_create: models.DomainInvitationCreate,
+    invitation_create: schemas.DomainInvitationCreate,
     domain: models.Domain = Depends(parse_domain_from_auth),
-) -> StandardResponse[models.DomainInvitation]:
+) -> StandardResponse[schemas.DomainInvitation]:
     if await models.DomainInvitation.get_or_none(
         domain_id=domain.id, code=invitation_create.code
     ):
-        raise BizError(ErrorCode.DomainInvitationBadRequestError)
+        raise BizError(
+            ErrorCode.DomainInvitationBadRequestError,
+            "code is already used",
+        )
     invitation = models.DomainInvitation(
         **invitation_create.dict(),
         domain_id=domain.id,
@@ -412,9 +443,9 @@ async def delete_domain_invitation(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def update_domain_invitation(
-    invitation_edit: models.DomainInvitationEdit,
+    invitation_edit: schemas.DomainInvitationEdit,
     invitation: models.DomainInvitation = Depends(parse_domain_invitation),
-) -> StandardResponse[models.DomainInvitation]:
+) -> StandardResponse[schemas.DomainInvitation]:
     invitation.update_from_dict(invitation_edit.dict())
     logger.info(f"update domain invitation: {invitation}")
     await invitation.save_model()
@@ -427,7 +458,7 @@ async def join_domain_by_invitation(
     invitation_code: str = Query(...),
     domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_auth),
-) -> StandardResponse[models.DomainUser]:
+) -> StandardResponse[schemas.UserWithDomainRole]:
     # validate the invitation
     invitation_model = await models.DomainInvitation.get_or_none(
         domain_id=domain.id, code=invitation_code
@@ -440,4 +471,6 @@ async def join_domain_by_invitation(
     )
     logger.info(f"create domain user: {domain_user}")
     await domain_user.save_model()
-    return StandardResponse(domain_user)
+    return StandardResponse(
+        schemas.UserWithDomainRole.from_domain_user(domain_user, user)
+    )

@@ -9,21 +9,10 @@ from joj.horse.models.base import BaseORMModel
 from joj.horse.models.domain import Domain
 from joj.horse.models.domain_role import DomainRole
 from joj.horse.models.permission import DefaultRole
-from joj.horse.schemas.base import BaseModel
-from joj.horse.schemas.permission import DomainPermission
 from joj.horse.utils.errors import BizError, ErrorCode
 
 if TYPE_CHECKING:
     from joj.horse.models.user import User
-
-
-class DomainUserAdd(BaseModel):
-    role: DefaultRole = Field(DefaultRole.USER)
-    user: str = Field(..., description="'me' or id of the user")
-
-
-class DomainUserUpdate(BaseModel):
-    role: DefaultRole = Field(DefaultRole.USER)
 
 
 class DomainUser(BaseORMModel, table=True):  # type: ignore[call-arg]
@@ -71,8 +60,3 @@ class DomainUser(BaseORMModel, table=True):  # type: ignore[call-arg]
         # update role
         domain_user.role = role
         return domain_user
-
-
-class DomainUserPermission(BaseModel):
-    domain_user: DomainUser
-    permission: DomainPermission

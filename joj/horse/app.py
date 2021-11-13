@@ -15,7 +15,7 @@ from starlette_context import plugins
 from starlette_context.middleware import RawContextMiddleware
 from tenacity import RetryError
 
-import joj.horse.models
+import joj.horse.models  # noqa: F401
 import joj.horse.utils.monkey_patch  # noqa: F401
 from joj.horse.config import get_settings
 from joj.horse.schemas.base import StandardErrorResponse
@@ -110,11 +110,11 @@ async def catch_exceptions_middleware(request: Request, call_next: Any) -> JSONR
         logger.exception(f"Unexcepted Error: {e.__class__.__name__}")
         return JSONResponse(
             jsonable_encoder(
-                {
-                    "error_code": ErrorCode.InternalServerError,
-                    "error_msg": e.__class__.__name__,
-                    "data": {},
-                }
+                StandardErrorResponse(
+                    error_code=ErrorCode.InternalServerError,
+                    # error_msg=e.__class__.__name__,
+                    error_msg=str(e),
+                )
             ),
             status_code=status.HTTP_200_OK,
         )

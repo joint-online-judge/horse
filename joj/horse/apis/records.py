@@ -31,7 +31,7 @@ async def list_records(
     query: schemas.PaginationQuery = Depends(parse_pagination_query),
     user: models.User = Depends(parse_uid_or_none),
     auth: Authentication = Depends(),
-) -> StandardListResponse[models.Record]:
+) -> StandardListResponse[schemas.Record]:
     condition = {}
     if user:
         condition["user"] = auth.user.id
@@ -41,20 +41,20 @@ async def list_records(
         condition["problem_set"] = str(problem_set)
     if problem is not None:
         condition["problem"] = str(problem)
-    cursor = models.Record.cursor_find(condition, query)
-    res = await models.Record.to_list(cursor)
+    cursor = schemas.Record.cursor_find(condition, query)
+    res = await schemas.Record.to_list(cursor)
     return StandardResponse(res)
 
 
 @router.get("/{record}")
 async def get_record(
-    record: models.Record = Depends(parse_record),
-) -> StandardResponse[models.Record]:
-    return StandardResponse(models.Record.from_orm(record))
+    record: schemas.Record = Depends(parse_record),
+) -> StandardResponse[schemas.Record]:
+    return StandardResponse(schemas.Record.from_orm(record))
 
 
 @router.get("/{record}/code")
-async def get_record_code(record: models.Record = Depends(parse_record)) -> Any:
+async def get_record_code(record: schemas.Record = Depends(parse_record)) -> Any:
     pass
     # mime_types = [
     #     "text/plain",
@@ -73,7 +73,7 @@ async def get_record_code(record: models.Record = Depends(parse_record)) -> Any:
 # async def websocket_record(
 #     record: str, websocket: WebSocket
 # ) -> None:
-#     record_model: models.Record = await models.Record.find_by_id(record)
+#     record_model: schemas.Record = await schemas.Record.find_by_id(record)
 #     if record_model is None:
 #         raise BizError(ErrorCode.RecordNotFoundError)
 #     await websocket.accept()
@@ -91,7 +91,7 @@ async def get_record_code(record: models.Record = Depends(parse_record)) -> Any:
 # async def websocket_record_cases(
 #     record: str, websocket: WebSocket
 # ) -> None:
-#     record_model: models.Record = await models.Record.find_by_id(record)
+#     record_model: schemas.Record = await schemas.Record.find_by_id(record)
 #     if record_model is None:
 #         raise BizError(ErrorCode.RecordNotFoundError)
 #     await websocket.accept()
@@ -108,8 +108,8 @@ async def get_record_code(record: models.Record = Depends(parse_record)) -> Any:
 
 @router.post("/{record}/http")
 async def http_record(
-    record_result: models.RecordResult,
-    record: models.Record = Depends(parse_record_judger),
+    record_result: schemas.RecordResult,
+    record: schemas.Record = Depends(parse_record_judger),
     auth: Authentication = Depends(),
 ) -> StandardResponse[Empty]:
     if auth.user.role != DefaultRole.JUDGE:
@@ -124,8 +124,8 @@ async def http_record(
 
 @router.post("/{record}/cases/http")
 async def http_record_cases(
-    record_case_result: models.RecordCaseResult,
-    record: models.Record = Depends(parse_record_judger),
+    record_case_result: schemas.RecordCaseResult,
+    record: schemas.Record = Depends(parse_record_judger),
     auth: Authentication = Depends(),
 ) -> StandardResponse[Empty]:
     if auth.user.role != DefaultRole.JUDGE:

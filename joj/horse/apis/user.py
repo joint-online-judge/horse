@@ -135,7 +135,7 @@ router_prefix = "/api/v1"
 @router.get("")
 async def get_user(
     auth: Authentication = Depends(),
-) -> StandardResponse[models.UserDetail]:
+) -> StandardResponse[schemas.UserDetail]:
     user = await parse_uid(auth.jwt.id, auth)
     return StandardResponse(user)
 
@@ -144,7 +144,7 @@ async def get_user(
 async def get_user_problems(
     query: schemas.PaginationQuery = Depends(parse_pagination_query),
     auth: Authentication = Depends(),
-) -> StandardListResponse[models.Problem]:
+) -> StandardListResponse[schemas.Problem]:
     condition = {"owner": auth.user.id}
     cursor = models.Problem.cursor_find(condition, query)
     res = await models.Problem.to_list(cursor)

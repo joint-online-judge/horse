@@ -44,7 +44,7 @@ async def list_problems(
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     include_hidden: bool = Depends(parse_view_hidden_problem),
-) -> StandardListResponse[models.Problem]:
+) -> StandardListResponse[schemas.Problem]:
     problems, count = await domain.find_problems(
         include_hidden=include_hidden,
         problem_set=problem_set,
@@ -60,12 +60,12 @@ async def list_problems(
     "", dependencies=[Depends(ensure_permission(Permission.DomainProblem.create))]
 )
 async def create_problem(
-    problem_create: models.ProblemCreate,
+    problem_create: schemas.ProblemCreate,
     background_tasks: BackgroundTasks,
     domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_auth),
     session: AsyncSession = Depends(db_session_dependency),
-) -> StandardResponse[models.Problem]:
+) -> StandardResponse[schemas.Problem]:
     try:
         problem_group = models.ProblemGroup()
         session.sync_session.add(problem_group)
@@ -94,7 +94,7 @@ async def create_problem(
 )
 async def get_problem(
     problem: models.Problem = Depends(parse_problem),
-) -> StandardResponse[models.Problem]:
+) -> StandardResponse[schemas.Problem]:
     return StandardResponse(problem)
 
 
@@ -115,10 +115,10 @@ async def delete_problem(
     dependencies=[Depends(ensure_permission(Permission.DomainProblem.edit))],
 )
 async def update_problem(
-    edit_problem: models.ProblemEdit,
+    edit_problem: schemas.ProblemEdit,
     problem: models.Problem = Depends(parse_problem),
     session: AsyncSession = Depends(db_session_dependency),
-) -> StandardResponse[models.Problem]:
+) -> StandardResponse[schemas.Problem]:
     problem.update_from_dict(edit_problem.dict())
     await problem.save_model()
     return StandardResponse(problem)
@@ -130,7 +130,7 @@ async def update_problem(
 )
 async def update_problem_config(
     config: UploadFile = File(...), problem: models.Problem = Depends(parse_problem)
-) -> StandardResponse[models.Problem]:
+) -> StandardResponse[schemas.Problem]:
     return StandardResponse(problem)
 
 
@@ -139,11 +139,11 @@ async def update_problem_config(
     dependencies=[Depends(ensure_permission(Permission.DomainProblem.view_config))],
 )
 async def clone_problem(
-    problem_clone: models.ProblemClone,
+    problem_clone: schemas.ProblemClone,
     domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_auth),
     auth: Authentication = Depends(),
-) -> StandardListResponse[models.Problem]:
+) -> StandardListResponse[schemas.Problem]:
     problems = [await parse_problem(oid, auth) for oid in problem_clone.problems]
     problem_set = await parse_problem_set(problem_clone.problem_set, auth)
     new_group = problem_clone.new_group
@@ -181,12 +181,12 @@ async def clone_problem(
     dependencies=[Depends(ensure_permission(Permission.DomainProblem.submit))],
 )
 async def submit_solution_to_problem(
-    code_type: models.RecordCodeType = Form(...),
+    code_type: schemas.RecordCodeType = Form(...),
     file: UploadFile = File(...),
     problem: models.Problem = Depends(parse_problem),
     domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_auth),
-) -> StandardResponse[models.Record]:
+) -> StandardResponse[schemas.Record]:
     if domain.id != problem.domain:
         # TODO: test whether problem.domain is object id and add other error code
         raise BizError(ErrorCode.ProblemNotFoundError)
@@ -194,7 +194,7 @@ async def submit_solution_to_problem(
         # gfs = AsyncIOMotorGridFSBucket(get_db())
         #
         file_id = None
-        record = models.Record(
+        record = schemas.Record(
             domain=problem.domain,
             problem=problem.id,
             user=user.id,
@@ -202,9 +202,9 @@ async def submit_solution_to_problem(
             code=file_id,
             judge_category=[],
             submit_at=datetime.utcnow(),
-            cases=[models.RecordCase() for i in range(10)],  # TODO: modify later
+            cases=[schemas.RecordCase() for i in range(10)],  # TODO: modify later
         )
-        record_model = models.Record(**record.to_model())
+        record_model = schemas.Record(**record.to_model())
         await record_model.commit()
         problem.num_submit += 1
         await problem.commit()
@@ -212,7 +212,7 @@ async def submit_solution_to_problem(
     except Exception as e:
         logger.exception(f"problem submission failed: {problem.id}")
         raise e
-    record_schema = models.Record.from_orm(record_model)
+    record_schema = schemas.Record.from_orm(record_model)
     http_url = generate_url(
         records.router_prefix, records.router_name, record_schema.id
     )
