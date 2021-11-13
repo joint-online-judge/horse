@@ -22,6 +22,7 @@ from joj.horse.utils.auth import (
     auth_jwt_raw_access_token,
     auth_jwt_raw_refresh_token,
 )
+from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.oauth import BaseOAuth2, OAuth2Dependency, OAuth2Token
 from joj.horse.utils.oauth.github import GitHubOAuth2
 from joj.horse.utils.oauth.jaccount import JaccountOAuth2
@@ -229,6 +230,8 @@ async def login(
     credentials: OAuth2PasswordRequestForm = Depends(),
 ) -> schemas.StandardResponse[schemas.AuthTokens]:
     user = await models.User.get_or_none(username=credentials.username)
+    if not user.verify_password(credentials.password):
+        raise BizError(ErrorCode.UserLoginError, "incorrect password")
     user.login_at = datetime.now(tz=timezone.utc)
     user.login_ip = request.client.host
     await user.save_model()

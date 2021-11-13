@@ -12,8 +12,6 @@ from joj.horse.models.domain import Domain
 from joj.horse.models.domain_role import DomainRole
 from joj.horse.models.domain_user import DomainUser
 from joj.horse.models.user import User
-
-# from joj.horse.models.user_oauth_account import UserOAuthAccount
 from joj.horse.schemas import BaseModel
 from joj.horse.schemas.permission import (
     DEFAULT_DOMAIN_PERMISSION,
