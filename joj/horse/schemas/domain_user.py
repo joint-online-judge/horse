@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 from sqlmodel import Field
 
@@ -20,5 +21,7 @@ class DomainUserUpdate(BaseModel):
 
 
 class DomainUserPermission(BaseModel):
-    # domain_user: DomainUser
+    domain_id: UUID
+    user_id: UUID
+    role: str
     permission: DomainPermission

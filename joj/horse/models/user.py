@@ -148,7 +148,7 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
             await session.refresh(user)
             return user
 
-    def find_domains(self, role: Optional[List[str]]) -> Select:
+    def find_domains_statement(self, role: Optional[List[str]]) -> Select:
         from joj.horse import models
 
         statement = models.Domain.sql_select().outerjoin(models.DomainUser).distinct()

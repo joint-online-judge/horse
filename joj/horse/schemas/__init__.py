@@ -19,6 +19,7 @@ from joj.horse.schemas.domain_invitation import (
 from joj.horse.schemas.domain_role import (
     DomainRole as DomainRole,
     DomainRoleCreate as DomainRoleCreate,
+    DomainRoleDetail as DomainRoleDetail,
     DomainRoleEdit as DomainRoleEdit,
 )
 from joj.horse.schemas.domain_user import (

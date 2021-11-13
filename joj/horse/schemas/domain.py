@@ -1,8 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
-from sqlalchemy.sql.expression import Select
-from sqlmodel import Field, select
+from sqlmodel import Field
 
 from joj.horse.schemas.base import (
     BaseModel,
@@ -46,16 +45,6 @@ class DomainCreate(URLCreateMixin, DomainBase):
 
 class Domain(DomainBase, IDMixin):
     owner_id: UUID
-
-    def find_domain_users_statement(self) -> Select:
-        from joj.horse import models
-
-        statement = (
-            select(models.DomainUser, models.User)
-            .where(models.DomainUser.domain_id == self.id)
-            .where(models.DomainUser.user_id == models.User.id)
-        )
-        return statement
 
 
 class DomainEdit(BaseModel):

@@ -43,7 +43,7 @@ async def list_domains(
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardListResponse[schemas.Domain]:
     """List all domains that the current user has a role."""
-    statement = user.find_domains(role)
+    statement = user.find_domains_statement(role)
     domains, count = await models.Domain.execute_list_statement(
         statement, ordering, pagination
     )
@@ -296,7 +296,7 @@ async def get_domain_user_permission(
 
     permission = schemas.DomainPermission(**domain_role.permission)
     result = schemas.DomainUserPermission(
-        # domain_user=domain_user,
+        **domain_user.dict(),
         permission=permission,
     )
     return StandardResponse(result)
@@ -309,9 +309,9 @@ async def get_domain_user_permission(
 async def list_domain_roles(
     domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardListResponse[schemas.DomainRole]:
-    roles = await domain.roles.all()
-    domain_roles = [models.DomainRole.from_orm(role) for role in roles]
-    return StandardListResponse(domain_roles)
+    statement = domain.find_domain_roles_statement()
+    domain_roles, count = await models.DomainRole.execute_list_statement(statement)
+    return StandardListResponse(domain_roles, count)
 
 
 @router.post(
@@ -335,6 +335,18 @@ async def create_domain_role(
     )
     logger.info(f"create domain role: {domain_role}")
     await domain_role.save_model()
+    return StandardResponse(domain_role)
+
+
+@router.get(
+    "/{domain}/roles/{role}",
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
+)
+async def get_domain_role(
+    domain_role: models.DomainRole = Depends(parse_domain_role),
+) -> StandardResponse[schemas.DomainRoleDetail]:
+    if domain_role is None:
+        raise BizError(ErrorCode.DomainRoleNotFoundError)
     return StandardResponse(domain_role)
 
 
@@ -401,7 +413,10 @@ async def create_domain_invitation(
     if await models.DomainInvitation.get_or_none(
         domain_id=domain.id, code=invitation_create.code
     ):
-        raise BizError(ErrorCode.DomainInvitationBadRequestError)
+        raise BizError(
+            ErrorCode.DomainInvitationBadRequestError,
+            "code is already used",
+        )
     invitation = models.DomainInvitation(
         **invitation_create.dict(),
         domain_id=domain.id,

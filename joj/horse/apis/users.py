@@ -31,7 +31,7 @@ async def list_user_domains(
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     user: models.User = Depends(parse_uid),
 ) -> StandardListResponse[schemas.Domain]:
-    statement = user.find_domains(role)
+    statement = user.find_domains_statement(role)
     domains, count = await models.Domain.execute_list_statement(
         statement, ordering, pagination
     )

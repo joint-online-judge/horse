@@ -3,7 +3,8 @@ from uuid import UUID
 
 from sqlalchemy import event
 from sqlalchemy.schema import Column, ForeignKey
-from sqlmodel import Field, Relationship
+from sqlalchemy.sql.expression import Select
+from sqlmodel import Field, Relationship, select
 from sqlmodel.sql.sqltypes import GUID
 
 from joj.horse.models.base import URLORMModel, url_pre_save
@@ -57,6 +58,24 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
         query_set = self.apply_pagination(query_set, pagination)
         problems = await query_set
         return problems, count
+
+    def find_domain_users_statement(self) -> Select:
+        from joj.horse import models
+
+        statement = (
+            select(models.DomainUser, models.User)
+            .where(models.DomainUser.domain_id == self.id)
+            .where(models.DomainUser.user_id == models.User.id)
+        )
+        return statement
+
+    def find_domain_roles_statement(self) -> Select:
+        from joj.horse import models
+
+        statement = select(models.DomainRole).where(
+            models.DomainRole.domain_id == self.id
+        )
+        return statement
 
 
 event.listen(Domain, "before_insert", url_pre_save)
