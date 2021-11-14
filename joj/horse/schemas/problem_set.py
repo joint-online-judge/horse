@@ -53,19 +53,19 @@ class ProblemSetBase(URLORMSchema):
     )
     available_time: datetime = Field(
         sa_column=get_datetime_column(index=False),
-        default_factory=datetime.utcnow,
         description="the problem set is available from",
     )
     due_time: datetime = Field(
         sa_column=get_datetime_column(index=False),
-        default_factory=lambda: datetime.utcnow() + timedelta(days=7),
         description="the problem set is due at",
     )
 
 
 class ProblemSetCreate(URLCreateMixin, ProblemSetBase):
-    available_time: UTCDatetime
-    due_time: UTCDatetime
+    available_time: UTCDatetime = Field(default_factory=datetime.utcnow)
+    due_time: UTCDatetime = Field(
+        default_factory=lambda: datetime.utcnow() + timedelta(days=7)
+    )
 
 
 class ProblemSet(ProblemSetBase, DomainMixin, IDMixin):
