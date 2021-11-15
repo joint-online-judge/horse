@@ -5,7 +5,7 @@ from urllib.parse import quote_plus
 from fastapi import Depends, HTTPException, Query, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_jwt_auth import AuthJWT
-from uvicorn.config import logger
+from loguru import logger
 
 from joj.horse import models, schemas
 from joj.horse.config import settings

@@ -25,7 +25,7 @@ from joj.horse.tests.utils.utils import (
     validate_test_problem_set,
     validate_test_user,
 )
-from joj.horse.utils.db import get_db_engine
+from joj.horse.utils.db import get_db_url
 from joj.horse.utils.logger import init_logging
 
 
@@ -34,9 +34,12 @@ async def postgres(request: Any) -> None:
     init_logging(test=True)
     settings.db_name += "_test"
     settings.db_echo = False
-    request.addfinalizer(
-        lambda: asyncio.run(greenlet_spawn(drop_database, get_db_engine().url))
-    )
+    db_url = get_db_url()
+    try:
+        await greenlet_spawn(drop_database, db_url)
+    except Exception:
+        pass
+    request.addfinalizer(lambda: asyncio.run(greenlet_spawn(drop_database, db_url)))
 
 
 @pytest.yield_fixture(scope="session")

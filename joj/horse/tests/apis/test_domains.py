@@ -9,6 +9,7 @@ from joj.horse import apis, models
 from joj.horse.app import app
 from joj.horse.models.permission import DefaultRole
 from joj.horse.tests.utils.utils import (
+    GLOBAL_DOMAIN_COUNT,
     create_test_domain,
     do_api_request,
     get_base_url,
@@ -83,7 +84,6 @@ class TestDomainCreate:
             "name": f"{global_domain.name}_duplicate",
         }
         response = await create_test_domain(client, global_root_user, data)
-        print(response)
         validate_response(response, ErrorCode.IntegrityError)
 
     @pytest.mark.depends(on="test_global_domains")
@@ -240,32 +240,31 @@ class TestDomainDelete:
 class TestDomainList:
     url = app.url_path_for("list_domains")
 
-    # @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
-    # async def test_list_domain_asc(
-    #     self, client: AsyncClient, user: models.User
-    # ) -> None:
-    #     response = await do_api_request(
-    #         client, "GET", self.url, user, {"ordering": "-name"}
-    #     )
-    #     assert response.status_code == 200
-    #     res = response.json()
-    #     res = res["data"]
-    #     print(res)
-    #     assert res["count"] == 3
-    #     assert len(res["results"]) == 3
+    @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
+    async def test_list_domain_asc(
+        self, client: AsyncClient, user: models.User
+    ) -> None:
+        response = await do_api_request(
+            client, "GET", self.url, user, {"ordering": "-name"}
+        )
+        assert response.status_code == 200
+        res = response.json()
+        res = res["data"]
+        assert res["count"] == GLOBAL_DOMAIN_COUNT + 2
+        assert len(res["results"]) == GLOBAL_DOMAIN_COUNT + 2
 
-    # @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
-    # async def test_list_domain_desc(
-    #     self, client: AsyncClient, user: models.User
-    # ) -> None:
-    #     response = await do_api_request(
-    #         client, "GET", self.url, user, {"ordering": "name"}
-    #     )
-    #     assert response.status_code == 200
-    #     res = response.json()
-    #     res = res["data"]
-    #     assert res["count"] == 3
-    #     assert len(res["results"]) == 3
+    @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
+    async def test_list_domain_desc(
+        self, client: AsyncClient, user: models.User
+    ) -> None:
+        response = await do_api_request(
+            client, "GET", self.url, user, {"ordering": "name"}
+        )
+        assert response.status_code == 200
+        res = response.json()
+        res = res["data"]
+        assert res["count"] == GLOBAL_DOMAIN_COUNT + 2
+        assert len(res["results"]) == GLOBAL_DOMAIN_COUNT + 2
 
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
     async def test_list_domain_illegal_field(

@@ -5,6 +5,7 @@ import jwt
 import pytest
 from fastapi.encoders import jsonable_encoder
 from httpx import AsyncClient, Response
+from loguru import logger
 from pydantic import BaseModel
 from pytest_lazyfixture import lazy_fixture
 
@@ -32,6 +33,8 @@ def validate_response(
 ) -> Dict[str, Any]:
     assert response.status_code == 200
     res = response.json()
+    if res["errorCode"] != error_code:
+        logger.info(res)
     assert res["errorCode"] == error_code
     if error_code == ErrorCode.Success:
         assert res["data"]
