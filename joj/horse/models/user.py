@@ -1,7 +1,5 @@
-from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
-from loguru import logger
 from pydantic import EmailStr, root_validator
 from sqlalchemy.sql.expression import Select
 from sqlmodel import Field, Relationship
@@ -40,36 +38,79 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
         values["email_lower"] = values["email"].lower()
         return values
 
-    @classmethod
-    async def find_by_uname(cls, scope: str, uname: str) -> Optional["User"]:
-        return await User.get_or_none(scope=scope, uname_lower=uname.strip().lower())
+    def verify_password(self, plain_password: str) -> bool:
+        from joj.horse.utils.auth import pwd_context
+
+        return pwd_context.verify(plain_password, self.hashed_password)
 
     @classmethod
-    async def login_by_jaccount(
-        cls, student_id: str, jaccount_name: str, real_name: str, ip: str
-    ) -> Optional["User"]:
-        scope = "sjtu"
-        try:
-            user = await cls.find_by_uname(scope=scope, uname=jaccount_name)
-            if user:
-                user.login_at = datetime.now(tz=timezone.utc)
-                user.login_ip = ip
-            else:
-                user = User(
-                    scope=scope,
-                    uname=jaccount_name,
-                    mail=EmailStr(jaccount_name + "@sjtu.edu.cn"),
-                    student_id=student_id,
-                    real_name=real_name,
-                    register_ip=ip,
-                    login_timestamp=datetime.now(tz=timezone.utc),
-                    login_ip=ip,
-                )
-            await user.save_model()
-            return user
-        except Exception as e:
-            logger.exception(e)
-            return None
+    def _generate_password_hash(cls, password: str) -> str:
+        from joj.horse.utils.auth import pwd_context
+
+        return pwd_context.hash(password)
+
+    @classmethod
+    def _create_user(cls, user_create: "UserCreate", register_ip: str) -> "User":
+        if not user_create.password:
+            raise BizError(ErrorCode.UserRegisterError, "password not provided")
+        if not user_create.username:
+            raise BizError(ErrorCode.UserRegisterError, "username not provided")
+        if not user_create.email:
+            raise BizError(ErrorCode.UserRegisterError, "email not provided")
+        hashed_password = cls._generate_password_hash(user_create.password)
+        user = User(
+            username=user_create.username,
+            email=user_create.email,
+            student_id="",
+            real_name="",
+            is_active=False,
+            hashed_password=hashed_password,
+            register_ip=register_ip,
+            login_ip=register_ip,
+        )
+        return user
+
+    @classmethod
+    async def _create_user_by_oauth(
+        cls,
+        user_create: "UserCreate",
+        jwt_access_token: "JWTAccessToken",
+        register_ip: str,
+    ) -> Tuple["User", "UserOAuthAccount"]:
+        oauth_account = await UserOAuthAccount.get_or_none(
+            oauth_name=jwt_access_token.oauth_name,
+            account_id=jwt_access_token.id,
+        )
+        if oauth_account is None:
+            raise BizError(ErrorCode.UserRegisterError, "oauth account not matched")
+        if not user_create.username:
+            if not oauth_account.account_name:
+                raise BizError(ErrorCode.UserRegisterError, "username not provided")
+            username = oauth_account.account_name
+        else:
+            username = user_create.username
+        email = oauth_account.account_email
+        if user_create.email and user_create.email != oauth_account.account_email:
+            raise BizError(
+                ErrorCode.UserRegisterError,
+                "email must be same as the primary email of oauth account",
+            )
+        if user_create.password:
+            hashed_password = cls._generate_password_hash(user_create.password)
+        else:
+            # register with oauth can omit password
+            hashed_password = ""  # pragma: no cover
+        user = User(
+            username=username,
+            email=email,
+            student_id=jwt_access_token.student_id,
+            real_name=jwt_access_token.real_name,
+            is_active=True,
+            hashed_password=hashed_password,
+            register_ip=register_ip,
+            login_ip=register_ip,
+        )
+        return user, oauth_account
 
     @classmethod
     async def create(
@@ -78,8 +119,6 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
         jwt_access_token: Optional["JWTAccessToken"],
         register_ip: str,
     ) -> "User":
-        username = user_create.username
-        email = user_create.email
         if user_create.oauth_name:
             if (
                 jwt_access_token is None
@@ -88,58 +127,14 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
                 or jwt_access_token.id != user_create.oauth_account_id
             ):
                 raise BizError(ErrorCode.UserRegisterError, "oauth account not matched")
-            oauth_account = await UserOAuthAccount.get_or_none(
-                oauth_name=jwt_access_token.oauth_name,
-                account_id=jwt_access_token.id,
+            user, oauth_account = await cls._create_user_by_oauth(
+                user_create, jwt_access_token, register_ip
             )
-            if oauth_account is None:
-                raise BizError(ErrorCode.UserRegisterError, "oauth account not matched")
-            if not user_create.username:
-                if not oauth_account.account_name:
-                    raise BizError(ErrorCode.UserRegisterError, "username not provided")
-                username = oauth_account.account_name
-            if not user_create.email:
-                email = oauth_account.account_email
-            elif user_create.email != oauth_account.account_email:
-                raise BizError(
-                    ErrorCode.UserRegisterError,
-                    "email must be same as the primary email of oauth account",
-                )
-            student_id = jwt_access_token.student_id
-            real_name = jwt_access_token.real_name
-            is_active = True
-
         else:
+            user = cls._create_user(user_create, register_ip)
             oauth_account = None
-            if not user_create.password:
-                raise BizError(ErrorCode.UserRegisterError, "password not provided")
-            if not user_create.username:
-                raise BizError(ErrorCode.UserRegisterError, "username not provided")
-            if not user_create.email:
-                raise BizError(ErrorCode.UserRegisterError, "email not provided")
-            student_id = ""
-            real_name = ""
-            is_active = False
-
-        if user_create.password:
-            from joj.horse.utils.auth import pwd_context
-
-            hashed_password = pwd_context.hash(user_create.password)
-        else:
-            # register with oauth can omit password
-            hashed_password = ""  # pragma: no cover
 
         async with db_session() as session:
-            user = User(
-                username=username,
-                email=email,
-                student_id=student_id,
-                real_name=real_name,
-                is_active=is_active,
-                hashed_password=hashed_password,
-                register_ip=register_ip,
-                login_ip=register_ip,
-            )
             session.sync_session.add(user)
             if oauth_account:  # pragma: no cover
                 oauth_account.user_id = user.id
