@@ -44,10 +44,9 @@ def validate_response(
 def to_dict(data: Union[Dict[Any, Any], BaseModel]) -> Dict[Any, Any]:
     if isinstance(data, dict):
         return data
-    elif isinstance(data, models.Domain):
+    if isinstance(data, models.Domain):
         return data.dict(by_alias=True)
-    else:
-        assert False
+    assert False
 
 
 def validate_url(res: Dict[Any, Any], data: Dict[Any, Any]) -> None:

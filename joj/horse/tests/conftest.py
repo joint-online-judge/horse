@@ -6,6 +6,7 @@ import pytest
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
 from httpx import AsyncClient
+from sqlalchemy.exc import DBAPIError
 from sqlalchemy.util.concurrency import greenlet_spawn
 from sqlalchemy_utils import drop_database
 
@@ -37,7 +38,7 @@ async def postgres(request: Any) -> None:
     db_url = get_db_url()
     try:
         await greenlet_spawn(drop_database, db_url)
-    except Exception:
+    except DBAPIError:  # pragma: no cover
         pass
     request.addfinalizer(lambda: asyncio.run(greenlet_spawn(drop_database, db_url)))
 
