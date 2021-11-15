@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: bef9fbf@2021-11-13T17:48:31Z",
+    "description": "Git version: 36ea0f6@2021-11-15T03:52:57Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -5241,6 +5241,7 @@
           "APINotImplementedError",
           "UserNotFoundError",
           "UserRegisterError",
+          "UserLoginError",
           "DomainNotFoundError",
           "InvalidUrlError",
           "ProblemNotFoundError",
