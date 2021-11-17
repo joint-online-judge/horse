@@ -9,7 +9,7 @@ from joj.horse import models, schemas
 from joj.horse.models.permission import PermissionType, ScopeType
 from joj.horse.schemas.base import NoneEmptyLongStr, NoneNegativeInt, PaginationLimit
 from joj.horse.schemas.query import OrderingQuery, PaginationQuery
-from joj.horse.utils.auth import Authentication, DomainAuthentication
+from joj.horse.utils.auth import Authentication, DomainAuthentication, get_domain
 from joj.horse.utils.errors import BizError, ErrorCode
 
 
@@ -53,6 +53,12 @@ def parse_user_from_auth(
         role=auth.jwt.role,
         is_active=auth.jwt.is_active,
     )
+
+
+async def parse_domain_without_validation(
+    domain: models.Domain = Depends(get_domain),
+) -> models.Domain:
+    return domain
 
 
 async def parse_domain_from_auth(

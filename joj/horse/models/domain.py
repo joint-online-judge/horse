@@ -95,6 +95,14 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
         )
         return statement
 
+    def find_domain_invitations_statement(self) -> Select:
+        from joj.horse import models
+
+        statement = select(models.DomainInvitation).where(
+            models.DomainInvitation.domain_id == self.id
+        )
+        return statement
+
     def find_candidates_statement(self, query: str) -> Select:
         from joj.horse import models
 

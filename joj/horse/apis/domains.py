@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 import sqlalchemy.exc
@@ -22,6 +22,7 @@ from joj.horse.utils.parser import (
     parse_domain_from_auth,
     parse_domain_invitation,
     parse_domain_role,
+    parse_domain_without_validation,
     parse_ordering_query,
     parse_pagination_query,
     parse_uid,
@@ -423,6 +424,18 @@ async def update_domain_role(
     return StandardResponse(domain_role)
 
 
+@router.get(
+    "/{domain}/invitations",
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
+)
+async def list_domain_invitations(
+    domain: models.Domain = Depends(parse_domain_from_auth),
+) -> StandardListResponse[schemas.DomainInvitation]:
+    statement = domain.find_domain_invitations_statement()
+    invitations, count = await models.DomainRole.execute_list_statement(statement)
+    return StandardListResponse(invitations, count)
+
+
 @router.post(
     "/{domain}/invitations",
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
@@ -444,6 +457,16 @@ async def create_domain_invitation(
     )
     logger.info(f"create domain invitation: {invitation}")
     await invitation.save_model()
+    return StandardResponse(invitation)
+
+
+@router.get(
+    "/{domain}/invitations/{invitation}",
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
+)
+async def get_domain_invitation(
+    invitation: models.DomainInvitation = Depends(parse_domain_invitation),
+) -> StandardResponse[schemas.DomainInvitation]:
     return StandardResponse(invitation)
 
 
@@ -477,14 +500,19 @@ async def update_domain_invitation(
 # @camelcase_parameters
 async def join_domain_by_invitation(
     invitation_code: str = Query(...),
-    domain: models.Domain = Depends(parse_domain_from_auth),
+    domain: models.Domain = Depends(parse_domain_without_validation),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.UserWithDomainRole]:
+    if domain is None:
+        raise BizError(ErrorCode.DomainInvitationBadRequestError)
     # validate the invitation
     invitation_model = await models.DomainInvitation.get_or_none(
         domain_id=domain.id, code=invitation_code
     )
-    if invitation_model is None or datetime.utcnow() > invitation_model.expire_at:
+    if (
+        invitation_model is None
+        or datetime.now(tz=timezone.utc) > invitation_model.expire_at
+    ):
         raise BizError(ErrorCode.DomainInvitationBadRequestError)
     # add member
     domain_user = await models.DomainUser.add_domain_user(
