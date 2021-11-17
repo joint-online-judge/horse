@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 60a5a0a@2021-11-15T07:06:19Z",
+    "description": "Git version: 039716b@2021-11-17T14:23:21Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -1542,6 +1542,18 @@
             "in": "path"
           },
           {
+            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: name",
+            "required": false,
+            "schema": {
+              "title": "Ordering",
+              "type": "string",
+              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: name",
+              "default": ""
+            },
+            "name": "ordering",
+            "in": "query"
+          },
+          {
             "required": false,
             "schema": {
               "title": "Offset",
@@ -1671,25 +1683,14 @@
         ]
       }
     },
-    "/api/v1/domains/{domain}/problem_sets/{problem_set}": {
+    "/api/v1/domains/{domain}/problem_sets/{problemSet}": {
       "get": {
         "tags": [
           "problem set"
         ],
         "summary": "Get Problem Set",
-        "operationId": "get_problem_set_api_v1_domains__domain__problem_sets__problem_set__get",
+        "operationId": "get_problem_set_api_v1_domains__domain__problem_sets__problemSet__get",
         "parameters": [
-          {
-            "description": "url or id of the problem set",
-            "required": true,
-            "schema": {
-              "title": "Problemset",
-              "type": "string",
-              "description": "url or id of the problem set"
-            },
-            "name": "problemSet",
-            "in": "path"
-          },
           {
             "description": "url or id of the domain",
             "required": true,
@@ -1700,6 +1701,17 @@
             },
             "name": "domain",
             "in": "path"
+          },
+          {
+            "description": "url or id of the problem set",
+            "required": true,
+            "schema": {
+              "title": "Problemset",
+              "type": "string",
+              "description": "url or id of the problem set"
+            },
+            "name": "problemSet",
+            "in": "path"
           }
         ],
         "responses": {
@@ -1708,7 +1720,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemSetResp"
+                  "$ref": "#/components/schemas/ProblemSetDetailResp"
                 }
               }
             }
@@ -1745,19 +1757,8 @@
           "problem set"
         ],
         "summary": "Delete Problem Set",
-        "operationId": "delete_problem_set_api_v1_domains__domain__problem_sets__problem_set__delete",
+        "operationId": "delete_problem_set_api_v1_domains__domain__problem_sets__problemSet__delete",
         "parameters": [
-          {
-            "description": "url or id of the problem set",
-            "required": true,
-            "schema": {
-              "title": "Problemset",
-              "type": "string",
-              "description": "url or id of the problem set"
-            },
-            "name": "problemSet",
-            "in": "path"
-          },
           {
             "description": "url or id of the domain",
             "required": true,
@@ -1767,6 +1768,17 @@
               "description": "url or id of the domain"
             },
             "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem set",
+            "required": true,
+            "schema": {
+              "title": "Problemset",
+              "type": "string",
+              "description": "url or id of the problem set"
+            },
+            "name": "problemSet",
             "in": "path"
           }
         ],
@@ -1814,19 +1826,8 @@
           "problem set"
         ],
         "summary": "Update Problem Set",
-        "operationId": "update_problem_set_api_v1_domains__domain__problem_sets__problem_set__patch",
+        "operationId": "update_problem_set_api_v1_domains__domain__problem_sets__problemSet__patch",
         "parameters": [
-          {
-            "description": "url or id of the problem set",
-            "required": true,
-            "schema": {
-              "title": "Problemset",
-              "type": "string",
-              "description": "url or id of the problem set"
-            },
-            "name": "problemSet",
-            "in": "path"
-          },
           {
             "description": "url or id of the domain",
             "required": true,
@@ -1836,6 +1837,17 @@
               "description": "url or id of the domain"
             },
             "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem set",
+            "required": true,
+            "schema": {
+              "title": "Problemset",
+              "type": "string",
+              "description": "url or id of the problem set"
+            },
+            "name": "problemSet",
             "in": "path"
           }
         ],
@@ -1888,13 +1900,342 @@
         ]
       }
     },
-    "/api/v1/domains/{domain}/problem_sets/{problem_set}/scoreboard": {
+    "/api/v1/domains/{domain}/problem_sets/{problemSet}/problem": {
+      "post": {
+        "tags": [
+          "problem set"
+        ],
+        "summary": "Add Problem In Problem Set",
+        "operationId": "add_problem_in_problem_set_api_v1_domains__domain__problem_sets__problemSet__problem_post",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem set",
+            "required": true,
+            "schema": {
+              "title": "Problemset",
+              "type": "string",
+              "description": "url or id of the problem set"
+            },
+            "name": "problemSet",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProblemSetAddProblem"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemSetResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/problem_sets/{problemSet}/problem/{problem}": {
+      "get": {
+        "tags": [
+          "problem set"
+        ],
+        "summary": "Get Problem In Problem Set",
+        "operationId": "get_problem_in_problem_set_api_v1_domains__domain__problem_sets__problemSet__problem__problem__get",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem set",
+            "required": true,
+            "schema": {
+              "title": "Problemset",
+              "type": "string",
+              "description": "url or id of the problem set"
+            },
+            "name": "problemSet",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "problem set"
+        ],
+        "summary": "Delete Problem In Problem Set",
+        "operationId": "delete_problem_in_problem_set_api_v1_domains__domain__problem_sets__problemSet__problem__problem__delete",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem set",
+            "required": true,
+            "schema": {
+              "title": "Problemset",
+              "type": "string",
+              "description": "url or id of the problem set"
+            },
+            "name": "problemSet",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemSetResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "problem set"
+        ],
+        "summary": "Update Problem In Problem Set",
+        "operationId": "update_problem_in_problem_set_api_v1_domains__domain__problem_sets__problemSet__problem__problem__patch",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem set",
+            "required": true,
+            "schema": {
+              "title": "Problemset",
+              "type": "string",
+              "description": "url or id of the problem set"
+            },
+            "name": "problemSet",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProblemSetUpdateProblem"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemSetResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/problem_sets/{problemSet}/scoreboard": {
       "get": {
         "tags": [
           "problem set"
         ],
         "summary": "Get Scoreboard",
-        "operationId": "get_scoreboard_api_v1_domains__domain__problem_sets__problem_set__scoreboard_get",
+        "operationId": "get_scoreboard_api_v1_domains__domain__problem_sets__problemSet__scoreboard_get",
         "parameters": [
           {
             "description": "url or id of the problem set",
@@ -1951,6 +2292,7 @@
             }
           }
         },
+        "deprecated": true,
         "security": [
           {
             "HTTPBearer": []
@@ -1978,30 +2320,12 @@
             "in": "path"
           },
           {
-            "required": false,
-            "schema": {
-              "title": "Problemset",
-              "type": "string"
-            },
-            "name": "problemSet",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Problemgroup",
-              "type": "string"
-            },
-            "name": "problemGroup",
-            "in": "query"
-          },
-          {
-            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: Any",
+            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: name",
             "required": false,
             "schema": {
               "title": "Ordering",
               "type": "string",
-              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: Any",
+              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: name",
               "default": ""
             },
             "name": "ordering",
@@ -2174,7 +2498,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemResp"
+                  "$ref": "#/components/schemas/ProblemDetailResp"
                 }
               }
             }
@@ -5239,9 +5563,9 @@
           "IllegalFieldError",
           "IntegrityError",
           "APINotImplementedError",
-          "UserNotFoundError",
           "UserRegisterError",
           "UserLoginError",
+          "UserNotFoundError",
           "DomainNotFoundError",
           "InvalidUrlError",
           "ProblemNotFoundError",
@@ -5621,6 +5945,115 @@
           }
         }
       },
+      "ProblemDetail": {
+        "title": "ProblemDetail",
+        "required": [
+          "id",
+          "domainId",
+          "title",
+          "ownerId",
+          "problemGroupId",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "domainId": {
+            "title": "Domainid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string",
+            "description": "(unique) url of the domain",
+            "default": ""
+          },
+          "title": {
+            "title": "Title",
+            "minLength": 1,
+            "type": "string",
+            "description": "title of the problem"
+          },
+          "content": {
+            "title": "Content",
+            "maxLength": 65536,
+            "type": "string",
+            "description": "content of the problem",
+            "default": ""
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "is the problem hidden",
+            "default": false
+          },
+          "numSubmit": {
+            "title": "Numsubmit",
+            "type": "integer",
+            "default": 0
+          },
+          "numAccept": {
+            "title": "Numaccept",
+            "type": "integer",
+            "default": 0
+          },
+          "dataVersion": {
+            "title": "Dataversion",
+            "type": "integer",
+            "default": 2
+          },
+          "languages": {
+            "title": "Languages",
+            "type": "string",
+            "default": "[]"
+          },
+          "ownerId": {
+            "title": "Ownerid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "problemGroupId": {
+            "title": "Problemgroupid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ProblemDetailResp": {
+        "title": "ProblemDetailResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProblemDetail"
+          }
+        }
+      },
       "ProblemEdit": {
         "title": "ProblemEdit",
         "type": "object",
@@ -5771,6 +6204,52 @@
           }
         }
       },
+      "ProblemPreview": {
+        "title": "ProblemPreview",
+        "required": [
+          "id",
+          "title",
+          "ownerId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string",
+            "description": "(unique) url of the domain",
+            "default": ""
+          },
+          "title": {
+            "title": "Title",
+            "minLength": 1,
+            "type": "string",
+            "description": "title of the problem"
+          },
+          "content": {
+            "title": "Content",
+            "maxLength": 65536,
+            "type": "string",
+            "description": "content of the problem",
+            "default": ""
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "is the problem hidden",
+            "default": false
+          },
+          "ownerId": {
+            "title": "Ownerid",
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "ProblemResp": {
         "title": "ProblemResp",
         "required": [
@@ -5796,6 +6275,8 @@
           "id",
           "domainId",
           "title",
+          "availableTime",
+          "dueTime",
           "ownerId"
         ],
         "type": "object",
@@ -5871,12 +6352,29 @@
           }
         }
       },
+      "ProblemSetAddProblem": {
+        "title": "ProblemSetAddProblem",
+        "required": [
+          "problem"
+        ],
+        "type": "object",
+        "properties": {
+          "position": {
+            "title": "Position",
+            "type": "integer",
+            "description": "the position of the problem in the problem set. if None, append to the end of the problems list."
+          },
+          "problem": {
+            "title": "Problem",
+            "type": "string",
+            "description": "url or id of the problem"
+          }
+        }
+      },
       "ProblemSetCreate": {
         "title": "ProblemSetCreate",
         "required": [
-          "title",
-          "availableTime",
-          "dueTime"
+          "title"
         ],
         "type": "object",
         "properties": {
@@ -5921,6 +6419,128 @@
             "title": "Duetime",
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "ProblemSetDetail": {
+        "title": "ProblemSetDetail",
+        "required": [
+          "id",
+          "domainId",
+          "title",
+          "availableTime",
+          "dueTime",
+          "ownerId",
+          "createdAt",
+          "updatedAt",
+          "problems"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "domainId": {
+            "title": "Domainid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string",
+            "description": "(unique) url of the domain",
+            "default": ""
+          },
+          "title": {
+            "title": "Title",
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string",
+            "description": "title of the problem set"
+          },
+          "content": {
+            "title": "Content",
+            "maxLength": 65536,
+            "type": "string",
+            "description": "content of the problem set",
+            "default": ""
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "whether the problem set is hidden",
+            "default": false
+          },
+          "scoreboardHidden": {
+            "title": "Scoreboardhidden",
+            "type": "boolean",
+            "description": "whether the scoreboard of the problem set is hidden",
+            "default": false
+          },
+          "availableTime": {
+            "title": "Availabletime",
+            "type": "string",
+            "description": "the problem set is available from",
+            "format": "date-time"
+          },
+          "dueTime": {
+            "title": "Duetime",
+            "type": "string",
+            "description": "the problem set is due at",
+            "format": "date-time"
+          },
+          "numSubmit": {
+            "title": "Numsubmit",
+            "type": "integer",
+            "default": 0
+          },
+          "numAccept": {
+            "title": "Numaccept",
+            "type": "integer",
+            "default": 0
+          },
+          "ownerId": {
+            "title": "Ownerid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "problems": {
+            "title": "Problems",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProblemPreview"
+            }
+          }
+        }
+      },
+      "ProblemSetDetailResp": {
+        "title": "ProblemSetDetailResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProblemSetDetail"
           }
         }
       },
@@ -6063,6 +6683,17 @@
           },
           "data": {
             "$ref": "#/components/schemas/ProblemSet"
+          }
+        }
+      },
+      "ProblemSetUpdateProblem": {
+        "title": "ProblemSetUpdateProblem",
+        "type": "object",
+        "properties": {
+          "position": {
+            "title": "Position",
+            "type": "integer",
+            "description": "the position of the problem in the problem set. if None, append to the end of the problems list."
           }
         }
       },
