@@ -38,13 +38,15 @@ class UserCreate(SQLModel):
         return EmailStr(v)
 
 
-class UserBase(BaseORMSchema):
+class UserPreview(BaseORMSchema):
     username: str = Field(index=False)
     email: EmailStr = Field(index=False)
-
     gravatar: str = Field(default="", index=False)
     student_id: str = Field(default="")
     real_name: str = Field(default="")
+
+
+class UserBase(UserPreview):
     role: str = Field(default=str(DefaultRole.USER))
     is_active: bool = Field(default=False, index=False)
 
@@ -53,24 +55,28 @@ class User(UserBase, IDMixin):
     pass
 
 
-class UserWithDomainRole(User):
-    domain_id: UUID
-    domain_role: str
+class UserWithDomainRole(UserPreview):
+    domain_id: Optional[UUID] = None
+    domain_role: Optional[str] = None
 
     @classmethod
     def from_domain_user(
         cls,
-        domain_user: "DomainUser",
-        user: Optional[Union["User", Dict[str, Any]]] = None,
+        domain_user: Optional["DomainUser"],
+        user: Union["User", Dict[str, Any]],
     ) -> "UserWithDomainRole":
-        if user is None:
-            user = domain_user.user
+        if domain_user is None:
+            domain_id = None
+            domain_role = None
+        else:
+            domain_id = domain_user.domain_id
+            domain_role = domain_user.role
         if not isinstance(user, dict):
             user = user.dict()
         return cls(
-            **user,  # type: ignore[arg-type]
-            domain_id=domain_user.domain_id,
-            domain_role=domain_user.role,
+            **user,
+            domain_id=domain_id,
+            domain_role=domain_role,
         )
 
 

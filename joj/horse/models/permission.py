@@ -25,6 +25,7 @@ class ScopeType(StrEnumMixin, Enum):
 
 class PermissionType(StrEnumMixin, Enum):
     view = "view"
+    view_list = "view_list"
     view_mod_badge = "view_mod_badge"
     view_hidden = "view_hidden"
     view_config = "view_config"
