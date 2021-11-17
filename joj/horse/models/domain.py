@@ -3,7 +3,7 @@ from uuid import UUID
 
 from sqlalchemy import event
 from sqlalchemy.schema import Column, ForeignKey
-from sqlalchemy.sql.expression import Select, true
+from sqlalchemy.sql.expression import Select, or_, true
 from sqlmodel import Field, Relationship, select
 from sqlmodel.sql.sqltypes import GUID
 
@@ -100,6 +100,24 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
 
         statement = select(models.DomainInvitation).where(
             models.DomainInvitation.domain_id == self.id
+
+    def find_candidates_statement(self, query: str) -> Select:
+        from joj.horse import models
+
+        statement = select(models.User, models.DomainUser)
+        statement = (
+            models.User.apply_search(statement, query)
+            .outerjoin_from(
+                models.User,
+                models.DomainUser,
+                models.User.id == models.DomainUser.user_id,
+            )
+            .where(
+                or_(
+                    models.DomainUser.domain_id == self.id,
+                    models.DomainUser.domain_id.is_(None),
+                )
+            )
         )
         return statement
 

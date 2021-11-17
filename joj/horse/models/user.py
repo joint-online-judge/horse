@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 from pydantic import EmailStr, root_validator
-from sqlalchemy.sql.expression import Select
+from sqlalchemy.sql.expression import Select, or_
 from sqlmodel import Field, Relationship
 
 from joj.horse.models.base import BaseORMModel
@@ -153,3 +153,20 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
         if role is not None:
             statement = statement.where(models.DomainUser.role.in_(role))
         return statement
+
+    @classmethod
+    def apply_search(cls, statement: Select, query: str) -> Select:
+        looking_for = f"%{query}%"
+        statement = statement.where(
+            or_(
+                cls.username_lower.ilike(looking_for),  # type: ignore[attr-defined]
+                cls.email_lower.ilike(looking_for),  # type: ignore[attr-defined]
+                cls.student_id.ilike(looking_for),
+                cls.real_name.ilike(looking_for),
+            )
+        )
+        return statement
+
+    @classmethod
+    def find_users_statement(cls, query: str) -> Select:
+        return cls.apply_search(cls.sql_select(), query)

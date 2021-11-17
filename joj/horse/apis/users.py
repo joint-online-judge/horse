@@ -4,6 +4,8 @@ from fastapi import Depends, Query
 
 from joj.horse import models, schemas
 from joj.horse.schemas import StandardListResponse, StandardResponse
+from joj.horse.schemas.permission import Permission
+from joj.horse.utils.auth import ensure_permission
 from joj.horse.utils.parser import (
     parse_ordering_query,
     parse_pagination_query,
@@ -15,6 +17,21 @@ router = MyRouter()
 router_name = "users"
 router_tag = "user"
 router_prefix = "/api/v1"
+
+
+@router.get(
+    "", dependencies=[Depends(ensure_permission(Permission.SiteUser.view_list))]
+)
+async def list_users(
+    ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["username"])),
+    pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
+    query: str = Query(""),
+) -> StandardListResponse[schemas.User]:
+    statement = models.User.find_users_statement(query)
+    problem_sets, count = await models.User.execute_list_statement(
+        statement, ordering, pagination
+    )
+    return StandardListResponse(problem_sets, count)
 
 
 @router.get("/{uid}")
