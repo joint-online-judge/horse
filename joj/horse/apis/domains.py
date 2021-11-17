@@ -9,6 +9,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from joj.horse import models, schemas
 from joj.horse.models.permission import FIXED_ROLES, READONLY_ROLES
 from joj.horse.schemas import Empty, StandardListResponse, StandardResponse
+from joj.horse.schemas.base import SearchQueryStr
 from joj.horse.schemas.permission import (
     DEFAULT_DOMAIN_PERMISSION,
     DefaultRole,
@@ -300,6 +301,26 @@ async def get_domain_user_permission(
         permission=permission,
     )
     return StandardResponse(result)
+
+
+@router.get(
+    "/{domain}/candidates",
+    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
+)
+async def search_domain_candidates(
+    domain: models.Domain = Depends(parse_domain_from_auth),
+    ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["username"])),
+    query: SearchQueryStr = Query(..., description="search query"),
+) -> StandardListResponse[schemas.UserWithDomainRole]:
+    pagination = schemas.PaginationQuery(offset=0, limit=10)
+    statement = domain.find_candidates_statement(query)
+    rows, count = await models.User.execute_list_statement(
+        statement, ordering, pagination
+    )
+    domain_users = [
+        schemas.UserWithDomainRole.from_domain_user(*row[::-1]) for row in rows
+    ]
+    return StandardListResponse(domain_users, count)
 
 
 @router.get(

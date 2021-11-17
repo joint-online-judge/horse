@@ -63,6 +63,7 @@ class RecordPermission(PermissionBase):
 class UserSpecificPermission(PermissionBase):
     view: bool = True
     view_hidden: bool = False
+    view_list: bool = False
 
 
 class DomainSpecificPermission(PermissionBase):

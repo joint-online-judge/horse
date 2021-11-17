@@ -77,6 +77,10 @@ class NoneEmptyStr(ConstrainedStr):
     min_length = 1
 
 
+class SearchQueryStr(ConstrainedStr):
+    min_length = 2
+
+
 class NoneEmptyLongStr(LongStr, NoneEmptyStr):
     pass
 
