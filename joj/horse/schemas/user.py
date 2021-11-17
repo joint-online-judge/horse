@@ -38,7 +38,7 @@ class UserCreate(SQLModel):
         return EmailStr(v)
 
 
-class UserPreview(BaseORMSchema):
+class UserBase(BaseORMSchema):
     username: str = Field(index=False)
     email: EmailStr = Field(index=False)
     gravatar: str = Field(default="", index=False)
@@ -46,13 +46,13 @@ class UserPreview(BaseORMSchema):
     real_name: str = Field(default="")
 
 
-class UserBase(UserPreview):
-    role: str = Field(default=str(DefaultRole.USER))
-    is_active: bool = Field(default=False, index=False)
+class UserPreview(UserBase, IDMixin):
+    pass
 
 
 class User(UserBase, IDMixin):
-    pass
+    role: str = Field(default=str(DefaultRole.USER))
+    is_active: bool = Field(default=False, index=False)
 
 
 class UserWithDomainRole(UserPreview):
