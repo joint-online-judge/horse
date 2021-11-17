@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 039716b@2021-11-17T14:23:21Z",
+    "description": "Git version: fb13909@2021-11-17T18:47:48Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -857,6 +857,89 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DomainUserPermissionResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/candidates": {
+      "get": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "Search Domain Candidates",
+        "operationId": "search_domain_candidates_api_v1_domains__domain__candidates_get",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "search query",
+            "required": true,
+            "schema": {
+              "title": "Query",
+              "minLength": 2,
+              "type": "string",
+              "description": "search query"
+            },
+            "name": "query",
+            "in": "query"
+          },
+          {
+            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: username",
+            "required": false,
+            "schema": {
+              "title": "Ordering",
+              "type": "string",
+              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: username",
+              "default": ""
+            },
+            "name": "ordering",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserWithDomainRoleListResp"
                 }
               }
             }
@@ -3408,6 +3491,99 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemListResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/users": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "List Users",
+        "operationId": "list_users_api_v1_users_get",
+        "parameters": [
+          {
+            "required": false,
+            "schema": {
+              "title": "Query",
+              "type": "string",
+              "default": ""
+            },
+            "name": "query",
+            "in": "query"
+          },
+          {
+            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: username",
+            "required": false,
+            "schema": {
+              "title": "Ordering",
+              "type": "string",
+              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: username",
+              "default": ""
+            },
+            "name": "ordering",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Offset",
+              "minimum": 0.0,
+              "type": "integer",
+              "default": 0
+            },
+            "name": "offset",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Limit",
+              "maximum": 500.0,
+              "exclusiveMinimum": 0.0,
+              "type": "integer",
+              "default": 100
+            },
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserListResp"
                 }
               }
             }
@@ -7276,9 +7452,7 @@
         "required": [
           "id",
           "username",
-          "email",
-          "domainId",
-          "domainRole"
+          "email"
         ],
         "type": "object",
         "properties": {
@@ -7310,16 +7484,6 @@
             "title": "Realname",
             "type": "string",
             "default": ""
-          },
-          "role": {
-            "title": "Role",
-            "type": "string",
-            "default": "user"
-          },
-          "isActive": {
-            "title": "Isactive",
-            "type": "boolean",
-            "default": false
           },
           "domainId": {
             "title": "Domainid",
