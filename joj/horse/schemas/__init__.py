@@ -1,6 +1,7 @@
 from joj.horse.schemas.base import (
     BaseModel as BaseModel,
     Empty as Empty,
+    Operation as Operation,
     StandardListResponse as StandardListResponse,
     StandardResponse as StandardResponse,
 )
@@ -37,13 +38,17 @@ from joj.horse.schemas.problem import (
     Problem as Problem,
     ProblemClone as ProblemClone,
     ProblemCreate as ProblemCreate,
+    ProblemDetail as ProblemDetail,
     ProblemEdit as ProblemEdit,
 )
 from joj.horse.schemas.problem_group import ProblemGroup as ProblemGroup
 from joj.horse.schemas.problem_set import (
     ProblemSet as ProblemSet,
+    ProblemSetAddProblem as ProblemSetAddProblem,
     ProblemSetCreate as ProblemSetCreate,
+    ProblemSetDetail as ProblemSetDetail,
     ProblemSetEdit as ProblemSetEdit,
+    ProblemSetUpdateProblem as ProblemSetUpdateProblem,
 )
 from joj.horse.schemas.query import (
     OrderingQuery as OrderingQuery,

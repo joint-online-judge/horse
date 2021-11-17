@@ -3,7 +3,7 @@ from uuid import UUID
 
 from sqlalchemy import event
 from sqlalchemy.schema import Column, ForeignKey
-from sqlalchemy.sql.expression import Select
+from sqlalchemy.sql.expression import Select, true
 from sqlmodel import Field, Relationship, select
 from sqlmodel.sql.sqltypes import GUID
 
@@ -36,6 +36,24 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
     users: List["DomainUser"] = Relationship(back_populates="domain")
     problems: List["Problem"] = Relationship(back_populates="domain")
     problem_sets: List["ProblemSet"] = Relationship(back_populates="domain")
+
+    def find_problem_sets_statement(self, include_hidden: bool) -> Select:
+        from joj.horse import models
+
+        statement = select(models.ProblemSet).where(
+            models.ProblemSet.domain_id == self.id
+        )
+        if not include_hidden:
+            statement = statement.where(models.ProblemSet.hidden != true())
+        return statement
+
+    def find_problems_statement(self, include_hidden: bool) -> Select:
+        from joj.horse import models
+
+        statement = select(models.Problem).where(models.Problem.domain_id == self.id)
+        if not include_hidden:
+            statement = statement.where(models.Problem.hidden != true())
+        return statement
 
     async def find_problems(
         self,

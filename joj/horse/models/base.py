@@ -18,15 +18,7 @@ if TYPE_CHECKING:
     from joj.horse.schemas.query import OrderingQuery, PaginationQuery
 
 
-class BaseORMModel(SQLModel, BaseModel):
-    id: UUID = Field(default_factory=uuid4, primary_key=True, nullable=False)
-    created_at: Optional[datetime] = Field(
-        None, sa_column=get_datetime_column(server_default=utcnow())
-    )
-    updated_at: Optional[datetime] = Field(
-        None, sa_column=get_datetime_column(server_default=utcnow(), onupdate=utcnow())
-    )
-
+class ORMUtils(SQLModel, BaseModel):
     def update_from_dict(self: "BaseORMModel", d: Dict[str, Any]) -> None:
         for k, v in d.items():
             if v is not None:
@@ -80,6 +72,10 @@ class BaseORMModel(SQLModel, BaseModel):
             session.sync_session.delete(self)
             if commit:
                 await session.commit()
+
+    async def refresh_model(self) -> None:
+        async with db_session() as session:
+            await session.refresh(self)
 
     @classmethod
     def apply_ordering(
@@ -173,7 +169,17 @@ class BaseORMModel(SQLModel, BaseModel):
         return tuple(list(x) for x in zip(*rows))
 
 
-BaseORMModelType = TypeVar("BaseORMModelType", bound=BaseORMModel)
+class BaseORMModel(ORMUtils):
+    id: UUID = Field(default_factory=uuid4, primary_key=True, nullable=False)
+    created_at: Optional[datetime] = Field(
+        None, sa_column=get_datetime_column(server_default=utcnow())
+    )
+    updated_at: Optional[datetime] = Field(
+        None, sa_column=get_datetime_column(server_default=utcnow(), onupdate=utcnow())
+    )
+
+
+BaseORMModelType = TypeVar("BaseORMModelType", bound=ORMUtils)
 
 
 class URLMixin(BaseORMModel):
@@ -209,9 +215,14 @@ class DomainURLORMModel(URLORMModel):
     if TYPE_CHECKING:
         domain_id: UUID
 
+    url: str = Field(...)
+
     @classmethod
     async def find_by_domain_url_or_id(
-        cls: Type["BaseORMModelType"], domain: "Domain", url_or_id: str
+        cls: Type["BaseORMModelType"],
+        domain: "Domain",
+        url_or_id: str,
+        options: Any = None,
     ) -> Optional["BaseORMModelType"]:
         if is_uuid(url_or_id):
             statement = (
@@ -223,6 +234,11 @@ class DomainURLORMModel(URLORMModel):
                 .where(cls.url == url_or_id)
                 .where(cls.domain_id == domain.id)
             )
+        if options:
+            if isinstance(options, list):
+                statement = statement.options(*options)
+            else:
+                statement = statement.options(options)
         async with db_session() as session:
             result = await session.exec(statement)
             return result.one_or_none()

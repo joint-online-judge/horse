@@ -1,7 +1,9 @@
 from datetime import datetime
-from typing import Callable, List, Optional
+from functools import lru_cache
+from typing import Any, Callable, Coroutine, List, Optional
 
 from fastapi import Depends, Path, Query
+from sqlalchemy.orm import subqueryload
 
 from joj.horse import models, schemas
 from joj.horse.models.permission import PermissionType, ScopeType
@@ -108,21 +110,41 @@ async def parse_problem(
 
 
 async def parse_problems(
-    problems: List[str], auth: Authentication = Depends()
+    problems: List[str], domain_auth: DomainAuthentication = Depends()
 ) -> List[models.Problem]:
-    return [await parse_problem(oid, auth) for oid in problems]
+    return [await parse_problem(oid, domain_auth) for oid in problems]
 
 
-async def parse_problem_set(
-    problem_set: str = Path(..., description="url or id of the problem set"),
-    domain: models.Domain = Depends(parse_domain_from_auth),
-) -> models.ProblemSet:
-    problem_set_model = await models.ProblemSet.find_by_domain_url_or_id(
-        domain, problem_set
-    )
-    if problem_set_model:
-        return problem_set_model
-    raise BizError(ErrorCode.ProblemSetNotFoundError)
+@lru_cache
+def parse_problem_set_factory(
+    load_problems: bool = False,
+    load_links: bool = False,
+) -> Callable[..., Coroutine[Any, Any, models.ProblemSet]]:
+    options = []
+    if load_problems:
+        options.append(subqueryload(models.ProblemSet.problems))
+    if load_links:
+        options.append(
+            subqueryload(models.ProblemSet.problem_problem_set_links).joinedload(
+                models.ProblemProblemSetLink.problem
+            )
+        )
+
+    async def wrapped(
+        problem_set: str = Path(..., description="url or id of the problem set"),
+        domain: models.Domain = Depends(parse_domain_from_auth),
+    ) -> models.ProblemSet:
+        problem_set_model = await models.ProblemSet.find_by_domain_url_or_id(
+            domain, problem_set, options
+        )
+        if problem_set_model:
+            return problem_set_model
+        raise BizError(ErrorCode.ProblemSetNotFoundError)
+
+    return wrapped
+
+
+parse_problem_set = parse_problem_set_factory()
 
 
 async def parse_problem_set_with_time(

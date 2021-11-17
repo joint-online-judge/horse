@@ -57,6 +57,10 @@ class ProblemClone(BaseModel):
     new_group: bool = Field(False, description="whether to create new problem group")
 
 
+class ProblemPreview(ProblemBase, IDMixin):
+    owner_id: UUID
+
+
 class Problem(ProblemBase, DomainMixin, IDMixin):
     num_submit: int = Field(0, index=False, nullable=False)
     num_accept: int = Field(0, index=False, nullable=False)

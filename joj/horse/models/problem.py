@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID
 
 from sqlalchemy import event
-from sqlalchemy.schema import Column, ForeignKey
+from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
 from sqlmodel import Field, Relationship
 from sqlmodel.sql.sqltypes import GUID
 
@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 
 class Problem(DomainURLORMModel, ProblemDetail, table=True):  # type: ignore[call-arg]
     __tablename__ = "problems"
+    __table_args__ = (UniqueConstraint("domain_id", "url"),)
 
     domain_id: UUID = Field(
         sa_column=Column(GUID, ForeignKey("domains.id", ondelete="CASCADE"))
@@ -33,7 +34,11 @@ class Problem(DomainURLORMModel, ProblemDetail, table=True):  # type: ignore[cal
     problem_group: Optional["ProblemGroup"] = Relationship(back_populates="problems")
 
     problem_sets: List["ProblemSet"] = Relationship(
-        back_populates="problems", link_model=ProblemProblemSetLink
+        back_populates="problems",
+        link_model=ProblemProblemSetLink,
+    )
+    problem_problem_set_links: List[ProblemProblemSetLink] = Relationship(
+        back_populates="problem",
     )
 
 

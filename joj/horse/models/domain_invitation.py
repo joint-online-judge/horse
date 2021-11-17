@@ -13,7 +13,10 @@ from joj.horse.schemas.domain_invitation import DomainInvitationDetail
 
 class DomainInvitation(DomainURLORMModel, DomainInvitationDetail, table=True):  # type: ignore[call-arg]
     __tablename__ = "domain_invitations"
-    __table_args__ = (UniqueConstraint("domain_id", "code"),)
+    __table_args__ = (
+        UniqueConstraint("domain_id", "url"),
+        UniqueConstraint("domain_id", "code"),
+    )
 
     domain_id: UUID = Field(
         sa_column=Column(GUID, ForeignKey("domains.id", ondelete="CASCADE"))
