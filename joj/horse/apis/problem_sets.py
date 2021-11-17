@@ -29,7 +29,7 @@ router_prefix = "/api/v1"
 
 
 @router.get(
-    "", dependencies=[Depends(ensure_permission(Permission.DomainProblem.view))]
+    "", dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.view))]
 )
 async def list_problem_sets(
     domain: models.Domain = Depends(parse_domain_from_auth),
@@ -45,7 +45,7 @@ async def list_problem_sets(
 
 
 @router.post(
-    "", dependencies=[Depends(ensure_permission(Permission.DomainProblem.create))]
+    "", dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.create))]
 )
 async def create_problem_set(
     problem_set_create: schemas.ProblemSetCreate,
@@ -64,7 +64,7 @@ async def create_problem_set(
 
 @router.get(
     "/{problemSet}",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblem.view))],
+    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.view))],
 )
 async def get_problem_set(
     problem_set: models.ProblemSet = Depends(
@@ -78,7 +78,7 @@ async def get_problem_set(
 
 @router.delete(
     "/{problemSet}",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblem.edit))],
+    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.edit))],
     deprecated=True,
 )
 async def delete_problem_set(
@@ -90,7 +90,7 @@ async def delete_problem_set(
 
 @router.patch(
     "/{problemSet}",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblem.edit))],
+    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.edit))],
 )
 async def update_problem_set(
     edit_problem_set: schemas.ProblemSetEdit,
@@ -103,7 +103,7 @@ async def update_problem_set(
 
 @router.post(
     "/{problemSet}/problem",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblem.edit))],
+    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.edit))],
 )
 async def add_problem_in_problem_set(
     add_problem: schemas.ProblemSetAddProblem,
@@ -119,7 +119,7 @@ async def add_problem_in_problem_set(
 
 @router.get(
     "/{problemSet}/problem/{problem}",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblem.view))],
+    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.view))],
 )
 async def get_problem_in_problem_set(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
@@ -131,7 +131,7 @@ async def get_problem_in_problem_set(
 
 @router.patch(
     "/{problemSet}/problem/{problem}",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblem.edit))],
+    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.edit))],
 )
 async def update_problem_in_problem_set(
     update_problem: schemas.ProblemSetUpdateProblem,
@@ -148,7 +148,7 @@ async def update_problem_in_problem_set(
 
 @router.delete(
     "/{problemSet}/problem/{problem}",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblem.edit))],
+    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.edit))],
 )
 async def delete_problem_in_problem_set(
     problem_set: models.ProblemSet = Depends(
