@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID
 
 from sqlmodel import Field
@@ -17,9 +17,22 @@ from joj.horse.schemas.base import (
     UTCDatetime,
     get_datetime_column,
 )
+from joj.horse.schemas.problem import ProblemPreview
 
 if TYPE_CHECKING:
     pass
+
+
+class ProblemSetUpdateProblem(BaseModel):
+    position: Optional[int] = Field(
+        None,
+        description="the position of the problem in the problem set. "
+        "if None, append to the end of the problems list.",
+    )
+
+
+class ProblemSetAddProblem(ProblemSetUpdateProblem):
+    problem: str = Field(..., description="url or id of the problem")
 
 
 class ProblemSetEdit(BaseModel):
@@ -53,19 +66,19 @@ class ProblemSetBase(URLORMSchema):
     )
     available_time: datetime = Field(
         sa_column=get_datetime_column(index=False),
-        default_factory=datetime.utcnow,
         description="the problem set is available from",
     )
     due_time: datetime = Field(
         sa_column=get_datetime_column(index=False),
-        default_factory=lambda: datetime.utcnow() + timedelta(days=7),
         description="the problem set is due at",
     )
 
 
 class ProblemSetCreate(URLCreateMixin, ProblemSetBase):
-    available_time: UTCDatetime
-    due_time: UTCDatetime
+    available_time: UTCDatetime = Field(default_factory=datetime.utcnow)
+    due_time: UTCDatetime = Field(
+        default_factory=lambda: datetime.utcnow() + timedelta(days=7)
+    )
 
 
 class ProblemSet(ProblemSetBase, DomainMixin, IDMixin):
@@ -76,4 +89,4 @@ class ProblemSet(ProblemSetBase, DomainMixin, IDMixin):
 
 
 class ProblemSetDetail(TimestampMixin, ProblemSet):
-    pass
+    problems: List[ProblemPreview]

@@ -1,5 +1,6 @@
 import re
 from datetime import datetime
+from enum import Enum
 from functools import lru_cache
 from inspect import Parameter, signature
 from typing import (
@@ -47,6 +48,13 @@ class BaseModel(APIModel):
 
     class Config:
         validate_all = True
+
+
+class Operation(Enum):
+    Create = "Create"
+    Read = "Read"
+    Update = "Update"
+    Delete = "Delete"
 
 
 class NoneNegativeInt(ConstrainedInt):

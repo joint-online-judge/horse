@@ -5,16 +5,20 @@ from fastapi import Depends
 from loguru import logger
 
 from joj.horse import models, schemas
-from joj.horse.schemas import Empty, StandardListResponse, StandardResponse
+from joj.horse.schemas import Empty, Operation, StandardListResponse, StandardResponse
 from joj.horse.schemas.permission import Permission
-from joj.horse.utils.auth import Authentication, ensure_permission
+from joj.horse.utils.auth import DomainAuthentication, ensure_permission
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
     parse_domain_from_auth,
+    parse_ordering_query,
     parse_pagination_query,
+    parse_problem,
     parse_problem_set,
+    parse_problem_set_factory,
     parse_problem_set_with_time,
     parse_user_from_auth,
+    parse_view_hidden_problem_set,
 )
 from joj.horse.utils.router import MyRouter
 
@@ -25,23 +29,23 @@ router_prefix = "/api/v1"
 
 
 @router.get(
-    "", dependencies=[Depends(ensure_permission(Permission.DomainProblem.view))]
+    "", dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.view))]
 )
 async def list_problem_sets(
     domain: models.Domain = Depends(parse_domain_from_auth),
-    query: schemas.PaginationQuery = Depends(parse_pagination_query),
-    auth: Authentication = Depends(),
+    ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["name"])),
+    pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
+    include_hidden: bool = Depends(parse_view_hidden_problem_set),
 ) -> StandardListResponse[schemas.ProblemSet]:
-    condition = {"owner": auth.user.id}
-    if domain is not None:
-        condition["domain"] = str(domain.id)
-    cursor = models.ProblemSet.cursor_find(condition, query)
-    res = await models.ProblemSet.to_list(cursor)
-    return StandardResponse(res)
+    statement = domain.find_problem_sets_statement(include_hidden)
+    problem_sets, count = await models.ProblemSet.execute_list_statement(
+        statement, ordering, pagination
+    )
+    return StandardListResponse(problem_sets, count)
 
 
 @router.post(
-    "", dependencies=[Depends(ensure_permission(Permission.DomainProblem.create))]
+    "", dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.create))]
 )
 async def create_problem_set(
     problem_set_create: schemas.ProblemSetCreate,
@@ -58,14 +62,25 @@ async def create_problem_set(
     return StandardResponse(problem_set)
 
 
-@router.get("/{problem_set}")
+@router.get(
+    "/{problemSet}",
+    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.view))],
+)
 async def get_problem_set(
-    problem_set: models.ProblemSet = Depends(parse_problem_set),
-) -> StandardResponse[schemas.ProblemSet]:
+    problem_set: models.ProblemSet = Depends(
+        parse_problem_set_factory(load_problems=True, load_links=True)
+    ),
+) -> StandardResponse[schemas.ProblemSetDetail]:
+    logger.info(problem_set.problem_problem_set_links)
+    logger.info(problem_set.problems)
     return StandardResponse(problem_set)
 
 
-@router.delete("/{problem_set}", deprecated=True)
+@router.delete(
+    "/{problemSet}",
+    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.edit))],
+    deprecated=True,
+)
 async def delete_problem_set(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
 ) -> StandardResponse[Empty]:
@@ -73,7 +88,10 @@ async def delete_problem_set(
     return StandardResponse()
 
 
-@router.patch("/{problem_set}")
+@router.patch(
+    "/{problemSet}",
+    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.edit))],
+)
 async def update_problem_set(
     edit_problem_set: schemas.ProblemSetEdit,
     problem_set: models.ProblemSet = Depends(parse_problem_set),
@@ -83,7 +101,66 @@ async def update_problem_set(
     return StandardResponse(problem_set)
 
 
-@router.get("/{problem_set}/scoreboard")
+@router.post(
+    "/{problemSet}/problem",
+    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.edit))],
+)
+async def add_problem_in_problem_set(
+    add_problem: schemas.ProblemSetAddProblem,
+    problem_set: models.ProblemSet = Depends(
+        parse_problem_set_factory(load_links=True)
+    ),
+    domain_auth: DomainAuthentication = Depends(DomainAuthentication),
+) -> StandardResponse[schemas.ProblemSet]:
+    problem = await parse_problem(add_problem.problem, domain_auth)
+    await problem_set.operate_problem(problem, Operation.Create, add_problem.position)
+    return StandardResponse(problem_set)
+
+
+@router.get(
+    "/{problemSet}/problem/{problem}",
+    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.view))],
+)
+async def get_problem_in_problem_set(
+    problem_set: models.ProblemSet = Depends(parse_problem_set),
+    problem: models.Problem = Depends(parse_problem),
+) -> StandardResponse[schemas.ProblemDetail]:
+    await problem_set.operate_problem(problem, Operation.Read)
+    return StandardResponse(problem)
+
+
+@router.patch(
+    "/{problemSet}/problem/{problem}",
+    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.edit))],
+)
+async def update_problem_in_problem_set(
+    update_problem: schemas.ProblemSetUpdateProblem,
+    problem_set: models.ProblemSet = Depends(
+        parse_problem_set_factory(load_links=True)
+    ),
+    problem: models.Problem = Depends(parse_problem),
+) -> StandardResponse[schemas.ProblemSet]:
+    await problem_set.operate_problem(
+        problem, Operation.Update, update_problem.position
+    )
+    return StandardResponse(problem_set)
+
+
+@router.delete(
+    "/{problemSet}/problem/{problem}",
+    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.edit))],
+)
+async def delete_problem_in_problem_set(
+    problem_set: models.ProblemSet = Depends(
+        parse_problem_set_factory(load_links=True)
+    ),
+    problem: models.Problem = Depends(parse_problem),
+) -> StandardResponse[schemas.ProblemSet]:
+    await problem_set.operate_problem(problem, Operation.Delete)
+    return StandardResponse(problem_set)
+
+
+@router.get("/{problemSet}/scoreboard", deprecated=True)
 async def get_scoreboard(
     problem_set: models.ProblemSet = Depends(parse_problem_set_with_time),
     domain: models.Domain = Depends(parse_domain_from_auth),

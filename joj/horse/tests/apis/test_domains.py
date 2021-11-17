@@ -9,10 +9,13 @@ from joj.horse import apis, models
 from joj.horse.app import app
 from joj.horse.models.permission import DefaultRole
 from joj.horse.tests.utils.utils import (
+    GLOBAL_DOMAIN_COUNT,
     create_test_domain,
     do_api_request,
     get_base_url,
     get_path_by_url_type,
+    parametrize_global_domains,
+    validate_response,
     validate_test_domain,
 )
 from joj.horse.utils.errors import ErrorCode
@@ -40,29 +43,48 @@ base_domain_url = get_base_url(apis.domains)
 @pytest.mark.asyncio
 @pytest.mark.depends(name="TestDomainCreate", on=["TestUserGet"])
 class TestDomainCreate:
-    @pytest.mark.parametrize(
-        "domain",
-        [
-            lazy_fixture("global_domain_no_url"),
-            lazy_fixture("global_domain_with_url"),
-            lazy_fixture("global_domain_with_all"),
-        ],
-    )
+    @parametrize_global_domains
     async def test_global_domains(self, domain: models.Domain) -> None:
         pass
 
     @pytest.mark.depends(on="test_global_domains")
-    async def test_url_duplicate(
+    async def test_no_url(
+        self, client: AsyncClient, global_root_user: models.User
+    ) -> None:
+        data = {"name": "test_domain_no_url"}
+        response = await create_test_domain(client, global_root_user, data)
+        await validate_test_domain(response, global_root_user, data)
+
+    @pytest.mark.depends(on="test_global_domains")
+    async def test_with_all(
         self, client: AsyncClient, global_root_user: models.User
     ) -> None:
         data = {
-            "url": "test_domain_with_url",
-            "name": "test_domain_with_url_duplicate",
+            "url": "test_domain_with_all",
+            "name": "test_domain_with_all",
+            "gravatar": "gravatar",
+            "bulletin": "bulletin",
         }
         response = await create_test_domain(client, global_root_user, data)
-        assert response.status_code == 200
-        res = response.json()
-        assert res["errorCode"] == ErrorCode.IntegrityError
+        await validate_test_domain(response, global_root_user, data)
+
+    @pytest.mark.depends(on="test_global_domains")
+    async def test_url_duplicate(
+        self,
+        client: AsyncClient,
+        global_root_user: models.User,
+        global_domain: models.Domain,
+    ) -> None:
+        # data = {
+        #     "url": "test_domain_with_url",
+        #     "name": "test_domain_with_url_duplicate",
+        # }
+        data = {
+            "url": str(global_domain.url),
+            "name": f"{global_domain.name}_duplicate",
+        }
+        response = await create_test_domain(client, global_root_user, data)
+        validate_response(response, ErrorCode.IntegrityError)
 
     @pytest.mark.depends(on="test_global_domains")
     async def test_no_name(
@@ -96,19 +118,12 @@ class TestDomainCreate:
 
 
 @pytest.mark.asyncio
-@pytest.mark.depends(name="TestDomainGet", on=["TestDomainCreate"])
+@pytest.mark.depends(name="TestDomainGet", on=["TestDomainCreate::test_global_domains"])
 class TestDomainGet:
     url_base = "get_domain"
 
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
-    @pytest.mark.parametrize(
-        "domain",
-        [
-            lazy_fixture("global_domain_no_url"),
-            lazy_fixture("global_domain_with_url"),
-            lazy_fixture("global_domain_with_all"),
-        ],
-    )
+    @parametrize_global_domains
     @pytest.mark.parametrize("url_type", ["url", "id"])
     async def test_global_domains(
         self,
@@ -123,7 +138,7 @@ class TestDomainGet:
         await validate_test_domain(response, user, domain)
 
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
-    @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_with_url")])
+    @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_0")])
     async def test_domain_not_exist(
         self,
         client: AsyncClient,
@@ -138,7 +153,9 @@ class TestDomainGet:
 
 
 @pytest.mark.asyncio
-@pytest.mark.depends(name="TestDomainUpdate", on=["TestDomainGet"])
+@pytest.mark.depends(
+    name="TestDomainUpdate", on=["TestDomainCreate::test_global_domains"]
+)
 class TestDomainUpdate:
     url_base = "update_domain"
 
@@ -155,7 +172,7 @@ class TestDomainUpdate:
         await validate_test_domain(response, user, domain)
 
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
-    @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_with_url")])
+    @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_0")])
     async def test_update_all(
         self,
         client: AsyncClient,
@@ -168,7 +185,7 @@ class TestDomainUpdate:
         await self.validate_update(client, user, domain, data)
 
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
-    @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_with_url")])
+    @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_0")])
     @pytest.mark.parametrize("field", ["url", "name", "bulletin", "gravatar"])
     async def test_update_one(
         self,
@@ -185,11 +202,11 @@ class TestDomainUpdate:
         self,
         client: AsyncClient,
         global_root_user: models.User,
-        global_domain_with_url: models.Domain,
-        global_domain_with_all: models.Domain,
+        global_domain_0: models.Domain,
+        global_domain_1: models.Domain,
     ) -> None:
-        data = {"url": global_domain_with_all.url}
-        url = app.url_path_for(self.url_base, domain=global_domain_with_url.url)
+        data = {"url": global_domain_1.url}
+        url = app.url_path_for(self.url_base, domain=global_domain_0.url)
         response = await do_api_request(
             client, "PATCH", url, global_root_user, data=data
         )
@@ -199,9 +216,11 @@ class TestDomainUpdate:
 
 
 @pytest.mark.asyncio
-@pytest.mark.depends(name="TestDomainDelete", on=["TestDomainCreate"])
+@pytest.mark.depends(
+    name="TestDomainDelete", on=["TestDomainCreate::test_global_domains"]
+)
 class TestDomainDelete:
-    @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_with_url")])
+    @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_0")])
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
     async def test_delete(
         self,
@@ -217,36 +236,35 @@ class TestDomainDelete:
 
 
 @pytest.mark.asyncio
-@pytest.mark.depends(on=["TestDomainCreate"])
+@pytest.mark.depends(on=["TestDomainCreate::test_global_domains"])
 class TestDomainList:
     url = app.url_path_for("list_domains")
 
-    # @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
-    # async def test_list_domain_asc(
-    #     self, client: AsyncClient, user: models.User
-    # ) -> None:
-    #     response = await do_api_request(
-    #         client, "GET", self.url, user, {"ordering": "-name"}
-    #     )
-    #     assert response.status_code == 200
-    #     res = response.json()
-    #     res = res["data"]
-    #     print(res)
-    #     assert res["count"] == 3
-    #     assert len(res["results"]) == 3
+    @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
+    async def test_list_domain_asc(
+        self, client: AsyncClient, user: models.User
+    ) -> None:
+        response = await do_api_request(
+            client, "GET", self.url, user, {"ordering": "-name"}
+        )
+        assert response.status_code == 200
+        res = response.json()
+        res = res["data"]
+        assert res["count"] == GLOBAL_DOMAIN_COUNT + 2
+        assert len(res["results"]) == GLOBAL_DOMAIN_COUNT + 2
 
-    # @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
-    # async def test_list_domain_desc(
-    #     self, client: AsyncClient, user: models.User
-    # ) -> None:
-    #     response = await do_api_request(
-    #         client, "GET", self.url, user, {"ordering": "name"}
-    #     )
-    #     assert response.status_code == 200
-    #     res = response.json()
-    #     res = res["data"]
-    #     assert res["count"] == 3
-    #     assert len(res["results"]) == 3
+    @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
+    async def test_list_domain_desc(
+        self, client: AsyncClient, user: models.User
+    ) -> None:
+        response = await do_api_request(
+            client, "GET", self.url, user, {"ordering": "name"}
+        )
+        assert response.status_code == 200
+        res = response.json()
+        res = res["data"]
+        assert res["count"] == GLOBAL_DOMAIN_COUNT + 2
+        assert len(res["results"]) == GLOBAL_DOMAIN_COUNT + 2
 
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
     async def test_list_domain_illegal_field(
@@ -261,7 +279,9 @@ class TestDomainList:
 
 
 @pytest.mark.asyncio
-@pytest.mark.depends(name="TestDomainUserAdd", on=["TestDomainGet"])
+@pytest.mark.depends(
+    name="TestDomainUserAdd", on=["TestDomainCreate::test_global_domains"]
+)
 class TestDomainUserAdd:
     url_base = "add_domain_user"
 
@@ -295,8 +315,8 @@ class TestDomainUserAdd:
     @pytest.mark.parametrize(
         "domain",
         [
-            lazy_fixture("global_domain_with_url"),
-            lazy_fixture("global_domain_with_all"),
+            lazy_fixture("global_domain_0"),
+            lazy_fixture("global_domain_1"),
         ],
     )
     async def test_site_root_add_domain_root(
@@ -314,10 +334,10 @@ class TestDomainUserAdd:
     @pytest.mark.parametrize(
         "user,domain",
         [
-            (lazy_fixture("global_root_user"), lazy_fixture("global_domain_with_url")),
+            (lazy_fixture("global_root_user"), lazy_fixture("global_domain_0")),
             (
                 lazy_fixture("global_domain_root_user"),
-                lazy_fixture("global_domain_with_all"),
+                lazy_fixture("global_domain_1"),
             ),
         ],
     )
@@ -340,10 +360,10 @@ class TestDomainUserAdd:
         client: AsyncClient,
         global_domain_user: models.User,
         global_guest_user: models.User,
-        global_domain_with_url: models.Domain,
+        global_domain_0: models.Domain,
     ) -> None:
         response = await self.api_test_helper(
-            client, global_domain_user, global_guest_user, global_domain_with_url
+            client, global_domain_user, global_guest_user, global_domain_0
         )
         assert response.status_code == 403
 
@@ -353,16 +373,16 @@ class TestDomainUserAdd:
         client: AsyncClient,
         global_root_user: models.User,
         global_domain_user: models.User,
-        global_domain_with_url: models.Domain,
+        global_domain_0: models.Domain,
     ) -> None:
         response = await self.api_test_helper(
-            client, global_root_user, global_domain_user, global_domain_with_url
+            client, global_root_user, global_domain_user, global_domain_0
         )
         assert response.status_code == 200
         res = response.json()
         assert res["errorCode"] == ErrorCode.UserAlreadyInDomainBadRequestError
 
-    @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_with_url")])
+    @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_0")])
     @pytest.mark.depends(on="test_add_domain_default_user")
     async def test_not_exist_role(
         self,
@@ -396,11 +416,11 @@ class TestDomainUserRemove:
         client: AsyncClient,
         global_root_user: models.User,
         global_domain_root_user: models.User,
-        global_domain_with_url: models.Domain,
+        global_domain_0: models.Domain,
     ) -> None:
         url = app.url_path_for(
             self.url_base,
-            domain=global_domain_with_url.url,
+            domain=global_domain_0.url,
             user=global_domain_root_user.id,
         )
         response = await do_api_request(client, "DELETE", url, global_root_user)
@@ -410,7 +430,7 @@ class TestDomainUserRemove:
 
         url = app.url_path_for(
             TestDomainUserGet.url_base,
-            domain=global_domain_with_url.url,
+            domain=global_domain_0.url,
             user=global_domain_root_user.id,
         )
         response = await do_api_request(client, "GET", url, global_root_user)
@@ -474,18 +494,18 @@ class TestDomainTransfer:
         self,
         request: Any,
         client: AsyncClient,
-        global_domain_with_all: models.Domain,
+        global_domain_1: models.Domain,
     ) -> None:
-        await self.api_test_helper(request, client, global_domain_with_all, "basic")
+        await self.api_test_helper(request, client, global_domain_1, "basic")
 
     @pytest.mark.depends(on="test_basic")
     async def test_site_root(
         self,
         request: Any,
         client: AsyncClient,
-        global_domain_with_all: models.Domain,
+        global_domain_1: models.Domain,
     ) -> None:
-        await self.api_test_helper(request, client, global_domain_with_all, "site_root")
+        await self.api_test_helper(request, client, global_domain_1, "site_root")
 
     @pytest.mark.parametrize("name", ["not_owner", "to_self", "to_not_root"])
     @pytest.mark.depends(on="test_site_root")
@@ -493,10 +513,10 @@ class TestDomainTransfer:
         self,
         request: Any,
         client: AsyncClient,
-        global_domain_with_all: models.Domain,
+        global_domain_1: models.Domain,
         name: str,
     ) -> None:
-        await self.api_test_helper(request, client, global_domain_with_all, name)
+        await self.api_test_helper(request, client, global_domain_1, name)
 
 
 # def test_list_domains(

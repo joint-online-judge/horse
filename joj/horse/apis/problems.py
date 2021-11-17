@@ -1,7 +1,6 @@
 from datetime import datetime
-from typing import Optional
 
-from fastapi import BackgroundTasks, Depends, File, Form, Query, UploadFile
+from fastapi import BackgroundTasks, Depends, File, Form, UploadFile
 from loguru import logger
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -9,8 +8,6 @@ from joj.horse import models, schemas
 from joj.horse.apis import records
 from joj.horse.schemas import Empty, StandardListResponse, StandardResponse
 from joj.horse.schemas.permission import Permission
-
-# from joj.horse.schemas.problem import ListProblems, ProblemClone
 from joj.horse.tasks import celery_app
 from joj.horse.utils.auth import Authentication, ensure_permission
 from joj.horse.utils.db import db_session_dependency
@@ -39,20 +36,14 @@ router_prefix = "/api/v1"
 )
 async def list_problems(
     domain: models.Domain = Depends(parse_domain_from_auth),
-    problem_set: Optional[str] = Query(None),
-    problem_group: Optional[str] = Query(None),
-    ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
+    ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["name"])),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     include_hidden: bool = Depends(parse_view_hidden_problem),
 ) -> StandardListResponse[schemas.Problem]:
-    problems, count = await domain.find_problems(
-        include_hidden=include_hidden,
-        problem_set=problem_set,
-        problem_group=problem_group,
-        ordering=ordering,
-        pagination=pagination,
+    statement = domain.find_problems_statement(include_hidden)
+    problems, count = await models.Problem.execute_list_statement(
+        statement, ordering, pagination
     )
-    problems = [models.Problem.from_orm(problem) for problem in problems]
     return StandardListResponse(problems, count)
 
 
@@ -94,7 +85,7 @@ async def create_problem(
 )
 async def get_problem(
     problem: models.Problem = Depends(parse_problem),
-) -> StandardResponse[schemas.Problem]:
+) -> StandardResponse[schemas.ProblemDetail]:
     return StandardResponse(problem)
 
 
@@ -104,7 +95,6 @@ async def get_problem(
 )
 async def delete_problem(
     problem: models.Problem = Depends(parse_problem),
-    session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardResponse[Empty]:
     await problem.delete_model()
     return StandardResponse()
@@ -117,7 +107,6 @@ async def delete_problem(
 async def update_problem(
     edit_problem: schemas.ProblemEdit,
     problem: models.Problem = Depends(parse_problem),
-    session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardResponse[schemas.Problem]:
     problem.update_from_dict(edit_problem.dict())
     await problem.save_model()

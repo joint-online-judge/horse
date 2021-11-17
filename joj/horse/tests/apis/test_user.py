@@ -10,7 +10,7 @@ from joj.horse.utils.errors import ErrorCode
 
 base_user_url = get_base_url(apis.user)
 base_domain_url = get_base_url(apis.domains)
-base_problems_url = get_base_url(apis.problems)
+# base_problems_url = get_base_url(apis.problems)
 
 # domain = models.DomainCreate(
 #     url=random_lower_string(),

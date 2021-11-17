@@ -11,17 +11,20 @@ class ErrorCode(str, Enum):
     UnknownFieldError = "UnknownFieldError"
     IllegalFieldError = "IllegalFieldError"
     IntegrityError = "IntegrityError"
+    # NotFoundError = "NotFoundError"
 
     APINotImplementedError = "APINotImplementedError"
-    UserNotFoundError = "UserNotFoundError"
     UserRegisterError = "UserRegisterError"
     UserLoginError = "UserLoginError"
+
+    UserNotFoundError = "UserNotFoundError"
     DomainNotFoundError = "DomainNotFoundError"
     InvalidUrlError = "InvalidUrlError"
     ProblemNotFoundError = "ProblemNotFoundError"
     ProblemSetNotFoundError = "ProblemSetNotFoundError"
     ProblemGroupNotFoundError = "ProblemGroupNotFoundError"
     RecordNotFoundError = "RecordNotFoundError"
+
     DeleteProblemBadRequestError = "DeleteProblemBadRequestError"
     UserAlreadyInDomainBadRequestError = "UserAlreadyInDomainBadRequestError"
     DomainInvitationBadRequestError = "DomainInvitationBadRequestError"

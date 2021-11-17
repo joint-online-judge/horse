@@ -9,15 +9,15 @@ from joj.horse.tests.utils.utils import (
     create_test_user,
     do_api_request,
     get_base_url,
-    get_data_from_response,
     user_access_tokens,
     user_refresh_tokens,
+    validate_response,
 )
 
 base_auth_url = get_base_url(apis.auth)
 base_user_url = get_base_url(apis.user)
 base_domain_url = get_base_url(apis.domains)
-base_problems_url = get_base_url(apis.problems)
+# base_problems_url = get_base_url(apis.problems)
 
 
 @pytest.mark.asyncio
@@ -34,7 +34,7 @@ class TestAuthRegister:
     )
     async def test_global_users(self, client: AsyncClient, username: str) -> None:
         response = await create_test_user(client, username)
-        res = get_data_from_response(response)
+        res = validate_response(response)
         assert res["accessToken"]
         assert res["refreshToken"]
         assert res["tokenType"] == "bearer"
@@ -74,7 +74,7 @@ class TestAuthToken:
         response = await do_api_request(
             client, "GET", url, user, query=query, headers=headers
         )
-        res = get_data_from_response(response)
+        res = validate_response(response)
         assert res["accessToken"] == access_token
         assert res["tokenType"] == "bearer"
 
@@ -87,7 +87,7 @@ class TestAuthToken:
         response = await do_api_request(
             client, "GET", url, user, query=query, headers=headers
         )
-        res = get_data_from_response(response)
+        res = validate_response(response)
         assert res["refreshToken"] == refresh_token
         assert res["tokenType"] == "bearer"
 
@@ -100,7 +100,7 @@ class TestAuthToken:
         response = await do_api_request(
             client, "POST", url, user, query=query, headers=headers
         )
-        res = get_data_from_response(response)
+        res = validate_response(response)
         assert res["accessToken"]
         assert res["refreshToken"]
         assert res["tokenType"] == "bearer"
