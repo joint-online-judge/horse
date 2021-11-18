@@ -9,10 +9,12 @@ from joj.horse.schemas.base import (
     IDMixin,
     NoneEmptyLongStr,
     TimestampMixin,
+    edit_model,
 )
 from joj.horse.schemas.permission import DomainPermission
 
 
+@edit_model
 class DomainRoleEdit(BaseModel):
     role: Optional[NoneEmptyLongStr] = Field(None, description="New role name")
     permission: Optional[Dict[str, Any]] = Field(

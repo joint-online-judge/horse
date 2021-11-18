@@ -1,19 +1,13 @@
 from datetime import datetime
 from functools import lru_cache
-from typing import Any, Callable, Coroutine, List, Optional, Type
+from typing import Any, Callable, Coroutine, List, Optional
 
-from fastapi import Depends, Path, Query, Request
-from pydantic.fields import Undefined
+from fastapi import Depends, Path, Query
 from sqlalchemy.orm import subqueryload
 
 from joj.horse import models, schemas
 from joj.horse.models.permission import PermissionType, ScopeType
-from joj.horse.schemas.base import (
-    BT,
-    NoneEmptyLongStr,
-    NoneNegativeInt,
-    PaginationLimit,
-)
+from joj.horse.schemas.base import NoneEmptyLongStr, NoneNegativeInt, PaginationLimit
 from joj.horse.schemas.query import OrderingQuery, PaginationQuery
 from joj.horse.utils.auth import Authentication, DomainAuthentication, get_domain
 from joj.horse.utils.errors import BizError, ErrorCode
@@ -255,16 +249,3 @@ def parse_pagination_query(
     limit: PaginationLimit = Query(100),
 ) -> PaginationQuery:
     return PaginationQuery(offset=offset, limit=limit)
-
-
-def parse_edit_schema(
-    cls: Type[BT],
-) -> Callable[..., Coroutine[Any, Any, BT]]:
-    async def wrapped(request: Request, edit: cls) -> BT:  # type: ignore[valid-type]
-        data = await request.json()
-        for field in cls.__fields__.values():
-            if field.name not in data and field.alias not in data:
-                setattr(edit, field.name, Undefined)
-        return edit
-
-    return wrapped

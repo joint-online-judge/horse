@@ -13,12 +13,14 @@ from joj.horse.schemas.base import (
     URLCreateMixin,
     URLORMSchema,
     UserInputURL,
+    edit_model,
 )
 
 if TYPE_CHECKING:
     pass
 
 
+@edit_model
 class ProblemEdit(BaseModel):
     url: Optional[UserInputURL]
     title: Optional[NoneEmptyStr]

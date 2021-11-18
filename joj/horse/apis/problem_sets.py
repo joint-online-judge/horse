@@ -11,7 +11,6 @@ from joj.horse.utils.auth import DomainAuthentication, ensure_permission
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
     parse_domain_from_auth,
-    parse_edit_schema,
     parse_ordering_query,
     parse_pagination_query,
     parse_problem,
@@ -96,7 +95,7 @@ async def delete_problem_set(
 )
 async def update_problem_set(
     problem_set_edit: schemas.ProblemSetEdit = Depends(
-        parse_edit_schema(schemas.ProblemSetEdit)
+        schemas.ProblemSetEdit.edit_dependency
     ),
     problem_set: models.ProblemSet = Depends(parse_problem_set),
 ) -> StandardResponse[schemas.ProblemSet]:

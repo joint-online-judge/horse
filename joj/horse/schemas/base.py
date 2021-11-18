@@ -29,6 +29,7 @@ from pydantic import (
     create_model,
 )
 from pydantic.datetime_parse import parse_datetime
+from pydantic.fields import Undefined
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.functions import FunctionElement
 from sqlalchemy.sql.schema import Column
@@ -166,6 +167,18 @@ class IDMixin(BaseModel):
 class TimestampMixin(BaseModel):
     created_at: datetime
     updated_at: datetime
+
+
+def edit_model(cls: Type[BaseModel]) -> Type[BaseModel]:
+    async def edit_dependency(request: Request, edit: cls) -> cls:  # type: ignore
+        data = await request.json()
+        for field in cls.__fields__.values():
+            if field.name not in data and field.alias not in data:
+                setattr(edit, field.name, Undefined)
+        return edit
+
+    setattr(cls, "edit_dependency", edit_dependency)
+    return cls
 
 
 BT = TypeVar("BT", bound=PydanticBaseModel)

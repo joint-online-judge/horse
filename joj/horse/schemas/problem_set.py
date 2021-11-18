@@ -15,6 +15,7 @@ from joj.horse.schemas.base import (
     URLORMSchema,
     UserInputURL,
     UTCDatetime,
+    edit_model,
     get_datetime_column,
 )
 from joj.horse.schemas.problem import ProblemPreview
@@ -35,6 +36,7 @@ class ProblemSetAddProblem(ProblemSetUpdateProblem):
     problem: str = Field(..., description="url or id of the problem")
 
 
+@edit_model
 class ProblemSetEdit(BaseModel):
     url: Optional[UserInputURL]
     title: Optional[NoneEmptyLongStr]

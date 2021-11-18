@@ -14,10 +14,12 @@ from joj.horse.schemas.base import (
     URLCreateMixin,
     URLORMSchema,
     UTCDatetime,
+    edit_model,
     get_datetime_column,
 )
 
 
+@edit_model
 class DomainInvitationEdit(BaseModel):
     code: Optional[LongStr] = Field(None, description="invitation code")
     expire_at: Optional[UTCDatetime] = Field(

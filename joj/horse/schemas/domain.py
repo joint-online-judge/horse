@@ -13,6 +13,7 @@ from joj.horse.schemas.base import (
     URLCreateMixin,
     URLORMSchema,
     UserInputURL,
+    edit_model,
 )
 
 if TYPE_CHECKING:
@@ -56,6 +57,7 @@ class Domain(DomainBase, IDMixin):
     owner_id: Optional[UUID]
 
 
+@edit_model
 class DomainEdit(BaseModel):
     url: Optional[UserInputURL]
     name: Optional[LongStr]

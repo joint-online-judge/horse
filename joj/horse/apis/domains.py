@@ -23,7 +23,6 @@ from joj.horse.utils.parser import (
     parse_domain_invitation,
     parse_domain_role,
     parse_domain_without_validation,
-    parse_edit_schema,
     parse_ordering_query,
     parse_pagination_query,
     parse_uid,
@@ -124,7 +123,7 @@ async def delete_domain(
     dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
 )
 async def update_domain(
-    domain_edit: schemas.DomainEdit = Depends(parse_edit_schema(schemas.DomainEdit)),
+    domain_edit: schemas.DomainEdit = Depends(schemas.DomainEdit.edit_dependency),
     domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardResponse[schemas.Domain]:
     domain.update_from_dict(domain_edit.dict())
@@ -396,7 +395,7 @@ async def delete_domain_role(
 )
 async def update_domain_role(
     domain_role_edit: schemas.DomainRoleEdit = Depends(
-        parse_edit_schema(schemas.DomainRoleEdit)
+        schemas.DomainRoleEdit.edit_dependency
     ),
     domain_role: models.DomainRole = Depends(parse_domain_role),
     domain: models.Domain = Depends(parse_domain_from_auth),
@@ -491,7 +490,7 @@ async def delete_domain_invitation(
 )
 async def update_domain_invitation(
     invitation_edit: schemas.DomainInvitationEdit = Depends(
-        parse_edit_schema(schemas.DomainInvitationEdit)
+        schemas.DomainInvitationEdit.edit_dependency
     ),
     invitation: models.DomainInvitation = Depends(parse_domain_invitation),
 ) -> StandardResponse[schemas.DomainInvitation]:
