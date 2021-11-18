@@ -12,7 +12,7 @@ from tenacity.wait import wait_exponential
 from joj.horse.config import settings
 
 if TYPE_CHECKING:
-    from joj.horse.models import Problem
+    from joj.horse.models import Problem, Record
 
 __client: Optional[LakeFSClient] = None
 
@@ -120,14 +120,24 @@ def get_problem_submission_repo_name(problem: "Problem") -> str:
     return f"joj-submission-{problem.id}"
 
 
-class LakeFSProblemConfig:
-    def __init__(self, problem: "Problem"):
-        self.client = get_lakefs_client()
-        # self.problem: "Problem" = problem
-        self.repo_id: str = str(problem.problem_group_id)
-        self.branch_id: str = str(problem.id)
-        self.repo_name: str = f"joj-config-{self.repo_id}"
-        self.branch_name: str = f"problem-{self.branch_id}"
+class LakeFSBase:
+    def __init__(
+        self,
+        client: LakeFSClient,
+        bucket: str,
+        repo_id: str,
+        branch_id: str,
+        repo_name_prefix: str = "",
+        branch_name_prefix: str = "",
+    ):
+        self.client: LakeFSClient = client
+        self.bucket: str = bucket
+        self.repo_id: str = repo_id
+        self.branch_id: str = branch_id
+        self.repo_name_prefix: str = repo_name_prefix
+        self.branch_name_prefix: str = branch_name_prefix
+        self.repo_name: str = f"{self.repo_name_prefix}{self.repo_id}"
+        self.branch_name: str = f"{self.branch_name_prefix}{self.branch_id}"
         self.repo: Optional[models.Repository] = None
         self.branch: Optional[models.Ref] = None
 
@@ -140,7 +150,7 @@ class LakeFSProblemConfig:
             )
             logger.info(f"LakeFS get repo: {self.repo}")
         except LakeFSApiException:
-            namespace = f"{settings.bucket_config}/{self.repo_id}"
+            namespace = f"{self.bucket}/{self.repo_id}"
             new_repo = models.RepositoryCreation(
                 storage_namespace=namespace,
                 name=self.repo_name,
@@ -149,7 +159,7 @@ class LakeFSProblemConfig:
             self.repo = self.client.repositories.create_repository(new_repo)
             logger.info(f"LakeFS create repo: {self.repo}")
 
-    def ensure_branch(self, problem_base: Optional["Problem"] = None) -> None:
+    def ensure_branch(self, source_branch_id: Optional[str] = None) -> None:
         self.ensure_repo()
         if self.branch is not None:
             return
@@ -159,11 +169,11 @@ class LakeFSProblemConfig:
             )
             logger.info(f"LakeFS get branch: {self.branch}")
         except LakeFSApiException:
-            if problem_base is None:
+            if source_branch_id is None:
                 assert self.repo is not None
                 source_branch_name = self.repo.default_branch
             else:
-                source_branch_name = f"problem-{str(problem_base.id)}"
+                source_branch_name = f"{self.branch_name_prefix}{source_branch_id}"
             new_branch = models.BranchCreation(
                 name=self.branch_name, source=source_branch_name
             )
@@ -171,3 +181,37 @@ class LakeFSProblemConfig:
                 repository=self.repo_name, branch_creation=new_branch
             )
             logger.info(f"LakeFS create branch: {self.branch}")
+
+
+class LakeFSProblemConfig(LakeFSBase):
+    def __init__(self, client: LakeFSClient, problem: "Problem"):
+        super().__init__(
+            client=client,
+            bucket=settings.bucket_config,
+            repo_id=str(problem.problem_group_id),
+            branch_id=str(problem.id),
+            repo_name_prefix="joj-config-",
+            branch_name_prefix="problem-",
+        )
+        self.problem = problem
+
+    def ensure_branch(self, problem_base: Optional["Problem"] = None) -> None:
+        if problem_base is None:
+            source_branch_id = None
+        else:
+            source_branch_id = str(problem_base.id)
+        LakeFSBase.ensure_branch(self, source_branch_id)
+
+
+class LakeFSRecord(LakeFSBase):
+    def __init__(self, client: LakeFSClient, problem: "Problem", record: "Record"):
+        super().__init__(
+            client=client,
+            bucket=settings.bucket_submission,
+            repo_id=str(problem.id),
+            branch_id=str(record.user_id),
+            repo_name_prefix="joj-submission-",
+            branch_name_prefix="user-",
+        )
+        self.problem = problem
+        self.record = record

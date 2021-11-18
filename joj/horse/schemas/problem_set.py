@@ -105,7 +105,7 @@ class ProblemSet(ProblemSetBase, DomainMixin, IDMixin):
         0, index=False, nullable=False, sa_column_kwargs={"server_default": "0"}
     )
 
-    owner_id: Optional[UUID]
+    owner_id: Optional[UUID] = None
 
 
 class ProblemSetDetail(TimestampMixin, ProblemSet):

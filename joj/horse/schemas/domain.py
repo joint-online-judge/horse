@@ -54,7 +54,7 @@ class DomainCreate(URLCreateMixin, DomainBase):
 
 
 class Domain(DomainBase, IDMixin):
-    owner_id: Optional[UUID]
+    owner_id: Optional[UUID] = None
 
 
 class DomainEdit(BaseModel, metaclass=EditMetaclass):

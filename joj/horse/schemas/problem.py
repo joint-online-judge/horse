@@ -89,8 +89,8 @@ class Problem(ProblemBase, DomainMixin, IDMixin):
         "[]", index=False, nullable=False, sa_column_kwargs={"server_default": "[]"}
     )
 
-    owner_id: Optional[UUID]
-    problem_group_id: Optional[UUID]
+    owner_id: Optional[UUID] = None
+    problem_group_id: Optional[UUID] = None
 
 
 class ProblemDetail(TimestampMixin, Problem):

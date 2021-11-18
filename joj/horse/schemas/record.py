@@ -1,6 +1,7 @@
 from datetime import datetime
 from enum import Enum, IntEnum
-from typing import List
+from typing import List, Optional
+from uuid import UUID
 
 from joj.horse.schemas import BaseModel
 from joj.horse.utils.base import StrEnumMixin
@@ -52,7 +53,14 @@ class RecordCase(BaseModel):
 
 
 class Record(BaseModel):
-    pass
+    status: RecordStatus = RecordStatus.waiting
+    score: int = 0
+    time_ms: int = 0
+    memory_kb: int = 0
+
+    problem_set_id: Optional[UUID] = None
+    problem_id: Optional[UUID] = None
+    user_id: Optional[UUID] = None
 
 
 # class Record(BaseODMSchema):
