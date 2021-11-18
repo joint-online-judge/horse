@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: fb13909@2021-11-17T18:47:48Z",
+    "description": "Git version: 900ad22@2021-11-18T19:13:08Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -1321,6 +1321,63 @@
       }
     },
     "/api/v1/domains/{domain}/invitations": {
+      "get": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "List Domain Invitations",
+        "operationId": "list_domain_invitations_api_v1_domains__domain__invitations_get",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DomainInvitationListResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
       "post": {
         "tags": [
           "domain"
@@ -1390,6 +1447,74 @@
       }
     },
     "/api/v1/domains/{domain}/invitations/{invitation}": {
+      "get": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "Get Domain Invitation",
+        "operationId": "get_domain_invitation_api_v1_domains__domain__invitations__invitation__get",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the domain invitation",
+            "required": true,
+            "schema": {
+              "title": "Invitation",
+              "type": "string",
+              "description": "url or id of the domain invitation"
+            },
+            "name": "invitation",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DomainInvitationResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
       "delete": {
         "tags": [
           "domain"
@@ -4965,8 +5090,7 @@
         "title": "Domain",
         "required": [
           "id",
-          "name",
-          "ownerId"
+          "name"
         ],
         "type": "object",
         "properties": {
@@ -5062,7 +5186,6 @@
         "required": [
           "id",
           "name",
-          "ownerId",
           "createdAt",
           "updatedAt"
         ],
@@ -5175,7 +5298,8 @@
         "title": "DomainInvitation",
         "required": [
           "id",
-          "domainId"
+          "domainId",
+          "code"
         ],
         "type": "object",
         "properties": {
@@ -5199,15 +5323,13 @@
             "title": "Code",
             "maxLength": 256,
             "type": "string",
-            "description": "invitation code",
-            "default": ""
+            "description": "invitation code"
           },
           "expireAt": {
             "title": "Expireat",
             "type": "string",
             "description": "expire time of invitation",
-            "format": "date-time",
-            "default": "9999-12-31T23:59:59.999999"
+            "format": "date-time"
           },
           "role": {
             "title": "Role",
@@ -5220,7 +5342,7 @@
       "DomainInvitationCreate": {
         "title": "DomainInvitationCreate",
         "required": [
-          "expireAt"
+          "code"
         ],
         "type": "object",
         "properties": {
@@ -5234,8 +5356,7 @@
             "title": "Code",
             "maxLength": 256,
             "type": "string",
-            "description": "invitation code",
-            "default": ""
+            "description": "invitation code"
           },
           "expireAt": {
             "title": "Expireat",
@@ -5270,6 +5391,44 @@
             "title": "Role",
             "type": "string",
             "description": "domain role after invitation"
+          }
+        }
+      },
+      "DomainInvitationList": {
+        "title": "DomainInvitationList",
+        "type": "object",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer",
+            "default": 0
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DomainInvitation"
+            },
+            "default": []
+          }
+        }
+      },
+      "DomainInvitationListResp": {
+        "title": "DomainInvitationListResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DomainInvitationList"
           }
         }
       },
@@ -5972,9 +6131,7 @@
         "required": [
           "id",
           "domainId",
-          "title",
-          "ownerId",
-          "problemGroupId"
+          "title"
         ],
         "type": "object",
         "properties": {
@@ -6127,8 +6284,6 @@
           "id",
           "domainId",
           "title",
-          "ownerId",
-          "problemGroupId",
           "createdAt",
           "updatedAt"
         ],
@@ -6450,10 +6605,7 @@
         "required": [
           "id",
           "domainId",
-          "title",
-          "availableTime",
-          "dueTime",
-          "ownerId"
+          "title"
         ],
         "type": "object",
         "properties": {
@@ -6499,16 +6651,22 @@
             "description": "whether the scoreboard of the problem set is hidden",
             "default": false
           },
-          "availableTime": {
-            "title": "Availabletime",
+          "dueAt": {
+            "title": "Dueat",
             "type": "string",
-            "description": "the problem set is available from",
+            "description": "the problem set is due at this date",
             "format": "date-time"
           },
-          "dueTime": {
-            "title": "Duetime",
+          "lockAt": {
+            "title": "Lockat",
             "type": "string",
-            "description": "the problem set is due at",
+            "description": "the problem set is locked after this date",
+            "format": "date-time"
+          },
+          "unlockAt": {
+            "title": "Unlockat",
+            "type": "string",
+            "description": "the problem set is unlocked after this date",
             "format": "date-time"
           },
           "numSubmit": {
@@ -6586,13 +6744,18 @@
             "description": "whether the scoreboard of the problem set is hidden",
             "default": false
           },
-          "availableTime": {
-            "title": "Availabletime",
+          "dueAt": {
+            "title": "Dueat",
             "type": "string",
             "format": "date-time"
           },
-          "dueTime": {
-            "title": "Duetime",
+          "lockAt": {
+            "title": "Lockat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "unlockAt": {
+            "title": "Unlockat",
             "type": "string",
             "format": "date-time"
           }
@@ -6604,9 +6767,6 @@
           "id",
           "domainId",
           "title",
-          "availableTime",
-          "dueTime",
-          "ownerId",
           "createdAt",
           "updatedAt",
           "problems"
@@ -6655,16 +6815,22 @@
             "description": "whether the scoreboard of the problem set is hidden",
             "default": false
           },
-          "availableTime": {
-            "title": "Availabletime",
+          "dueAt": {
+            "title": "Dueat",
             "type": "string",
-            "description": "the problem set is available from",
+            "description": "the problem set is due at this date",
             "format": "date-time"
           },
-          "dueTime": {
-            "title": "Duetime",
+          "lockAt": {
+            "title": "Lockat",
             "type": "string",
-            "description": "the problem set is due at",
+            "description": "the problem set is locked after this date",
+            "format": "date-time"
+          },
+          "unlockAt": {
+            "title": "Unlockat",
+            "type": "string",
+            "description": "the problem set is unlocked after this date",
             "format": "date-time"
           },
           "numSubmit": {
@@ -6747,13 +6913,18 @@
             "title": "Scoreboardhidden",
             "type": "boolean"
           },
-          "availableTime": {
-            "title": "Availabletime",
+          "dueAt": {
+            "title": "Dueat",
             "type": "string",
             "format": "date-time"
           },
-          "dueTime": {
-            "title": "Duetime",
+          "lockAt": {
+            "title": "Lockat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "unlockAt": {
+            "title": "Unlockat",
             "type": "string",
             "format": "date-time"
           }
@@ -7270,7 +7441,9 @@
           "email",
           "createdAt",
           "updatedAt",
-          "loginAt"
+          "registerIp",
+          "loginAt",
+          "loginIp"
         ],
         "type": "object",
         "properties": {
@@ -7325,8 +7498,7 @@
           },
           "registerIp": {
             "title": "Registerip",
-            "type": "string",
-            "default": "127.0.0.1"
+            "type": "string"
           },
           "loginAt": {
             "title": "Loginat",
@@ -7335,8 +7507,7 @@
           },
           "loginIp": {
             "title": "Loginip",
-            "type": "string",
-            "default": "127.0.0.1"
+            "type": "string"
           }
         }
       },
