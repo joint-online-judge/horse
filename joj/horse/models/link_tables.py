@@ -25,7 +25,9 @@ class ProblemProblemSetLink(ORMUtils, table=True):  # type: ignore[call-arg]
             GUID, ForeignKey("problem_sets.id", ondelete="CASCADE"), primary_key=True
         ),
     )
-    position: int = Field(..., nullable=False, sa_column_kwargs={"server_default": "0"})
+    position: int = Field(
+        index=False, nullable=False, sa_column_kwargs={"server_default": "0"}
+    )
 
     problem: "Problem" = Relationship(back_populates="problem_problem_set_links")
     problem_set: "ProblemSet" = Relationship(back_populates="problem_problem_set_links")

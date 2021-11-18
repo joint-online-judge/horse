@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Union
 from uuid import UUID
 
 from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
@@ -22,14 +22,18 @@ class DomainUser(BaseORMModel, table=True):  # type: ignore[call-arg]
     role: str = Field(index=False)
 
     domain_id: UUID = Field(
-        sa_column=Column(GUID, ForeignKey("domains.id", ondelete="CASCADE"))
+        sa_column=Column(
+            GUID, ForeignKey("domains.id", ondelete="CASCADE"), nullable=False
+        )
     )
-    domain: Optional["Domain"] = Relationship(back_populates="users")
+    domain: "Domain" = Relationship(back_populates="users")
 
     user_id: UUID = Field(
-        sa_column=Column(GUID, ForeignKey("users.id", ondelete="CASCADE"))
+        sa_column=Column(
+            GUID, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        )
     )
-    user: Optional["User"] = Relationship(back_populates="domain_users")
+    user: "User" = Relationship(back_populates="domain_users")
 
     @classmethod
     async def add_domain_user(

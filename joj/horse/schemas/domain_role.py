@@ -21,7 +21,7 @@ class DomainRoleEdit(BaseModel):
 
 
 class DomainRoleBase(BaseORMSchema):
-    role: NoneEmptyLongStr = Field(index=False)
+    role: NoneEmptyLongStr = Field(index=False, nullable=False)
     permission: DomainPermission
 
 

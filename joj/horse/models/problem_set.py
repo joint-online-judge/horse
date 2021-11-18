@@ -22,12 +22,18 @@ class ProblemSet(DomainURLORMModel, ProblemSetDetail, table=True):  # type: igno
     __table_args__ = (UniqueConstraint("domain_id", "url"),)
 
     domain_id: UUID = Field(
-        sa_column=Column(GUID, ForeignKey("domains.id", ondelete="CASCADE"))
+        sa_column=Column(
+            GUID, ForeignKey("domains.id", ondelete="CASCADE"), nullable=False
+        )
     )
-    domain: Optional["Domain"] = Relationship(back_populates="problem_sets")
+    domain: "Domain" = Relationship(back_populates="problem_sets")
 
-    owner_id: UUID = Field(
-        sa_column=Column(GUID, ForeignKey("users.id", ondelete="RESTRICT"))
+    owner_id: Optional[UUID] = Field(
+        sa_column=Column(
+            GUID,
+            ForeignKey("users.id", ondelete="SET NULL"),
+            nullable=True,
+        )
     )
     owner: Optional["User"] = Relationship(back_populates="owned_problem_sets")
 

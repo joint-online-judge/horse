@@ -31,13 +31,23 @@ class ProblemEdit(BaseModel):
 
 class ProblemBase(URLORMSchema):
     title: NoneEmptyStr = Field(
-        ..., index=False, nullable=False, description="title of the problem"
+        index=False,
+        nullable=False,
+        description="title of the problem",
     )
     content: LongText = Field(
-        "", index=False, nullable=True, description="content of the problem"
+        "",
+        index=False,
+        nullable=False,
+        sa_column_kwargs={"server_default": ""},
+        description="content of the problem",
     )
     hidden: bool = Field(
-        False, index=False, nullable=False, description="is the problem hidden"
+        False,
+        index=False,
+        nullable=False,
+        sa_column_kwargs={"server_default": "false"},
+        description="is the problem hidden",
     )
     # this field can be induced from the config file
     # data_version: DataVersion = Field(DataVersion.v2)
@@ -62,13 +72,21 @@ class ProblemPreview(ProblemBase, IDMixin):
 
 
 class Problem(ProblemBase, DomainMixin, IDMixin):
-    num_submit: int = Field(0, index=False, nullable=False)
-    num_accept: int = Field(0, index=False, nullable=False)
-    data_version: int = Field(2, index=False, nullable=False)
-    languages: str = Field("[]", index=False, nullable=False)
+    num_submit: int = Field(
+        0, index=False, nullable=False, sa_column_kwargs={"server_default": "0"}
+    )
+    num_accept: int = Field(
+        0, index=False, nullable=False, sa_column_kwargs={"server_default": "0"}
+    )
+    data_version: int = Field(
+        2, index=False, nullable=False, sa_column_kwargs={"server_default": "2"}
+    )
+    languages: str = Field(
+        "[]", index=False, nullable=False, sa_column_kwargs={"server_default": "[]"}
+    )
 
-    owner_id: UUID
-    problem_group_id: UUID
+    owner_id: Optional[UUID]
+    problem_group_id: Optional[UUID]
 
 
 class ProblemDetail(TimestampMixin, Problem):

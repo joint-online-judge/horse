@@ -15,6 +15,7 @@ from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.lakefs import LakeFSProblemConfig
 from joj.horse.utils.parser import (
     parse_domain_from_auth,
+    parse_edit_schema,
     parse_ordering_query,
     parse_pagination_query,
     parse_problem,
@@ -105,10 +106,10 @@ async def delete_problem(
     dependencies=[Depends(ensure_permission(Permission.DomainProblem.edit))],
 )
 async def update_problem(
-    edit_problem: schemas.ProblemEdit,
+    problem_edit: schemas.ProblemEdit = Depends(parse_edit_schema(schemas.ProblemEdit)),
     problem: models.Problem = Depends(parse_problem),
 ) -> StandardResponse[schemas.Problem]:
-    problem.update_from_dict(edit_problem.dict())
+    problem.update_from_dict(problem_edit.dict())
     await problem.save_model()
     return StandardResponse(problem)
 

@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 from uuid import UUID
 
 from sqlalchemy import JSON
@@ -16,12 +16,16 @@ class DomainRole(BaseORMModel, DomainRoleDetail, table=True):  # type: ignore[ca
     __tablename__ = "domain_roles"
     __table_args__ = (UniqueConstraint("domain_id", "role"),)
 
-    permission: Dict[str, Any] = Field(index=False, sa_column=Column(JSON))
+    permission: Dict[str, Any] = Field(
+        index=False, sa_column=Column(JSON, nullable=False)
+    )
 
     domain_id: UUID = Field(
-        sa_column=Column(GUID, ForeignKey("domains.id", ondelete="CASCADE"))
+        sa_column=Column(
+            GUID, ForeignKey("domains.id", ondelete="CASCADE"), nullable=False
+        )
     )
-    domain: Optional["Domain"] = Relationship(back_populates="roles")
+    domain: "Domain" = Relationship(back_populates="roles")
 
     @classmethod
     async def ensure_exists(cls, domain_id: UUID, role: str) -> None:

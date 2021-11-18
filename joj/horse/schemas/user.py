@@ -39,11 +39,26 @@ class UserCreate(SQLModel):
 
 
 class UserBase(BaseORMSchema):
-    username: str = Field(index=False)
-    email: EmailStr = Field(index=False)
-    gravatar: str = Field(default="", index=False)
-    student_id: str = Field(default="")
-    real_name: str = Field(default="")
+    username: str = Field(index=False, nullable=False)
+    email: EmailStr = Field(index=False, nullable=False)
+    gravatar: str = Field(
+        "",
+        index=False,
+        nullable=False,
+        sa_column_kwargs={"server_default": ""},
+    )
+    student_id: str = Field(
+        "",
+        index=True,
+        nullable=False,
+        sa_column_kwargs={"server_default": ""},
+    )
+    real_name: str = Field(
+        "",
+        index=True,
+        nullable=False,
+        sa_column_kwargs={"server_default": ""},
+    )
 
 
 class UserPreview(UserBase, IDMixin):
@@ -51,8 +66,18 @@ class UserPreview(UserBase, IDMixin):
 
 
 class User(UserBase, IDMixin):
-    role: str = Field(default=str(DefaultRole.USER))
-    is_active: bool = Field(default=False, index=False)
+    role: str = Field(
+        default=str(DefaultRole.USER),
+        index=True,
+        nullable=False,
+        sa_column_kwargs={"server_default": str(DefaultRole.USER)},
+    )
+    is_active: bool = Field(
+        False,
+        index=False,
+        nullable=False,
+        sa_column_kwargs={"server_default": "false"},
+    )
 
 
 class UserWithDomainRole(UserPreview):
@@ -81,9 +106,18 @@ class UserWithDomainRole(UserPreview):
 
 
 class UserDetail(TimestampMixin, User):
-    # register_at = fields.DatetimeField(auto_now_add=True)
-    register_ip: str = Field(default="127.0.0.1", index=False)
-    login_at: datetime = Field(
-        sa_column=get_datetime_column(index=False, server_default=utcnow())
+    register_ip: str = Field(
+        index=False,
+        nullable=False,
+        sa_column_kwargs={"server_default": "127.0.0.1"},
     )
-    login_ip: str = Field(default="127.0.0.1", index=False)
+    login_at: datetime = Field(
+        sa_column=get_datetime_column(
+            index=False, nullable=False, server_default=utcnow()
+        ),
+    )
+    login_ip: str = Field(
+        index=False,
+        nullable=False,
+        sa_column_kwargs={"server_default": "127.0.0.1"},
+    )
