@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 from uuid import UUID, uuid4
 
+from pydantic.fields import Undefined
 from sqlalchemy.engine import Connection, Row
 from sqlalchemy.orm import Mapper
 from sqlalchemy.orm.attributes import InstrumentedAttribute
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
 class ORMUtils(SQLModel, BaseModel):
     def update_from_dict(self: "BaseORMModel", d: Dict[str, Any]) -> None:
         for k, v in d.items():
-            if v is not None:
+            if v is not Undefined:
                 setattr(self, k, v)
 
     @classmethod
@@ -196,7 +197,7 @@ class TimeStampMixin(SQLModel):
 
 
 class URLORMModel(BaseORMModel):
-    url: str = Field(..., sa_column_kwargs={"unique": True})
+    url: str = Field(..., index=True, nullable=False, sa_column_kwargs={"unique": True})
 
     @classmethod
     async def find_by_url_or_id(
@@ -215,7 +216,7 @@ class DomainURLORMModel(URLORMModel):
     if TYPE_CHECKING:
         domain_id: UUID
 
-    url: str = Field(...)
+    url: str = Field(..., index=True, nullable=False)
 
     @classmethod
     async def find_by_domain_url_or_id(

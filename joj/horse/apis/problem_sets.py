@@ -17,6 +17,7 @@ from joj.horse.utils.parser import (
     parse_problem_set,
     parse_problem_set_factory,
     parse_problem_set_with_time,
+    parse_problem_without_validation,
     parse_user_from_auth,
     parse_view_hidden_problem_set,
 )
@@ -93,10 +94,12 @@ async def delete_problem_set(
     dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.edit))],
 )
 async def update_problem_set(
-    edit_problem_set: schemas.ProblemSetEdit,
+    problem_set_edit: schemas.ProblemSetEdit = Depends(
+        schemas.ProblemSetEdit.edit_dependency
+    ),
     problem_set: models.ProblemSet = Depends(parse_problem_set),
 ) -> StandardResponse[schemas.ProblemSet]:
-    problem_set.update_from_dict(edit_problem_set.dict())
+    problem_set.update_from_dict(problem_set_edit.dict())
     await problem_set.save_model()
     return StandardResponse(problem_set)
 
@@ -123,7 +126,7 @@ async def add_problem_in_problem_set(
 )
 async def get_problem_in_problem_set(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
-    problem: models.Problem = Depends(parse_problem),
+    problem: models.Problem = Depends(parse_problem_without_validation),
 ) -> StandardResponse[schemas.ProblemDetail]:
     await problem_set.operate_problem(problem, Operation.Read)
     return StandardResponse(problem)

@@ -19,17 +19,23 @@ class Problem(DomainURLORMModel, ProblemDetail, table=True):  # type: ignore[cal
     __table_args__ = (UniqueConstraint("domain_id", "url"),)
 
     domain_id: UUID = Field(
-        sa_column=Column(GUID, ForeignKey("domains.id", ondelete="CASCADE"))
+        sa_column=Column(
+            GUID, ForeignKey("domains.id", ondelete="CASCADE"), nullable=False
+        )
     )
-    domain: Optional["Domain"] = Relationship(back_populates="problems")
+    domain: "Domain" = Relationship(back_populates="problems")
 
-    owner_id: UUID = Field(
-        sa_column=Column(GUID, ForeignKey("users.id", ondelete="RESTRICT"))
+    owner_id: Optional[UUID] = Field(
+        sa_column=Column(
+            GUID, ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+        )
     )
     owner: Optional["User"] = Relationship(back_populates="owned_problems")
 
-    problem_group_id: UUID = Field(
-        sa_column=Column(GUID, ForeignKey("problem_groups.id", ondelete="RESTRICT"))
+    problem_group_id: Optional[UUID] = Field(
+        sa_column=Column(
+            GUID, ForeignKey("problem_groups.id", ondelete="SET NULL"), nullable=True
+        )
     )
     problem_group: Optional["ProblemGroup"] = Relationship(back_populates="problems")
 

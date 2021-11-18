@@ -27,7 +27,9 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
     __tablename__ = "domains"
 
     owner_id: UUID = Field(
-        sa_column=Column(GUID, ForeignKey("users.id", ondelete="RESTRICT"))
+        sa_column=Column(
+            GUID, ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+        )
     )
     owner: Optional["User"] = Relationship(back_populates="owned_domains")
 

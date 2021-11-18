@@ -14,10 +14,12 @@ from joj.horse.schemas.base import (
     URLCreateMixin,
     URLORMSchema,
     UTCDatetime,
+    edit_model,
     get_datetime_column,
 )
 
 
+@edit_model
 class DomainInvitationEdit(BaseModel):
     code: Optional[LongStr] = Field(None, description="invitation code")
     expire_at: Optional[UTCDatetime] = Field(
@@ -27,22 +29,23 @@ class DomainInvitationEdit(BaseModel):
 
 
 class DomainInvitationBase(URLORMSchema):
-    code: LongStr = Field("", nullable=False, description="invitation code")
-    expire_at: datetime = Field(
-        datetime.max,
-        sa_column=get_datetime_column(index=False),
+    code: LongStr = Field(index=True, nullable=False, description="invitation code")
+    expire_at: Optional[datetime] = Field(
+        None,
+        sa_column=get_datetime_column(index=False, nullable=True),
         description="expire time of invitation",
     )
     role: str = Field(
-        DefaultRole.USER,
+        str(DefaultRole.USER),
         index=False,
         nullable=False,
+        sa_column_kwargs={"server_default": str(DefaultRole.USER)},
         description="domain role after invitation",
     )
 
 
 class DomainInvitationCreate(URLCreateMixin, DomainInvitationBase):
-    expire_at: UTCDatetime
+    expire_at: Optional[UTCDatetime]
 
     @validator("role", pre=True)
     def validate_role(cls, v: str) -> str:

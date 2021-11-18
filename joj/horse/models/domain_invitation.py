@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import event
@@ -19,9 +18,11 @@ class DomainInvitation(DomainURLORMModel, DomainInvitationDetail, table=True):  
     )
 
     domain_id: UUID = Field(
-        sa_column=Column(GUID, ForeignKey("domains.id", ondelete="CASCADE"))
+        sa_column=Column(
+            GUID, ForeignKey("domains.id", ondelete="CASCADE"), nullable=False
+        )
     )
-    domain: Optional["Domain"] = Relationship(back_populates="invitations")
+    domain: "Domain" = Relationship(back_populates="invitations")
 
 
 event.listen(DomainInvitation, "before_insert", url_pre_save)

@@ -13,6 +13,7 @@ from joj.horse.schemas.base import (
     URLCreateMixin,
     URLORMSchema,
     UserInputURL,
+    edit_model,
 )
 
 if TYPE_CHECKING:
@@ -21,20 +22,29 @@ if TYPE_CHECKING:
 
 class DomainBase(URLORMSchema):
     name: NoneEmptyLongStr = Field(
-        ...,
+        index=True,
         nullable=False,
         description="displayed name of the domain",
     )
     gravatar: LongStr = Field(
-        "", index=False, nullable=True, description="gravatar url of the domain"
+        "",
+        index=False,
+        nullable=False,
+        sa_column_kwargs={"server_default": ""},
+        description="gravatar url of the domain",
     )
     bulletin: LongText = Field(
-        "", index=False, nullable=True, description="bulletin of the domain"
+        "",
+        index=False,
+        nullable=False,
+        sa_column_kwargs={"server_default": ""},
+        description="bulletin of the domain",
     )
     hidden: bool = Field(
         True,
         index=False,
         nullable=False,
+        sa_column_kwargs={"server_default": "true"},
         description="is the domain hidden",
     )
 
@@ -44,9 +54,10 @@ class DomainCreate(URLCreateMixin, DomainBase):
 
 
 class Domain(DomainBase, IDMixin):
-    owner_id: UUID
+    owner_id: Optional[UUID]
 
 
+@edit_model
 class DomainEdit(BaseModel):
     url: Optional[UserInputURL]
     name: Optional[LongStr]
