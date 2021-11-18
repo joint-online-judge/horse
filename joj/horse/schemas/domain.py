@@ -5,6 +5,7 @@ from sqlmodel import Field
 
 from joj.horse.schemas.base import (
     BaseModel,
+    EditMetaclass,
     IDMixin,
     LongStr,
     LongText,
@@ -13,7 +14,6 @@ from joj.horse.schemas.base import (
     URLCreateMixin,
     URLORMSchema,
     UserInputURL,
-    edit_model,
 )
 
 if TYPE_CHECKING:
@@ -57,8 +57,7 @@ class Domain(DomainBase, IDMixin):
     owner_id: Optional[UUID]
 
 
-@edit_model
-class DomainEdit(BaseModel):
+class DomainEdit(BaseModel, metaclass=EditMetaclass):
     url: Optional[UserInputURL]
     name: Optional[LongStr]
     gravatar: Optional[LongStr]

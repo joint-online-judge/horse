@@ -8,19 +8,18 @@ from joj.horse.models.permission import DefaultRole
 from joj.horse.schemas import BaseModel
 from joj.horse.schemas.base import (
     DomainMixin,
+    EditMetaclass,
     IDMixin,
     LongStr,
     TimestampMixin,
     URLCreateMixin,
     URLORMSchema,
     UTCDatetime,
-    edit_model,
     get_datetime_column,
 )
 
 
-@edit_model
-class DomainInvitationEdit(BaseModel):
+class DomainInvitationEdit(BaseModel, metaclass=EditMetaclass):
     code: Optional[LongStr] = Field(None, description="invitation code")
     expire_at: Optional[UTCDatetime] = Field(
         None, description="expire time of invitation"

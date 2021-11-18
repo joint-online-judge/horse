@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import BackgroundTasks, Depends, File, Form, UploadFile
+from fastapi import BackgroundTasks, Depends, File, UploadFile
 from loguru import logger
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -170,8 +170,9 @@ async def clone_problem(
     dependencies=[Depends(ensure_permission(Permission.DomainProblem.submit))],
 )
 async def submit_solution_to_problem(
-    code_type: schemas.RecordCodeType = Form(...),
-    file: UploadFile = File(...),
+    problem_submit: schemas.ProblemSolutionSubmit = Depends(
+        schemas.ProblemSolutionSubmit.form_dependency
+    ),
     problem: models.Problem = Depends(parse_problem),
     domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_auth),
@@ -187,7 +188,7 @@ async def submit_solution_to_problem(
             domain=problem.domain,
             problem=problem.id,
             user=user.id,
-            code_type=code_type,
+            code_type=problem_submit.code_type,
             code=file_id,
             judge_category=[],
             submit_at=datetime.utcnow(),

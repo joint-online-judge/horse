@@ -163,6 +163,23 @@ async def delete_problem_in_problem_set(
     return StandardResponse(problem_set)
 
 
+@router.post(
+    "/{problemSet}/problem/{problem}/submit",
+    dependencies=[Depends(ensure_permission(Permission.DomainProblem.submit))],
+)
+async def submit_solution_to_problem_set(
+    problem_submit: schemas.ProblemSolutionSubmit = Depends(
+        schemas.ProblemSolutionSubmit.form_dependency
+    ),
+    problem_set: models.ProblemSet = Depends(parse_problem_set),
+    problem: models.Problem = Depends(parse_problem_without_validation),
+    # domain: models.Domain = Depends(parse_domain_from_auth),
+    # user: models.User = Depends(parse_user_from_auth),
+) -> StandardResponse[schemas.Record]:
+    logger.info(problem_submit)
+    return StandardResponse()
+
+
 @router.get("/{problemSet}/scoreboard", deprecated=True)
 async def get_scoreboard(
     problem_set: models.ProblemSet = Depends(parse_problem_set_with_time),

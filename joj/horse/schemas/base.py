@@ -18,7 +18,7 @@ from typing import (
 )
 from uuid import UUID
 
-from fastapi import Depends, Request, params
+from fastapi import Depends, File, Form, Request, UploadFile, params
 from fastapi_utils.api_model import APIModel
 from fastapi_utils.camelcase import snake2camel
 from makefun import wraps
@@ -30,6 +30,7 @@ from pydantic import (
 )
 from pydantic.datetime_parse import parse_datetime
 from pydantic.fields import Undefined
+from pydantic.main import ModelMetaclass
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.functions import FunctionElement
 from sqlalchemy.sql.schema import Column
@@ -169,16 +170,56 @@ class TimestampMixin(BaseModel):
     updated_at: datetime
 
 
-def edit_model(cls: Type[BaseModel]) -> Type[BaseModel]:
-    async def edit_dependency(request: Request, edit: cls) -> cls:  # type: ignore
-        data = await request.json()
-        for field in cls.__fields__.values():
-            if field.name not in data and field.alias not in data:
-                setattr(edit, field.name, Undefined)
-        return edit
+class EditMetaclass(ModelMetaclass):
+    def __new__(mcs, name: str, bases: Any, class_dict: Any, **kwargs: Any) -> Any:
+        cls = super().__new__(mcs, name, bases, class_dict, **kwargs)
 
-    setattr(cls, "edit_dependency", edit_dependency)
-    return cls
+        async def edit_dependency(request: Request, edit: cls) -> cls:  # type: ignore
+            data = await request.json()
+            for field in cls.__fields__.values():
+                if field.name not in data and field.alias not in data:
+                    setattr(edit, field.name, Undefined)
+            return edit
+
+        cls.edit_dependency = edit_dependency
+        return cls
+
+
+class FormMetaclass(ModelMetaclass):
+    """
+    Adds an form_dependency class method to the original model.
+    The form_dependency class method can be used with FastAPI endpoints.
+    """
+
+    def __new__(mcs, name: str, bases: Any, class_dict: Any, **kwargs: Any) -> Any:
+        cls = super().__new__(mcs, name, bases, class_dict, **kwargs)
+        parameters = []
+        for field in cls.__fields__.values():
+            if field.type_ == UploadFile:
+                fastapi_type = File
+            else:
+                fastapi_type = Form
+            parameters.append(
+                Parameter(
+                    field.name,
+                    Parameter.POSITIONAL_ONLY,
+                    default=(
+                        fastapi_type(field.default)
+                        if not field.required
+                        else fastapi_type(...)
+                    ),
+                    annotation=field.outer_type_,
+                )
+            )
+
+        async def form_dependency(**data: Any) -> cls:  # type: ignore
+            return cls(**data)
+
+        sig = signature(form_dependency)
+        sig = sig.replace(parameters=parameters)
+        form_dependency.__signature__ = sig  # type: ignore
+        cls.form_dependency = form_dependency
+        return cls
 
 
 BT = TypeVar("BT", bound=PydanticBaseModel)

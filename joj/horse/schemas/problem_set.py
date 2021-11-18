@@ -7,6 +7,7 @@ from sqlmodel import Field
 from joj.horse.schemas import BaseModel
 from joj.horse.schemas.base import (
     DomainMixin,
+    EditMetaclass,
     IDMixin,
     LongText,
     NoneEmptyLongStr,
@@ -15,7 +16,6 @@ from joj.horse.schemas.base import (
     URLORMSchema,
     UserInputURL,
     UTCDatetime,
-    edit_model,
     get_datetime_column,
 )
 from joj.horse.schemas.problem import ProblemPreview
@@ -36,8 +36,7 @@ class ProblemSetAddProblem(ProblemSetUpdateProblem):
     problem: str = Field(..., description="url or id of the problem")
 
 
-@edit_model
-class ProblemSetEdit(BaseModel):
+class ProblemSetEdit(BaseModel, metaclass=EditMetaclass):
     url: Optional[UserInputURL]
     title: Optional[NoneEmptyLongStr]
     content: Optional[LongText]

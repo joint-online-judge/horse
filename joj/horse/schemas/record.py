@@ -1,8 +1,9 @@
 from datetime import datetime
-from enum import IntEnum
+from enum import Enum, IntEnum
 from typing import List
 
 from joj.horse.schemas import BaseModel
+from joj.horse.utils.base import StrEnumMixin
 
 # from pydantic.typing import AnyCallable
 
@@ -32,11 +33,9 @@ class RecordStatus(IntEnum):
     etc = 10
 
 
-class RecordCodeType(IntEnum):
-    text = 0
-    tar = 1
-    zip = 2
-    rar = 3
+class RecordCodeType(StrEnumMixin, Enum):
+    text = "text"
+    archive = "archive"
 
 
 class RecordCase(BaseModel):

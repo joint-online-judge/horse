@@ -40,6 +40,7 @@ from joj.horse.schemas.problem import (
     ProblemCreate as ProblemCreate,
     ProblemDetail as ProblemDetail,
     ProblemEdit as ProblemEdit,
+    ProblemSolutionSubmit as ProblemSolutionSubmit,
 )
 from joj.horse.schemas.problem_group import ProblemGroup as ProblemGroup
 from joj.horse.schemas.problem_set import (

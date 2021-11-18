@@ -1,11 +1,14 @@
 from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID
 
+from fastapi import UploadFile
 from sqlmodel import Field
 
 from joj.horse.schemas.base import (
     BaseModel,
     DomainMixin,
+    EditMetaclass,
+    FormMetaclass,
     IDMixin,
     LongText,
     NoneEmptyStr,
@@ -13,15 +16,14 @@ from joj.horse.schemas.base import (
     URLCreateMixin,
     URLORMSchema,
     UserInputURL,
-    edit_model,
 )
+from joj.horse.schemas.record import RecordCodeType
 
 if TYPE_CHECKING:
     pass
 
 
-@edit_model
-class ProblemEdit(BaseModel):
+class ProblemEdit(BaseModel, metaclass=EditMetaclass):
     url: Optional[UserInputURL]
     title: Optional[NoneEmptyStr]
     content: Optional[LongText]
@@ -93,3 +95,8 @@ class Problem(ProblemBase, DomainMixin, IDMixin):
 
 class ProblemDetail(TimestampMixin, Problem):
     pass
+
+
+class ProblemSolutionSubmit(BaseModel, metaclass=FormMetaclass):
+    code_type: RecordCodeType
+    file: Optional[UploadFile]
