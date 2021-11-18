@@ -106,18 +106,24 @@ async def parse_domain_invitation(
     raise BizError(ErrorCode.DomainInvitationBadRequestError)
 
 
-async def parse_problem(
+async def parse_problem_without_validation(
     problem: str = Path(..., description="url or id of the problem"),
+    domain: models.Domain = Depends(parse_domain_from_auth),
+) -> models.Problem:
+    problem_model = await models.Problem.find_by_domain_url_or_id(domain, problem)
+    if problem_model:
+        return problem_model
+    raise BizError(ErrorCode.ProblemNotFoundError)
+
+
+async def parse_problem(
+    problem: models.Problem = Depends(parse_problem_without_validation),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> models.Problem:
-    problem_model = await models.Problem.find_by_domain_url_or_id(
-        domain_auth.auth.domain, problem
-    )
-    if problem_model:
-        if not problem_model.hidden or domain_auth.auth.check(
-            ScopeType.DOMAIN_PROBLEM, PermissionType.view_hidden
-        ):
-            return problem_model
+    if not problem.hidden or domain_auth.auth.check(
+        ScopeType.DOMAIN_PROBLEM, PermissionType.view_hidden
+    ):
+        return problem
     raise BizError(ErrorCode.ProblemNotFoundError)
 
 

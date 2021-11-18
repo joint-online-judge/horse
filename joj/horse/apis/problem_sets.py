@@ -18,6 +18,7 @@ from joj.horse.utils.parser import (
     parse_problem_set,
     parse_problem_set_factory,
     parse_problem_set_with_time,
+    parse_problem_without_validation,
     parse_user_from_auth,
     parse_view_hidden_problem_set,
 )
@@ -126,7 +127,7 @@ async def add_problem_in_problem_set(
 )
 async def get_problem_in_problem_set(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
-    problem: models.Problem = Depends(parse_problem),
+    problem: models.Problem = Depends(parse_problem_without_validation),
 ) -> StandardResponse[schemas.ProblemDetail]:
     await problem_set.operate_problem(problem, Operation.Read)
     return StandardResponse(problem)
