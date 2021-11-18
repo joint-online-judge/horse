@@ -254,7 +254,7 @@ def parse_pagination_query(
 def parse_edit_schema(
     cls: Type[BT],
 ) -> Callable[..., Coroutine[Any, Any, BT]]:
-    async def wrapped(request: Request, edit: "cls") -> BT:  # type: ignore[valid-type]
+    async def wrapped(request: Request, edit: cls) -> BT:  # type: ignore[valid-type]
         data = await request.json()
         for field in cls.__fields__.values():
             if field.name not in data and field.alias not in data:
