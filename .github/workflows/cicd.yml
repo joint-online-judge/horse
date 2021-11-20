@@ -115,7 +115,7 @@ jobs:
           fail_ci_if_error: true
   swagger-codegen:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/master')
-    needs: build
+    needs: test
     runs-on: ubuntu-20.04
     env:
       JAR_VERSION: 3.0.26
@@ -173,7 +173,7 @@ jobs:
           target-branch: ${{ env.BRANCH_NAME }}
   remote-ssh-command:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/master')
-    needs: build
+    needs: test
     runs-on: ubuntu-20.04
     steps:
       - name: executing remote ssh commands using ssh key
