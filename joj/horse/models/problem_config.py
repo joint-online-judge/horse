@@ -15,6 +15,8 @@ from joj.horse.utils.lakefs import LakeFSProblemConfig
 
 
 class ProblemConfig(BaseORMModel):
+    __tablename__ = "problem_configs"
+
     # class Meta:
     #     table = "problem_configs"
     #

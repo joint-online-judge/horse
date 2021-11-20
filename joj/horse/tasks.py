@@ -11,7 +11,12 @@ def get_celery_app() -> Celery:
     celery_app = Celery(
         "tasks",
         backend="rpc://",
-        broker=f"redis://{settings.redis_host}:{settings.redis_port}/0",
+        broker="redis://:{}@{}:{}/{}".format(
+            settings.redis_password,
+            settings.redis_host,
+            settings.redis_port,
+            settings.redis_db_index,
+        ),
     )
     logger.info(celery_app.conf)
     celery_app.conf.update({"result_persistent": False})

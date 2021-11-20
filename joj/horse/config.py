@@ -63,6 +63,8 @@ class DatabaseSettings(BaseModel):
     # redis config
     redis_host: str = "localhost"
     redis_port: int = 6379
+    redis_password: str = ""
+    redis_db_index: int = 0
 
 
 class ObjectStorageSettings(BaseModel):
