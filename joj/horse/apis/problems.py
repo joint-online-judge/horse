@@ -1,17 +1,13 @@
-from datetime import datetime
-
+from celery import Celery
 from fastapi import BackgroundTasks, Depends, File, UploadFile
 from loguru import logger
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from joj.horse import models, schemas
-from joj.horse.apis import records
 from joj.horse.schemas import Empty, StandardListResponse, StandardResponse
 from joj.horse.schemas.permission import Permission
-from joj.horse.tasks import celery_app
 from joj.horse.utils.auth import Authentication, ensure_permission
 from joj.horse.utils.db import db_session_dependency
-from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.lakefs import LakeFSProblemConfig
 from joj.horse.utils.parser import (
     parse_domain_from_auth,
@@ -23,7 +19,7 @@ from joj.horse.utils.parser import (
     parse_view_hidden_problem,
 )
 from joj.horse.utils.router import MyRouter
-from joj.horse.utils.url import generate_url
+from joj.horse.utils.tasks import celery_app_dependency
 
 router = MyRouter()
 router_name = "domains/{domain}/problems"
@@ -170,41 +166,21 @@ async def clone_problem(
     dependencies=[Depends(ensure_permission(Permission.DomainProblem.submit))],
 )
 async def submit_solution_to_problem(
+    background_tasks: BackgroundTasks,
+    celery_app: Celery = Depends(celery_app_dependency),
     problem_submit: schemas.ProblemSolutionSubmit = Depends(
         schemas.ProblemSolutionSubmit.form_dependency
     ),
     problem: models.Problem = Depends(parse_problem),
-    domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.Record]:
-    if domain.id != problem.domain:
-        # TODO: test whether problem.domain is object id and add other error code
-        raise BizError(ErrorCode.ProblemNotFoundError)
-    try:
-        # gfs = AsyncIOMotorGridFSBucket(get_db())
-        #
-        file_id = None
-        record = schemas.Record(
-            domain=problem.domain,
-            problem=problem.id,
-            user=user.id,
-            code_type=problem_submit.code_type,
-            code=file_id,
-            judge_category=[],
-            submit_at=datetime.utcnow(),
-            cases=[schemas.RecordCase() for i in range(10)],  # TODO: modify later
-        )
-        record_model = schemas.Record(**record.to_model())
-        await record_model.commit()
-        problem.num_submit += 1
-        await problem.commit()
-        logger.info(f"problem submitted with record: {record_model.id}")
-    except Exception as e:
-        logger.exception(f"problem submission failed: {problem.id}")
-        raise e
-    record_schema = schemas.Record.from_orm(record_model)
-    http_url = generate_url(
-        records.router_prefix, records.router_name, record_schema.id
+    record = await models.Record.submit(
+        background_tasks=background_tasks,
+        celery_app=celery_app,
+        problem_submit=problem_submit,
+        problem_set=None,
+        problem=problem,
+        user=user,
     )
-    celery_app.send_task("joj.tiger.compile", args=[record_schema.dict(), http_url])
-    return StandardResponse(record_schema)
+    logger.info("create record: {}", record)
+    return StandardResponse(record)

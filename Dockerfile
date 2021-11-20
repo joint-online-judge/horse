@@ -7,7 +7,7 @@ WORKDIR /root
 # install apt dependencies
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
-    apt-get install -y --no-install-recommends git && \
+    apt-get install -y --no-install-recommends git rclone && \
     rm -rf /var/lib/apt/lists/*
 
 # install poetry

@@ -8,5 +8,6 @@ from joj.horse.models.problem import Problem as Problem
 from joj.horse.models.problem_config import ProblemConfig as ProblemConfig
 from joj.horse.models.problem_group import ProblemGroup as ProblemGroup
 from joj.horse.models.problem_set import ProblemSet as ProblemSet
+from joj.horse.models.record import Record as Record
 from joj.horse.models.user import User as User
 from joj.horse.models.user_oauth_account import UserOAuthAccount as UserOAuthAccount

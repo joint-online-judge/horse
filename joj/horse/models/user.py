@@ -11,7 +11,7 @@ from joj.horse.utils.db import db_session
 from joj.horse.utils.errors import BizError, ErrorCode
 
 if TYPE_CHECKING:
-    from joj.horse.models import Domain, DomainUser, Problem, ProblemSet
+    from joj.horse.models import Domain, DomainUser, Problem, ProblemSet, Record
     from joj.horse.utils.auth import JWTAccessToken
 
 
@@ -40,6 +40,7 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
     owned_problems: List["Problem"] = Relationship(back_populates="owner")
     owned_problem_sets: List["ProblemSet"] = Relationship(back_populates="owner")
     oauth_accounts: List["UserOAuthAccount"] = Relationship(back_populates="user")
+    records: List["Record"] = Relationship(back_populates="user")
 
     @root_validator(pre=True)
     def validate_lower_name(cls, values: Dict[str, Any]) -> Dict[str, Any]:

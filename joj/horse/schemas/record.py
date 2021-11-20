@@ -4,6 +4,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from joj.horse.schemas import BaseModel
+from joj.horse.schemas.base import BaseORMSchema, IDMixin, TimestampMixin
 from joj.horse.utils.base import StrEnumMixin
 
 # from pydantic.typing import AnyCallable
@@ -13,15 +14,22 @@ from joj.horse.utils.base import StrEnumMixin
 # from joj.horse.schemas.user import UserBase
 
 
-class RecordStatus(IntEnum):
+class RecordStatus(StrEnumMixin, Enum):
     # waiting
-    waiting = 0
+    processing = "processing"  # upload the submission to S3
+    queueing = "queueing"  # queue in celery
     # working
-    judging = 20
-    # compiling = 21
+    fetched = "fetched"  # fetched by a celery worker
+    compiling = "compiling"  # only for compiling languages
+    running = "running"
+    judging = "judging"
     # fetched = 22
     # ignored = 30
     # done
+    completed = "completed"
+
+
+class RecordCaseResult(IntEnum):
     accepted = 1
     wrong_answer = 2
     time_limit_exceeded = 3
@@ -40,27 +48,28 @@ class RecordCodeType(StrEnumMixin, Enum):
 
 
 class RecordCase(BaseModel):
-    class Config:
-        orm_mode = True
-
-    status: RecordStatus = RecordStatus.waiting
+    status: RecordCaseResult = RecordCaseResult.etc
     score: int = 0
     time_ms: int = 0
     memory_kb: int = 0
-    execute_status: int = 0
-    stdout: str = ""
-    stderr: str = ""
+    return_code: int = 0
 
 
-class Record(BaseModel):
-    status: RecordStatus = RecordStatus.waiting
+class Record(BaseORMSchema, IDMixin):
+    status: RecordStatus = RecordStatus.processing
     score: int = 0
     time_ms: int = 0
     memory_kb: int = 0
+
+    commit_id: Optional[str] = None
 
     problem_set_id: Optional[UUID] = None
     problem_id: Optional[UUID] = None
     user_id: Optional[UUID] = None
+
+
+class RecordDetail(TimestampMixin, Record):
+    pass
 
 
 # class Record(BaseODMSchema):
@@ -102,9 +111,9 @@ class ListRecords(BaseModel):
     results: List[Record]
 
 
-class RecordCaseResult(BaseModel):
-    index: int
-    result: RecordCase
+# class RecordCaseResult(BaseModel):
+#     index: int
+#     result: RecordCase
 
 
 class RecordResult(BaseModel):

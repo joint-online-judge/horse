@@ -14,7 +14,7 @@ from joj.horse.schemas.problem_set import ProblemSetDetail
 from joj.horse.utils.errors import BizError, ErrorCode
 
 if TYPE_CHECKING:
-    from joj.horse.models import Domain, Problem, User
+    from joj.horse.models import Domain, Problem, Record, User
 
 
 class ProblemSet(DomainURLORMModel, ProblemSetDetail, table=True):  # type: ignore[call-arg]
@@ -63,6 +63,7 @@ class ProblemSet(DomainURLORMModel, ProblemSetDetail, table=True):  # type: igno
             "order_by": "ProblemProblemSetLink.position",
         },
     )
+    records: List["Record"] = Relationship(back_populates="problem_set")
 
     async def operate_problem(
         self, problem: "Problem", operation: Operation, position: Optional[int] = None

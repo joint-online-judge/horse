@@ -4,6 +4,7 @@ from uuid import UUID
 from joj.elephant.errors import ElephantError
 from joj.elephant.manager import Manager
 from lakefs_client.models import Commit
+from starlette.concurrency import run_in_threadpool
 from uvicorn.config import logger
 
 from joj.horse.models.base import BaseORMModel
@@ -11,7 +12,6 @@ from joj.horse.models.problem import Problem
 from joj.horse.models.user import User
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.lakefs import LakeFSProblemConfig
-from joj.horse.utils.tasks import run_task_in_executor
 
 
 class ProblemConfig(BaseORMModel):
@@ -49,7 +49,7 @@ class ProblemConfig(BaseORMModel):
             return problem_config.commit(message)
 
         try:
-            commit_result = await run_task_in_executor(sync_func)
+            commit_result = await run_in_threadpool(sync_func)
             result = await cls.create(
                 problem=problem,
                 commiter=commiter,

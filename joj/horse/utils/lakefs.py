@@ -1,12 +1,15 @@
+from functools import lru_cache
 from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryFile
-from typing import TYPE_CHECKING, Any, BinaryIO, Dict, Optional, Tuple
+from typing import IO, TYPE_CHECKING, Any, BinaryIO, Dict, Optional, Tuple
 
 import boto3
 import rapidjson
+from greenletio import async_
 from joj.elephant.errors import ElephantError
 from joj.elephant.manager import Manager
+from joj.elephant.rclone import RClone
 from joj.elephant.schemas import ArchiveType, FileInfo
 from joj.elephant.storage import ArchiveStorage, LakeFSStorage, Storage
 from lakefs_client import Configuration, __version__ as lakefs_client_version, models
@@ -19,29 +22,34 @@ from tenacity.wait import wait_exponential
 
 from joj.horse.config import settings
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.monkey_patch import (
-    SpooledTemporaryFile,
-    SpooledTemporaryFileIOBase,
-)
 
 if TYPE_CHECKING:
     from joj.horse.models import Problem, Record
     from joj.horse.schemas.lakefs import LakeFSReset
 
 
-__client: Optional[LakeFSClient] = None
-
-
+@lru_cache
 def get_lakefs_client() -> LakeFSClient:
-    global __client
-    if __client is None:
-        configuration = Configuration(
-            host=f"{settings.lakefs_host}:{settings.lakefs_port}",
-            username=settings.lakefs_username,
-            password=settings.lakefs_password,
-        )
-        __client = LakeFSClient(configuration)
-    return __client
+    configuration = Configuration(
+        host=f"{settings.lakefs_host}:{settings.lakefs_port}",
+        username=settings.lakefs_username,
+        password=settings.lakefs_password,
+    )
+    return LakeFSClient(configuration)
+
+
+@lru_cache
+def get_rclone() -> RClone:
+    rclone_config = f"""
+[lakefs]
+type = s3
+provider = Other
+env_auth = false
+access_key_id = {settings.lakefs_username}
+secret_access_key = {settings.lakefs_password}
+endpoint = http://{settings.lakefs_s3_domain}:{settings.lakefs_port}
+    """
+    return RClone(rclone_config)
 
 
 def init_lakefs() -> None:
@@ -138,14 +146,13 @@ def get_problem_submission_repo_name(problem: "Problem") -> str:
 class LakeFSBase:
     def __init__(
         self,
-        client: LakeFSClient,
         bucket: str,
         repo_id: str,
         branch_id: str,
         repo_name_prefix: str = "",
         branch_name_prefix: str = "",
+        archive_name: str = "archive",
     ):
-        self.client: LakeFSClient = client
         self.bucket: str = bucket
         self.repo_id: str = repo_id
         self.branch_id: str = branch_id
@@ -153,9 +160,20 @@ class LakeFSBase:
         self.branch_name_prefix: str = branch_name_prefix
         self.repo_name: str = f"{self.repo_name_prefix}{self.repo_id}"
         self.branch_name: str = f"{self.branch_name_prefix}{self.branch_id}"
+        self.archive_name: str = archive_name
         self.repo: Optional[models.Repository] = None
         self.branch: Optional[models.Ref] = None
         self._storage: Optional[LakeFSStorage] = None
+
+    @staticmethod
+    def _get_lakefs_exception_message(e: LakeFSApiException) -> str:
+        if e.body is None:
+            return ""
+        try:
+            data = rapidjson.loads(e.body)
+            return data["message"]
+        except Exception:
+            return ""
 
     def _get_storage(self, ref: Optional[str] = None) -> "Storage":
         if ref is None:
@@ -166,6 +184,7 @@ class LakeFSBase:
             branch_name=ref,
             username=settings.lakefs_username,
             password=settings.lakefs_password,
+            host_in_config="lakefs",
         )
 
     @property
@@ -181,10 +200,9 @@ class LakeFSBase:
     def ensure_repo(self) -> None:
         if self.repo is not None:
             return
+        client = get_lakefs_client()
         try:
-            self.repo = self.client.repositories.get_repository(
-                repository=self.repo_name
-            )
+            self.repo = client.repositories.get_repository(repository=self.repo_name)
             logger.info(f"LakeFS get repo: {self.repo}")
         except LakeFSApiException:
             namespace = f"{self.bucket}/{self.repo_id}"
@@ -193,15 +211,16 @@ class LakeFSBase:
                 name=self.repo_name,
                 default_branch=self.branch_name,
             )
-            self.repo = self.client.repositories.create_repository(new_repo)
+            self.repo = client.repositories.create_repository(new_repo)
             logger.info(f"LakeFS create repo: {self.repo}")
 
     def ensure_branch(self, source_branch_id: Optional[str] = None) -> None:
         self.ensure_repo()
         if self.branch is not None:
             return
+        client = get_lakefs_client()
         try:
-            self.branch = self.client.branches.get_branch(
+            self.branch = client.branches.get_branch(
                 repository=self.repo_name, branch=self.branch_name
             )
             logger.info(f"LakeFS get branch: {self.branch}")
@@ -214,7 +233,7 @@ class LakeFSBase:
             new_branch = models.BranchCreation(
                 name=self.branch_name, source=source_branch_name
             )
-            self.branch = self.client.branches.create_branch(
+            self.branch = client.branches.create_branch(
                 repository=self.repo_name, branch_creation=new_branch
             )
             logger.info(f"LakeFS create branch: {self.branch}")
@@ -263,22 +282,21 @@ class LakeFSBase:
         except ElephantError as e:
             raise BizError(ErrorCode.ProblemConfigUpdateError, str(e))
 
-    def upload_archive(self, filename: str, file: SpooledTemporaryFile) -> None:
+    def upload_archive(self, filename: str, file: IO[bytes]) -> None:
         try:
-            fd = SpooledTemporaryFileIOBase(file)
-            archive = ArchiveStorage(filename=filename, fd=fd)
-            manager = Manager(logger, archive, self.storage)
+            archive = ArchiveStorage(filename=filename, fp=file)
+            archive.extract_all()
+            manager = Manager(get_rclone(), archive, self.storage)
+            logger.info(archive.path)
             manager.sync_without_validation()
+
         except ElephantError as e:
             raise BizError(ErrorCode.ProblemConfigUpdateError, str(e))
 
-    def download_archive(
-        self, archive_type: ArchiveType
-    ) -> Tuple[SpooledTemporaryFile, str]:
+    def download_archive(self, archive_type: ArchiveType) -> Tuple[IO[bytes], str]:
         try:
             file = TemporaryFile()
-            filename = "config"
-            # filename = self.problem.title or "config"
+            filename = self.archive_name
             if archive_type == ArchiveType.zip:
                 filename += ".zip"
             elif archive_type == ArchiveType.tar:
@@ -318,7 +336,13 @@ class LakeFSBase:
             )
             return result
         except LakeFSApiException as e:
-            raise BizError(ErrorCode.ProblemConfigUpdateError, str(e))
+            raise BizError(
+                ErrorCode.ProblemConfigUpdateError,
+                self._get_lakefs_exception_message(e),
+            )
+
+    async def commit_async(self, message: str) -> models.Commit:
+        return await async_(self.commit)(message)
 
     def reset(self, lakefs_reset: "LakeFSReset") -> None:
         try:
@@ -333,18 +357,21 @@ class LakeFSBase:
                 reset_creation=reset_creation,
             )
         except LakeFSApiException as e:
-            raise BizError(ErrorCode.ProblemConfigUpdateError, str(e))
+            raise BizError(
+                ErrorCode.ProblemConfigUpdateError,
+                self._get_lakefs_exception_message(e),
+            )
 
 
 class LakeFSProblemConfig(LakeFSBase):
-    def __init__(self, client: LakeFSClient, problem: "Problem"):
+    def __init__(self, problem: "Problem"):
         super().__init__(
-            client=client,
             bucket=settings.bucket_config,
             repo_id=str(problem.problem_group_id),
             branch_id=str(problem.id),
             repo_name_prefix="joj-config-",
             branch_name_prefix="problem-",
+            archive_name=problem.title or "config",
         )
         self.problem = problem
 
@@ -357,14 +384,14 @@ class LakeFSProblemConfig(LakeFSBase):
 
 
 class LakeFSRecord(LakeFSBase):
-    def __init__(self, client: LakeFSClient, problem: "Problem", record: "Record"):
+    def __init__(self, problem: "Problem", record: "Record"):
         super().__init__(
-            client=client,
             bucket=settings.bucket_submission,
-            repo_id=str(problem.id),
+            repo_id=str(record.problem_id),
             branch_id=str(record.user_id),
             repo_name_prefix="joj-submission-",
             branch_name_prefix="user-",
+            archive_name="code",
         )
         self.problem = problem
         self.record = record

@@ -103,6 +103,7 @@ async def business_exception_handler(request: Request, exc: BizError) -> JSONRes
     return business_exception_response(exc)
 
 
+@app.exception_handler(Exception)
 async def catch_exceptions_middleware(request: Request, call_next: Any) -> JSONResponse:
     try:
         return await call_next(request)
@@ -136,7 +137,6 @@ if settings.rollbar_access_token and not settings.dsn:  # pragma: no cover
     )
     app.add_middleware(RollbarMiddleware)
     logger.info("rollbar activated")
-app.middleware("http")(catch_exceptions_middleware)
 
 
 import joj.horse.apis  # noqa: F401

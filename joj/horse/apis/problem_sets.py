@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 from typing import List
 
-from fastapi import Depends
+from celery import Celery
+from fastapi import BackgroundTasks, Depends
 from loguru import logger
 
 from joj.horse import models, schemas
@@ -22,6 +23,7 @@ from joj.horse.utils.parser import (
     parse_view_hidden_problem_set,
 )
 from joj.horse.utils.router import MyRouter
+from joj.horse.utils.tasks import celery_app_dependency
 
 router = MyRouter()
 router_name = "domains/{domain}/problem_sets"
@@ -167,18 +169,26 @@ async def delete_problem_in_problem_set(
     "/{problemSet}/problem/{problem}/submit",
     dependencies=[Depends(ensure_permission(Permission.DomainProblem.submit))],
 )
-def submit_solution_to_problem_set(
+async def submit_solution_to_problem_set(
+    background_tasks: BackgroundTasks,
+    celery_app: Celery = Depends(celery_app_dependency),
     problem_submit: schemas.ProblemSolutionSubmit = Depends(
         schemas.ProblemSolutionSubmit.form_dependency
     ),
     problem_set: models.ProblemSet = Depends(parse_problem_set),
     problem: models.Problem = Depends(parse_problem_without_validation),
-    domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.Record]:
-
-    logger.info(problem_submit)
-    return StandardResponse()
+    record = await models.Record.submit(
+        background_tasks=background_tasks,
+        celery_app=celery_app,
+        problem_submit=problem_submit,
+        problem_set=problem_set,
+        problem=problem,
+        user=user,
+    )
+    logger.info("create record: {}", record)
+    return StandardResponse(record)
 
 
 @router.get("/{problemSet}/scoreboard", deprecated=True)
