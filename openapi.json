@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 900ad22@2021-11-18T19:13:08Z",
+    "description": "Git version: cd9daeb@2021-11-20T15:28:43Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -2437,6 +2437,97 @@
         ]
       }
     },
+    "/api/v1/domains/{domain}/problem_sets/{problemSet}/problem/{problem}/submit": {
+      "post": {
+        "tags": [
+          "problem set"
+        ],
+        "summary": "Submit Solution To Problem Set",
+        "operationId": "submit_solution_to_problem_set_api_v1_domains__domain__problem_sets__problemSet__problem__problem__submit_post",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem set",
+            "required": true,
+            "schema": {
+              "title": "Problemset",
+              "type": "string",
+              "description": "url or id of the problem set"
+            },
+            "name": "problemSet",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ProblemSolutionSubmit"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/domains/{domain}/problem_sets/{problemSet}/scoreboard": {
       "get": {
         "tags": [
@@ -3080,364 +3171,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemListResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/records": {
-      "get": {
-        "tags": [
-          "record"
-        ],
-        "summary": "List Records",
-        "operationId": "list_records_api_v1_records_get",
-        "parameters": [
-          {
-            "required": false,
-            "schema": {
-              "title": "Domain",
-              "type": "string"
-            },
-            "name": "domain",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Problemset",
-              "type": "string"
-            },
-            "name": "problemSet",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Problem",
-              "type": "string"
-            },
-            "name": "problem",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Offset",
-              "minimum": 0.0,
-              "type": "integer",
-              "default": 0
-            },
-            "name": "offset",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Limit",
-              "maximum": 500.0,
-              "exclusiveMinimum": 0.0,
-              "type": "integer",
-              "default": 100
-            },
-            "name": "limit",
-            "in": "query"
-          },
-          {
-            "description": "user id or 'me' or empty",
-            "required": false,
-            "schema": {
-              "title": "Uid",
-              "type": "string",
-              "description": "user id or 'me' or empty",
-              "default": ""
-            },
-            "name": "uid",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RecordListResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/records/{record}": {
-      "get": {
-        "tags": [
-          "record"
-        ],
-        "summary": "Get Record",
-        "operationId": "get_record_api_v1_records__record__get",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "Record",
-              "type": "string"
-            },
-            "name": "record",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RecordResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/records/{record}/code": {
-      "get": {
-        "tags": [
-          "record"
-        ],
-        "summary": "Get Record Code",
-        "operationId": "get_record_code_api_v1_records__record__code_get",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "Record",
-              "type": "string"
-            },
-            "name": "record",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Response Get Record Code Api V1 Records  Record  Code Get"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/records/{record}/http": {
-      "post": {
-        "tags": [
-          "record"
-        ],
-        "summary": "Http Record",
-        "operationId": "http_record_api_v1_records__record__http_post",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "Record",
-              "type": "string"
-            },
-            "name": "record",
-            "in": "path"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RecordResult"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmptyResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/records/{record}/cases/http": {
-      "post": {
-        "tags": [
-          "record"
-        ],
-        "summary": "Http Record Cases",
-        "operationId": "http_record_cases_api_v1_records__record__cases_http_post",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "Record",
-              "type": "string"
-            },
-            "name": "record",
-            "in": "path"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RecordCaseResult"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmptyResp"
                 }
               }
             }
@@ -5906,6 +5639,10 @@
           "ProblemNotFoundError",
           "ProblemSetNotFoundError",
           "ProblemGroupNotFoundError",
+          "ProblemConfigNotFoundError",
+          "ProblemConfigValidationError",
+          "ProblemConfigUpdateError",
+          "ProblemConfigDownloadError",
           "RecordNotFoundError",
           "DeleteProblemBadRequestError",
           "UserAlreadyInDomainBadRequestError",
@@ -5920,7 +5657,8 @@
           "DomainRoleNotUniqueError",
           "DomainRoleReadOnlyError",
           "DomainRoleUsedError",
-          "DomainUserNotFoundError"
+          "DomainUserNotFoundError",
+          "FileSystemError"
         ],
         "type": "string",
         "description": "An enumeration."
@@ -7047,8 +6785,7 @@
       "ProblemSolutionSubmit": {
         "title": "ProblemSolutionSubmit",
         "required": [
-          "codeType",
-          "file"
+          "codeType"
         ],
         "type": "object",
         "properties": {
@@ -7064,20 +6801,23 @@
       },
       "Record": {
         "title": "Record",
-        "type": "object",
-        "properties": {}
-      },
-      "RecordCase": {
-        "title": "RecordCase",
+        "required": [
+          "id"
+        ],
         "type": "object",
         "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
           "status": {
             "allOf": [
               {
                 "$ref": "#/components/schemas/RecordStatus"
               }
             ],
-            "default": 0
+            "default": "processing"
           },
           "score": {
             "title": "Score",
@@ -7094,88 +6834,35 @@
             "type": "integer",
             "default": 0
           },
-          "executeStatus": {
-            "title": "Executestatus",
-            "type": "integer",
-            "default": 0
+          "commitId": {
+            "title": "Commitid",
+            "type": "string"
           },
-          "stdout": {
-            "title": "Stdout",
+          "problemSetId": {
+            "title": "Problemsetid",
             "type": "string",
-            "default": ""
+            "format": "uuid"
           },
-          "stderr": {
-            "title": "Stderr",
+          "problemId": {
+            "title": "Problemid",
             "type": "string",
-            "default": ""
-          }
-        }
-      },
-      "RecordCaseResult": {
-        "title": "RecordCaseResult",
-        "required": [
-          "index",
-          "result"
-        ],
-        "type": "object",
-        "properties": {
-          "index": {
-            "title": "Index",
-            "type": "integer"
+            "format": "uuid"
           },
-          "result": {
-            "$ref": "#/components/schemas/RecordCase"
+          "userId": {
+            "title": "Userid",
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
       "RecordCodeType": {
         "title": "RecordCodeType",
         "enum": [
-          0,
-          1,
-          2,
-          3
+          "text",
+          "archive"
         ],
-        "type": "integer",
+        "type": "string",
         "description": "An enumeration."
-      },
-      "RecordList": {
-        "title": "RecordList",
-        "type": "object",
-        "properties": {
-          "count": {
-            "title": "Count",
-            "type": "integer",
-            "default": 0
-          },
-          "results": {
-            "title": "Results",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Record"
-            },
-            "default": []
-          }
-        }
-      },
-      "RecordListResp": {
-        "title": "RecordListResp",
-        "required": [
-          "errorCode"
-        ],
-        "type": "object",
-        "properties": {
-          "errorCode": {
-            "$ref": "#/components/schemas/ErrorCode"
-          },
-          "errorMsg": {
-            "title": "Errormsg",
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/RecordList"
-          }
-        }
       },
       "RecordPermission": {
         "title": "RecordPermission",
@@ -7227,56 +6914,20 @@
           }
         }
       },
-      "RecordResult": {
-        "title": "RecordResult",
-        "required": [
-          "status",
-          "score",
-          "timeMs",
-          "memoryKb",
-          "judgeAt"
-        ],
-        "type": "object",
-        "properties": {
-          "status": {
-            "$ref": "#/components/schemas/RecordStatus"
-          },
-          "score": {
-            "title": "Score",
-            "type": "integer"
-          },
-          "timeMs": {
-            "title": "Timems",
-            "type": "integer"
-          },
-          "memoryKb": {
-            "title": "Memorykb",
-            "type": "integer"
-          },
-          "judgeAt": {
-            "title": "Judgeat",
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
       "RecordStatus": {
         "title": "RecordStatus",
         "enum": [
-          0,
-          20,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9,
-          10
+          "processing",
+          "queueing",
+          "fetched",
+          "compiling",
+          "running",
+          "judging",
+          "accepted",
+          "rejected",
+          "failed"
         ],
-        "type": "integer",
+        "type": "string",
         "description": "An enumeration."
       },
       "Score": {
