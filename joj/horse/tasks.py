@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 from celery import Celery
+from loguru import logger
 
 from joj.horse.config import settings
 
@@ -12,7 +13,9 @@ def get_celery_app() -> Celery:
         backend="rpc://",
         broker=f"redis://{settings.redis_host}:{settings.redis_port}/0",
     )
+    logger.info(celery_app.conf)
     celery_app.conf.update({"result_persistent": False})
+
     return celery_app
 
 

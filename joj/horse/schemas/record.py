@@ -26,7 +26,9 @@ class RecordStatus(StrEnumMixin, Enum):
     # fetched = 22
     # ignored = 30
     # done
-    completed = "completed"
+    accepted = "accepted"
+    rejected = "rejected"
+    failed = "failed"
 
 
 class RecordCaseResult(IntEnum):

@@ -101,9 +101,15 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
             self.status = RecordStatus.queueing
             self.commit_id = commit.id
 
-        await run_in_threadpool(sync_func)
-        await self.save_model()
-        await self.create_task(celery_app)
+        try:
+            await run_in_threadpool(sync_func)
+            await self.save_model()
+            await self.create_task(celery_app)
+        except Exception as e:
+            logger.error("upload record failed: {}", self)
+            logger.exception(e)
+            self.status = RecordStatus.failed
+            await self.save_model()
 
     async def create_task(self, celery_app: Celery) -> None:
         # TODO: create a task in celery with this record
