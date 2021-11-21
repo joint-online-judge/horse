@@ -67,6 +67,7 @@ class Record(BaseORMSchema, IDMixin):
 
     problem_set_id: Optional[UUID] = None
     problem_id: Optional[UUID] = None
+    problem_config_id: Optional[UUID] = None
     user_id: Optional[UUID] = None
 
 

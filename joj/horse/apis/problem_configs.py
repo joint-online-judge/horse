@@ -12,6 +12,7 @@ from joj.horse import models, schemas
 from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.permission import Permission
 from joj.horse.utils.auth import ensure_permission
+from joj.horse.utils.base import TemporaryDirectory, iter_file
 from joj.horse.utils.lakefs import LakeFSProblemConfig
 from joj.horse.utils.parser import (
     parse_file_path,
@@ -59,14 +60,11 @@ def update_problem_config_by_archive(
     dependencies=[read_dependency],
 )
 def download_uncommitted_problem_config_as_archive(
+    temp_dir: Path = Depends(TemporaryDirectory()),
     archive_type: ArchiveType = Query(ArchiveType.zip),
     problem: models.Problem = Depends(parse_problem),
 ) -> Any:
-    problem_config = LakeFSProblemConfig(problem)
-    file, filename = problem_config.download_archive(archive_type)
-    response = StreamingResponse(file)
-    response.content_disposition = f'attachment; filename="{filename}"'
-    return response
+    return download_problem_config_archive(temp_dir, archive_type, problem, None)
 
 
 @router.get(
@@ -199,11 +197,23 @@ async def get_problem_config_json(
     "/configs/{config}/files",
     dependencies=[write_dependency],
 )
-async def download_problem_config_archive(
-    config: models.ProblemConfig = Depends(parse_problem_config),
-) -> StandardResponse[Empty]:
+def download_problem_config_archive(
+    temp_dir: Path = Depends(TemporaryDirectory()),
+    archive_type: ArchiveType = Query(ArchiveType.zip),
+    problem: models.Problem = Depends(parse_problem),
+    config: Optional[models.ProblemConfig] = Depends(parse_problem_config),
+) -> Any:
     # use lakefs to sync and zip files
-    return StandardResponse()
+    if config is not None:
+        ref = config.commit_id
+    else:
+        ref = None
+    problem_config = LakeFSProblemConfig(problem)
+    file_path = problem_config.download_archive(temp_dir, archive_type, ref)
+    # TODO: cache the archive
+    response = StreamingResponse(iter_file(file_path))
+    response.content_disposition = f'attachment; filename="{file_path.name}"'
+    return response
 
 
 @router.get(
@@ -218,7 +228,7 @@ def download_file_in_problem_config(
 ) -> Any:
     problem_config = LakeFSProblemConfig(problem)
     if config is not None:
-        ref = config.ref
+        ref = config.commit_id
     else:
         ref = None
     file = problem_config.download_file(Path(path), ref)

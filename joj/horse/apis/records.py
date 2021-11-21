@@ -18,13 +18,13 @@ from joj.horse.utils.parser import (
 from joj.horse.utils.router import MyRouter
 
 router = MyRouter()
-router_name = "records"
+router_name = "domains/{domain}"
 router_tag = "record"
 router_prefix = "/api/v1"
 
 
-@router.get("")
-async def list_records(
+@router.get("/records")
+async def list_records_in_domain(
     domain: Optional[str] = Query(None),
     problem_set: Optional[str] = Query(None),
     problem: Optional[str] = Query(None),

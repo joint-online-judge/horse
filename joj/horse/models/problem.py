@@ -11,7 +11,14 @@ from joj.horse.models.link_tables import ProblemProblemSetLink
 from joj.horse.schemas.problem import ProblemDetail
 
 if TYPE_CHECKING:
-    from joj.horse.models import Domain, ProblemGroup, ProblemSet, Record, User
+    from joj.horse.models import (
+        Domain,
+        ProblemConfig,
+        ProblemGroup,
+        ProblemSet,
+        Record,
+        User,
+    )
 
 
 class Problem(DomainURLORMModel, ProblemDetail, table=True):  # type: ignore[call-arg]
@@ -48,6 +55,7 @@ class Problem(DomainURLORMModel, ProblemDetail, table=True):  # type: ignore[cal
     )
 
     records: List["Record"] = Relationship(back_populates="problem")
+    problem_configs: List["ProblemConfig"] = Relationship(back_populates="problem")
 
 
 event.listen(Problem, "before_insert", url_pre_save)

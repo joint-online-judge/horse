@@ -1,8 +1,8 @@
 from functools import lru_cache
 from io import BytesIO
 from pathlib import Path
-from tempfile import TemporaryFile
-from typing import IO, TYPE_CHECKING, Any, BinaryIO, Dict, Optional, Tuple
+from tempfile import NamedTemporaryFile
+from typing import IO, TYPE_CHECKING, Any, BinaryIO, Dict, Optional
 
 import boto3
 import rapidjson
@@ -16,6 +16,7 @@ from lakefs_client import Configuration, __version__ as lakefs_client_version, m
 from lakefs_client.client import LakeFSClient
 from lakefs_client.exceptions import ApiException as LakeFSApiException
 from loguru import logger
+from patoolib.util import PatoolError
 from tenacity import retry
 from tenacity.stop import stop_after_attempt
 from tenacity.wait import wait_exponential
@@ -146,6 +147,7 @@ def get_problem_submission_repo_name(problem: "Problem") -> str:
 class LakeFSBase:
     def __init__(
         self,
+        *,
         bucket: str,
         repo_id: str,
         branch_id: str,
@@ -283,19 +285,33 @@ class LakeFSBase:
             raise BizError(ErrorCode.ProblemConfigUpdateError, str(e))
 
     def upload_archive(self, filename: str, file: IO[bytes]) -> None:
+        self.ensure_branch()
+
         try:
-            archive = ArchiveStorage(filename=filename, fp=file)
+            temp_file = NamedTemporaryFile(mode="wb", delete=True, suffix=filename)
+            temp_file.write(file.read())
+            temp_file.flush()
+            logger.info("write archive into {}", temp_file.name)
+            archive = ArchiveStorage(file_path=temp_file.name)
             archive.extract_all()
             manager = Manager(get_rclone(), archive, self.storage)
             logger.info(archive.path)
             manager.sync_without_validation()
+            temp_file.close()
 
         except ElephantError as e:
             raise BizError(ErrorCode.ProblemConfigUpdateError, str(e))
 
-    def download_archive(self, archive_type: ArchiveType) -> Tuple[IO[bytes], str]:
+    def download_archive(
+        self, temp_dir: Path, archive_type: ArchiveType, ref: Optional[str] = None
+    ) -> Path:
+        self.ensure_branch()
+        if ref is None:
+            storage = self.storage
+        else:
+            storage = self._get_storage(ref)
+
         try:
-            file = TemporaryFile()
             filename = self.archive_name
             if archive_type == ArchiveType.zip:
                 filename += ".zip"
@@ -306,14 +322,22 @@ class LakeFSBase:
                     ErrorCode.ProblemConfigDownloadError,
                     "archive type not supported!",
                 )
-            archive = ArchiveStorage(filename=filename, fd=file, write=True)
-            manager = Manager(logger, self.storage, archive)
+
+            temp_file_path = temp_dir / filename
+
+            archive = ArchiveStorage(file_path=str(temp_file_path))
+            manager = Manager(get_rclone(), storage, archive)
             manager.sync_without_validation()
-            archive.close()
-            file.seek(0)
-            return file, filename
-        except ElephantError as e:
+
+            for file in Path(archive.path).iterdir():
+                logger.info(file)
+            archive.compress_all()
+            return temp_file_path
+
+        except (ElephantError, PatoolError) as e:
             raise BizError(ErrorCode.ProblemConfigDownloadError, str(e))
+        except Exception as e:
+            raise e
 
     def get_config(self, ref: str) -> Dict[str, Any]:
         try:
@@ -371,7 +395,7 @@ class LakeFSProblemConfig(LakeFSBase):
             branch_id=str(problem.id),
             repo_name_prefix="joj-config-",
             branch_name_prefix="problem-",
-            archive_name=problem.title or "config",
+            archive_name=f"problem-config-{problem.title}",
         )
         self.problem = problem
 

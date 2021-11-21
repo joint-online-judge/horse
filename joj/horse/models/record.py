@@ -16,7 +16,7 @@ from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.lakefs import LakeFSRecord
 
 if TYPE_CHECKING:
-    from joj.horse.models import Problem, ProblemSet, User
+    from joj.horse.models import Problem, ProblemConfig, ProblemSet, User
 
 
 class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
@@ -36,6 +36,13 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
         )
     )
     problem: Optional["Problem"] = Relationship(back_populates="records")
+
+    problem_config_id: Optional[UUID] = Field(
+        sa_column=Column(
+            GUID, ForeignKey("problem_configs.id", ondelete="SET NULL"), nullable=True
+        )
+    )
+    problem_config: Optional["ProblemConfig"] = Relationship(back_populates="records")
 
     user_id: Optional[UUID] = Field(
         sa_column=Column(

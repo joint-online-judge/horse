@@ -28,9 +28,6 @@ class ProblemEdit(BaseModel, metaclass=EditMetaclass):
     title: Optional[NoneEmptyStr]
     content: Optional[LongText]
     hidden: Optional[bool]
-    # data: Optional[int]
-    # data_version: Optional[DataVersion]
-    # languages: Optional[List[LongStr]]
 
 
 class ProblemBase(URLORMSchema):
@@ -53,12 +50,6 @@ class ProblemBase(URLORMSchema):
         sa_column_kwargs={"server_default": "false"},
         description="is the problem hidden",
     )
-    # this field can be induced from the config file
-    # data_version: DataVersion = Field(DataVersion.v2)
-    # languages: List[LongStr] = Field(
-    #     [], description="acceptable language of the problem"
-    # )
-    # problem_set: LongStr = Field(..., description="problem set it belongs to")
 
 
 class ProblemCreate(URLCreateMixin, ProblemBase):
@@ -81,12 +72,6 @@ class Problem(ProblemBase, DomainMixin, IDMixin):
     )
     num_accept: int = Field(
         0, index=False, nullable=False, sa_column_kwargs={"server_default": "0"}
-    )
-    data_version: int = Field(
-        2, index=False, nullable=False, sa_column_kwargs={"server_default": "2"}
-    )
-    languages: str = Field(
-        "[]", index=False, nullable=False, sa_column_kwargs={"server_default": "[]"}
     )
 
     owner_id: Optional[UUID] = None

@@ -34,7 +34,7 @@ def include_router(module: Any) -> None:
 include_router(domains)
 include_router(problem_sets)
 include_router(problems)
-# include_router(problem_configs)
+include_router(problem_configs)
 include_router(problem_groups)
 # include_router(records)
 include_router(user)

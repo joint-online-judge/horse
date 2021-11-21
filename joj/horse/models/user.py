@@ -11,7 +11,14 @@ from joj.horse.utils.db import db_session
 from joj.horse.utils.errors import BizError, ErrorCode
 
 if TYPE_CHECKING:
-    from joj.horse.models import Domain, DomainUser, Problem, ProblemSet, Record
+    from joj.horse.models import (
+        Domain,
+        DomainUser,
+        Problem,
+        ProblemConfig,
+        ProblemSet,
+        Record,
+    )
     from joj.horse.utils.auth import JWTAccessToken
 
 
@@ -35,11 +42,12 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
         sa_column_kwargs={"unique": True},
     )
 
+    oauth_accounts: List["UserOAuthAccount"] = Relationship(back_populates="user")
     owned_domains: List["Domain"] = Relationship(back_populates="owner")
     domain_users: List["DomainUser"] = Relationship(back_populates="user")
     owned_problems: List["Problem"] = Relationship(back_populates="owner")
     owned_problem_sets: List["ProblemSet"] = Relationship(back_populates="owner")
-    oauth_accounts: List["UserOAuthAccount"] = Relationship(back_populates="user")
+    problem_configs: List["ProblemConfig"] = Relationship(back_populates="author")
     records: List["Record"] = Relationship(back_populates="user")
 
     @root_validator(pre=True)
