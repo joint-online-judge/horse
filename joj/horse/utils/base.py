@@ -24,11 +24,11 @@ class TemporaryDirectory:
         self,
         suffix: Optional[str] = None,
         prefix: Optional[str] = None,
-        dir: Optional[str] = None,
+        base_dir: Optional[str] = None,
     ) -> None:
         self.suffix = suffix
         self.prefix = prefix
-        self.dir = dir
+        self.dir = base_dir
 
     def __call__(self) -> Generator[Path, None, None]:
         path = mkdtemp(suffix=self.suffix, prefix=self.prefix, dir=self.dir)
