@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: ae9905f@2021-11-20T17:34:51Z",
+    "description": "Git version: 1da07bd@2021-11-21T14:28:15Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -3055,6 +3055,159 @@
       }
     },
     "/api/v1/domains/{domain}/problems/{problem}/config": {
+      "get": {
+        "tags": [
+          "problem config"
+        ],
+        "summary": "Download Uncommitted Problem Config As Archive",
+        "operationId": "download_uncommitted_problem_config_as_archive_api_v1_domains__domain__problems__problem__config_get",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          },
+          {
+            "required": false,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/ArchiveType"
+                }
+              ],
+              "default": "zip"
+            },
+            "name": "archiveType",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "problem config"
+        ],
+        "summary": "Update Problem Config By Archive",
+        "description": "Completely replace the problem config with the archive. This will delete files not included in the archive.",
+        "operationId": "update_problem_config_by_archive_api_v1_domains__domain__problems__problem__config_put",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_update_problem_config_by_archive_api_v1_domains__domain__problems__problem__config_put"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmptyResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
       "patch": {
         "tags": [
           "problem"
@@ -3174,6 +3327,913 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/problems/{problem}/config/files/{path}": {
+      "get": {
+        "tags": [
+          "problem config"
+        ],
+        "summary": "Download File In Uncommitted Problem Config",
+        "operationId": "download_file_in_uncommitted_problem_config_api_v1_domains__domain__problems__problem__config_files__path__get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Path",
+              "type": "string"
+            },
+            "name": "path",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "problem config"
+        ],
+        "summary": "Upload File To Problem Config",
+        "description": "Replace the file with the same path. Create directories if needed along the path.",
+        "operationId": "upload_file_to_problem_config_api_v1_domains__domain__problems__problem__config_files__path__put",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Path",
+              "type": "string"
+            },
+            "name": "path",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_file_to_problem_config_api_v1_domains__domain__problems__problem__config_files__path__put"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileInfoResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "problem config"
+        ],
+        "summary": "Delete File From Uncommitted Problem Config",
+        "operationId": "delete_file_from_uncommitted_problem_config_api_v1_domains__domain__problems__problem__config_files__path__delete",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Path",
+              "type": "string"
+            },
+            "name": "path",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileInfoResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/problems/{problem}/config/file_info/{path}": {
+      "get": {
+        "tags": [
+          "problem config"
+        ],
+        "summary": "Get File Or Directory Info In Uncommitted Problem Config",
+        "operationId": "get_file_or_directory_info_in_uncommitted_problem_config_api_v1_domains__domain__problems__problem__config_file_info__path__get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Path",
+              "type": "string"
+            },
+            "name": "path",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileInfoResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/problems/{problem}/config/files": {
+      "put": {
+        "tags": [
+          "problem config"
+        ],
+        "summary": "Upload File To Root In Problem Config",
+        "description": "Use the filename as path, file will be uploaded to root of the problem config directory.",
+        "operationId": "upload_file_to_root_in_problem_config_api_v1_domains__domain__problems__problem__config_files_put",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_file_to_root_in_problem_config_api_v1_domains__domain__problems__problem__config_files_put"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileInfoResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/problems/{problem}/config/dirs/{path}": {
+      "delete": {
+        "tags": [
+          "problem config"
+        ],
+        "summary": "Delete Directory From Uncommitted Problem Config",
+        "operationId": "delete_directory_from_uncommitted_problem_config_api_v1_domains__domain__problems__problem__config_dirs__path__delete",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Path",
+              "type": "string"
+            },
+            "name": "path",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          },
+          {
+            "description": "Act as -r in the rm command. If false, only empty directory can be deleted.",
+            "required": false,
+            "schema": {
+              "title": "Recursive",
+              "type": "boolean",
+              "description": "Act as -r in the rm command. If false, only empty directory can be deleted.",
+              "default": false
+            },
+            "name": "recursive",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileInfoResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/problems/{problem}/config/commit": {
+      "post": {
+        "tags": [
+          "problem config"
+        ],
+        "summary": "Commit Problem Config",
+        "description": "Commit all changes through upload / delete as a new problem config version.",
+        "operationId": "commit_problem_config_api_v1_domains__domain__problems__problem__config_commit_post",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProblemConfigCommit"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemConfigResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/problems/{problem}/config/reset": {
+      "post": {
+        "tags": [
+          "problem config"
+        ],
+        "summary": "Reset Problem Config",
+        "operationId": "reset_problem_config_api_v1_domains__domain__problems__problem__config_reset_post",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LakeFSReset"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmptyResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/problems/{problem}/configs/{config}": {
+      "get": {
+        "tags": [
+          "problem config"
+        ],
+        "summary": "Get Problem Config Json",
+        "operationId": "get_problem_config_json_api_v1_domains__domain__problems__problem__configs__config__get",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "'latest' or id of the config",
+            "required": true,
+            "schema": {
+              "title": "Config",
+              "type": "string",
+              "description": "'latest' or id of the config"
+            },
+            "name": "config",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemConfigResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/problems/{problem}/configs/{config}/files": {
+      "get": {
+        "tags": [
+          "problem config"
+        ],
+        "summary": "Download Problem Config Archive",
+        "operationId": "download_problem_config_archive_api_v1_domains__domain__problems__problem__configs__config__files_get",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          },
+          {
+            "description": "'latest' or id of the config",
+            "required": true,
+            "schema": {
+              "title": "Config",
+              "type": "string",
+              "description": "'latest' or id of the config"
+            },
+            "name": "config",
+            "in": "path"
+          },
+          {
+            "required": false,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/ArchiveType"
+                }
+              ],
+              "default": "zip"
+            },
+            "name": "archiveType",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Download Problem Config Archive Api V1 Domains  Domain  Problems  Problem  Configs  Config  Files Get"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/problems/{problem}/configs/{config}/files/{path}": {
+      "get": {
+        "tags": [
+          "problem config"
+        ],
+        "summary": "Download File In Problem Config",
+        "operationId": "download_file_in_problem_config_api_v1_domains__domain__problems__problem__configs__config__files__path__get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Path",
+              "type": "string"
+            },
+            "name": "path",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          },
+          {
+            "description": "'latest' or id of the config",
+            "required": true,
+            "schema": {
+              "title": "Config",
+              "type": "string",
+              "description": "'latest' or id of the config"
+            },
+            "name": "config",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
           },
           "403": {
             "description": "Forbidden",
@@ -4752,6 +5812,16 @@
   },
   "components": {
     "schemas": {
+      "ArchiveType": {
+        "title": "ArchiveType",
+        "enum": [
+          "zip",
+          "tar",
+          "unknown"
+        ],
+        "type": "string",
+        "description": "An enumeration."
+      },
       "AuthTokens": {
         "title": "AuthTokens",
         "required": [
@@ -4791,6 +5861,48 @@
           },
           "data": {
             "$ref": "#/components/schemas/AuthTokens"
+          }
+        }
+      },
+      "Body_update_problem_config_by_archive_api_v1_domains__domain__problems__problem__config_put": {
+        "title": "Body_update_problem_config_by_archive_api_v1_domains__domain__problems__problem__config_put",
+        "required": [
+          "file"
+        ],
+        "type": "object",
+        "properties": {
+          "file": {
+            "title": "File",
+            "type": "string",
+            "format": "binary"
+          }
+        }
+      },
+      "Body_upload_file_to_problem_config_api_v1_domains__domain__problems__problem__config_files__path__put": {
+        "title": "Body_upload_file_to_problem_config_api_v1_domains__domain__problems__problem__config_files__path__put",
+        "required": [
+          "file"
+        ],
+        "type": "object",
+        "properties": {
+          "file": {
+            "title": "File",
+            "type": "string",
+            "format": "binary"
+          }
+        }
+      },
+      "Body_upload_file_to_root_in_problem_config_api_v1_domains__domain__problems__problem__config_files_put": {
+        "title": "Body_upload_file_to_root_in_problem_config_api_v1_domains__domain__problems__problem__config_files_put",
+        "required": [
+          "file"
+        ],
+        "type": "object",
+        "properties": {
+          "file": {
+            "title": "File",
+            "type": "string",
+            "format": "binary"
           }
         }
       },
@@ -5663,6 +6775,64 @@
         "type": "string",
         "description": "An enumeration."
       },
+      "FileInfo": {
+        "title": "FileInfo",
+        "required": [
+          "path",
+          "is_dir"
+        ],
+        "type": "object",
+        "properties": {
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "is_dir": {
+            "title": "Is Dir",
+            "type": "boolean"
+          },
+          "checksum": {
+            "title": "Checksum",
+            "type": "string"
+          },
+          "mtime": {
+            "title": "Mtime",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "size_bytes": {
+            "title": "Size Bytes",
+            "type": "integer",
+            "default": 0
+          }
+        }
+      },
+      "FileInfoResp": {
+        "title": "FileInfoResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/FileInfo"
+          }
+        }
+      },
       "GeneralPermission": {
         "title": "GeneralPermission",
         "type": "object",
@@ -5828,6 +6998,27 @@
           }
         }
       },
+      "LakeFSReset": {
+        "title": "LakeFSReset",
+        "type": "object",
+        "properties": {
+          "type": {
+            "title": "Type",
+            "enum": [
+              "file",
+              "dir",
+              "all"
+            ],
+            "type": "string",
+            "default": "all"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string",
+            "default": ""
+          }
+        }
+      },
       "OAuth2PasswordRequestForm": {
         "title": "OAuth2PasswordRequestForm",
         "required": [
@@ -5918,16 +7109,6 @@
             "type": "integer",
             "default": 0
           },
-          "dataVersion": {
-            "title": "Dataversion",
-            "type": "integer",
-            "default": 2
-          },
-          "languages": {
-            "title": "Languages",
-            "type": "string",
-            "default": "[]"
-          },
           "ownerId": {
             "title": "Ownerid",
             "type": "string",
@@ -5968,6 +7149,51 @@
           }
         }
       },
+      "ProblemConfig": {
+        "title": "ProblemConfig",
+        "required": [
+          "id",
+          "commitId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "commitId": {
+            "title": "Commitid",
+            "type": "string"
+          },
+          "dataVersion": {
+            "title": "Dataversion",
+            "type": "integer",
+            "default": 2
+          },
+          "languages": {
+            "title": "Languages",
+            "type": "string",
+            "default": "[]"
+          }
+        }
+      },
+      "ProblemConfigCommit": {
+        "title": "ProblemConfigCommit",
+        "type": "object",
+        "properties": {
+          "message": {
+            "title": "Message",
+            "type": "string",
+            "default": ""
+          },
+          "dataVersion": {
+            "title": "Dataversion",
+            "type": "integer",
+            "default": 2
+          }
+        }
+      },
       "ProblemConfigEdit": {
         "title": "ProblemConfigEdit",
         "required": [
@@ -5979,6 +7205,25 @@
             "title": "Config",
             "type": "string",
             "format": "binary"
+          }
+        }
+      },
+      "ProblemConfigResp": {
+        "title": "ProblemConfigResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProblemConfig"
           }
         }
       },
@@ -6071,16 +7316,6 @@
             "title": "Numaccept",
             "type": "integer",
             "default": 0
-          },
-          "dataVersion": {
-            "title": "Dataversion",
-            "type": "integer",
-            "default": 2
-          },
-          "languages": {
-            "title": "Languages",
-            "type": "string",
-            "default": "[]"
           },
           "ownerId": {
             "title": "Ownerid",
@@ -6845,6 +8080,11 @@
           },
           "problemId": {
             "title": "Problemid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "problemConfigId": {
+            "title": "Problemconfigid",
             "type": "string",
             "format": "uuid"
           },
