@@ -18,6 +18,7 @@ if TYPE_CHECKING:
         ProblemConfig,
         ProblemSet,
         Record,
+        UserAccessKey,
     )
     from joj.horse.utils.auth import JWTAccessToken
 
@@ -43,12 +44,20 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
     )
 
     oauth_accounts: List["UserOAuthAccount"] = Relationship(back_populates="user")
+    access_keys: List["UserAccessKey"] = Relationship(back_populates="user")
     owned_domains: List["Domain"] = Relationship(back_populates="owner")
     domain_users: List["DomainUser"] = Relationship(back_populates="user")
     owned_problems: List["Problem"] = Relationship(back_populates="owner")
     owned_problem_sets: List["ProblemSet"] = Relationship(back_populates="owner")
-    problem_configs: List["ProblemConfig"] = Relationship(back_populates="author")
-    records: List["Record"] = Relationship(back_populates="user")
+    problem_configs: List["ProblemConfig"] = Relationship(back_populates="committer")
+    committed_records: List["Record"] = Relationship(
+        back_populates="committer",
+        sa_relationship_kwargs={"foreign_keys": "[Record.committer_id]"},
+    )
+    judged_records: List["Record"] = Relationship(
+        back_populates="judger",
+        sa_relationship_kwargs={"foreign_keys": "[Record.judger_id]"},
+    )
 
     @root_validator(pre=True)
     def validate_lower_name(cls, values: Dict[str, Any]) -> Dict[str, Any]:

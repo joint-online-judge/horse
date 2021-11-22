@@ -3,18 +3,16 @@ from enum import Enum, IntEnum
 from typing import List, Optional
 from uuid import UUID
 
+from sqlalchemy.schema import Column
+from sqlalchemy.types import JSON
+from sqlmodel import Field
+
 from joj.horse.schemas import BaseModel
 from joj.horse.schemas.base import BaseORMSchema, IDMixin, TimestampMixin
 from joj.horse.utils.base import StrEnumMixin
 
-# from pydantic.typing import AnyCallable
 
-# from joj.horse.schemas.domain import Domain
-# from joj.horse.schemas.problem import Problem
-# from joj.horse.schemas.user import UserBase
-
-
-class RecordStatus(StrEnumMixin, Enum):
+class RecordState(StrEnumMixin, Enum):
     # waiting
     processing = "processing"  # upload the submission to S3
     queueing = "queueing"  # queue in celery
@@ -50,7 +48,7 @@ class RecordCodeType(StrEnumMixin, Enum):
 
 
 class RecordCase(BaseModel):
-    status: RecordCaseResult = RecordCaseResult.etc
+    state: RecordCaseResult = RecordCaseResult.etc
     score: int = 0
     time_ms: int = 0
     memory_kb: int = 0
@@ -58,17 +56,37 @@ class RecordCase(BaseModel):
 
 
 class Record(BaseORMSchema, IDMixin):
-    status: RecordStatus = RecordStatus.processing
-    score: int = 0
-    time_ms: int = 0
-    memory_kb: int = 0
+    state: RecordState = Field(
+        RecordState.processing,
+        index=False,
+        nullable=False,
+        sa_column_kwargs={"server_default": str(RecordState.processing)},
+    )
+    language: str = Field(
+        index=False, nullable=False, sa_column_kwargs={"server_default": ""}
+    )
+    toolchains: List[str] = Field(
+        [],
+        index=False,
+        sa_column=Column(JSON, nullable=False, server_default="[]"),
+    )
+    commit_id: Optional[str] = Field(None, index=False, nullable=True)
 
-    commit_id: Optional[str] = None
+    score: int = Field(
+        0, index=False, nullable=False, sa_column_kwargs={"server_default": "0"}
+    )
+    time_ms: int = Field(
+        0, index=False, nullable=False, sa_column_kwargs={"server_default": "0"}
+    )
+    memory_kb: int = Field(
+        0, index=False, nullable=False, sa_column_kwargs={"server_default": "0"}
+    )
 
     problem_set_id: Optional[UUID] = None
     problem_id: Optional[UUID] = None
     problem_config_id: Optional[UUID] = None
-    user_id: Optional[UUID] = None
+    committer_id: Optional[UUID] = None
+    judger_id: Optional[UUID] = None
 
 
 class RecordDetail(TimestampMixin, Record):
@@ -120,7 +138,7 @@ class ListRecords(BaseModel):
 
 
 class RecordResult(BaseModel):
-    status: RecordStatus
+    state: RecordState
     score: int
     time_ms: int
     memory_kb: int

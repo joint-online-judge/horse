@@ -2,17 +2,13 @@ from typing import Any, Optional
 
 from fastapi import Depends
 from fastapi.param_functions import Query
-from loguru import logger
 
 from joj.horse import models, schemas
-from joj.horse.models.permission import DefaultRole
-from joj.horse.schemas.base import Empty, StandardListResponse, StandardResponse
+from joj.horse.schemas.base import StandardListResponse, StandardResponse
 from joj.horse.utils.auth import Authentication
-from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
     parse_pagination_query,
     parse_record,
-    parse_record_judger,
     parse_uid_or_none,
 )
 from joj.horse.utils.router import MyRouter
@@ -104,34 +100,3 @@ async def get_record_code(record: schemas.Record = Depends(parse_record)) -> Any
 #         result = data["result"]
 #         record_model.cases[index].update(result)
 #         await record_model.commit()
-
-
-@router.post("/{record}/http")
-async def http_record(
-    record_result: schemas.RecordResult,
-    record: schemas.Record = Depends(parse_record_judger),
-    auth: Authentication = Depends(),
-) -> StandardResponse[Empty]:
-    if auth.user.role != DefaultRole.JUDGE:
-        raise BizError(ErrorCode.UserNotJudgerError)
-    data = record_result.dict()
-    logger.info(f"receive from record http: {data}")
-    record.update(data)
-    await record.commit()
-    # TODO: num_accept for problem
-    return StandardResponse()
-
-
-@router.post("/{record}/cases/http")
-async def http_record_cases(
-    record_case_result: schemas.RecordCaseResult,
-    record: schemas.Record = Depends(parse_record_judger),
-    auth: Authentication = Depends(),
-) -> StandardResponse[Empty]:
-    if auth.user.role != DefaultRole.JUDGE:
-        raise BizError(ErrorCode.UserNotJudgerError)
-    data = record_case_result.dict()
-    logger.info(f"receive from record cases http: {data}")
-    record.cases[data["index"]].update(data["result"])
-    await record.commit()
-    return StandardResponse()

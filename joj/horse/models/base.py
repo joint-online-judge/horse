@@ -9,6 +9,7 @@ from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.sql.expression import Delete, Select, Update
 from sqlalchemy.sql.functions import count
 from sqlmodel import Field, SQLModel, delete, select, update
+from sqlmodel.engine.result import ScalarResult
 
 from joj.horse.schemas.base import BaseModel, UserInputURL, get_datetime_column, utcnow
 from joj.horse.utils.base import is_uuid
@@ -38,6 +39,11 @@ class ORMUtils(SQLModel, BaseModel):
         return delete(cls)
 
     @classmethod
+    async def session_exec(cls, statement: Select) -> ScalarResult["BaseORMModelType"]:
+        async with db_session() as session:
+            return await session.exec(statement)
+
+    @classmethod
     async def get_or_none(
         __base_orm_model_cls__: Type["BaseORMModelType"], **kwargs: Any
     ) -> Optional["BaseORMModelType"]:
@@ -46,7 +52,6 @@ class ORMUtils(SQLModel, BaseModel):
                 select(__base_orm_model_cls__), **kwargs
             )
             results = await session.exec(statement)
-            session.sync_session.query()
             return results.one_or_none()
 
     @classmethod

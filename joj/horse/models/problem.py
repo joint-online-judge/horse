@@ -9,6 +9,7 @@ from sqlmodel.sql.sqltypes import GUID
 from joj.horse.models.base import DomainURLORMModel, url_pre_save
 from joj.horse.models.link_tables import ProblemProblemSetLink
 from joj.horse.schemas.problem import ProblemDetail
+from joj.horse.utils.db import db_session
 
 if TYPE_CHECKING:
     from joj.horse.models import (
@@ -56,6 +57,19 @@ class Problem(DomainURLORMModel, ProblemDetail, table=True):  # type: ignore[cal
 
     records: List["Record"] = Relationship(back_populates="problem")
     problem_configs: List["ProblemConfig"] = Relationship(back_populates="problem")
+
+    async def get_latest_problem_config(self) -> Optional["ProblemConfig"]:
+        from joj.horse import models
+
+        statement = (
+            models.ProblemConfig.sql_select()
+            .where(models.ProblemConfig.problem_id == self.id)
+            .order_by(models.ProblemConfig.created_at.desc())
+            .limit(1)
+        )
+        async with db_session() as session:
+            results = await session.exec(statement)
+            return results.one_or_none()
 
 
 event.listen(Problem, "before_insert", url_pre_save)

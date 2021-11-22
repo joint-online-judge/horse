@@ -1,5 +1,4 @@
 import asyncio
-from typing import Any
 
 import rollbar
 import sentry_sdk
@@ -104,21 +103,11 @@ async def business_exception_handler(request: Request, exc: BizError) -> JSONRes
 
 
 @app.exception_handler(Exception)
-async def catch_exceptions_middleware(request: Request, call_next: Any) -> JSONResponse:
-    try:
-        return await call_next(request)
-    except Exception as e:
-        logger.exception(f"Unexcepted Error: {e.__class__.__name__}")
-        return JSONResponse(
-            jsonable_encoder(
-                StandardErrorResponse(
-                    error_code=ErrorCode.InternalServerError,
-                    # error_msg=e.__class__.__name__,
-                    error_msg=str(e),
-                )
-            ),
-            status_code=status.HTTP_200_OK,
-        )
+async def catch_exceptions_middleware(request: Request, exc: Exception) -> JSONResponse:
+    logger.exception(f"Unexpected Error: {exc.__class__.__name__}")
+    return business_exception_response(
+        BizError(ErrorCode.InternalServerError, str(exc))
+    )
 
 
 if settings.dsn:  # pragma: no cover

@@ -11,7 +11,7 @@ from starlette.concurrency import run_in_threadpool
 
 from joj.horse.models.base import BaseORMModel
 from joj.horse.schemas.problem import ProblemSolutionSubmit
-from joj.horse.schemas.record import RecordCodeType, RecordDetail, RecordStatus
+from joj.horse.schemas.record import RecordCodeType, RecordDetail, RecordState
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.lakefs import LakeFSRecord
 
@@ -44,12 +44,25 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
     )
     problem_config: Optional["ProblemConfig"] = Relationship(back_populates="records")
 
-    user_id: Optional[UUID] = Field(
+    committer_id: Optional[UUID] = Field(
         sa_column=Column(
             GUID, ForeignKey("users.id", ondelete="SET NULL"), nullable=True
         )
     )
-    user: Optional["User"] = Relationship(back_populates="records")
+    committer: Optional["User"] = Relationship(
+        back_populates="committed_records",
+        sa_relationship_kwargs={"foreign_keys": "[Record.committer_id]"},
+    )
+
+    judger_id: Optional[UUID] = Field(
+        sa_column=Column(
+            GUID, ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+        )
+    )
+    judger: Optional["User"] = Relationship(
+        back_populates="judged_records",
+        sa_relationship_kwargs={"foreign_keys": "[Record.judger_id]"},
+    )
 
     @classmethod
     async def submit(
@@ -62,10 +75,16 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
         problem: "Problem",
         user: "User",
     ) -> "Record":
+        problem_config = await problem.get_latest_problem_config()
+        if problem_config is None:
+            raise BizError(ErrorCode.ProblemConfigNotFoundError)
+
         record = cls(
+            domain_id=problem.domain_id,
             problem_set_id=problem_set.id if problem_set else None,
             problem_id=problem.id,
-            user_id=user.id,
+            problem_config_id=problem_config.id,
+            committer_id=user.id,
         )
         if (
             problem_submit.code_type == RecordCodeType.archive
@@ -105,17 +124,18 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
 
             commit = lakefs_record.commit(f"record: {self.id}")
             logger.info(commit)
-            self.status = RecordStatus.queueing
+            self.state = RecordState.queueing
             self.commit_id = commit.id
 
         try:
             await run_in_threadpool(sync_func)
             await self.save_model()
             await self.create_task(celery_app)
+            logger.error("upload record success: {}", self)
         except Exception as e:
             logger.error("upload record failed: {}", self)
             logger.exception(e)
-            self.status = RecordStatus.failed
+            self.state = RecordState.failed
             await self.save_model()
 
     async def create_task(self, celery_app: Celery) -> None:

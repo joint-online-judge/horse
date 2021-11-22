@@ -28,6 +28,7 @@ from joj.horse.schemas.domain_user import (
     DomainUserPermission as DomainUserPermission,
     DomainUserUpdate as DomainUserUpdate,
 )
+from joj.horse.schemas.judge import JudgeClaim as JudgeClaim
 from joj.horse.schemas.lakefs import LakeFSReset as LakeFSReset
 from joj.horse.schemas.misc import (
     AuthTokens as AuthTokens,
@@ -65,6 +66,7 @@ from joj.horse.schemas.record import (
     RecordCaseResult as RecordCaseResult,
     RecordCodeType as RecordCodeType,
     RecordResult as RecordResult,
+    RecordState as RecordState,
 )
 from joj.horse.schemas.score import (
     Score as Score,
@@ -77,4 +79,8 @@ from joj.horse.schemas.user import (
     UserDetail as UserDetail,
     UserPreview as UserPreview,
     UserWithDomainRole as UserWithDomainRole,
+)
+from joj.horse.schemas.user_access_key import (
+    UserAccessKey as UserAccessKey,
+    UserAccessKeyDetail as UserAccessKeyDetail,
 )

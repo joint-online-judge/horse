@@ -1,5 +1,5 @@
 from celery import Celery
-from fastapi import BackgroundTasks, Depends, File, UploadFile
+from fastapi import BackgroundTasks, Depends
 from loguru import logger
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -109,14 +109,14 @@ async def update_problem(
     return StandardResponse(problem)
 
 
-@router.patch(
-    "/{problem}/config",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblem.view_config))],
-)
-async def update_problem_config(
-    config: UploadFile = File(...), problem: models.Problem = Depends(parse_problem)
-) -> StandardResponse[schemas.Problem]:
-    return StandardResponse(problem)
+# @router.patch(
+#     "/{problem}/config",
+#     dependencies=[Depends(ensure_permission(Permission.DomainProblem.view_config))],
+# )
+# async def update_problem_config(
+#     config: UploadFile = File(...), problem: models.Problem = Depends(parse_problem)
+# ) -> StandardResponse[schemas.Problem]:
+#     return StandardResponse(problem)
 
 
 @router.post(

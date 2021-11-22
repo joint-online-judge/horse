@@ -7,6 +7,7 @@ from joj.horse.apis import (
     admin as admin,
     auth as auth,
     domains as domains,
+    judge as judge,
     misc as misc,
     problem_configs as problem_configs,
     problem_groups as problem_groups,
@@ -17,8 +18,13 @@ from joj.horse.apis import (
     users as users,
 )
 from joj.horse.apis.auth import login
+from joj.horse.apis.problem_configs import (
+    update_problem_config_by_archive,
+    upload_file_to_problem_config,
+    upload_file_to_root_in_problem_config,
+)
 from joj.horse.apis.problem_sets import submit_solution_to_problem_set
-from joj.horse.apis.problems import submit_solution_to_problem, update_problem_config
+from joj.horse.apis.problems import submit_solution_to_problem
 from joj.horse.app import app
 
 
@@ -36,12 +42,13 @@ include_router(problem_sets)
 include_router(problems)
 include_router(problem_configs)
 include_router(problem_groups)
-# include_router(records)
+include_router(records)
 include_router(user)
 include_router(users)
 include_router(auth)
 include_router(misc)
 include_router(admin)
+include_router(judge)
 
 
 def _get_schema(_app: FastAPI, function: Callable[..., Any]) -> ModelField:
@@ -72,15 +79,22 @@ def update_schema_name(_app: FastAPI, function: Callable[..., Any], name: str) -
 
 
 def copy_schema(
-    _app: FastAPI, function_src: Callable[..., Any], function_dest: Callable[..., Any]
+    _app: FastAPI, function_src: Callable[..., Any], *function_dest: Callable[..., Any]
 ) -> None:
     if not TYPE_CHECKING:
-        schema_src = _get_schema(_app, function_src)
-        schema_dest = _get_schema(_app, function_dest)
-        schema_dest.type_ = schema_src.type_
+        for func in function_dest:
+            schema_src = _get_schema(_app, function_src)
+            schema_dest = _get_schema(_app, func)
+            schema_dest.type_ = schema_src.type_
 
 
 update_schema_name(app, submit_solution_to_problem, "ProblemSolutionSubmit")
 copy_schema(app, submit_solution_to_problem, submit_solution_to_problem_set)
-update_schema_name(app, update_problem_config, "ProblemConfigEdit")
+update_schema_name(app, update_problem_config_by_archive, "FileUpload")
+copy_schema(
+    app,
+    update_problem_config_by_archive,
+    upload_file_to_problem_config,
+    upload_file_to_root_in_problem_config,
+)
 update_schema_name(app, login, "OAuth2PasswordRequestForm")

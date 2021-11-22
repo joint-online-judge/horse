@@ -3,6 +3,7 @@ from io import BytesIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import IO, TYPE_CHECKING, Any, BinaryIO, Dict, Optional
+from uuid import UUID
 
 import boto3
 import rapidjson
@@ -140,8 +141,41 @@ def examine_lakefs_buckets() -> None:
             examine_bucket(bucket)
 
 
-def get_problem_submission_repo_name(problem: "Problem") -> str:
-    return f"joj-submission-{problem.id}"
+def ensure_user(user_id: UUID) -> None:
+    client = get_lakefs_client()
+    try:
+        client.auth.get_user(user_id=str(user_id))
+    except LakeFSApiException:
+        user_creation = models.UserCreation(id=str(user_id))
+        user = client.auth.create_user(user_creation=user_creation)
+        logger.info("LakeFS create user: {}", user)
+
+
+def ensure_credentials(
+    user_id: UUID, access_key_id: Optional[str] = None
+) -> Optional[models.CredentialsWithSecret]:
+    client = get_lakefs_client()
+    if access_key_id is not None:
+        try:
+            client.auth.get_credentials(
+                user_id=str(user_id), access_key_id=access_key_id
+            )
+            return None
+        except LakeFSApiException:
+            logger.warning("LakeFS invalid credentials: {}", access_key_id)
+    credentials: models.CredentialsWithSecret = client.auth.create_credentials(
+        user_id=str(user_id)
+    )
+    logger.info("LakeFS create credentials: {}", access_key_id)
+    return credentials
+
+
+def get_problem_config_repo_name(problem: "Problem") -> str:
+    return f"joj-config-{problem.problem_group_id}"
+
+
+def get_record_repo_name(record: "Record") -> str:
+    return f"joj-submission-{record.problem_id}"
 
 
 class LakeFSBase:
@@ -412,7 +446,7 @@ class LakeFSRecord(LakeFSBase):
         super().__init__(
             bucket=settings.bucket_submission,
             repo_id=str(record.problem_id),
-            branch_id=str(record.user_id),
+            branch_id=str(record.committer_id),
             repo_name_prefix="joj-submission-",
             branch_name_prefix="user-",
             archive_name="code",

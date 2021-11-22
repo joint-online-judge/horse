@@ -3,7 +3,7 @@ from functools import lru_cache
 from typing import Any, Callable, Coroutine, List, Optional
 
 from fastapi import Depends, File, Path, Query, UploadFile
-from sqlalchemy.orm import subqueryload
+from sqlalchemy.orm import joinedload, subqueryload
 
 from joj.horse import models, schemas
 from joj.horse.models.permission import PermissionType, ScopeType
@@ -126,14 +126,10 @@ async def parse_problem_config(
     problem: models.Problem = Depends(parse_problem),
 ) -> models.ProblemConfig:
     if config == "latest":
-        config_model = (
-            await models.ProblemConfig.filter(problem=problem)
-            .order_by("-created_at")
-            .first()
-        )
+        config_model = await problem.get_latest_problem_config()
     else:
         config_model = await models.ProblemConfig.get_or_none(
-            problem=problem, id=config
+            problem_id=problem.id, id=config
         )
     if config_model:
         return config_model
@@ -205,10 +201,17 @@ async def parse_record(record: str, auth: Authentication = Depends()) -> schemas
     raise BizError(ErrorCode.RecordNotFoundError)
 
 
-async def parse_record_judger(
-    record: str, auth: Authentication = Depends()
-) -> schemas.Record:
-    record_model = await schemas.Record.find_by_id(record)
+async def parse_record_judger(record: str) -> models.Record:
+    statement = (
+        models.Record.sql_select()
+        .where(models.Record.id == record)
+        .options(
+            joinedload(models.Record.problem),
+            joinedload(models.Record.problem_config),
+        )
+    )
+    result = await models.Record.session_exec(statement)
+    record_model = result.one_or_none()
     if record_model:
         return record_model
     raise BizError(ErrorCode.RecordNotFoundError)
