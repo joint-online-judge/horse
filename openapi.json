@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 47ba655@2021-11-21T14:31:51Z",
+    "description": "Git version: 58dc0c2@2021-11-22T19:08:02Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -3054,6 +3054,75 @@
         ]
       }
     },
+    "/api/v1/domains/{domain}/problems/clone": {
+      "post": {
+        "tags": [
+          "problem"
+        ],
+        "summary": "Clone Problem",
+        "operationId": "clone_problem_api_v1_domains__domain__problems_clone_post",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProblemClone"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemListResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/domains/{domain}/problems/{problem}/config": {
       "get": {
         "tags": [
@@ -3164,7 +3233,7 @@
           "content": {
             "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/Body_update_problem_config_by_archive_api_v1_domains__domain__problems__problem__config_put"
+                "$ref": "#/components/schemas/FileUpload"
               }
             }
           },
@@ -3177,153 +3246,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/EmptyResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      },
-      "patch": {
-        "tags": [
-          "problem"
-        ],
-        "summary": "Update Problem Config",
-        "operationId": "update_problem_config_api_v1_domains__domain__problems__problem__config_patch",
-        "parameters": [
-          {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the problem",
-            "required": true,
-            "schema": {
-              "title": "Problem",
-              "type": "string",
-              "description": "url or id of the problem"
-            },
-            "name": "problem",
-            "in": "path"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "$ref": "#/components/schemas/ProblemConfigEdit"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/domains/{domain}/problems/clone": {
-      "post": {
-        "tags": [
-          "problem"
-        ],
-        "summary": "Clone Problem",
-        "operationId": "clone_problem_api_v1_domains__domain__problems_clone_post",
-        "parameters": [
-          {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProblemClone"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemListResp"
                 }
               }
             }
@@ -3471,7 +3393,7 @@
           "content": {
             "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/Body_upload_file_to_problem_config_api_v1_domains__domain__problems__problem__config_files__path__put"
+                "$ref": "#/components/schemas/FileUpload"
               }
             }
           },
@@ -3708,7 +3630,7 @@
           "content": {
             "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/Body_upload_file_to_root_in_problem_config_api_v1_domains__domain__problems__problem__config_files_put"
+                "$ref": "#/components/schemas/FileUpload"
               }
             }
           },
@@ -4302,6 +4224,230 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemGroupListResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/records": {
+      "get": {
+        "tags": [
+          "record"
+        ],
+        "summary": "List Records In Domain",
+        "operationId": "list_records_in_domain_api_v1_domains__domain__records_get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Problemset",
+              "type": "string"
+            },
+            "name": "problemSet",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Problem",
+              "type": "string"
+            },
+            "name": "problem",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Offset",
+              "minimum": 0.0,
+              "type": "integer",
+              "default": 0
+            },
+            "name": "offset",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Limit",
+              "maximum": 500.0,
+              "exclusiveMinimum": 0.0,
+              "type": "integer",
+              "default": 100
+            },
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "description": "user id or 'me' or empty",
+            "required": false,
+            "schema": {
+              "title": "Uid",
+              "type": "string",
+              "description": "user id or 'me' or empty",
+              "default": ""
+            },
+            "name": "uid",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordListResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/{record}": {
+      "get": {
+        "tags": [
+          "record"
+        ],
+        "summary": "Get Record",
+        "operationId": "get_record_api_v1_domains__domain___record__get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Record",
+              "type": "string"
+            },
+            "name": "record",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/domains/{domain}/{record}/code": {
+      "get": {
+        "tags": [
+          "record"
+        ],
+        "summary": "Get Record Code",
+        "operationId": "get_record_code_api_v1_domains__domain___record__code_get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Record",
+              "type": "string"
+            },
+            "name": "record",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Get Record Code Api V1 Domains  Domain   Record  Code Get"
                 }
               }
             }
@@ -5808,6 +5954,223 @@
           }
         ]
       }
+    },
+    "/api/v1/judge/key": {
+      "get": {
+        "tags": [
+          "judge"
+        ],
+        "summary": "Get Judge Key",
+        "operationId": "get_judge_key_api_v1_judge_key_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAccessKeyResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/judge/records/{record}/claim": {
+      "post": {
+        "tags": [
+          "judge"
+        ],
+        "summary": "Claim Record By Judge",
+        "operationId": "claim_record_by_judge_api_v1_judge_records__record__claim_post",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Record",
+              "type": "string"
+            },
+            "name": "record",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JudgeClaimResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/judge/records/{record}/state": {
+      "post": {
+        "tags": [
+          "judge"
+        ],
+        "summary": "Update Record State By Judge",
+        "operationId": "update_record_state_by_judge_api_v1_judge_records__record__state_post",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Record",
+              "type": "string"
+            },
+            "name": "record",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/judge/records/{record}/judgment": {
+      "post": {
+        "tags": [
+          "judge"
+        ],
+        "summary": "Submit Record By Judge",
+        "operationId": "submit_record_by_judge_api_v1_judge_records__record__judgment_post",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Record",
+              "type": "string"
+            },
+            "name": "record",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordResult"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmptyResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -5861,48 +6224,6 @@
           },
           "data": {
             "$ref": "#/components/schemas/AuthTokens"
-          }
-        }
-      },
-      "Body_update_problem_config_by_archive_api_v1_domains__domain__problems__problem__config_put": {
-        "title": "Body_update_problem_config_by_archive_api_v1_domains__domain__problems__problem__config_put",
-        "required": [
-          "file"
-        ],
-        "type": "object",
-        "properties": {
-          "file": {
-            "title": "File",
-            "type": "string",
-            "format": "binary"
-          }
-        }
-      },
-      "Body_upload_file_to_problem_config_api_v1_domains__domain__problems__problem__config_files__path__put": {
-        "title": "Body_upload_file_to_problem_config_api_v1_domains__domain__problems__problem__config_files__path__put",
-        "required": [
-          "file"
-        ],
-        "type": "object",
-        "properties": {
-          "file": {
-            "title": "File",
-            "type": "string",
-            "format": "binary"
-          }
-        }
-      },
-      "Body_upload_file_to_root_in_problem_config_api_v1_domains__domain__problems__problem__config_files_put": {
-        "title": "Body_upload_file_to_root_in_problem_config_api_v1_domains__domain__problems__problem__config_files_put",
-        "required": [
-          "file"
-        ],
-        "type": "object",
-        "properties": {
-          "file": {
-            "title": "File",
-            "type": "string",
-            "format": "binary"
           }
         }
       },
@@ -6398,7 +6719,6 @@
               "view": true,
               "detail": false,
               "code": false,
-              "judge": false,
               "rejudge": false
             }
           }
@@ -6833,6 +7153,20 @@
           }
         }
       },
+      "FileUpload": {
+        "title": "FileUpload",
+        "required": [
+          "file"
+        ],
+        "type": "object",
+        "properties": {
+          "file": {
+            "title": "File",
+            "type": "string",
+            "format": "binary"
+          }
+        }
+      },
       "GeneralPermission": {
         "title": "GeneralPermission",
         "type": "object",
@@ -6998,6 +7332,53 @@
           }
         }
       },
+      "JudgeClaim": {
+        "title": "JudgeClaim",
+        "required": [
+          "problemConfigRepoName",
+          "problemConfigCommitId",
+          "recordRepoName",
+          "recordCommitId"
+        ],
+        "type": "object",
+        "properties": {
+          "problemConfigRepoName": {
+            "title": "Problemconfigreponame",
+            "type": "string"
+          },
+          "problemConfigCommitId": {
+            "title": "Problemconfigcommitid",
+            "type": "string"
+          },
+          "recordRepoName": {
+            "title": "Recordreponame",
+            "type": "string"
+          },
+          "recordCommitId": {
+            "title": "Recordcommitid",
+            "type": "string"
+          }
+        }
+      },
+      "JudgeClaimResp": {
+        "title": "JudgeClaimResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/JudgeClaim"
+          }
+        }
+      },
       "LakeFSReset": {
         "title": "LakeFSReset",
         "type": "object",
@@ -7152,8 +7533,7 @@
       "ProblemConfig": {
         "title": "ProblemConfig",
         "required": [
-          "id",
-          "commitId"
+          "id"
         ],
         "type": "object",
         "properties": {
@@ -7164,7 +7544,8 @@
           },
           "commitId": {
             "title": "Commitid",
-            "type": "string"
+            "type": "string",
+            "default": ""
           },
           "dataVersion": {
             "title": "Dataversion",
@@ -7173,8 +7554,16 @@
           },
           "languages": {
             "title": "Languages",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          },
+          "committerId": {
+            "title": "Committerid",
             "type": "string",
-            "default": "[]"
+            "format": "uuid"
           }
         }
       },
@@ -7191,20 +7580,6 @@
             "title": "Dataversion",
             "type": "integer",
             "default": 2
-          }
-        }
-      },
-      "ProblemConfigEdit": {
-        "title": "ProblemConfigEdit",
-        "required": [
-          "config"
-        ],
-        "type": "object",
-        "properties": {
-          "config": {
-            "title": "Config",
-            "type": "string",
-            "format": "binary"
           }
         }
       },
@@ -8037,7 +8412,8 @@
       "Record": {
         "title": "Record",
         "required": [
-          "id"
+          "id",
+          "language"
         ],
         "type": "object",
         "properties": {
@@ -8046,13 +8422,29 @@
             "type": "string",
             "format": "uuid"
           },
-          "status": {
+          "state": {
             "allOf": [
               {
-                "$ref": "#/components/schemas/RecordStatus"
+                "$ref": "#/components/schemas/RecordState"
               }
             ],
             "default": "processing"
+          },
+          "language": {
+            "title": "Language",
+            "type": "string"
+          },
+          "toolchains": {
+            "title": "Toolchains",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          },
+          "commitId": {
+            "title": "Commitid",
+            "type": "string"
           },
           "score": {
             "title": "Score",
@@ -8069,10 +8461,6 @@
             "type": "integer",
             "default": 0
           },
-          "commitId": {
-            "title": "Commitid",
-            "type": "string"
-          },
           "problemSetId": {
             "title": "Problemsetid",
             "type": "string",
@@ -8088,8 +8476,13 @@
             "type": "string",
             "format": "uuid"
           },
-          "userId": {
-            "title": "Userid",
+          "committerId": {
+            "title": "Committerid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "judgerId": {
+            "title": "Judgerid",
             "type": "string",
             "format": "uuid"
           }
@@ -8103,6 +8496,44 @@
         ],
         "type": "string",
         "description": "An enumeration."
+      },
+      "RecordList": {
+        "title": "RecordList",
+        "type": "object",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer",
+            "default": 0
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Record"
+            },
+            "default": []
+          }
+        }
+      },
+      "RecordListResp": {
+        "title": "RecordListResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RecordList"
+          }
+        }
       },
       "RecordPermission": {
         "title": "RecordPermission",
@@ -8120,11 +8551,6 @@
           },
           "code": {
             "title": "Code",
-            "type": "boolean",
-            "default": false
-          },
-          "judge": {
-            "title": "Judge",
             "type": "boolean",
             "default": false
           },
@@ -8154,8 +8580,41 @@
           }
         }
       },
-      "RecordStatus": {
-        "title": "RecordStatus",
+      "RecordResult": {
+        "title": "RecordResult",
+        "required": [
+          "state",
+          "score",
+          "timeMs",
+          "memoryKb",
+          "judgeAt"
+        ],
+        "type": "object",
+        "properties": {
+          "state": {
+            "$ref": "#/components/schemas/RecordState"
+          },
+          "score": {
+            "title": "Score",
+            "type": "integer"
+          },
+          "timeMs": {
+            "title": "Timems",
+            "type": "integer"
+          },
+          "memoryKb": {
+            "title": "Memorykb",
+            "type": "integer"
+          },
+          "judgeAt": {
+            "title": "Judgeat",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RecordState": {
+        "title": "RecordState",
         "enum": [
           "processing",
           "queueing",
@@ -8295,6 +8754,60 @@
             "title": "Isactive",
             "type": "boolean",
             "default": false
+          }
+        }
+      },
+      "UserAccessKey": {
+        "title": "UserAccessKey",
+        "required": [
+          "id",
+          "service",
+          "accessKeyId",
+          "secretAccessKey",
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "service": {
+            "title": "Service",
+            "type": "string"
+          },
+          "accessKeyId": {
+            "title": "Accesskeyid",
+            "type": "string"
+          },
+          "secretAccessKey": {
+            "title": "Secretaccesskey",
+            "type": "string"
+          },
+          "userId": {
+            "title": "Userid",
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "UserAccessKeyResp": {
+        "title": "UserAccessKeyResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserAccessKey"
           }
         }
       },
