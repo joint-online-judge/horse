@@ -145,9 +145,6 @@ async def clone_problem(
                 owner=user.id,
                 title=problem.title,
                 content=problem.content,
-                data=problem.data,
-                data_version=problem.data_version,
-                languages=problem.languages,
                 problem_group=problem_group.id,
                 problem_set=problem_set.id,
             )
