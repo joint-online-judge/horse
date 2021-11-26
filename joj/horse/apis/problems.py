@@ -15,6 +15,7 @@ from joj.horse.utils.parser import (
     parse_pagination_query,
     parse_problem,
     parse_problem_set,
+    parse_problem_without_validation,
     parse_user_from_auth,
     parse_view_hidden_problem,
 )
@@ -129,27 +130,32 @@ async def clone_problem(
     user: models.User = Depends(parse_user_from_auth),
     auth: Authentication = Depends(),
 ) -> StandardListResponse[schemas.Problem]:
-    problems = [await parse_problem(oid, auth) for oid in problem_clone.problems]
-    problem_set = await parse_problem_set(problem_clone.problem_set, auth)
+    # TODO: transaction here
+    problems = [
+        await parse_problem(await parse_problem_without_validation(oid, domain), auth)
+        for oid in problem_clone.problems
+    ]
+    problem_set = await parse_problem_set(problem_clone.problem_set, domain)
     new_group = problem_clone.new_group
     try:
         res = []
         for problem in problems:
             if new_group:
-                problem_group = models.ProblemGroup(**models.ProblemGroup().to_model())
-                await problem_group.commit()
+                problem_group = models.ProblemGroup()
+                # FIXME: seems other objects are distroyed
+                await problem_group.save_model()
+                problem_group_id = problem_group.id
             else:
-                problem_group = await problem.problem_group.fetch()
+                problem_group_id = problem.problem_group_id
             new_problem = models.Problem(
-                domain=domain.id,
-                owner=user.id,
+                domain_id=domain.id,
+                owner_id=user.id,
                 title=problem.title,
                 content=problem.content,
-                problem_group=problem_group.id,
-                problem_set=problem_set.id,
+                problem_group_id=problem_group_id,
+                problem_set_id=problem_set.id,
             )
-            new_problem = models.Problem(**new_problem.to_model())
-            await new_problem.commit()
+            await new_problem.save_model()
             res.append(models.Problem.from_orm(new_problem))
             logger.info(f"problem cloned: {new_problem}")
     except Exception as e:
