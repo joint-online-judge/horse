@@ -71,41 +71,20 @@ async def create_problem_set(
     dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.view))],
 )
 async def get_problem_set(
-    problem_set: models.ProblemSet = Depends(
-        parse_problem_set_factory(load_problems=True, load_links=False)
-    ),
+    problem_set: models.ProblemSet = Depends(parse_problem_set),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.ProblemSetDetail]:
-    # logger.info(problem_set.problem_problem_set_links)
-    # logger.info(problem_set.problems)
-
-    from sqlalchemy.sql.expression import and_
-    from sqlmodel import select
-
-    statement = (
-        select(models.Problem, models.Record).join_from(
-            models.ProblemProblemSetLink,
-            models.Problem,
-            and_(
-                models.ProblemProblemSetLink.problem_id == models.Problem.id,
-                models.ProblemProblemSetLink.problem_set_id == problem_set.id,
-            ),
-        )
-        # .outerjoin(models.UserProblemRecordLink, models.UserProblemRecordLink.problem_id == models.Problem.id)
-        .join(
-            models.UserLatestRecord,
-            and_(
-                models.ProblemProblemSetLink.problem_id
-                == models.UserLatestRecord.problem_id,
-                models.ProblemProblemSetLink.problem_set_id
-                == models.UserLatestRecord.problem_set_id,
-                models.UserLatestRecord.user_id == user.id,
-            ),
-        )
-    )
+    statement = problem_set.get_problems_statement(user_id=user.id)
     logger.info(str(statement))
-
-    return StandardResponse(problem_set)
+    rows = await models.Problem.session_exec(statement)
+    problems = [
+        schemas.ProblemPreviewWithRecordState.from_problem_and_record(problem, record)
+        for problem, record in rows.all()
+    ]
+    logger.info(problems)
+    result = schemas.ProblemSetDetail(**problem_set.dict())
+    result.problems = problems
+    return StandardResponse(result)
 
 
 @router.delete(

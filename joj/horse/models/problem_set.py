@@ -4,7 +4,8 @@ from uuid import UUID
 from sqlalchemy import event
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
-from sqlmodel import Field, Relationship
+from sqlalchemy.sql.expression import Select, and_
+from sqlmodel import Field, Relationship, select
 from sqlmodel.sql.sqltypes import GUID
 
 from joj.horse.models.base import DomainURLORMModel, url_pre_save
@@ -64,6 +65,36 @@ class ProblemSet(DomainURLORMModel, ProblemSetDetail, table=True):  # type: igno
         },
     )
     records: List["Record"] = Relationship(back_populates="problem_set")
+
+    def get_problems_statement(self, user_id: UUID) -> Select:
+        from joj.horse import models
+
+        statement = (
+            select(models.Problem, models.Record)
+            .join(
+                models.ProblemProblemSetLink,
+                and_(
+                    models.ProblemProblemSetLink.problem_id == models.Problem.id,
+                    models.ProblemProblemSetLink.problem_set_id == self.id,
+                ),
+            )
+            .order_by(models.ProblemProblemSetLink.position.asc())
+            .outerjoin(
+                models.UserLatestRecord,
+                and_(
+                    models.ProblemProblemSetLink.problem_id
+                    == models.UserLatestRecord.problem_id,
+                    models.ProblemProblemSetLink.problem_set_id
+                    == models.UserLatestRecord.problem_set_id,
+                    models.UserLatestRecord.user_id == user_id,
+                ),
+            )
+            .outerjoin(
+                models.Record, models.UserLatestRecord.record_id == models.Record.id
+            )
+        )
+
+        return statement
 
     async def operate_problem(
         self, problem: "Problem", operation: Operation, position: Optional[int] = None

@@ -41,7 +41,9 @@ from joj.horse.schemas.problem import (
     ProblemClone as ProblemClone,
     ProblemCreate as ProblemCreate,
     ProblemDetail as ProblemDetail,
+    ProblemDetailWithRecordState as ProblemDetailWithRecordState,
     ProblemEdit as ProblemEdit,
+    ProblemPreviewWithRecordState as ProblemPreviewWithRecordState,
     ProblemSolutionSubmit as ProblemSolutionSubmit,
 )
 from joj.horse.schemas.problem_config import (

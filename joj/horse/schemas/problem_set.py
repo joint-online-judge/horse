@@ -18,7 +18,7 @@ from joj.horse.schemas.base import (
     UTCDatetime,
     get_datetime_column,
 )
-from joj.horse.schemas.problem import ProblemPreview
+from joj.horse.schemas.problem import ProblemPreviewWithRecordState
 
 if TYPE_CHECKING:
     pass
@@ -109,4 +109,4 @@ class ProblemSet(ProblemSetBase, DomainMixin, IDMixin):
 
 
 class ProblemSetDetail(TimestampMixin, ProblemSet):
-    problems: List[ProblemPreview]
+    problems: List[ProblemPreviewWithRecordState] = []
