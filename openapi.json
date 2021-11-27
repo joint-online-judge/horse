@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 45396ea@2021-11-26T06:09:30Z",
+    "description": "Git version: f6a791e@2021-11-27T07:58:36Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -3163,13 +3163,20 @@
               ],
               "default": "zip"
             },
-            "name": "archiveType",
+            "name": "archiveFormat",
             "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "description": "Successful Response"
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmptyResp"
+                }
+              }
+            }
           },
           "403": {
             "description": "Forbidden",
@@ -3320,7 +3327,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Successful Response"
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Download File In Uncommitted Problem Config Api V1 Domains  Domain  Problems  Problem  Config Files  Path  Get"
+                }
+              }
+            }
           },
           "403": {
             "description": "Forbidden",
@@ -4059,7 +4073,7 @@
               ],
               "default": "zip"
             },
-            "name": "archiveType",
+            "name": "archiveFormat",
             "in": "query"
           }
         ],
@@ -4155,7 +4169,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Successful Response"
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Download File In Problem Config Api V1 Domains  Domain  Problems  Problem  Configs  Config  Files  Path  Get"
+                }
+              }
+            }
           },
           "403": {
             "description": "Forbidden",
@@ -4366,13 +4387,13 @@
         ]
       }
     },
-    "/api/v1/domains/{domain}/{record}": {
+    "/api/v1/domains/{domain}/records/{record}": {
       "get": {
         "tags": [
           "record"
         ],
         "summary": "Get Record",
-        "operationId": "get_record_api_v1_domains__domain___record__get",
+        "operationId": "get_record_api_v1_domains__domain__records__record__get",
         "parameters": [
           {
             "required": true,
@@ -4423,13 +4444,13 @@
         ]
       }
     },
-    "/api/v1/domains/{domain}/{record}/code": {
+    "/api/v1/domains/{domain}/records/{record}/code": {
       "get": {
         "tags": [
           "record"
         ],
         "summary": "Get Record Code",
-        "operationId": "get_record_code_api_v1_domains__domain___record__code_get",
+        "operationId": "get_record_code_api_v1_domains__domain__records__record__code_get",
         "parameters": [
           {
             "required": true,
@@ -4447,7 +4468,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Response Get Record Code Api V1 Domains  Domain   Record  Code Get"
+                  "title": "Response Get Record Code Api V1 Domains  Domain  Records  Record  Code Get"
                 }
               }
             }
@@ -7542,8 +7563,8 @@
             "type": "string",
             "format": "uuid"
           },
-          "commitId": {
-            "title": "Commitid",
+          "commitMessage": {
+            "title": "Commitmessage",
             "type": "string",
             "default": ""
           },
@@ -7560,6 +7581,11 @@
             },
             "default": []
           },
+          "commitId": {
+            "title": "Commitid",
+            "type": "string",
+            "default": ""
+          },
           "committerId": {
             "title": "Committerid",
             "type": "string",
@@ -7570,18 +7596,7 @@
       "ProblemConfigCommit": {
         "title": "ProblemConfigCommit",
         "type": "object",
-        "properties": {
-          "message": {
-            "title": "Message",
-            "type": "string",
-            "default": ""
-          },
-          "dataVersion": {
-            "title": "Dataversion",
-            "type": "integer",
-            "default": 2
-          }
-        }
+        "properties": {}
       },
       "ProblemConfigResp": {
         "title": "ProblemConfigResp",
