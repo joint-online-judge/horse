@@ -17,7 +17,7 @@ from joj.horse.schemas.base import (
     URLORMSchema,
     UserInputURL,
 )
-from joj.horse.schemas.record import RecordCodeType
+from joj.horse.schemas.record import RecordCodeType, RecordState
 
 if TYPE_CHECKING:
     pass
@@ -80,6 +80,11 @@ class Problem(ProblemBase, DomainMixin, IDMixin):
 
 class ProblemDetail(TimestampMixin, Problem):
     pass
+
+
+class ProblemWithRecordState(ProblemDetail):
+    record_id: Optional[UUID] = None
+    record_state: Optional[RecordState] = None
 
 
 class ProblemSolutionSubmit(BaseModel, metaclass=FormMetaclass):

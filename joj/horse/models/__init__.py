@@ -11,4 +11,5 @@ from joj.horse.models.problem_set import ProblemSet as ProblemSet
 from joj.horse.models.record import Record as Record
 from joj.horse.models.user import User as User
 from joj.horse.models.user_access_key import UserAccessKey as UserAccessKey
+from joj.horse.models.user_latest_record import UserLatestRecord as UserLatestRecord
 from joj.horse.models.user_oauth_account import UserOAuthAccount as UserOAuthAccount

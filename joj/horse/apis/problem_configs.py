@@ -1,14 +1,12 @@
-from pathlib import Path
+import pathlib
 from typing import Any, Optional
 
-from fastapi import Body, Depends, File, Query, UploadFile
+from fastapi import Body, Depends, File, Path, Query, UploadFile
 from fastapi.responses import StreamingResponse
 from joj.elephant.schemas import ArchiveType, FileInfo
 from uvicorn.config import logger
 
 from joj.horse import models, schemas
-
-# from joj.horse.apis import records
 from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.permission import Permission
 from joj.horse.utils.auth import ensure_permission
@@ -56,24 +54,24 @@ def update_problem_config_by_archive(
 
 @router.get(
     "/config",
-    response_class=StreamingResponse,
+    # response_class=StreamingResponse,
     dependencies=[read_dependency],
 )
 def download_uncommitted_problem_config_as_archive(
-    temp_dir: Path = Depends(TemporaryDirectory()),
-    archive_type: ArchiveType = Query(ArchiveType.zip),
+    temp_dir: pathlib.Path = Depends(TemporaryDirectory()),
+    archive_format: ArchiveType = Query(ArchiveType.zip),
     problem: models.Problem = Depends(parse_problem),
-) -> Any:
-    return download_problem_config_archive(temp_dir, archive_type, problem, None)
+) -> StandardResponse[Empty]:
+    return download_problem_config_archive(temp_dir, archive_format, problem, None)
 
 
 @router.get(
     "/config/files/{path:path}",
-    response_class=StreamingResponse,
+    # response_class=StreamingResponse,
     dependencies=[read_dependency],
 )
 def download_file_in_uncommitted_problem_config(
-    path: str,
+    path: str = Path(...),
     problem: models.Problem = Depends(parse_problem),
 ) -> Any:
     return download_file_in_problem_config(path, problem, None)
@@ -84,11 +82,11 @@ def download_file_in_uncommitted_problem_config(
     dependencies=[read_dependency],
 )
 def get_file_or_directory_info_in_uncommitted_problem_config(
-    path: str,
+    path: str = Path(...),
     problem: models.Problem = Depends(parse_problem),
 ) -> StandardResponse[FileInfo]:
     problem_config = LakeFSProblemConfig(problem)
-    file_info = problem_config.get_file_info(Path(path))
+    file_info = problem_config.get_file_info(pathlib.Path(path))
     return StandardResponse(file_info)
 
 
@@ -104,7 +102,7 @@ def upload_file_to_problem_config(
     path: str = Depends(parse_file_path),
 ) -> StandardResponse[FileInfo]:
     problem_config = LakeFSProblemConfig(problem)
-    file_info = problem_config.upload_file(Path(path), file.file)
+    file_info = problem_config.upload_file(pathlib.Path(path), file.file)
     return StandardResponse(file_info)
 
 
@@ -127,11 +125,11 @@ def upload_file_to_root_in_problem_config(
     dependencies=[write_dependency],
 )
 def delete_file_from_uncommitted_problem_config(
-    path: str,
+    path: str = Path(...),
     problem: models.Problem = Depends(parse_problem),
 ) -> StandardResponse[FileInfo]:
     problem_config = LakeFSProblemConfig(problem)
-    file_info = problem_config.delete_file(Path(path))
+    file_info = problem_config.delete_file(pathlib.Path(path))
     return StandardResponse(file_info)
 
 
@@ -140,7 +138,7 @@ def delete_file_from_uncommitted_problem_config(
     dependencies=[write_dependency],
 )
 def delete_directory_from_uncommitted_problem_config(
-    path: str,
+    path: str = Path(...),
     problem: models.Problem = Depends(parse_problem),
     recursive: bool = Query(
         False,
@@ -149,7 +147,7 @@ def delete_directory_from_uncommitted_problem_config(
     ),
 ) -> StandardResponse[FileInfo]:
     problem_config = LakeFSProblemConfig(problem)
-    file_info = problem_config.delete_directory(Path(path), recursive)
+    file_info = problem_config.delete_directory(pathlib.Path(path), recursive)
     return StandardResponse(file_info)
 
 
@@ -198,8 +196,8 @@ async def get_problem_config_json(
     dependencies=[write_dependency],
 )
 def download_problem_config_archive(
-    temp_dir: Path = Depends(TemporaryDirectory()),
-    archive_type: ArchiveType = Query(ArchiveType.zip),
+    temp_dir: pathlib.Path = Depends(TemporaryDirectory()),
+    archive_format: ArchiveType = Query(ArchiveType.zip),
     problem: models.Problem = Depends(parse_problem),
     config: Optional[models.ProblemConfig] = Depends(parse_problem_config),
 ) -> Any:
@@ -209,7 +207,7 @@ def download_problem_config_archive(
     else:
         ref = None
     problem_config = LakeFSProblemConfig(problem)
-    file_path = problem_config.download_archive(temp_dir, archive_type, ref)
+    file_path = problem_config.download_archive(temp_dir, archive_format, ref)
     # TODO: cache the archive
     response = StreamingResponse(iter_file(file_path))
     response.content_disposition = f'attachment; filename="{file_path.name}"'
@@ -218,11 +216,11 @@ def download_problem_config_archive(
 
 @router.get(
     "/configs/{config}/files/{path:path}",
-    response_class=StreamingResponse,
+    # response_class=StreamingResponse,
     dependencies=[read_dependency],
 )
 def download_file_in_problem_config(
-    path: str,
+    path: str = Path(...),
     problem: models.Problem = Depends(parse_problem),
     config: Optional[models.ProblemConfig] = Depends(parse_problem_config),
 ) -> Any:
@@ -231,8 +229,8 @@ def download_file_in_problem_config(
         ref = config.commit_id
     else:
         ref = None
-    file = problem_config.download_file(Path(path), ref)
+    file = problem_config.download_file(pathlib.Path(path), ref)
     response = StreamingResponse(file)
-    filename = Path(path).name
+    filename = pathlib.Path(path).name
     response.content_disposition = f'attachment; filename="{filename}"'
     return response

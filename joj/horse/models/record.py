@@ -75,26 +75,47 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
         problem: "Problem",
         user: "User",
     ) -> "Record":
+        from joj.horse import models
+
         problem_config = await problem.get_latest_problem_config()
         if problem_config is None:
             raise BizError(ErrorCode.ProblemConfigNotFoundError)
 
-        record = cls(
-            domain_id=problem.domain_id,
-            problem_set_id=problem_set.id if problem_set else None,
-            problem_id=problem.id,
-            problem_config_id=problem_config.id,
-            committer_id=user.id,
-        )
         if (
             problem_submit.code_type == RecordCodeType.archive
             and problem_submit.file is None
         ):
             raise BizError(ErrorCode.Error)
+
+        problem_set_id = problem_set.id if problem_set else None
+        record = cls(
+            domain_id=problem.domain_id,
+            problem_set_id=problem_set_id,
+            problem_id=problem.id,
+            problem_config_id=problem_config.id,
+            committer_id=user.id,
+        )
+        await record.save_model(commit=False, refresh=False)
+
+        user_latest_record = await models.UserLatestRecord.get_or_none(
+            user_id=user.id, problem_id=problem.id, problem_set_id=problem_set_id
+        )
+        if user_latest_record is None:
+            user_latest_record = models.UserLatestRecord(
+                user_id=user.id,
+                problem_id=problem.id,
+                problem_set_id=problem_set_id,
+                record_id=record.id,
+            )
+        else:
+            user_latest_record.record_id = record.id
+
+        await user_latest_record.save_model(commit=False, refresh=False)
+
         problem.num_submit += 1
-        await problem.save_model(commit=False, refresh=False)
-        await record.save_model()
-        await problem.refresh_model()
+        await problem.save_model(commit=True, refresh=True)
+
+        await record.refresh_model()
 
         background_tasks.add_task(
             record.upload,

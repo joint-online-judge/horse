@@ -42,14 +42,14 @@ async def list_records_in_domain(
     return StandardResponse(res)
 
 
-@router.get("/{record}")
+@router.get("/records/{record}")
 async def get_record(
     record: schemas.Record = Depends(parse_record),
 ) -> StandardResponse[schemas.Record]:
     return StandardResponse(schemas.Record.from_orm(record))
 
 
-@router.get("/{record}/code")
+@router.get("/records/{record}/code")
 async def get_record_code(record: schemas.Record = Depends(parse_record)) -> Any:
     pass
     # mime_types = [

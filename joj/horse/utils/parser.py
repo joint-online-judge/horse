@@ -110,7 +110,7 @@ async def parse_problem_without_validation(
     raise BizError(ErrorCode.ProblemNotFoundError)
 
 
-async def parse_problem(
+def parse_problem(
     problem: models.Problem = Depends(parse_problem_without_validation),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> models.Problem:
@@ -146,6 +146,7 @@ async def parse_problems(
 def parse_problem_set_factory(
     load_problems: bool = False,
     load_links: bool = False,
+    load_records: bool = False,
 ) -> Callable[..., Coroutine[Any, Any, models.ProblemSet]]:
     options = []
     if load_problems:
@@ -153,9 +154,13 @@ def parse_problem_set_factory(
     if load_links:
         options.append(
             subqueryload(models.ProblemSet.problem_problem_set_links).joinedload(
-                models.ProblemProblemSetLink.problem
+                models.ProblemProblemSetLink.problem, innerjoin=True
             )
         )
+    # if load_records:
+    #     options.append(
+    #         subqueryload(models.ProblemSet.problems).joinedload(models.)
+    #     )
 
     async def wrapped(
         problem_set: str = Path(..., description="url or id of the problem set"),
@@ -174,6 +179,20 @@ def parse_problem_set_factory(
 parse_problem_set = parse_problem_set_factory()
 
 
+async def parse_problem_problem_set_link(
+    problem_set: models.ProblemSet = Depends(parse_problem_set),
+    problem: models.Problem = Depends(parse_problem_without_validation),
+) -> models.ProblemProblemSetLink:
+    link = await models.ProblemProblemSetLink.get_or_none(
+        problem_set_id=problem_set.id, problem_id=problem.id
+    )
+    if link is not None:
+        link.problem_set = problem_set
+        link.problem = problem
+        return link
+    raise BizError(ErrorCode.ProblemNotFoundError)
+
+
 async def parse_problem_set_with_time(
     problem_set: str = Path(..., description="url or id of the problem set"),
     domain: models.Domain = Depends(parse_domain_from_auth),
@@ -187,21 +206,23 @@ async def parse_problem_set_with_time(
     return problem_set_model
 
 
-async def parse_problem_group(problem_group: str) -> models.ProblemSet:
+async def parse_problem_group(problem_group: str = Path(...)) -> models.ProblemSet:
     problem_group_model = await models.ProblemGroup.find_by_id(problem_group)
     if problem_group_model:
         return problem_group_model
     raise BizError(ErrorCode.ProblemGroupNotFoundError)
 
 
-async def parse_record(record: str, auth: Authentication = Depends()) -> schemas.Record:
+async def parse_record(
+    record: str = Path(...), auth: Authentication = Depends()
+) -> schemas.Record:
     record_model = await schemas.Record.find_by_id(record)
     if record_model and record_model.user == auth.user:
         return record_model
     raise BizError(ErrorCode.RecordNotFoundError)
 
 
-async def parse_record_judger(record: str) -> models.Record:
+async def parse_record_judger(record: str = Path(...)) -> models.Record:
     statement = (
         models.Record.sql_select()
         .where(models.Record.id == record)

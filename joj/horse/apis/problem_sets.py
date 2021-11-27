@@ -15,6 +15,7 @@ from joj.horse.utils.parser import (
     parse_ordering_query,
     parse_pagination_query,
     parse_problem,
+    parse_problem_problem_set_link,
     parse_problem_set,
     parse_problem_set_factory,
     parse_problem_set_with_time,
@@ -71,11 +72,39 @@ async def create_problem_set(
 )
 async def get_problem_set(
     problem_set: models.ProblemSet = Depends(
-        parse_problem_set_factory(load_problems=True, load_links=True)
+        parse_problem_set_factory(load_problems=True, load_links=False)
     ),
+    user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.ProblemSetDetail]:
-    logger.info(problem_set.problem_problem_set_links)
-    logger.info(problem_set.problems)
+    # logger.info(problem_set.problem_problem_set_links)
+    # logger.info(problem_set.problems)
+
+    from sqlalchemy.sql.expression import and_
+    from sqlmodel import select
+
+    statement = (
+        select(models.Problem, models.Record).join_from(
+            models.ProblemProblemSetLink,
+            models.Problem,
+            and_(
+                models.ProblemProblemSetLink.problem_id == models.Problem.id,
+                models.ProblemProblemSetLink.problem_set_id == problem_set.id,
+            ),
+        )
+        # .outerjoin(models.UserProblemRecordLink, models.UserProblemRecordLink.problem_id == models.Problem.id)
+        .join(
+            models.UserLatestRecord,
+            and_(
+                models.ProblemProblemSetLink.problem_id
+                == models.UserLatestRecord.problem_id,
+                models.ProblemProblemSetLink.problem_set_id
+                == models.UserLatestRecord.problem_set_id,
+                models.UserLatestRecord.user_id == user.id,
+            ),
+        )
+    )
+    logger.info(str(statement))
+
     return StandardResponse(problem_set)
 
 
@@ -117,7 +146,11 @@ async def add_problem_in_problem_set(
     ),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> StandardResponse[schemas.ProblemSet]:
-    problem = await parse_problem(add_problem.problem, domain_auth)
+    problem = await parse_problem_without_validation(
+        add_problem.problem, domain_auth.auth.domain
+    )
+    # examine problem visibility
+    parse_problem(problem, domain_auth)
     await problem_set.operate_problem(problem, Operation.Create, add_problem.position)
     return StandardResponse(problem_set)
 
@@ -127,11 +160,10 @@ async def add_problem_in_problem_set(
     dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.view))],
 )
 async def get_problem_in_problem_set(
-    problem_set: models.ProblemSet = Depends(parse_problem_set),
-    problem: models.Problem = Depends(parse_problem_without_validation),
+    link: models.ProblemProblemSetLink = Depends(parse_problem_problem_set_link),
 ) -> StandardResponse[schemas.ProblemDetail]:
-    await problem_set.operate_problem(problem, Operation.Read)
-    return StandardResponse(problem)
+    # await link.problem_set.operate_problem(link.problem, Operation.Read)
+    return StandardResponse(link.problem)
 
 
 @router.patch(
@@ -175,16 +207,15 @@ async def submit_solution_to_problem_set(
     problem_submit: schemas.ProblemSolutionSubmit = Depends(
         schemas.ProblemSolutionSubmit.form_dependency
     ),
-    problem_set: models.ProblemSet = Depends(parse_problem_set),
-    problem: models.Problem = Depends(parse_problem_without_validation),
+    link: models.ProblemProblemSetLink = Depends(parse_problem_problem_set_link),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.Record]:
     record = await models.Record.submit(
         background_tasks=background_tasks,
         celery_app=celery_app,
         problem_submit=problem_submit,
-        problem_set=problem_set,
-        problem=problem,
+        problem_set=link.problem_set,
+        problem=link.problem,
         user=user,
     )
     logger.info("create record: {}", record)
