@@ -47,6 +47,13 @@ class DomainBase(URLORMSchema):
         sa_column_kwargs={"server_default": "true"},
         description="is the domain hidden",
     )
+    tag: LongStr = Field(
+        "",
+        index=False,
+        nullable=False,
+        sa_column_kwargs={"server_default": ""},
+        description="tag of the domain",
+    )
 
 
 class DomainCreate(URLCreateMixin, DomainBase):
@@ -63,6 +70,7 @@ class DomainEdit(BaseModel, metaclass=EditMetaclass):
     gravatar: Optional[LongStr]
     bulletin: Optional[LongText]
     hidden: Optional[bool]
+    tag: Optional[LongStr]
 
 
 class DomainTransfer(BaseModel):

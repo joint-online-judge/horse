@@ -4,10 +4,16 @@ from typing import List, Optional
 import sqlalchemy.exc
 from fastapi import Depends, Query
 from loguru import logger
+from pydantic.fields import Undefined
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from joj.horse import models, schemas
-from joj.horse.models.permission import FIXED_ROLES, READONLY_ROLES
+from joj.horse.models.permission import (
+    FIXED_ROLES,
+    READONLY_ROLES,
+    PermissionType,
+    ScopeType,
+)
 from joj.horse.schemas import Empty, StandardListResponse, StandardResponse
 from joj.horse.schemas.base import SearchQueryStr
 from joj.horse.schemas.permission import (
@@ -17,7 +23,7 @@ from joj.horse.schemas.permission import (
 )
 from joj.horse.utils.auth import Authentication, DomainAuthentication, ensure_permission
 from joj.horse.utils.db import db_session_dependency
-from joj.horse.utils.errors import BizError, ErrorCode
+from joj.horse.utils.errors import BizError, ErrorCode, UnauthorizedError
 from joj.horse.utils.parser import (
     parse_domain_from_auth,
     parse_domain_invitation,
@@ -120,12 +126,23 @@ async def delete_domain(
 
 @router.patch(
     "/{domain}",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
+    dependencies=[
+        Depends(
+            ensure_permission(
+                [Permission.DomainGeneral.edit, Permission.SiteDomain.edit, "OR"]
+            )
+        )
+    ],
 )
 async def update_domain(
     domain_edit: schemas.DomainEdit = Depends(schemas.DomainEdit.edit_dependency),
     domain: models.Domain = Depends(parse_domain_from_auth),
+    domain_auth: DomainAuthentication = Depends(),
 ) -> StandardResponse[schemas.Domain]:
+    if domain_edit.tag is not Undefined:
+        if not domain_auth.auth.check(ScopeType.SITE_DOMAIN, PermissionType.edit):
+            raise UnauthorizedError("only user with SiteDomain.edit can update tag")
+
     domain.update_from_dict(domain_edit.dict())
     logger.info(f"update domain: {domain}")
     await domain.save_model()
