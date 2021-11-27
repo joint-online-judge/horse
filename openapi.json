@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: e2e4bb0@2021-11-27T11:37:00Z",
+    "description": "Git version: 13e2edd@2021-11-27T17:58:14Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -7924,12 +7924,11 @@
           }
         }
       },
-      "ProblemPreview": {
-        "title": "ProblemPreview",
+      "ProblemPreviewWithRecordState": {
+        "title": "ProblemPreviewWithRecordState",
         "required": [
           "id",
-          "title",
-          "ownerId"
+          "title"
         ],
         "type": "object",
         "properties": {
@@ -7967,6 +7966,14 @@
             "title": "Ownerid",
             "type": "string",
             "format": "uuid"
+          },
+          "recordId": {
+            "title": "Recordid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "recordState": {
+            "$ref": "#/components/schemas/RecordState"
           }
         }
       },
@@ -8157,8 +8164,7 @@
           "domainId",
           "title",
           "createdAt",
-          "updatedAt",
-          "problems"
+          "updatedAt"
         ],
         "type": "object",
         "properties": {
@@ -8251,8 +8257,9 @@
             "title": "Problems",
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ProblemPreview"
-            }
+              "$ref": "#/components/schemas/ProblemPreviewWithRecordState"
+            },
+            "default": []
           }
         }
       },
