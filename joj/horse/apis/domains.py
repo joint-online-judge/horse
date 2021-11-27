@@ -129,7 +129,7 @@ async def delete_domain(
     dependencies=[
         Depends(
             ensure_permission(
-                [Permission.DomainGeneral.edit, Permission.SiteDomain.edit, "OR"]
+                [Permission.DomainGeneral.edit, Permission.SiteDomain.edit], "OR"
             )
         )
     ],
