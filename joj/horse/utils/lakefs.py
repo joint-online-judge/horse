@@ -18,12 +18,10 @@ from lakefs_client.client import LakeFSClient
 from lakefs_client.exceptions import ApiException as LakeFSApiException
 from loguru import logger
 from patoolib.util import PatoolError
-from tenacity import retry
-from tenacity.stop import stop_after_attempt
-from tenacity.wait import wait_exponential
 
 from joj.horse.config import settings
 from joj.horse.utils.errors import BizError, ErrorCode
+from joj.horse.utils.retry import retry_init
 
 if TYPE_CHECKING:
     from joj.horse.models import Problem, Record
@@ -65,23 +63,10 @@ def init_lakefs() -> None:
     )
 
 
-@retry(stop=stop_after_attempt(5), wait=wait_exponential(2))
-def try_init_lakefs() -> None:
-    attempt_number = try_init_lakefs.retry.statistics["attempt_number"]
-    try:
-        init_lakefs()
-    except Exception as e:
-        max_attempt_number = try_init_lakefs.retry.stop.max_attempt_number
-        msg = "LakeFS: initialization failed ({}/{})".format(
-            attempt_number, max_attempt_number
-        )
-        if attempt_number < max_attempt_number:
-            msg += ", trying again after {} second.".format(2 ** attempt_number)
-        else:
-            msg += "."
-        logger.error(e)
-        logger.warning(msg)
-        raise e
+@retry_init("LakeFS")
+async def try_init_lakefs() -> None:
+    init_lakefs()
+    examine_lakefs_buckets()
 
 
 def create_bucket(bucket: str) -> None:

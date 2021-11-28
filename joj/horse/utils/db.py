@@ -10,11 +10,9 @@ from sqlalchemy_utils import create_database, database_exists
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette_context import context
-from tenacity import retry
-from tenacity.stop import stop_after_attempt
-from tenacity.wait import wait_exponential
 
 from joj.horse.config import settings
+from joj.horse.utils.retry import retry_init
 
 
 @lru_cache()
@@ -77,20 +75,6 @@ async def ensure_db() -> None:
         logger.info("Database {} already exists.", settings.db_name)
 
 
-@retry(stop=stop_after_attempt(5), wait=wait_exponential(2))
+@retry_init("SQLModel")
 async def try_init_db() -> None:
-    attempt_number = try_init_db.retry.statistics["attempt_number"]
-    try:
-        await ensure_db()
-    except Exception as e:
-        max_attempt_number = try_init_db.retry.stop.max_attempt_number
-        msg = "SQLModel: initialization failed ({}/{})".format(
-            attempt_number, max_attempt_number
-        )
-        if attempt_number < max_attempt_number:
-            msg += ", trying again after {} second.".format(2 ** attempt_number)
-        else:
-            msg += "."
-        logger.exception(e)
-        logger.warning(msg)
-        raise e
+    await ensure_db()

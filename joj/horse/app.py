@@ -18,13 +18,10 @@ import joj.horse.models  # noqa: F401
 import joj.horse.utils.monkey_patch  # noqa: F401
 from joj.horse.config import get_settings
 from joj.horse.schemas.base import StandardErrorResponse
+from joj.horse.utils.cache import try_init_cache
 from joj.horse.utils.db import db_session_dependency, try_init_db
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.lakefs import (
-    LakeFSApiException,
-    examine_lakefs_buckets,
-    try_init_lakefs,
-)
+from joj.horse.utils.lakefs import LakeFSApiException, try_init_lakefs
 from joj.horse.utils.logger import init_logging  # noqa: F401
 from joj.horse.utils.url import get_base_url
 from joj.horse.utils.version import get_git_version, get_version
@@ -46,13 +43,15 @@ init_logging()
 async def startup_event() -> None:  # pragma: no cover
     try:
         logger.info(f"Using {asyncio.get_running_loop().__module__}.")
-        await try_init_db()
-
+        initialize_tasks = [
+            try_init_db(),
+            try_init_cache(),
+        ]
         if settings.lakefs_host:
-            try_init_lakefs()
-            examine_lakefs_buckets()
+            initialize_tasks.append(try_init_lakefs())
         else:
             logger.warning("LakeFS not configured! All file features will be disabled.")
+        await asyncio.gather(*initialize_tasks)
 
     except (RetryError, LakeFSApiException) as e:
         logger.error("Initialization failed, exiting.")
