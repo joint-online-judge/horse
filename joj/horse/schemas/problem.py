@@ -17,7 +17,7 @@ from joj.horse.schemas.base import (
     URLORMSchema,
     UserInputURL,
 )
-from joj.horse.schemas.record import Record, RecordCodeType, RecordState
+from joj.horse.schemas.record import RecordCodeType, RecordState
 
 if TYPE_CHECKING:
     pass
@@ -82,17 +82,13 @@ class ProblemDetail(TimestampMixin, Problem):
     pass
 
 
-class RecordStateMixin(ProblemPreview):
+class RecordStateMixin(BaseModel):
     record_id: Optional[UUID] = None
     record_state: Optional[RecordState] = None
 
-    @classmethod
-    def from_problem_and_record(
-        cls, problem: Problem, record: Optional[Record]
-    ) -> "RecordStateMixin":
-        if record is None:
-            return cls(**problem.dict())
-        return cls(**problem.dict(), record_id=record.id, record_state=record.state)
+    def update_by_record_state(self, record_state: "RecordStateMixin") -> None:
+        self.record_id = record_state.record_id
+        self.record_state = record_state.record_state
 
 
 class ProblemPreviewWithRecordState(RecordStateMixin, ProblemPreview):

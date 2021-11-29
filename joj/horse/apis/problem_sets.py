@@ -71,19 +71,18 @@ async def create_problem_set(
     dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.view))],
 )
 async def get_problem_set(
-    problem_set: models.ProblemSet = Depends(parse_problem_set),
+    problem_set: models.ProblemSet = Depends(
+        parse_problem_set_factory(load_problems=True)
+    ),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.ProblemSetDetail]:
-    statement = problem_set.get_problems_statement(user_id=user.id)
-    logger.info(str(statement))
-    rows = await models.Problem.session_exec(statement)
-    problems = [
-        schemas.ProblemPreviewWithRecordState.from_problem_and_record(problem, record)
-        for problem, record in rows.all()
-    ]
-    logger.info(problems)
+    problem_ids = [problem.id for problem in problem_set.problems]
+    records = await models.Record.get_user_latest_records(
+        problem_set_id=problem_set.id, problem_ids=problem_ids, user_id=user.id
+    )
     result = schemas.ProblemSetDetail(**problem_set.dict())
-    result.problems = problems
+    for i in range(len(problem_ids)):
+        result.problems[i].update_by_record_state(records[i])
     return StandardResponse(result)
 
 
@@ -140,9 +139,15 @@ async def add_problem_in_problem_set(
 )
 async def get_problem_in_problem_set(
     link: models.ProblemProblemSetLink = Depends(parse_problem_problem_set_link),
-) -> StandardResponse[schemas.ProblemDetail]:
+    user: models.User = Depends(parse_user_from_auth),
+) -> StandardResponse[schemas.ProblemDetailWithRecordState]:
     # await link.problem_set.operate_problem(link.problem, Operation.Read)
-    return StandardResponse(link.problem)
+    record = await models.Record.get_user_latest_record(
+        problem_set_id=link.problem_set_id, problem_id=link.problem_id, user_id=user.id
+    )
+    problem = schemas.ProblemDetailWithRecordState(**link.problem.dict())
+    problem.update_by_record_state(record)
+    return StandardResponse(problem)
 
 
 @router.patch(

@@ -34,6 +34,11 @@ def get_cache(name: str) -> BaseCache:
     return caches.get(name)
 
 
+@lru_cache()
+def get_redis_cache() -> BaseCache:
+    return get_cache("redis")
+
+
 @retry_init("Redis")
 async def try_init_cache() -> None:
     init_cache()

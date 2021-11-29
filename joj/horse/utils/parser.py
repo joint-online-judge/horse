@@ -146,7 +146,6 @@ async def parse_problems(
 def parse_problem_set_factory(
     load_problems: bool = False,
     load_links: bool = False,
-    load_records: bool = False,
 ) -> Callable[..., Coroutine[Any, Any, models.ProblemSet]]:
     options = []
     if load_problems:
@@ -157,10 +156,6 @@ def parse_problem_set_factory(
                 models.ProblemProblemSetLink.problem, innerjoin=True
             )
         )
-    # if load_records:
-    #     options.append(
-    #         subqueryload(models.ProblemSet.problems).joinedload(models.)
-    #     )
 
     async def wrapped(
         problem_set: str = Path(..., description="url or id of the problem set"),
