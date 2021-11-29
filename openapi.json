@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: f122522@2021-11-28T11:54:14Z",
+    "description": "Git version: 9578f9a@2021-11-29T20:47:34Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -2236,7 +2236,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailResp"
+                  "$ref": "#/components/schemas/ProblemDetailWithRecordStateResp"
                 }
               }
             }
@@ -7771,6 +7771,111 @@
           },
           "data": {
             "$ref": "#/components/schemas/ProblemDetail"
+          }
+        }
+      },
+      "ProblemDetailWithRecordState": {
+        "title": "ProblemDetailWithRecordState",
+        "required": [
+          "id",
+          "domainId",
+          "title",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "domainId": {
+            "title": "Domainid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string",
+            "description": "(unique) url of the domain",
+            "default": ""
+          },
+          "title": {
+            "title": "Title",
+            "minLength": 1,
+            "type": "string",
+            "description": "title of the problem"
+          },
+          "content": {
+            "title": "Content",
+            "maxLength": 65536,
+            "type": "string",
+            "description": "content of the problem",
+            "default": ""
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "is the problem hidden",
+            "default": false
+          },
+          "numSubmit": {
+            "title": "Numsubmit",
+            "type": "integer",
+            "default": 0
+          },
+          "numAccept": {
+            "title": "Numaccept",
+            "type": "integer",
+            "default": 0
+          },
+          "ownerId": {
+            "title": "Ownerid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "problemGroupId": {
+            "title": "Problemgroupid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "recordId": {
+            "title": "Recordid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "recordState": {
+            "$ref": "#/components/schemas/RecordState"
+          }
+        }
+      },
+      "ProblemDetailWithRecordStateResp": {
+        "title": "ProblemDetailWithRecordStateResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProblemDetailWithRecordState"
           }
         }
       },
