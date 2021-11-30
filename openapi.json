@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 0f913fc@2021-11-30T11:39:09Z",
+    "description": "Git version: e1ec5a4@2021-11-30T12:04:58Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -87,7 +87,7 @@
             "schema": {
               "title": "Limit",
               "maximum": 500.0,
-              "exclusiveMinimum": 0.0,
+              "minimum": 0.0,
               "type": "integer",
               "default": 100
             },
@@ -489,7 +489,7 @@
             "schema": {
               "title": "Limit",
               "maximum": 500.0,
-              "exclusiveMinimum": 0.0,
+              "minimum": 0.0,
               "type": "integer",
               "default": 100
             },
@@ -1777,7 +1777,7 @@
             "schema": {
               "title": "Limit",
               "maximum": 500.0,
-              "exclusiveMinimum": 0.0,
+              "minimum": 0.0,
               "type": "integer",
               "default": 100
             },
@@ -2646,7 +2646,7 @@
             "schema": {
               "title": "Limit",
               "maximum": 500.0,
-              "exclusiveMinimum": 0.0,
+              "minimum": 0.0,
               "type": "integer",
               "default": 100
             },
@@ -4230,7 +4230,7 @@
             "schema": {
               "title": "Limit",
               "maximum": 500.0,
-              "exclusiveMinimum": 0.0,
+              "minimum": 0.0,
               "type": "integer",
               "default": 100
             },
@@ -4328,7 +4328,7 @@
             "schema": {
               "title": "Limit",
               "maximum": 500.0,
-              "exclusiveMinimum": 0.0,
+              "minimum": 0.0,
               "type": "integer",
               "default": 100
             },
@@ -4583,7 +4583,7 @@
             "schema": {
               "title": "Limit",
               "maximum": 500.0,
-              "exclusiveMinimum": 0.0,
+              "minimum": 0.0,
               "type": "integer",
               "default": 100
             },
@@ -4676,7 +4676,7 @@
             "schema": {
               "title": "Limit",
               "maximum": 500.0,
-              "exclusiveMinimum": 0.0,
+              "minimum": 0.0,
               "type": "integer",
               "default": 100
             },
@@ -4837,7 +4837,7 @@
             "schema": {
               "title": "Limit",
               "maximum": 500.0,
-              "exclusiveMinimum": 0.0,
+              "minimum": 0.0,
               "type": "integer",
               "default": 100
             },
@@ -4917,7 +4917,7 @@
             "schema": {
               "title": "Limit",
               "maximum": 500.0,
-              "exclusiveMinimum": 0.0,
+              "minimum": 0.0,
               "type": "integer",
               "default": 100
             },
@@ -5547,7 +5547,7 @@
             "schema": {
               "title": "Limit",
               "maximum": 500.0,
-              "exclusiveMinimum": 0.0,
+              "minimum": 0.0,
               "type": "integer",
               "default": 100
             },
@@ -5757,7 +5757,7 @@
             "schema": {
               "title": "Limit",
               "maximum": 500.0,
-              "exclusiveMinimum": 0.0,
+              "minimum": 0.0,
               "type": "integer",
               "default": 100
             },
@@ -5828,7 +5828,7 @@
             "schema": {
               "title": "Limit",
               "maximum": 500.0,
-              "exclusiveMinimum": 0.0,
+              "minimum": 0.0,
               "type": "integer",
               "default": 100
             },
