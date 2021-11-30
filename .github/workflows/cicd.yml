@@ -180,6 +180,8 @@ jobs:
     steps:
       - name: executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@master
+        env:
+          DOCKER_COMPOSE_COMMAND: "docker-compose -f docker-compose.yml -f docker-compose-ui.yml"
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
@@ -187,4 +189,6 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             cd ~/joj-deploy
-            docker-compose pull && docker-compose up -d
+            git pull
+            ${DOCKER_COMPOSE_COMMAND} pull
+            ${DOCKER_COMPOSE_COMMAND} up -d
