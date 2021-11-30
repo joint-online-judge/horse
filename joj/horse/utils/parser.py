@@ -209,7 +209,7 @@ async def parse_problem_group(problem_group: str = Path(...)) -> models.ProblemS
 
 
 async def parse_record(
-    record: str = Path(...), auth: Authentication = Depends()
+    record: str = Path(...), auth: DomainAuthentication = Depends()
 ) -> schemas.Record:
     record_model = await schemas.Record.find_by_id(record)
     if record_model and record_model.user == auth.user:

@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from joj.horse import models, schemas
 from joj.horse.models.permission import DefaultRole
-from joj.horse.schemas.base import StandardResponse
+from joj.horse.schemas.base import Empty, StandardResponse
 from joj.horse.schemas.misc import Version
 from joj.horse.utils.auth import JWTAccessToken, auth_jwt_decode_access_token
 from joj.horse.utils.db import db_session_dependency
@@ -39,8 +39,9 @@ async def jwt_decoded(
 
 
 @router.get("/test/report")
-async def test_error_report() -> None:
+async def test_error_report() -> StandardResponse[Empty]:
     assert False
+    return StandardResponse()
 
 
 @router.post("/set_root_user")
