@@ -175,8 +175,8 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
             value = await cache.get(key, namespace="user_latest_records")
             try:
                 return RecordStateMixin(**value)
-            except:  # noqa: E722
-                pass
+            except Exception:  # noqa: E722
+                logger.exception("error when loading record from cache:")
 
         statement = (
             cls.sql_select()
