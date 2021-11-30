@@ -240,31 +240,30 @@ class TestDomainDelete:
 class TestDomainList:
     url = app.url_path_for("list_domains")
 
-    @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
-    async def test_list_domain_asc(
-        self, client: AsyncClient, user: models.User
-    ) -> None:
+    async def list_domain_helper(
+        self, client: AsyncClient, user: models.User, ordering: str
+    ) -> Any:
         response = await do_api_request(
-            client, "GET", self.url, user, {"ordering": "-name"}
+            client, "GET", self.url, user, {"ordering": ordering}
         )
         assert response.status_code == 200
         res = response.json()
         res = res["data"]
         assert res["count"] == GLOBAL_DOMAIN_COUNT + 2
         assert len(res["results"]) == GLOBAL_DOMAIN_COUNT + 2
+        return res
+
+    @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
+    async def test_list_domain_asc(
+        self, client: AsyncClient, user: models.User
+    ) -> None:
+        await self.list_domain_helper(client, user, "name")
 
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
     async def test_list_domain_desc(
         self, client: AsyncClient, user: models.User
     ) -> None:
-        response = await do_api_request(
-            client, "GET", self.url, user, {"ordering": "name"}
-        )
-        assert response.status_code == 200
-        res = response.json()
-        res = res["data"]
-        assert res["count"] == GLOBAL_DOMAIN_COUNT + 2
-        assert len(res["results"]) == GLOBAL_DOMAIN_COUNT + 2
+        await self.list_domain_helper(client, user, "-name")
 
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
     async def test_list_domain_illegal_field(

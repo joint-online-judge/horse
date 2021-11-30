@@ -192,15 +192,6 @@ class URLMixin(BaseORMModel):
     url: UserInputURL = Field("", description="(unique) url of the domain")
 
 
-class TimeStampMixin(SQLModel):
-    created_at: Optional[datetime] = Field(
-        None, sa_column=get_datetime_column(server_default=utcnow())
-    )
-    updated_at: Optional[datetime] = Field(
-        None, sa_column=get_datetime_column(server_default=utcnow(), onupdate=utcnow())
-    )
-
-
 class URLORMModel(BaseORMModel):
     url: str = Field(..., index=True, nullable=False, sa_column_kwargs={"unique": True})
 
