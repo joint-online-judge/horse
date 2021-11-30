@@ -175,8 +175,11 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
             value = await cache.get(key, namespace="user_latest_records")
             try:
                 return RecordStateMixin(**value)
-            except Exception:  # noqa: E722
-                logger.exception("error when loading record from cache:")
+            except (TypeError, ValueError):
+                pass
+            except Exception as e:
+                logger.error("error when loading record from cache:")
+                logger.exception(e)
 
         statement = (
             cls.sql_select()
@@ -214,9 +217,15 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
         record_states = []
         updated_cache_pairs = []
         for i, value in enumerate(values):
+            record_state = None
             try:
                 record_state = RecordStateMixin(**value)
-            except Exception:  # noqa: E722
+            except (TypeError, ValueError):
+                pass
+            except Exception as e:
+                logger.error("error when loading records from cache:")
+                logger.exception(e)
+            if record_state is None:
                 record_state = await cls.get_user_latest_record(
                     problem_set_id=problem_set_id,
                     problem_id=problem_ids[i],
