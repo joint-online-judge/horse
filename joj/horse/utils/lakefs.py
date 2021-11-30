@@ -418,13 +418,6 @@ class LakeFSProblemConfig(LakeFSBase):
         )
         self.problem = problem
 
-    def ensure_branch(self, problem_base: Optional["Problem"] = None) -> None:
-        if problem_base is None:
-            source_branch_id = None
-        else:
-            source_branch_id = str(problem_base.id)
-        LakeFSBase.ensure_branch(self, source_branch_id)
-
 
 class LakeFSRecord(LakeFSBase):
     def __init__(self, problem: "Problem", record: "Record"):
