@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: e54a297@2021-11-30T11:09:19Z",
+    "description": "Git version: c1be001@2021-11-30T11:32:42Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -4403,6 +4403,17 @@
             },
             "name": "record",
             "in": "path"
+          },
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
           }
         ],
         "responses": {
@@ -4459,6 +4470,17 @@
               "type": "string"
             },
             "name": "record",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
             "in": "path"
           }
         ],
@@ -5447,8 +5469,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Response Test Error Report Api V1 Test Report Get",
-                  "type": "null"
+                  "$ref": "#/components/schemas/EmptyResp"
                 }
               }
             }
