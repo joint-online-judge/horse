@@ -76,13 +76,12 @@ async def get_problem_set(
     ),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.ProblemSetDetail]:
-    problem_ids = [problem.id for problem in problem_set.problems]
-    records = await models.Record.get_user_latest_records(
-        problem_set_id=problem_set.id, problem_ids=problem_ids, user_id=user.id
+    problems = await problem_set.get_problems_with_record_states(
+        cls=schemas.ProblemPreviewWithRecordState, user_id=user.id
     )
-    result = schemas.ProblemSetDetail(**problem_set.dict())
-    for i in range(len(problem_ids)):
-        result.problems[i].update_by_record_state(records[i])
+    result = schemas.ProblemSetDetail(
+        **problem_set.dict(exclude={"problems": ...}), problems=problems
+    )
     return StandardResponse(result)
 
 
@@ -113,8 +112,24 @@ async def update_problem_set(
     return StandardResponse(problem_set)
 
 
+@router.get(
+    "/{problemSet}/problems",
+    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.view))],
+)
+async def list_problems_in_problem_set(
+    problem_set: models.ProblemSet = Depends(
+        parse_problem_set_factory(load_problems=True)
+    ),
+    user: models.User = Depends(parse_user_from_auth),
+) -> StandardListResponse[schemas.ProblemWithRecordState]:
+    problems = await problem_set.get_problems_with_record_states(
+        cls=schemas.ProblemWithRecordState, user_id=user.id
+    )
+    return StandardListResponse(problems)
+
+
 @router.post(
-    "/{problemSet}/problem",
+    "/{problemSet}/problems",
     dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.edit))],
 )
 async def add_problem_in_problem_set(
@@ -134,7 +149,7 @@ async def add_problem_in_problem_set(
 
 
 @router.get(
-    "/{problemSet}/problem/{problem}",
+    "/{problemSet}/problems/{problem}",
     dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.view))],
 )
 async def get_problem_in_problem_set(
@@ -151,7 +166,7 @@ async def get_problem_in_problem_set(
 
 
 @router.patch(
-    "/{problemSet}/problem/{problem}",
+    "/{problemSet}/problems/{problem}",
     dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.edit))],
 )
 async def update_problem_in_problem_set(
@@ -168,7 +183,7 @@ async def update_problem_in_problem_set(
 
 
 @router.delete(
-    "/{problemSet}/problem/{problem}",
+    "/{problemSet}/problems/{problem}",
     dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.edit))],
 )
 async def delete_problem_in_problem_set(
@@ -182,7 +197,7 @@ async def delete_problem_in_problem_set(
 
 
 @router.post(
-    "/{problemSet}/problem/{problem}/submit",
+    "/{problemSet}/problems/{problem}/submit",
     dependencies=[Depends(ensure_permission(Permission.DomainProblem.submit))],
 )
 async def submit_solution_to_problem_set(

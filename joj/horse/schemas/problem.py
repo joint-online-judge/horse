@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, TypeVar
 from uuid import UUID
 
 from fastapi import UploadFile
@@ -95,8 +95,18 @@ class ProblemPreviewWithRecordState(RecordStateMixin, ProblemPreview):
     pass
 
 
+class ProblemWithRecordState(RecordStateMixin, Problem):
+    pass
+
+
 class ProblemDetailWithRecordState(RecordStateMixin, ProblemDetail):
     pass
+
+
+WithRecordStateType = TypeVar("WithRecordStateType", bound=RecordStateMixin)
+
+
+# ProblemWithRecordStateType = Union[ProblemPreviewWithRecordState, ProblemWithRecordState, ProblemDetailWithRecordState]
 
 
 class ProblemSolutionSubmit(BaseModel, metaclass=FormMetaclass):

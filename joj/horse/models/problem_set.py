@@ -1,16 +1,16 @@
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, Type
 from uuid import UUID
 
 from sqlalchemy import event
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
-from sqlalchemy.sql.expression import Select, and_
-from sqlmodel import Field, Relationship, select
+from sqlmodel import Field, Relationship
 from sqlmodel.sql.sqltypes import GUID
 
 from joj.horse.models.base import DomainURLORMModel, url_pre_save
 from joj.horse.models.link_tables import ProblemProblemSetLink
 from joj.horse.schemas.base import Operation
+from joj.horse.schemas.problem import WithRecordStateType
 from joj.horse.schemas.problem_set import ProblemSetDetail
 from joj.horse.utils.errors import BizError, ErrorCode
 
@@ -66,35 +66,24 @@ class ProblemSet(DomainURLORMModel, ProblemSetDetail, table=True):  # type: igno
     )
     records: List["Record"] = Relationship(back_populates="problem_set")
 
-    def get_problems_statement(self, user_id: UUID) -> Select:
+    async def get_problems_with_record_states(
+        self, cls: Type[WithRecordStateType], user_id: UUID
+    ) -> List[WithRecordStateType]:
         from joj.horse import models
 
-        statement = (
-            select(models.Problem, models.Record)
-            .join(
-                models.ProblemProblemSetLink,
-                and_(
-                    models.ProblemProblemSetLink.problem_id == models.Problem.id,
-                    models.ProblemProblemSetLink.problem_set_id == self.id,
-                ),
-            )
-            .order_by(models.ProblemProblemSetLink.position.asc())
-            .outerjoin(
-                models.UserLatestRecord,
-                and_(
-                    models.ProblemProblemSetLink.problem_id
-                    == models.UserLatestRecord.problem_id,
-                    models.ProblemProblemSetLink.problem_set_id
-                    == models.UserLatestRecord.problem_set_id,
-                    models.UserLatestRecord.user_id == user_id,
-                ),
-            )
-            .outerjoin(
-                models.Record, models.UserLatestRecord.record_id == models.Record.id
-            )
+        problem_ids = [problem.id for problem in self.problems]
+        records = await models.Record.get_user_latest_records(
+            problem_set_id=self.id, problem_ids=problem_ids, user_id=user_id
         )
-
-        return statement
+        problems = [
+            cls(
+                **self.problems[i].dict(),
+                record_id=records[i].record_id,
+                record_state=records[i].record_state
+            )
+            for i, record in enumerate(records)
+        ]
+        return problems
 
     async def operate_problem(
         self, problem: "Problem", operation: Operation, position: Optional[int] = None
