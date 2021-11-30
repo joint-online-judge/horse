@@ -216,7 +216,7 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
         for i, value in enumerate(values):
             try:
                 record_state = RecordStateMixin(**value)
-            except:  # noqa: E722
+            except Exception:  # noqa: E722
                 record_state = await cls.get_user_latest_record(
                     problem_set_id=problem_set_id,
                     problem_id=problem_ids[i],
