@@ -63,11 +63,11 @@ class NoneNegativeInt(ConstrainedInt):
     ge = 0
 
 
-class PositiveInt(ConstrainedInt):
-    gt = 0
+# class PositiveInt(ConstrainedInt):
+#     gt = 0
 
 
-class PaginationLimit(PositiveInt):
+class PaginationLimit(NoneNegativeInt):
     le = 500
 
 
