@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: e1ec5a4@2021-11-30T12:04:58Z",
+    "description": "Git version: b2b50a8@2021-11-30T20:07:57Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -2108,13 +2108,81 @@
         ]
       }
     },
-    "/api/v1/domains/{domain}/problem_sets/{problemSet}/problem": {
+    "/api/v1/domains/{domain}/problem_sets/{problemSet}/problems": {
+      "get": {
+        "tags": [
+          "problem set"
+        ],
+        "summary": "List Problems In Problem Set",
+        "operationId": "list_problems_in_problem_set_api_v1_domains__domain__problem_sets__problemSet__problems_get",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem set",
+            "required": true,
+            "schema": {
+              "title": "Problemset",
+              "type": "string",
+              "description": "url or id of the problem set"
+            },
+            "name": "problemSet",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemWithRecordStateListResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
       "post": {
         "tags": [
           "problem set"
         ],
         "summary": "Add Problem In Problem Set",
-        "operationId": "add_problem_in_problem_set_api_v1_domains__domain__problem_sets__problemSet__problem_post",
+        "operationId": "add_problem_in_problem_set_api_v1_domains__domain__problem_sets__problemSet__problems_post",
         "parameters": [
           {
             "description": "url or id of the domain",
@@ -2188,13 +2256,13 @@
         ]
       }
     },
-    "/api/v1/domains/{domain}/problem_sets/{problemSet}/problem/{problem}": {
+    "/api/v1/domains/{domain}/problem_sets/{problemSet}/problems/{problem}": {
       "get": {
         "tags": [
           "problem set"
         ],
         "summary": "Get Problem In Problem Set",
-        "operationId": "get_problem_in_problem_set_api_v1_domains__domain__problem_sets__problemSet__problem__problem__get",
+        "operationId": "get_problem_in_problem_set_api_v1_domains__domain__problem_sets__problemSet__problems__problem__get",
         "parameters": [
           {
             "description": "url or id of the domain",
@@ -2273,7 +2341,7 @@
           "problem set"
         ],
         "summary": "Delete Problem In Problem Set",
-        "operationId": "delete_problem_in_problem_set_api_v1_domains__domain__problem_sets__problemSet__problem__problem__delete",
+        "operationId": "delete_problem_in_problem_set_api_v1_domains__domain__problem_sets__problemSet__problems__problem__delete",
         "parameters": [
           {
             "description": "url or id of the domain",
@@ -2352,7 +2420,7 @@
           "problem set"
         ],
         "summary": "Update Problem In Problem Set",
-        "operationId": "update_problem_in_problem_set_api_v1_domains__domain__problem_sets__problemSet__problem__problem__patch",
+        "operationId": "update_problem_in_problem_set_api_v1_domains__domain__problem_sets__problemSet__problems__problem__patch",
         "parameters": [
           {
             "description": "url or id of the domain",
@@ -2437,13 +2505,13 @@
         ]
       }
     },
-    "/api/v1/domains/{domain}/problem_sets/{problemSet}/problem/{problem}/submit": {
+    "/api/v1/domains/{domain}/problem_sets/{problemSet}/problems/{problem}/submit": {
       "post": {
         "tags": [
           "problem set"
         ],
         "summary": "Submit Solution To Problem Set",
-        "operationId": "submit_solution_to_problem_set_api_v1_domains__domain__problem_sets__problemSet__problem__problem__submit_post",
+        "operationId": "submit_solution_to_problem_set_api_v1_domains__domain__problem_sets__problemSet__problems__problem__submit_post",
         "parameters": [
           {
             "description": "url or id of the domain",
@@ -8580,6 +8648,118 @@
             "title": "File",
             "type": "string",
             "format": "binary"
+          }
+        }
+      },
+      "ProblemWithRecordState": {
+        "title": "ProblemWithRecordState",
+        "required": [
+          "id",
+          "domainId",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "domainId": {
+            "title": "Domainid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string",
+            "description": "(unique) url of the domain",
+            "default": ""
+          },
+          "title": {
+            "title": "Title",
+            "minLength": 1,
+            "type": "string",
+            "description": "title of the problem"
+          },
+          "content": {
+            "title": "Content",
+            "maxLength": 65536,
+            "type": "string",
+            "description": "content of the problem",
+            "default": ""
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "is the problem hidden",
+            "default": false
+          },
+          "numSubmit": {
+            "title": "Numsubmit",
+            "type": "integer",
+            "default": 0
+          },
+          "numAccept": {
+            "title": "Numaccept",
+            "type": "integer",
+            "default": 0
+          },
+          "ownerId": {
+            "title": "Ownerid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "problemGroupId": {
+            "title": "Problemgroupid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "recordId": {
+            "title": "Recordid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "recordState": {
+            "$ref": "#/components/schemas/RecordState"
+          }
+        }
+      },
+      "ProblemWithRecordStateList": {
+        "title": "ProblemWithRecordStateList",
+        "type": "object",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer",
+            "default": 0
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProblemWithRecordState"
+            },
+            "default": []
+          }
+        }
+      },
+      "ProblemWithRecordStateListResp": {
+        "title": "ProblemWithRecordStateListResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProblemWithRecordStateList"
           }
         }
       },
