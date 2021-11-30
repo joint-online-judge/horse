@@ -19,7 +19,7 @@ def init_cache() -> None:
                 "cache": "aiocache.RedisCache",
                 "endpoint": settings.redis_host,
                 "port": settings.redis_port,
-                "password": settings.redis_password,
+                "password": settings.redis_password or None,
                 "db": settings.redis_db_index,
                 "timeout": 1,
                 "serializer": {"class": "aiocache.serializers.PickleSerializer"},
