@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: b2b50a8@2021-11-30T20:07:57Z",
+    "description": "Git version: bfefbbd@2021-12-02T07:55:13Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -6008,63 +6008,6 @@
         ]
       }
     },
-    "/api/v1/admin/judgers/{uid}/jwt": {
-      "get": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "Get Judger Jwt",
-        "operationId": "get_judger_jwt_api_v1_admin_judgers__uid__jwt_get",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "Uid",
-              "type": "string"
-            },
-            "name": "uid",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JWT"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
     "/api/v1/judge/key": {
       "get": {
         "tags": [
@@ -7344,19 +7287,6 @@
             "items": {
               "$ref": "#/components/schemas/ValidationError"
             }
-          }
-        }
-      },
-      "JWT": {
-        "title": "JWT",
-        "required": [
-          "jwt"
-        ],
-        "type": "object",
-        "properties": {
-          "jwt": {
-            "title": "Jwt",
-            "type": "string"
           }
         }
       },
