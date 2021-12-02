@@ -501,14 +501,12 @@ class PermissionChecker:
 
 
 class UserPermissionChecker(PermissionChecker):
-    def __call__(self, auth: Authentication = Depends(Authentication)) -> None:
+    def __call__(self, auth: Authentication = Depends()) -> None:
         self.ensure(auth, self.perm)
 
 
 class DomainPermissionChecker(PermissionChecker):
-    def __call__(
-        self, domain_auth: DomainAuthentication = Depends(DomainAuthentication)
-    ) -> None:
+    def __call__(self, domain_auth: DomainAuthentication = Depends()) -> None:
         self.ensure(domain_auth.auth, self.perm)
 
 
