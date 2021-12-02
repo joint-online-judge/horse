@@ -39,9 +39,7 @@ async def parse_user_from_path_or_query(
     return await parse_uid(user, auth)
 
 
-def parse_user_from_auth(
-    auth: Authentication = Depends(Authentication),
-) -> models.User:
+def parse_user_from_auth(auth: Authentication = Depends()) -> models.User:
     if auth.jwt.category != "user":
         raise BizError(ErrorCode.UserNotFoundError)
     return models.User(

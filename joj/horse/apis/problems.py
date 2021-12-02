@@ -1,3 +1,5 @@
+from typing import List
+
 from celery import Celery
 from fastapi import BackgroundTasks, Depends
 from loguru import logger
@@ -130,8 +132,7 @@ async def clone_problem(
     user: models.User = Depends(parse_user_from_auth),
     auth: Authentication = Depends(),
 ) -> StandardListResponse[schemas.Problem]:
-    # TODO: transaction here
-    problems = [
+    problems: List[models.Problem] = [
         await parse_problem(await parse_problem_without_validation(oid, domain), auth)
         for oid in problem_clone.problems
     ]
