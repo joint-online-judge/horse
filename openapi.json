@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: f24a6d9@2021-12-02T08:21:18Z",
+    "description": "Git version: 193dff2@2021-12-02T15:06:55Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -5600,6 +5600,18 @@
         "operationId": "list_users_api_v1_admin_users_get",
         "parameters": [
           {
+            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: name",
+            "required": false,
+            "schema": {
+              "title": "Ordering",
+              "type": "string",
+              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: name",
+              "default": ""
+            },
+            "name": "ordering",
+            "in": "query"
+          },
+          {
             "required": false,
             "schema": {
               "title": "Offset",
@@ -5660,145 +5672,6 @@
             "HTTPBearer": []
           }
         ]
-      },
-      "post": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "Create User",
-        "operationId": "create_user_api_v1_admin_users_post",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "Studentid",
-              "type": "string"
-            },
-            "name": "studentId",
-            "in": "query"
-          },
-          {
-            "required": true,
-            "schema": {
-              "title": "Jaccountname",
-              "type": "string"
-            },
-            "name": "jaccountName",
-            "in": "query"
-          },
-          {
-            "required": true,
-            "schema": {
-              "title": "Realname",
-              "type": "string"
-            },
-            "name": "realName",
-            "in": "query"
-          },
-          {
-            "required": true,
-            "schema": {
-              "title": "Ip",
-              "type": "string"
-            },
-            "name": "ip",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/users/{uid}": {
-      "delete": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "Delete User",
-        "operationId": "delete_user_api_v1_admin_users__uid__delete",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "Uid",
-              "type": "string"
-            },
-            "name": "uid",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmptyResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
       }
     },
     "/api/v1/admin/domain_roles": {
@@ -5809,6 +5682,18 @@
         "summary": "List Domain Roles",
         "operationId": "list_domain_roles_api_v1_admin_domain_roles_get",
         "parameters": [
+          {
+            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: name",
+            "required": false,
+            "schema": {
+              "title": "Ordering",
+              "type": "string",
+              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: name",
+              "default": ""
+            },
+            "name": "ordering",
+            "in": "query"
+          },
           {
             "required": false,
             "schema": {
@@ -5881,6 +5766,18 @@
         "operationId": "list_judgers_api_v1_admin_judgers_get",
         "parameters": [
           {
+            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: name",
+            "required": false,
+            "schema": {
+              "title": "Ordering",
+              "type": "string",
+              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: name",
+              "default": ""
+            },
+            "name": "ordering",
+            "in": "query"
+          },
+          {
             "required": false,
             "schema": {
               "title": "Offset",
@@ -5911,71 +5808,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserListResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "Create Judger",
-        "operationId": "create_judger_api_v1_admin_judgers_post",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "Uname",
-              "type": "string"
-            },
-            "name": "uname",
-            "in": "query"
-          },
-          {
-            "required": true,
-            "schema": {
-              "title": "Mail",
-              "type": "string",
-              "format": "email"
-            },
-            "name": "mail",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserResp"
                 }
               }
             }
