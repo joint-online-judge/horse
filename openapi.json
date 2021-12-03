@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: b6857ef@2021-12-03T15:06:32Z",
+    "description": "Git version: cd3eddf@2021-12-03T16:26:50Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -4283,6 +4283,18 @@
         "operationId": "list_problem_groups_api_v1_problem_groups_get",
         "parameters": [
           {
+            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: Any",
+            "required": false,
+            "schema": {
+              "title": "Ordering",
+              "type": "string",
+              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: Any",
+              "default": ""
+            },
+            "name": "ordering",
+            "in": "query"
+          },
+          {
             "required": false,
             "schema": {
               "title": "Offset",
@@ -6991,8 +7003,6 @@
           "UserAlreadyInDomainBadRequestError",
           "DomainInvitationBadRequestError",
           "ScoreboardHiddenBadRequestError",
-          "ProblemSetBeforeAvailableError",
-          "ProblemSetAfterDueError",
           "UserNotJudgerError",
           "DomainNotOwnerError",
           "DomainNotRootError",
