@@ -248,7 +248,7 @@ async def get_scoreboard(
                 # {
                 #     "user": str(user.id),
                 #     "problem": problem.id,
-                #     "submit_at": {"$gte": problem_set.available_time},
+                #     "submit_at": {"$gte": problem_set.unlock_at},
                 #     "status": {"$nin": [RecordStatus.waiting, RecordStatus.judging]},
                 # },
                 sort=[("submit_at", "DESCENDING")],
@@ -257,12 +257,12 @@ async def get_scoreboard(
             record = schemas.Record.from_orm(record_model) if record_model else None
             score = 0
             time = datetime(1970, 1, 1)
-            time_spent = datetime.utcnow() - problem_set.available_time
+            time_spent = datetime.utcnow() - problem_set.unlock_at
             full_score = 1000  # TODO: modify later
             if record is not None:
                 score = record.score
                 time = record.submit_at
-                time_spent = record_model.submit_at - problem_set.available_time
+                time_spent = record_model.submit_at - problem_set.unlock_at
             total_score += score
             total_time_spent += time_spent
             scores.append(
