@@ -21,7 +21,7 @@ from joj.horse.schemas.permission import (
     DefaultRole,
     Permission,
 )
-from joj.horse.utils.auth import Authentication, DomainAuthentication, ensure_permission
+from joj.horse.utils.auth import Authentication, DomainAuthentication
 from joj.horse.utils.db import db_session_dependency
 from joj.horse.utils.errors import BizError, ErrorCode, UnauthorizedError
 from joj.horse.utils.parser import (
@@ -121,13 +121,7 @@ async def delete_domain(
 
 @router.patch(
     "/{domain}",
-    dependencies=[
-        Depends(
-            ensure_permission(
-                [Permission.DomainGeneral.edit, Permission.SiteDomain.edit], "OR"
-            )
-        )
-    ],
+    permissions=[Permission.DomainGeneral.edit | Permission.SiteDomain.edit],
 )
 async def update_domain(
     domain_edit: schemas.DomainEdit = Depends(schemas.DomainEdit.edit_dependency),

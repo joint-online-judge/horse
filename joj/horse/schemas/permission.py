@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, Optional, Type, TypeVar
+from typing import Dict, List, Literal, Optional, Tuple, Type, TypeVar
 
 from joj.horse.models.permission import (
     DefaultRole as DefaultRole,
@@ -134,6 +134,18 @@ DEFAULT_SITE_PERMISSION = {
 T = TypeVar("T", bound=Type[PermissionBase])
 
 
+class WrappedPermissionEnum(Enum):
+    def __or__(
+        self, other: "WrappedPermissionEnum"
+    ) -> Tuple[List["WrappedPermissionEnum"], Literal["OR"]]:
+        return ([self, other], "OR")
+
+    def __and__(
+        self, other: "WrappedPermissionEnum"
+    ) -> Tuple[List["WrappedPermissionEnum"], Literal["AND"]]:
+        return ([self, other], "AND")
+
+
 def wrap_permission(scope: ScopeType, cls: T) -> T:
     value = "Wrapped" + cls.__name__
     names = []
@@ -141,7 +153,7 @@ def wrap_permission(scope: ScopeType, cls: T) -> T:
         if not k.startswith("_"):
             perm = PermissionType[k]
             names.append((k, (scope, perm)))
-    return Enum(value, names=names, type=tuple)  # type: ignore
+    return WrappedPermissionEnum(value, names=names, type=tuple)  # type: ignore
 
 
 class Permission:
