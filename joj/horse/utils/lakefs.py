@@ -54,7 +54,6 @@ endpoint = http://{settings.lakefs_s3_domain}:{settings.lakefs_port}
 
 def init_lakefs() -> None:
     client = get_lakefs_client()
-    logger.info(client)
     response: models.VersionConfig = client.config.get_lake_fs_version()
     server_version = response["version"]
     logger.info(

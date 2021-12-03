@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 
 from pydantic.fields import Undefined
 from sqlalchemy.engine import Connection, Row
+from sqlalchemy.exc import StatementError
 from sqlalchemy.orm import Mapper
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.sql.expression import Delete, Select, Update
@@ -51,7 +52,10 @@ class ORMUtils(SQLModel, BaseModel):
             statement = __base_orm_model_cls__.apply_filtering(
                 select(__base_orm_model_cls__), **kwargs
             )
-            results = await session.exec(statement)
+            try:
+                results = await session.exec(statement)
+            except StatementError:
+                return None
             return results.one_or_none()
 
     @classmethod
@@ -62,7 +66,10 @@ class ORMUtils(SQLModel, BaseModel):
             statement = __base_orm_model_cls__.apply_filtering(
                 select(__base_orm_model_cls__), **kwargs
             )
-            results = await session.exec(statement)
+            try:
+                results = await session.exec(statement)
+            except StatementError:
+                return []
             return results.all()
 
     async def save_model(self, commit: bool = True, refresh: bool = True) -> None:
@@ -159,8 +166,11 @@ class ORMUtils(SQLModel, BaseModel):
         statement = cls.apply_pagination(statement, pagination)
 
         async with db_session() as session:
-            row_count = await session.exec(count_statement)
-            results = await session.exec(statement)
+            try:
+                row_count = await session.exec(count_statement)
+                results = await session.exec(statement)
+            except StatementError:
+                return [], 0
             row_count_value = row_count.one()
             if not isinstance(row_count_value, int):
                 row_count_value = row_count_value[0]
@@ -204,7 +214,10 @@ class URLORMModel(BaseORMModel):
         else:
             statement = select(cls).where(cls.url == url_or_id)
         async with db_session() as session:
-            result = await session.exec(statement)
+            try:
+                result = await session.exec(statement)
+            except StatementError:
+                return None
             return result.one_or_none()
 
 
@@ -237,7 +250,10 @@ class DomainURLORMModel(URLORMModel):
             else:
                 statement = statement.options(options)
         async with db_session() as session:
-            result = await session.exec(statement)
+            try:
+                result = await session.exec(statement)
+            except StatementError:
+                return None
             return result.one_or_none()
 
 

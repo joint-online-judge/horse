@@ -207,11 +207,11 @@ async def add_domain_user(
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> StandardResponse[schemas.UserWithDomainRole]:
     role = domain_user_add.role
-    user = await parse_uid(domain_user_add.user, domain_auth.auth)
-    user_dict = user.dict()
     # only root member (or site root) can add root member
     if role == DefaultRole.ROOT and not domain_auth.auth.is_domain_root():
         raise BizError(ErrorCode.DomainNotRootError)
+    user = await parse_uid(domain_user_add.user, domain_auth.auth)
+    user_dict = user.dict()
     # add member
     domain_user = await models.DomainUser.add_domain_user(
         domain_id=domain.id, user_id=user.id, role=role
