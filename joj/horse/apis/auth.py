@@ -230,6 +230,8 @@ async def login(
     credentials: OAuth2PasswordRequestForm = Depends(),
 ) -> schemas.StandardResponse[schemas.AuthTokens]:
     user = await models.User.get_or_none(username=credentials.username)
+    if not user:
+        raise BizError(ErrorCode.UserLoginError, "user not found")
     if not user.verify_password(credentials.password):
         raise BizError(ErrorCode.UserLoginError, "incorrect password")
     user.login_at = datetime.now(tz=timezone.utc)

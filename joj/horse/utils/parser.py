@@ -134,10 +134,10 @@ async def parse_problem_config(
     raise BizError(ErrorCode.ProblemConfigNotFoundError)
 
 
-async def parse_problems(
+def parse_problems(
     problems: List[str], domain_auth: DomainAuthentication = Depends()
 ) -> List[models.Problem]:
-    return [await parse_problem(oid, domain_auth) for oid in problems]
+    return [parse_problem(oid, domain_auth) for oid in problems]
 
 
 @lru_cache

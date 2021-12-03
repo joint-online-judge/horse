@@ -131,21 +131,37 @@ async def clone_problem(
     domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_auth),
     auth: Authentication = Depends(),
+    session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardListResponse[schemas.Problem]:
     problems: List[models.Problem] = [
-        await parse_problem(await parse_problem_without_validation(oid, domain), auth)
+        parse_problem(await parse_problem_without_validation(oid, domain), auth)
         for oid in problem_clone.problems
     ]
     problem_set = await parse_problem_set(problem_clone.problem_set, domain)
     new_group = problem_clone.new_group
+    # FIXME: /root/.venv/lib/python3.8/site-packages/sqlmodel/orm/session.py:60:
+    # SAWarning: relationship 'Problem.problem_sets' will copy column problems.id
+    # to column problem_problem_set_links.problem_id, which conflicts with
+    # relationship(s): 'ProblemProblemSetLink.problem' (copies problems.id to
+    # problem_problem_set_links.problem_id). If this is not the intention, consider
+    # if these relationships should be linked with back_populates, or if
+    # viewonly=True should be applied to one or more if they are read-only.
+    # For the less common case that foreign key constraints are partially
+    # overlapping, the orm.foreign() annotation can be used to isolate the
+    # columns that should be written towards.   To silence this warning,
+    # add the parameter 'overlaps="problem"' to the 'Problem.problem_sets'
+    # relationship. (Background on this error at: https://sqlalche.me/e/14/qzyx)
     try:
         res = []
         for problem in problems:
             if new_group:
                 problem_group = models.ProblemGroup()
-                # FIXME: seems other objects are distroyed
+                # TODO: transaction (since session has already committed here)
                 await problem_group.save_model()
                 problem_group_id = problem_group.id
+                await session.refresh(problem)
+                await session.refresh(domain)
+                await session.refresh(problem_set)
             else:
                 problem_group_id = problem.problem_group_id
             new_problem = models.Problem(
