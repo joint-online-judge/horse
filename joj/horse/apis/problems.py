@@ -8,7 +8,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from joj.horse import models, schemas
 from joj.horse.schemas import Empty, StandardListResponse, StandardResponse
 from joj.horse.schemas.permission import Permission
-from joj.horse.utils.auth import Authentication, ensure_permission
+from joj.horse.utils.auth import Authentication
 from joj.horse.utils.db import db_session_dependency
 from joj.horse.utils.lakefs import LakeFSProblemConfig
 from joj.horse.utils.parser import (
@@ -30,9 +30,7 @@ router_tag = "problem"
 router_prefix = "/api/v1"
 
 
-@router.get(
-    "", dependencies=[Depends(ensure_permission(Permission.DomainProblem.view))]
-)
+@router.get("", permissions=[Permission.DomainProblem.view])
 async def list_problems(
     domain: models.Domain = Depends(parse_domain_from_auth),
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["name"])),
@@ -46,9 +44,7 @@ async def list_problems(
     return StandardListResponse(problems, count)
 
 
-@router.post(
-    "", dependencies=[Depends(ensure_permission(Permission.DomainProblem.create))]
-)
+@router.post("", permissions=[Permission.DomainProblem.create])
 async def create_problem(
     problem_create: schemas.ProblemCreate,
     background_tasks: BackgroundTasks,
@@ -78,20 +74,14 @@ async def create_problem(
     return StandardResponse(problem)
 
 
-@router.get(
-    "/{problem}",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblem.view))],
-)
+@router.get("/{problem}", permissions=[Permission.DomainProblem.view])
 async def get_problem(
     problem: models.Problem = Depends(parse_problem),
 ) -> StandardResponse[schemas.ProblemDetail]:
     return StandardResponse(problem)
 
 
-@router.delete(
-    "/{problem}",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblem.edit))],
-)
+@router.delete("/{problem}", permissions=[Permission.DomainProblem.edit])
 async def delete_problem(
     problem: models.Problem = Depends(parse_problem),
 ) -> StandardResponse[Empty]:
@@ -99,10 +89,7 @@ async def delete_problem(
     return StandardResponse()
 
 
-@router.patch(
-    "/{problem}",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblem.edit))],
-)
+@router.patch("/{problem}", permissions=[Permission.DomainProblem.edit])
 async def update_problem(
     problem_edit: schemas.ProblemEdit = Depends(schemas.ProblemEdit.edit_dependency),
     problem: models.Problem = Depends(parse_problem),
@@ -114,7 +101,7 @@ async def update_problem(
 
 # @router.patch(
 #     "/{problem}/config",
-#     dependencies=[Depends(ensure_permission(Permission.DomainProblem.view_config))],
+#     permissions=[Permission.DomainProblem.view_config],
 # )
 # async def update_problem_config(
 #     config: UploadFile = File(...), problem: models.Problem = Depends(parse_problem)
@@ -122,10 +109,7 @@ async def update_problem(
 #     return StandardResponse(problem)
 
 
-@router.post(
-    "/clone",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblem.view_config))],
-)
+@router.post("/clone", permissions=[Permission.DomainProblem.view_config])
 async def clone_problem(
     problem_clone: schemas.ProblemClone,
     domain: models.Domain = Depends(parse_domain_from_auth),
@@ -181,10 +165,7 @@ async def clone_problem(
     return StandardListResponse(res)
 
 
-@router.post(
-    "/{problem}",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblem.submit))],
-)
+@router.post("/{problem}", permissions=[Permission.DomainProblem.submit])
 async def submit_solution_to_problem(
     background_tasks: BackgroundTasks,
     celery_app: Celery = Depends(celery_app_dependency),

@@ -9,7 +9,6 @@ from uvicorn.config import logger
 from joj.horse import models, schemas
 from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.permission import Permission
-from joj.horse.utils.auth import ensure_permission
 from joj.horse.utils.base import TemporaryDirectory, iter_file
 from joj.horse.utils.lakefs import LakeFSProblemConfig
 from joj.horse.utils.parser import (
@@ -26,22 +25,12 @@ router_name = "domains/{domain}/problems/{problem}"
 router_tag = "problem config"
 router_prefix = "/api/v1"
 
-read_dependency = Depends(ensure_permission(Permission.DomainProblem.view_config))
-write_dependency = Depends(
-    ensure_permission(
-        [
-            Permission.DomainProblem.view_config,
-            Permission.DomainProblem.edit,
-        ]
-    )
-)
-
 
 @router.put(
     "/config",
     description="Completely replace the problem config with the archive. "
     "This will delete files not included in the archive.",
-    dependencies=[write_dependency],
+    permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
 )
 def update_problem_config_by_archive(
     file: UploadFile = File(...), problem: models.Problem = Depends(parse_problem)
@@ -55,7 +44,7 @@ def update_problem_config_by_archive(
 @router.get(
     "/config",
     # response_class=StreamingResponse,
-    dependencies=[read_dependency],
+    permissions=[Permission.DomainProblem.view_config],
 )
 def download_uncommitted_problem_config_as_archive(
     temp_dir: pathlib.Path = Depends(TemporaryDirectory()),
@@ -68,7 +57,7 @@ def download_uncommitted_problem_config_as_archive(
 @router.get(
     "/config/files/{path:path}",
     # response_class=StreamingResponse,
-    dependencies=[read_dependency],
+    permissions=[Permission.DomainProblem.view_config],
 )
 def download_file_in_uncommitted_problem_config(
     path: str = Path(...),
@@ -78,8 +67,7 @@ def download_file_in_uncommitted_problem_config(
 
 
 @router.get(
-    "/config/file_info/{path:path}",
-    dependencies=[read_dependency],
+    "/config/file_info/{path:path}", permissions=[Permission.DomainProblem.view_config]
 )
 def get_file_or_directory_info_in_uncommitted_problem_config(
     path: str = Path(...),
@@ -94,7 +82,7 @@ def get_file_or_directory_info_in_uncommitted_problem_config(
     "/config/files/{path:path}",
     description="Replace the file with the same path. "
     "Create directories if needed along the path.",
-    dependencies=[write_dependency],
+    permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
 )
 def upload_file_to_problem_config(
     file: UploadFile = File(...),
@@ -110,7 +98,7 @@ def upload_file_to_problem_config(
     "/config/files",
     description="Use the filename as path, "
     "file will be uploaded to root of the problem config directory.",
-    dependencies=[write_dependency],
+    permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
 )
 def upload_file_to_root_in_problem_config(
     file: UploadFile = File(...),
@@ -122,7 +110,7 @@ def upload_file_to_root_in_problem_config(
 
 @router.delete(
     "/config/files/{path:path}",
-    dependencies=[write_dependency],
+    permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
 )
 def delete_file_from_uncommitted_problem_config(
     path: str = Path(...),
@@ -135,7 +123,7 @@ def delete_file_from_uncommitted_problem_config(
 
 @router.delete(
     "/config/dirs/{path:path}",
-    dependencies=[write_dependency],
+    permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
 )
 def delete_directory_from_uncommitted_problem_config(
     path: str = Path(...),
@@ -154,7 +142,7 @@ def delete_directory_from_uncommitted_problem_config(
 @router.post(
     "/config/commit",
     description="Commit all changes through upload / delete as a new problem config version.",
-    dependencies=[write_dependency],
+    permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
 )
 async def commit_problem_config(
     commit: schemas.ProblemConfigCommit = Body(...),
@@ -170,7 +158,7 @@ async def commit_problem_config(
 
 @router.post(
     "/config/reset",
-    dependencies=[write_dependency],
+    permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
 )
 def reset_problem_config(
     lakefs_reset: schemas.LakeFSReset,
@@ -181,10 +169,7 @@ def reset_problem_config(
     return StandardResponse()
 
 
-@router.get(
-    "/configs/{config}",
-    dependencies=[read_dependency],
-)
+@router.get("/configs/{config}", permissions=[Permission.DomainProblem.view_config])
 async def get_problem_config_json(
     config: models.ProblemConfig = Depends(parse_problem_config),
 ) -> StandardResponse[schemas.ProblemConfig]:
@@ -193,7 +178,7 @@ async def get_problem_config_json(
 
 @router.get(
     "/configs/{config}/files",
-    dependencies=[write_dependency],
+    permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
 )
 def download_problem_config_archive(
     temp_dir: pathlib.Path = Depends(TemporaryDirectory()),
@@ -217,7 +202,7 @@ def download_problem_config_archive(
 @router.get(
     "/configs/{config}/files/{path:path}",
     # response_class=StreamingResponse,
-    dependencies=[read_dependency],
+    permissions=[Permission.DomainProblem.view_config],
 )
 def download_file_in_problem_config(
     path: str = Path(...),

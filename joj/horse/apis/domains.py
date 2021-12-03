@@ -43,7 +43,7 @@ router_tag = "domain"
 router_prefix = "/api/v1"
 
 
-@router.get("", dependencies=[Depends(ensure_permission())])
+@router.get("", permissions=[])
 async def list_domains(
     role: Optional[List[str]] = Query(None),
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["name"])),
@@ -58,9 +58,7 @@ async def list_domains(
     return StandardListResponse(domains, count)
 
 
-@router.post(
-    "", dependencies=[Depends(ensure_permission(Permission.SiteDomain.create))]
-)
+@router.post("", permissions=[Permission.SiteDomain.create])
 async def create_domain(
     domain_create: schemas.DomainCreate,
     user: models.User = Depends(parse_user_from_auth),
@@ -96,10 +94,7 @@ async def create_domain(
     return StandardResponse(domain)
 
 
-@router.get(
-    "/{domain}",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
-)
+@router.get("/{domain}", permissions=[Permission.DomainGeneral.view])
 async def get_domain(
     domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardResponse[schemas.DomainDetail]:
@@ -109,7 +104,7 @@ async def get_domain(
 
 @router.delete(
     "/{domain}",
-    dependencies=[Depends(ensure_permission(Permission.SiteDomain.delete))],
+    permissions=[Permission.SiteDomain.delete],
     deprecated=True,
 )
 async def delete_domain(
@@ -149,10 +144,7 @@ async def update_domain(
     return StandardResponse(domain)
 
 
-@router.post(
-    "/{domain}/transfer",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
-)
+@router.post("/{domain}/transfer", permissions=[Permission.DomainGeneral.view])
 async def transfer_domain(
     domain_transfer: schemas.DomainTransfer,
     domain: models.Domain = Depends(parse_domain_from_auth),
@@ -180,10 +172,7 @@ async def transfer_domain(
     return StandardResponse(domain)
 
 
-@router.get(
-    "/{domain}/users",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
-)
+@router.get("/{domain}/users", permissions=[Permission.DomainGeneral.view])
 async def list_domain_users(
     domain: models.Domain = Depends(parse_domain_from_auth),
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["name"])),
@@ -197,10 +186,7 @@ async def list_domain_users(
     return StandardListResponse(domain_users, count)
 
 
-@router.post(
-    "/{domain}/users",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
-)
+@router.post("/{domain}/users", permissions=[Permission.DomainGeneral.edit])
 async def add_domain_user(
     domain_user_add: schemas.DomainUserAdd,
     domain: models.Domain = Depends(parse_domain_from_auth),
@@ -223,10 +209,7 @@ async def add_domain_user(
     )
 
 
-@router.get(
-    "/{domain}/users/{user}",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
-)
+@router.get("/{domain}/users/{user}", permissions=[Permission.DomainGeneral.view])
 async def get_domain_user(
     domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_path_or_query),
@@ -241,10 +224,7 @@ async def get_domain_user(
     )
 
 
-@router.delete(
-    "/{domain}/users/{user}",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
-)
+@router.delete("/{domain}/users/{user}", permissions=[Permission.DomainGeneral.edit])
 async def remove_domain_user(
     domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_path_or_query),
@@ -266,10 +246,7 @@ async def remove_domain_user(
     return StandardResponse()
 
 
-@router.patch(
-    "/{domain}/users/{user}",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
-)
+@router.patch("/{domain}/users/{user}", permissions=[Permission.DomainGeneral.edit])
 async def update_domain_user(
     domain_user_update: schemas.DomainUserUpdate,
     domain: models.Domain = Depends(parse_domain_from_auth),
@@ -295,8 +272,7 @@ async def update_domain_user(
 
 
 @router.get(
-    "/{domain}/users/{user}/permission",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
+    "/{domain}/users/{user}/permission", permissions=[Permission.DomainGeneral.view]
 )
 async def get_domain_user_permission(
     domain: models.Domain = Depends(parse_domain_from_auth),
@@ -321,10 +297,7 @@ async def get_domain_user_permission(
     return StandardResponse(result)
 
 
-@router.get(
-    "/{domain}/candidates",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
-)
+@router.get("/{domain}/candidates", permissions=[Permission.DomainGeneral.edit])
 async def search_domain_candidates(
     domain: models.Domain = Depends(parse_domain_from_auth),
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["username"])),
@@ -341,10 +314,7 @@ async def search_domain_candidates(
     return StandardListResponse(domain_users, count)
 
 
-@router.get(
-    "/{domain}/roles",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
-)
+@router.get("/{domain}/roles", permissions=[Permission.DomainGeneral.view])
 async def list_domain_roles(
     domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardListResponse[schemas.DomainRole]:
@@ -353,10 +323,7 @@ async def list_domain_roles(
     return StandardListResponse(domain_roles, count)
 
 
-@router.post(
-    "/{domain}/roles",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
-)
+@router.post("/{domain}/roles", permissions=[Permission.DomainGeneral.edit])
 async def create_domain_role(
     domain_role_create: schemas.DomainRoleCreate,
     domain: models.Domain = Depends(parse_domain_from_auth),
@@ -377,10 +344,7 @@ async def create_domain_role(
     return StandardResponse(domain_role)
 
 
-@router.get(
-    "/{domain}/roles/{role}",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.view))],
-)
+@router.get("/{domain}/roles/{role}", permissions=[Permission.DomainGeneral.view])
 async def get_domain_role(
     domain_role: models.DomainRole = Depends(parse_domain_role),
 ) -> StandardResponse[schemas.DomainRoleDetail]:
@@ -389,10 +353,7 @@ async def get_domain_role(
     return StandardResponse(domain_role)
 
 
-@router.delete(
-    "/{domain}/roles/{role}",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
-)
+@router.delete("/{domain}/roles/{role}", permissions=[Permission.DomainGeneral.edit])
 async def delete_domain_role(
     domain_role: models.DomainRole = Depends(parse_domain_role),
     domain: models.Domain = Depends(parse_domain_from_auth),
@@ -406,10 +367,7 @@ async def delete_domain_role(
     return StandardResponse()
 
 
-@router.patch(
-    "/{domain}/roles/{role}",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
-)
+@router.patch("/{domain}/roles/{role}", permissions=[Permission.DomainGeneral.edit])
 async def update_domain_role(
     domain_role_edit: schemas.DomainRoleEdit = Depends(
         schemas.DomainRoleEdit.edit_dependency
@@ -443,10 +401,7 @@ async def update_domain_role(
     return StandardResponse(domain_role)
 
 
-@router.get(
-    "/{domain}/invitations",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
-)
+@router.get("/{domain}/invitations", permissions=[Permission.DomainGeneral.edit])
 async def list_domain_invitations(
     domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardListResponse[schemas.DomainInvitation]:
@@ -455,10 +410,7 @@ async def list_domain_invitations(
     return StandardListResponse(invitations, count)
 
 
-@router.post(
-    "/{domain}/invitations",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
-)
+@router.post("/{domain}/invitations", permissions=[Permission.DomainGeneral.edit])
 async def create_domain_invitation(
     invitation_create: schemas.DomainInvitationCreate,
     domain: models.Domain = Depends(parse_domain_from_auth),
@@ -480,8 +432,7 @@ async def create_domain_invitation(
 
 
 @router.get(
-    "/{domain}/invitations/{invitation}",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
+    "/{domain}/invitations/{invitation}", permissions=[Permission.DomainGeneral.edit]
 )
 async def get_domain_invitation(
     invitation: models.DomainInvitation = Depends(parse_domain_invitation),
@@ -490,8 +441,7 @@ async def get_domain_invitation(
 
 
 @router.delete(
-    "/{domain}/invitations/{invitation}",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
+    "/{domain}/invitations/{invitation}", permissions=[Permission.DomainGeneral.edit]
 )
 async def delete_domain_invitation(
     invitation: models.DomainInvitation = Depends(parse_domain_invitation),
@@ -502,8 +452,7 @@ async def delete_domain_invitation(
 
 
 @router.patch(
-    "/{domain}/invitations/{invitation}",
-    dependencies=[Depends(ensure_permission(Permission.DomainGeneral.edit))],
+    "/{domain}/invitations/{invitation}", permissions=[Permission.DomainGeneral.edit]
 )
 async def update_domain_invitation(
     invitation_edit: schemas.DomainInvitationEdit = Depends(
@@ -517,7 +466,7 @@ async def update_domain_invitation(
     return StandardResponse(invitation)
 
 
-@router.post("/{domain}/join", dependencies=[Depends(ensure_permission())])
+@router.post("/{domain}/join", permissions=[])
 # @camelcase_parameters
 async def join_domain_by_invitation(
     invitation_code: str = Query(...),

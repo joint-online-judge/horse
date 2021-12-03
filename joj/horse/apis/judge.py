@@ -4,7 +4,6 @@ from loguru import logger
 from joj.horse import models, schemas
 from joj.horse.schemas.base import Empty, StandardResponse
 from joj.horse.schemas.permission import Permission
-from joj.horse.utils.auth import ensure_permission
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.lakefs import get_problem_config_repo_name, get_record_repo_name
 from joj.horse.utils.parser import parse_record_judger, parse_user_from_auth
@@ -16,10 +15,7 @@ router_tag = "judge"
 router_prefix = "/api/v1"
 
 
-judge_dependency = Depends(ensure_permission(Permission.SiteUser.judge))
-
-
-@router.get("/key", dependencies=[judge_dependency])
+@router.get("/key", permissions=[Permission.SiteUser.judge])
 async def get_judge_key(
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.UserAccessKey]:
@@ -27,7 +23,7 @@ async def get_judge_key(
     return StandardResponse(access_key)
 
 
-@router.post("/records/{record}/claim", dependencies=[judge_dependency])
+@router.post("/records/{record}/claim", permissions=[Permission.SiteUser.judge])
 async def claim_record_by_judge(
     record: models.Record = Depends(parse_record_judger),
     user: models.User = Depends(parse_user_from_auth),
@@ -53,7 +49,7 @@ async def claim_record_by_judge(
     return StandardResponse(judge_claim)
 
 
-@router.post("/records/{record}/state", dependencies=[judge_dependency])
+@router.post("/records/{record}/state", permissions=[Permission.SiteUser.judge])
 async def update_record_state_by_judge(
     record: models.Record = Depends(parse_record_judger),
     user: models.User = Depends(parse_user_from_auth),
@@ -72,7 +68,7 @@ async def update_record_state_by_judge(
     return StandardResponse(record)
 
 
-@router.post("/records/{record}/judgment", dependencies=[judge_dependency])
+@router.post("/records/{record}/judgment", permissions=[Permission.SiteUser.judge])
 async def submit_record_by_judge(
     record_result: schemas.RecordResult,
     record: models.Record = Depends(parse_record_judger),

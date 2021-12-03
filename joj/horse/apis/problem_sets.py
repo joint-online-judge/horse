@@ -8,7 +8,7 @@ from loguru import logger
 from joj.horse import models, schemas
 from joj.horse.schemas import Empty, Operation, StandardListResponse, StandardResponse
 from joj.horse.schemas.permission import Permission
-from joj.horse.utils.auth import DomainAuthentication, ensure_permission
+from joj.horse.utils.auth import DomainAuthentication
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import (
     parse_domain_from_auth,
@@ -31,9 +31,7 @@ router_tag = "problem set"
 router_prefix = "/api/v1"
 
 
-@router.get(
-    "", dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.view))]
-)
+@router.get("", permissions=[Permission.DomainProblemSet.view])
 async def list_problem_sets(
     domain: models.Domain = Depends(parse_domain_from_auth),
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["name"])),
@@ -47,9 +45,7 @@ async def list_problem_sets(
     return StandardListResponse(problem_sets, count)
 
 
-@router.post(
-    "", dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.create))]
-)
+@router.post("", permissions=[Permission.DomainProblemSet.create])
 async def create_problem_set(
     problem_set_create: schemas.ProblemSetCreate,
     domain: models.Domain = Depends(parse_domain_from_auth),
@@ -65,10 +61,7 @@ async def create_problem_set(
     return StandardResponse(problem_set)
 
 
-@router.get(
-    "/{problemSet}",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.view))],
-)
+@router.get("/{problemSet}", permissions=[Permission.DomainProblemSet.view])
 async def get_problem_set(
     problem_set: models.ProblemSet = Depends(
         parse_problem_set_factory(load_problems=True)
@@ -86,7 +79,7 @@ async def get_problem_set(
 
 @router.delete(
     "/{problemSet}",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.edit))],
+    permissions=[Permission.DomainProblemSet.edit],
     deprecated=True,
 )
 async def delete_problem_set(
@@ -96,10 +89,7 @@ async def delete_problem_set(
     return StandardResponse()
 
 
-@router.patch(
-    "/{problemSet}",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.edit))],
-)
+@router.patch("/{problemSet}", permissions=[Permission.DomainProblemSet.edit])
 async def update_problem_set(
     problem_set_edit: schemas.ProblemSetEdit = Depends(
         schemas.ProblemSetEdit.edit_dependency
@@ -111,10 +101,7 @@ async def update_problem_set(
     return StandardResponse(problem_set)
 
 
-@router.get(
-    "/{problemSet}/problems",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.view))],
-)
+@router.get("/{problemSet}/problems", permissions=[Permission.DomainProblemSet.view])
 async def list_problems_in_problem_set(
     problem_set: models.ProblemSet = Depends(
         parse_problem_set_factory(load_problems=True)
@@ -127,10 +114,7 @@ async def list_problems_in_problem_set(
     return StandardListResponse(problems)
 
 
-@router.post(
-    "/{problemSet}/problems",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.edit))],
-)
+@router.post("/{problemSet}/problems", permissions=[Permission.DomainProblemSet.edit])
 async def add_problem_in_problem_set(
     add_problem: schemas.ProblemSetAddProblem,
     problem_set: models.ProblemSet = Depends(
@@ -148,8 +132,7 @@ async def add_problem_in_problem_set(
 
 
 @router.get(
-    "/{problemSet}/problems/{problem}",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.view))],
+    "/{problemSet}/problems/{problem}", permissions=[Permission.DomainProblemSet.view]
 )
 async def get_problem_in_problem_set(
     link: models.ProblemProblemSetLink = Depends(parse_problem_problem_set_link),
@@ -165,8 +148,7 @@ async def get_problem_in_problem_set(
 
 
 @router.patch(
-    "/{problemSet}/problems/{problem}",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.edit))],
+    "/{problemSet}/problems/{problem}", permissions=[Permission.DomainProblemSet.edit]
 )
 async def update_problem_in_problem_set(
     update_problem: schemas.ProblemSetUpdateProblem,
@@ -182,8 +164,7 @@ async def update_problem_in_problem_set(
 
 
 @router.delete(
-    "/{problemSet}/problems/{problem}",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblemSet.edit))],
+    "/{problemSet}/problems/{problem}", permissions=[Permission.DomainProblemSet.edit]
 )
 async def delete_problem_in_problem_set(
     problem_set: models.ProblemSet = Depends(
@@ -197,7 +178,7 @@ async def delete_problem_in_problem_set(
 
 @router.post(
     "/{problemSet}/problems/{problem}/submit",
-    dependencies=[Depends(ensure_permission(Permission.DomainProblem.submit))],
+    permissions=[Permission.DomainProblem.submit],
 )
 async def submit_solution_to_problem_set(
     background_tasks: BackgroundTasks,
