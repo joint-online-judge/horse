@@ -213,7 +213,9 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
             cls.get_user_latest_record_key(problem_set_id, problem_id, user_id)
             for problem_id in problem_ids
         ]
-        values = await cache.multi_get(keys, namespace="user_latest_records")
+        values = []
+        if keys:
+            values = await cache.multi_get(keys, namespace="user_latest_records")
         record_states = []
         updated_cache_pairs = []
         for i, value in enumerate(values):
