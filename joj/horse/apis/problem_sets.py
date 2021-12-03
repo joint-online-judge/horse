@@ -18,7 +18,6 @@ from joj.horse.utils.parser import (
     parse_problem_problem_set_link,
     parse_problem_set,
     parse_problem_set_factory,
-    parse_problem_set_with_time,
     parse_problem_without_validation,
     parse_user_from_auth,
     parse_view_hidden_problem_set,
@@ -223,8 +222,9 @@ async def submit_solution_to_problem_set(
 
 @router.get("/{problemSet}/scoreboard", deprecated=True)
 async def get_scoreboard(
-    problem_set: models.ProblemSet = Depends(parse_problem_set_with_time),
+    problem_set: models.ProblemSet = Depends(parse_problem_set),
     domain: models.Domain = Depends(parse_domain_from_auth),
+    include_hidden: bool = Depends(parse_view_hidden_problem_set),
 ) -> StandardResponse[schemas.ScoreBoard]:
     if problem_set.scoreboard_hidden:
         raise BizError(ErrorCode.ScoreboardHiddenBadRequestError)

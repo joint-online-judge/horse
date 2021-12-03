@@ -102,7 +102,9 @@ async def business_exception_handler(request: Request, exc: BizError) -> JSONRes
 
 
 @app.exception_handler(Exception)
-async def catch_exceptions_middleware(request: Request, exc: Exception) -> JSONResponse:
+async def catch_exceptions_middleware(
+    request: Request, exc: Exception
+) -> JSONResponse:  # pragma: no cover
     logger.exception(f"Unexpected Error: {exc.__class__.__name__}")
     return business_exception_response(
         BizError(ErrorCode.InternalServerError, str(exc))

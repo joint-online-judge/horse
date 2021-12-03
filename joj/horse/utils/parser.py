@@ -140,6 +140,14 @@ def parse_problems(
     return [parse_problem(oid, domain_auth) for oid in problems]
 
 
+def parse_view_hidden_problem_set(
+    domain_auth: DomainAuthentication = Depends(DomainAuthentication),
+) -> bool:
+    return domain_auth.auth.check(
+        ScopeType.DOMAIN_PROBLEM_SET, PermissionType.view_hidden
+    )
+
+
 @lru_cache
 def parse_problem_set_factory(
     load_problems: bool = False,
@@ -158,10 +166,17 @@ def parse_problem_set_factory(
     async def wrapped(
         problem_set: str = Path(..., description="url or id of the problem set"),
         domain: models.Domain = Depends(parse_domain_from_auth),
+        include_hidden: bool = Depends(parse_view_hidden_problem_set),
     ) -> models.ProblemSet:
         problem_set_model = await models.ProblemSet.find_by_domain_url_or_id(
             domain, problem_set, options
         )
+        if not include_hidden:
+            if (
+                datetime.utcnow() < problem_set_model.unlock_at
+                or datetime.utcnow() > problem_set_model.lock_at
+            ):
+                raise BizError(ErrorCode.ProblemSetNotFoundError)
         if problem_set_model:
             return problem_set_model
         raise BizError(ErrorCode.ProblemSetNotFoundError)
@@ -184,19 +199,6 @@ async def parse_problem_problem_set_link(
         link.problem = problem
         return link
     raise BizError(ErrorCode.ProblemNotFoundError)
-
-
-async def parse_problem_set_with_time(
-    problem_set: str = Path(..., description="url or id of the problem set"),
-    domain: models.Domain = Depends(parse_domain_from_auth),
-) -> models.ProblemSet:
-    # TODO: domain admin can see problem sets which are not in available period
-    problem_set_model = await parse_problem_set(problem_set, domain)
-    if datetime.utcnow() < problem_set_model.unlock_at:
-        raise BizError(ErrorCode.ProblemSetBeforeAvailableError)
-    if datetime.utcnow() > problem_set_model.lock_at:
-        raise BizError(ErrorCode.ProblemSetAfterDueError)
-    return problem_set_model
 
 
 async def parse_problem_group(problem_group: str = Path(...)) -> models.ProblemSet:
@@ -235,14 +237,6 @@ def parse_view_hidden_problem(
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> bool:
     return domain_auth.auth.check(ScopeType.DOMAIN_PROBLEM, PermissionType.view_hidden)
-
-
-def parse_view_hidden_problem_set(
-    domain_auth: DomainAuthentication = Depends(DomainAuthentication),
-) -> bool:
-    return domain_auth.auth.check(
-        ScopeType.DOMAIN_PROBLEM_SET, PermissionType.view_hidden
-    )
 
 
 def parse_ordering_query(

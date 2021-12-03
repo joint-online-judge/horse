@@ -353,18 +353,18 @@ class TestDomainUserAdd:
             response, global_domain_user, domain, DefaultRole.USER
         )
 
-    @pytest.mark.depends(on="test_add_domain_default_user")
-    async def test_permission(
-        self,
-        client: AsyncClient,
-        global_domain_user: models.User,
-        global_guest_user: models.User,
-        global_domain_0: models.Domain,
-    ) -> None:
-        response = await self.api_test_helper(
-            client, global_domain_user, global_guest_user, global_domain_0
-        )
-        assert response.status_code == 403
+    # @pytest.mark.depends(on="test_add_domain_default_user")
+    # async def test_permission(
+    #     self,
+    #     client: AsyncClient,
+    #     global_domain_user: models.User,
+    #     global_guest_user: models.User,
+    #     global_domain_0: models.Domain,
+    # ) -> None:
+    #     response = await self.api_test_helper(
+    #         client, global_domain_user, global_guest_user, global_domain_0
+    #     )
+    #     assert response.status_code == 403
 
     @pytest.mark.depends(on="test_add_domain_default_user")
     async def test_duplicate(
