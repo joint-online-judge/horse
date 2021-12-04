@@ -21,11 +21,12 @@ RUN python3 -m virtualenv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # install dependencies
+ARG PYTEST
 COPY pyproject.toml poetry.lock README.md /root/
 COPY joj/horse/__init__.py /root/joj/horse/
-RUN --mount=type=cache,target=/root/.cache poetry install --no-dev
+RUN --mount=type=cache,target=/root/.cache if [ -n "$PYTEST" ]; then poetry install --no-dev; else poetry install -E test; fi
 COPY . /root
-RUN --mount=type=cache,target=/root/.cache poetry install --no-dev
+# RUN --mount=type=cache,target=/root/.cache poetry install --no-dev
 
 ENV HOST="localhost" \
     PORT=34765 \

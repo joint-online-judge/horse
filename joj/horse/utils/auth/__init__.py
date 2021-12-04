@@ -1,10 +1,10 @@
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Set, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 from fastapi import Depends, Path, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi_jwt_auth import AuthJWT
 from passlib.context import CryptContext
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, validator
 from typing_extensions import Literal
 
 from joj.horse.config import settings
@@ -18,7 +18,9 @@ from joj.horse.schemas.permission import (
     DEFAULT_SITE_PERMISSION,
     DefaultRole,
     DomainPermission,
+    PermCompose,
     PermissionType,
+    PermKey,
     ScopeType,
     SitePermission,
 )
@@ -431,17 +433,6 @@ class DomainAuthentication:
         self.auth.domain_permission = domain_permission
 
 
-class PermKey(NamedTuple):
-    scope: ScopeType
-    permission: PermissionType
-
-
-class PermCompose(BaseModel):
-    permissions: List[Union["PermCompose", PermKey]]
-    action: Literal["AND", "OR"] = "AND"
-
-
-PermCompose.update_forward_refs()
 PermKeyTuple = Tuple[ScopeType, PermissionType]
 PermComposeIterable = List[  # type: ignore
     Union[PermKey, PermCompose, PermKeyTuple, "PermComposeTuple"]  # type: ignore

@@ -35,14 +35,11 @@ class MyRouter(APIRouter):
 
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
-            if "permissions" in kwargs:
-                permissions = kwargs["permissions"]
+            permissions = kwargs.pop("permissions", None)
+            if permissions:
                 new_dependencies = Depends(ensure_permission(permissions))
                 kwargs["dependencies"] = list(kwargs.get("dependencies", []))
                 kwargs["dependencies"].append(new_dependencies)
-                if permissions is []:
-                    kwargs["dependencies"].extend(Depends(ensure_permission()))
-                kwargs.pop("permissions", None)
             return func(*args, **kwargs)
 
         return wrapper

@@ -1,5 +1,6 @@
-from enum import Enum
-from typing import Dict, List, Literal, Optional, Tuple, Type, TypeVar
+from typing import Dict, List, Literal, NamedTuple, Optional, Type, TypeVar, Union
+
+from pydantic import validator
 
 from joj.horse.models.permission import (
     DefaultRole as DefaultRole,
@@ -131,29 +132,60 @@ DEFAULT_SITE_PERMISSION = {
 }
 
 
-T = TypeVar("T", bound=Type[PermissionBase])
+class PermKey(NamedTuple):
+    scope: ScopeType
+    permission: PermissionType
 
 
-class WrappedPermissionEnum(Enum):
-    def __or__(
-        self, other: "WrappedPermissionEnum"
-    ) -> Tuple[List["WrappedPermissionEnum"], Literal["OR"]]:
-        return ([self, other], "OR")
+class PermCompose(BaseModel):
+    permissions: List[Union["PermCompose", PermKey]]
+    action: Literal["AND", "OR"] = "AND"
 
-    def __and__(
-        self, other: "WrappedPermissionEnum"
-    ) -> Tuple[List["WrappedPermissionEnum"], Literal["AND"]]:
-        return ([self, other], "AND")
+    @validator("permissions")
+    def validate_permissions(
+        cls, v: List[Union["PermCompose", PermKey]]
+    ) -> List[Union["PermCompose", PermKey]]:
+        if len(v) == 0:
+            raise ValueError("permissions can't be empty list")
+        return v
+
+    def is_action_and(self) -> bool:
+        return len(self.permissions) == 1 or self.action == "AND"
+
+    def is_action_or(self) -> bool:
+        return len(self.permissions) == 1 or self.action == "OR"
+
+    def __or__(self, other: "PermCompose") -> "PermCompose":
+        if self.is_action_or() and other.is_action_or():
+            permissions = self.permissions + other.permissions
+        else:
+            permissions = [self.copy(), other.copy()]
+        return PermCompose(permissions=permissions, action="OR")
+
+    def __and__(self, other: "PermCompose") -> "PermCompose":
+        if self.is_action_and() and other.is_action_and():
+            permissions = self.permissions + other.permissions
+        else:
+            permissions = [self.copy(), other.copy()]
+        return PermCompose(permissions=permissions, action="AND")
 
 
-def wrap_permission(scope: ScopeType, cls: T) -> T:
+PermCompose.update_forward_refs()
+
+
+T = TypeVar("T", bound=PermissionBase)
+
+
+def wrap_permission(scope: ScopeType, cls: Type[T]) -> T:
     value = "Wrapped" + cls.__name__
-    names = []
+    names = {}
     for k in cls.__fields__.keys():
         if not k.startswith("_"):
-            perm = PermissionType[k]
-            names.append((k, (scope, perm)))
-    return WrappedPermissionEnum(value, names=names, type=tuple)  # type: ignore
+            perm = PermCompose(
+                permissions=[PermKey(scope=scope, permission=PermissionType[k])]
+            )
+            names[k] = perm
+    return type(value, (object,), names)  # type: ignore
 
 
 class Permission:
