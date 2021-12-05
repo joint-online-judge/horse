@@ -10,7 +10,6 @@ from joj.horse.models.permission import PermissionType, ScopeType
 from joj.horse.schemas.base import NoneEmptyLongStr, NoneNegativeInt, PaginationLimit
 from joj.horse.schemas.query import OrderingQuery, PaginationQuery
 from joj.horse.utils.auth import Authentication, DomainAuthentication, get_domain
-from joj.horse.utils.db import db_session
 from joj.horse.utils.errors import BizError, ErrorCode
 
 
@@ -183,10 +182,7 @@ def parse_problem_set_factory(
             ):
                 load_problems = False
         if load_problems:
-            async with db_session() as session:
-                problem_set_model.problems = await session.run_sync(
-                    lambda _: problem_set_model.problems
-                )
+            await problem_set_model.fetch_related("problems")
         if problem_set_model:
             return problem_set_model
         raise BizError(ErrorCode.ProblemSetNotFoundError)

@@ -90,6 +90,14 @@ class ORMUtils(SQLModel, BaseModel):
         async with db_session() as session:
             await session.refresh(self)
 
+    async def fetch_related(self, *fields: str) -> None:
+        def sync_func(_: Any) -> None:
+            for field in fields:
+                getattr(self, field)
+
+        async with db_session() as session:
+            await session.run_sync(sync_func)
+
     @classmethod
     def apply_ordering(
         cls: Type["BaseORMModelType"],
