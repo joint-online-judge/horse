@@ -171,6 +171,8 @@ def parse_problem_set_factory(
         problem_set_model = await models.ProblemSet.find_by_domain_url_or_id(
             domain, problem_set, options
         )
+        if problem_set_model is None:
+            raise BizError(ErrorCode.ProblemSetNotFoundError)
         if not include_hidden:
             if (
                 problem_set_model.unlock_at
