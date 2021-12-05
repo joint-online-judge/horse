@@ -10,6 +10,7 @@ from joj.horse.models.permission import PermissionType, ScopeType
 from joj.horse.schemas.base import NoneEmptyLongStr, NoneNegativeInt, PaginationLimit
 from joj.horse.schemas.query import OrderingQuery, PaginationQuery
 from joj.horse.utils.auth import Authentication, DomainAuthentication, get_domain
+from joj.horse.utils.db import db_session
 from joj.horse.utils.errors import BizError, ErrorCode
 
 
@@ -154,8 +155,6 @@ def parse_problem_set_factory(
     load_links: bool = False,
 ) -> Callable[..., Coroutine[Any, Any, models.ProblemSet]]:
     options = []
-    if load_problems:
-        options.append(subqueryload(models.ProblemSet.problems))
     if load_links:
         options.append(
             subqueryload(models.ProblemSet.problem_problem_set_links).joinedload(
@@ -168,15 +167,24 @@ def parse_problem_set_factory(
         domain: models.Domain = Depends(parse_domain_from_auth),
         include_hidden: bool = Depends(parse_view_hidden_problem_set),
     ) -> models.ProblemSet:
+        nonlocal load_problems
         problem_set_model = await models.ProblemSet.find_by_domain_url_or_id(
             domain, problem_set, options
         )
         if not include_hidden:
             if (
-                datetime.utcnow() < problem_set_model.unlock_at
-                or datetime.utcnow() > problem_set_model.lock_at
+                problem_set_model.unlock_at
+                and datetime.utcnow() < problem_set_model.unlock_at
+            ) or (
+                problem_set_model.lock_at
+                and datetime.utcnow() > problem_set_model.lock_at
             ):
-                raise BizError(ErrorCode.ProblemSetNotFoundError)
+                load_problems = False
+        if load_problems:
+            async with db_session() as session:
+                problem_set_model.problems = await session.run_sync(
+                    lambda _: problem_set_model.problems
+                )
         if problem_set_model:
             return problem_set_model
         raise BizError(ErrorCode.ProblemSetNotFoundError)

@@ -134,8 +134,9 @@ class ORMUtils(SQLModel, BaseModel):
         #     alt_cls = cls
         return statement.with_only_columns(count(), maintain_column_froms=True)
 
-    @staticmethod
+    @classmethod
     def apply_pagination(
+        cls: Type["BaseORMModelType"],
         statement: Select,
         pagination: Optional["PaginationQuery"],
     ) -> Select:

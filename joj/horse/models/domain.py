@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import TYPE_CHECKING, List, Optional, Tuple
 from uuid import UUID
 
@@ -47,16 +46,7 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
             models.ProblemSet.domain_id == self.id
         )
         if not include_hidden:
-            now = datetime.now()
             statement = statement.where(models.ProblemSet.hidden != true())
-            statement = statement.where(
-                (models.ProblemSet.lock_at > now)
-                | (models.ProblemSet.lock_at.is_(None))
-            )
-            statement = statement.where(
-                (models.ProblemSet.unlock_at < now)
-                | (models.ProblemSet.unlock_at.is_(None))
-            )
         return statement
 
     def find_problems_statement(self, include_hidden: bool) -> Select:
