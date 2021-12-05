@@ -257,13 +257,13 @@ class TestDomainList:
     async def test_list_domain_asc(
         self, client: AsyncClient, user: models.User
     ) -> None:
-        await self.list_domain_helper(client, user, "name")
+        await self.list_domain_helper(client, user, "updated_at")
 
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
     async def test_list_domain_desc(
         self, client: AsyncClient, user: models.User
     ) -> None:
-        await self.list_domain_helper(client, user, "-name")
+        await self.list_domain_helper(client, user, "-updated_at")
 
     @pytest.mark.parametrize("user", [lazy_fixture("global_root_user")])
     async def test_list_domain_illegal_field(
