@@ -34,7 +34,7 @@ router_prefix = "/api/v1"
 @router.get("", permissions=[Permission.DomainProblemSet.view])
 async def list_problem_sets(
     domain: models.Domain = Depends(parse_domain_from_auth),
-    ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["name"])),
+    ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     include_hidden: bool = Depends(parse_view_hidden_problem_set),
 ) -> StandardListResponse[schemas.ProblemSet]:

@@ -46,7 +46,7 @@ router_prefix = "/api/v1"
 @router.get("", permissions=[])
 async def list_domains(
     role: Optional[List[str]] = Query(None),
-    ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["name"])),
+    ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardListResponse[schemas.Domain]:
@@ -169,7 +169,7 @@ async def transfer_domain(
 @router.get("/{domain}/users", permissions=[Permission.DomainGeneral.view])
 async def list_domain_users(
     domain: models.Domain = Depends(parse_domain_from_auth),
-    ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["name"])),
+    ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
 ) -> StandardListResponse[schemas.UserWithDomainRole]:
     statement = domain.find_domain_users_statement()

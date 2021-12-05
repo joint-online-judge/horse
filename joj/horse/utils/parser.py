@@ -248,7 +248,7 @@ def parse_view_hidden_problem(
 
 
 def parse_ordering_query(
-    ordering_fields: Optional[List[str]] = None,
+    ordering_fields: List[str] = ["created_at", "updated_at"],
 ) -> Callable[..., OrderingQuery]:
     description = (
         "Comma seperated list of ordering the results.\n"

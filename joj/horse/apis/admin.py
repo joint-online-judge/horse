@@ -23,7 +23,7 @@ router_prefix = "/api/v1"
 
 @router.get("/users")
 async def list_users(
-    ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["name"])),
+    ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
 ) -> StandardListResponse[schemas.User]:
     statement = select(models.User)
@@ -58,7 +58,7 @@ async def list_users(
 
 # @router.get("/domain_users")
 # async def list_domain_users(
-#     query: schemas.PaginationQuery = Depends(parse_pagination_query),
+#     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
 #     auth: Authentication = Depends(),
 # ) -> StandardListResponse[models.DomainUser]:
 #     cursor = models.DomainUser.cursor_find({}, query)
@@ -68,7 +68,7 @@ async def list_users(
 
 @router.get("/domain_roles")
 async def list_domain_roles(
-    ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["name"])),
+    ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
 ) -> StandardListResponse[schemas.DomainRole]:
     statement = select(models.DomainRole)
@@ -80,7 +80,7 @@ async def list_domain_roles(
 
 @router.get("/judgers")
 async def list_judgers(
-    ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["name"])),
+    ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
 ) -> StandardListResponse[schemas.User]:
     statement = select(models.User).where(models.User.role == DefaultRole.JUDGE)

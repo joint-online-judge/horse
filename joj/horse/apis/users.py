@@ -41,7 +41,7 @@ async def get_user(
 @router.get("/{uid}/domains")
 async def list_user_domains(
     role: Optional[List[str]] = Query(None),
-    ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["name"])),
+    ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     user: models.User = Depends(parse_uid),
 ) -> StandardListResponse[schemas.Domain]:

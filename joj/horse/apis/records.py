@@ -7,6 +7,7 @@ from joj.horse import models, schemas
 from joj.horse.schemas.base import StandardListResponse, StandardResponse
 from joj.horse.utils.auth import Authentication
 from joj.horse.utils.parser import (
+    parse_ordering_query,
     parse_pagination_query,
     parse_record,
     parse_uid_or_none,
@@ -24,7 +25,8 @@ async def list_records_in_domain(
     domain: Optional[str] = Query(None),
     problem_set: Optional[str] = Query(None),
     problem: Optional[str] = Query(None),
-    query: schemas.PaginationQuery = Depends(parse_pagination_query),
+    ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
+    pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     user: models.User = Depends(parse_uid_or_none),
     auth: Authentication = Depends(),
 ) -> StandardListResponse[schemas.Record]:
@@ -37,7 +39,7 @@ async def list_records_in_domain(
         condition["problem_set"] = str(problem_set)
     if problem is not None:
         condition["problem"] = str(problem)
-    cursor = schemas.Record.cursor_find(condition, query)
+    cursor = schemas.Record.cursor_find(condition, pagination)
     res = await schemas.Record.to_list(cursor)
     return StandardResponse(res)
 
