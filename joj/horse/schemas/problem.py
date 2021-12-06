@@ -30,18 +30,11 @@ class ProblemEdit(BaseModel, metaclass=EditMetaclass):
     hidden: Optional[bool]
 
 
-class ProblemBase(URLORMSchema):
+class ProblemPreviewBase(URLORMSchema):
     title: NoneEmptyStr = Field(
         index=False,
         nullable=False,
         description="title of the problem",
-    )
-    content: LongText = Field(
-        "",
-        index=False,
-        nullable=False,
-        sa_column_kwargs={"server_default": ""},
-        description="content of the problem",
     )
     hidden: bool = Field(
         False,
@@ -49,6 +42,16 @@ class ProblemBase(URLORMSchema):
         nullable=False,
         sa_column_kwargs={"server_default": "false"},
         description="is the problem hidden",
+    )
+
+
+class ProblemBase(ProblemPreviewBase):
+    content: LongText = Field(
+        "",
+        index=False,
+        nullable=False,
+        sa_column_kwargs={"server_default": ""},
+        description="content of the problem",
     )
 
 
@@ -62,7 +65,7 @@ class ProblemClone(BaseModel):
     new_group: bool = Field(False, description="whether to create new problem group")
 
 
-class ProblemPreview(ProblemBase, IDMixin):
+class ProblemPreview(ProblemPreviewBase, IDMixin):
     owner_id: Optional[UUID] = None
 
 
