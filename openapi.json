@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 6e607f0@2021-12-05T20:00:02Z",
+    "description": "Git version: bacbc9a@2021-12-06T20:00:14Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -6136,18 +6136,6 @@
           }
         }
       },
-      "DefaultRole": {
-        "title": "DefaultRole",
-        "enum": [
-          "root",
-          "admin",
-          "user",
-          "guest",
-          "judge"
-        ],
-        "type": "string",
-        "description": "An enumeration."
-      },
       "Detail": {
         "title": "Detail",
         "required": [
@@ -6888,11 +6876,8 @@
         "type": "object",
         "properties": {
           "role": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/DefaultRole"
-              }
-            ],
+            "title": "Role",
+            "type": "string",
             "default": "user"
           },
           "user": {
@@ -6955,11 +6940,8 @@
         "type": "object",
         "properties": {
           "role": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/DefaultRole"
-              }
-            ],
+            "title": "Role",
+            "type": "string",
             "default": "user"
           }
         }
