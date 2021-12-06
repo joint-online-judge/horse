@@ -12,12 +12,12 @@ if TYPE_CHECKING:
 
 
 class DomainUserAdd(BaseModel):
-    role: DefaultRole = Field(DefaultRole.USER)
+    role: str = Field(DefaultRole.USER)
     user: str = Field(..., description="'me' or id of the user")
 
 
 class DomainUserUpdate(BaseModel):
-    role: DefaultRole = Field(DefaultRole.USER)
+    role: str = Field(DefaultRole.USER)
 
 
 class DomainUserPermission(BaseModel):
