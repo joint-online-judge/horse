@@ -381,7 +381,7 @@ class TestDomainUserAdd:
         res = response.json()
         assert res["errorCode"] == ErrorCode.UserAlreadyInDomainBadRequestError
 
-    @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_0")])
+    @pytest.mark.parametrize("domain", [lazy_fixture("global_domain_2")])
     @pytest.mark.depends(on="test_add_domain_default_user")
     async def test_not_exist_role(
         self,
@@ -393,7 +393,9 @@ class TestDomainUserAdd:
         response = await self.api_test_helper(
             client, global_root_user, global_domain_root_user, domain, "not_exist_role"
         )
-        assert response.status_code == 422
+        assert response.status_code == 200
+        res = response.json()
+        assert res["errorCode"] == ErrorCode.DomainRoleNotFoundError
 
 
 @pytest.mark.asyncio
