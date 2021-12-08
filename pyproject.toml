@@ -38,7 +38,7 @@ celery = {extras = ["redis"], version = "^5.1.2"}
 click = "7.1.2"
 click-option-group = "^0.5.3"
 coverage = {version = "^5.5", optional = true}
-fastapi = {extras = ["all"], version = "==0.68.2"}
+fastapi = {extras = ["all"], version = "==0.70.0"}
 fastapi-jwt-auth = {git = "https://github.com/joint-online-judge/fastapi-jwt-auth.git", branch = "feature/pyjwt-2.1.0"}
 fastapi-utils = "^0.2.1"
 fastapi-versioning = "^0.10.0"

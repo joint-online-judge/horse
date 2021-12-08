@@ -143,7 +143,7 @@ jobs:
           wget https://repo1.maven.org/maven2/io/swagger/codegen/v3/swagger-codegen-cli/${{ env.JAR_VERSION }}/swagger-codegen-cli-${{ env.JAR_VERSION }}.jar -O swagger-codegen-cli.jar
       - name: Create config file
         run: |
-          echo '{"packageName": "joj.horse.client", "projectName": "horse-python-client", "library": "asyncio"}' > build/python-client.json
+          echo '{"packageName": "joj.horse_client", "projectName": "horse-python-client", "library": "asyncio"}' > build/python-client.json
       - name: Generate client
         run: |
           java -jar swagger-codegen-cli.jar generate \
@@ -153,11 +153,9 @@ jobs:
           -l python \
           -o build/client/python \
           -c build/python-client.json
-      # - name: Move joj.horse.client to joj/horse/client
-      #   run: |
-      #      cp -rp build/client/python/joj.horse.client/* build/client/python/joj/horse/client/
-      #      rm -rf build/client/python/joj.horse.client
-      - name: Find joj/horse/client
+      - name: Monkeypatch namespace package
+        run: sed -i 's/find_packages/find_namespace_packages/g' build/client/python/setup.py
+      - name: Find joj/horse_client
         run: ls -lha build/client/python/
       - name: Push to client repo
         id: push_directory
