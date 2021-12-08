@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: bacbc9a@2021-12-06T20:00:14Z",
+    "description": "Git version: 18a8a27@2021-12-08T21:19:12Z",
     "version": "0.1.0"
   },
   "paths": {
@@ -7369,18 +7369,18 @@
             "type": "string",
             "description": "title of the problem"
           },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "is the problem hidden",
+            "default": false
+          },
           "content": {
             "title": "Content",
             "maxLength": 65536,
             "type": "string",
             "description": "content of the problem",
             "default": ""
-          },
-          "hidden": {
-            "title": "Hidden",
-            "type": "boolean",
-            "description": "is the problem hidden",
-            "default": false
           },
           "numSubmit": {
             "title": "Numsubmit",
@@ -7517,18 +7517,18 @@
             "type": "string",
             "description": "title of the problem"
           },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "is the problem hidden",
+            "default": false
+          },
           "content": {
             "title": "Content",
             "maxLength": 65536,
             "type": "string",
             "description": "content of the problem",
             "default": ""
-          },
-          "hidden": {
-            "title": "Hidden",
-            "type": "boolean",
-            "description": "is the problem hidden",
-            "default": false
           }
         }
       },
@@ -7565,18 +7565,18 @@
             "type": "string",
             "description": "title of the problem"
           },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "is the problem hidden",
+            "default": false
+          },
           "content": {
             "title": "Content",
             "maxLength": 65536,
             "type": "string",
             "description": "content of the problem",
             "default": ""
-          },
-          "hidden": {
-            "title": "Hidden",
-            "type": "boolean",
-            "description": "is the problem hidden",
-            "default": false
           },
           "numSubmit": {
             "title": "Numsubmit",
@@ -7662,18 +7662,18 @@
             "type": "string",
             "description": "title of the problem"
           },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "is the problem hidden",
+            "default": false
+          },
           "content": {
             "title": "Content",
             "maxLength": 65536,
             "type": "string",
             "description": "content of the problem",
             "default": ""
-          },
-          "hidden": {
-            "title": "Hidden",
-            "type": "boolean",
-            "description": "is the problem hidden",
-            "default": false
           },
           "numSubmit": {
             "title": "Numsubmit",
@@ -7908,13 +7908,6 @@
             "minLength": 1,
             "type": "string",
             "description": "title of the problem"
-          },
-          "content": {
-            "title": "Content",
-            "maxLength": 65536,
-            "type": "string",
-            "description": "content of the problem",
-            "default": ""
           },
           "hidden": {
             "title": "Hidden",
@@ -8448,18 +8441,18 @@
             "type": "string",
             "description": "title of the problem"
           },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "is the problem hidden",
+            "default": false
+          },
           "content": {
             "title": "Content",
             "maxLength": 65536,
             "type": "string",
             "description": "content of the problem",
             "default": ""
-          },
-          "hidden": {
-            "title": "Hidden",
-            "type": "boolean",
-            "description": "is the problem hidden",
-            "default": false
           },
           "numSubmit": {
             "title": "Numsubmit",
