@@ -12,8 +12,8 @@ from joj.horse.config import settings
 #     return f"{protocol}://{settings.domain}"
 
 
-def get_base_url(request: Request) -> URL:
-    url = f"{request.url.scheme}://{request.url.netloc}/{settings.root_path}"
+def get_base_url(request: Request, prefix: str = "") -> URL:
+    url = f"{request.url.scheme}://{request.url.netloc}/{settings.root_path}{prefix}"
     return URL(url)
 
 

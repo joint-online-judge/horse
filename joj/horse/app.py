@@ -6,6 +6,7 @@ import sqlalchemy.exc
 from fastapi import Depends, FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi_jwt_auth.exceptions import AuthJWTException
+from fastapi_versioning import VersionedFastAPI
 from loguru import logger
 from rollbar.contrib.fastapi import ReporterMiddleware as RollbarMiddleware
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
@@ -31,12 +32,30 @@ app = FastAPI(
     title=settings.app_name,
     version=get_version(),
     description=f"Git version: {get_git_version()}",
-    openapi_url="/api/v1/openapi.json",
-    docs_url="/api/v1",
-    redoc_url="/api/v1/redoc",
     dependencies=[Depends(db_session_dependency)],
 )
 init_logging()
+
+import joj.horse.apis  # noqa: F401
+
+app = VersionedFastAPI(
+    app,
+    version_format="{major}",
+    prefix_format="/api/v{major}",
+)
+
+
+# we temporarily redirect "/" and "/api" to "/api/v1" for debugging
+@app.get("/api")
+@app.get("/")
+async def redirect_to_docs(request: Request) -> RedirectResponse:  # pragma: no cover
+    base_url = get_base_url(request, prefix="api/v1")
+    redirect_url = app.url_path_for("swagger_ui_html").make_absolute_url(base_url)
+
+    logger.info(base_url)
+    logger.info(redirect_url)
+
+    return RedirectResponse(redirect_url + "?docExpansion=none")
 
 
 @app.on_event("startup")
@@ -57,19 +76,6 @@ async def startup_event() -> None:  # pragma: no cover
         logger.error("Initialization failed, exiting.")
         logger.error(e)
         exit(-1)
-
-
-# we temporarily redirect "/" and "/api" to "/api/v1" for debugging
-@app.get("/api")
-@app.get("/")
-async def redirect_to_docs(request: Request) -> RedirectResponse:  # pragma: no cover
-    base_url = get_base_url(request)
-    redirect_url = app.url_path_for("swagger_ui_html").make_absolute_url(base_url)
-
-    logger.info(base_url)
-    logger.info(redirect_url)
-
-    return RedirectResponse(redirect_url + "?docExpansion=none")
 
 
 @app.exception_handler(AuthJWTException)
@@ -127,6 +133,3 @@ if settings.rollbar_access_token and not settings.dsn:  # pragma: no cover
     )
     app.add_middleware(RollbarMiddleware)
     logger.info("rollbar activated")
-
-
-import joj.horse.apis  # noqa: F401
