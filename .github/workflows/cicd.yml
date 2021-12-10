@@ -51,7 +51,7 @@ jobs:
       - name: Generate openapi.json
         run: |
           mkdir -p build
-          docker run --rm ${{ steps.output.outputs.tag }} python3 -m joj.horse.openapi > build/openapi.json
+          docker run --rm ${{ steps.output.outputs.tag }} python3 -m joj.horse openapi > build/openapi.json
       - name: Upload openapi.json as artifact
         uses: actions/upload-artifact@v2
         with:
