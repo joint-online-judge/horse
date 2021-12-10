@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Any, Callable
 
 from fastapi import FastAPI
-from fastapi_utils.openapi import simplify_operation_ids
 from pydantic.fields import ModelField
 
 from joj.horse.apis import (
@@ -98,5 +97,3 @@ copy_schema(
     upload_file_to_root_in_problem_config,
 )
 update_schema_name(app, login, "OAuth2PasswordRequestForm")
-
-simplify_operation_ids(app)

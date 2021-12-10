@@ -1,16 +1,11 @@
 import asyncio
 
 import rollbar
-import sentry_sdk
-import sqlalchemy.exc
-from fastapi import Depends, FastAPI, Request, status
-from fastapi.encoders import jsonable_encoder
-from fastapi_jwt_auth.exceptions import AuthJWTException
+from fastapi import Depends, FastAPI, Request
 from fastapi_versioning import VersionedFastAPI
 from loguru import logger
 from rollbar.contrib.fastapi import ReporterMiddleware as RollbarMiddleware
-from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
-from starlette.responses import JSONResponse, RedirectResponse
+from starlette.responses import RedirectResponse
 from starlette_context import plugins
 from starlette_context.middleware import RawContextMiddleware
 from tenacity import RetryError
@@ -18,12 +13,12 @@ from tenacity import RetryError
 import joj.horse.models  # noqa: F401
 import joj.horse.utils.monkey_patch  # noqa: F401
 from joj.horse.config import get_settings
-from joj.horse.schemas.base import StandardErrorResponse
 from joj.horse.utils.cache import try_init_cache
 from joj.horse.utils.db import db_session_dependency, try_init_db
-from joj.horse.utils.errors import BizError, ErrorCode
+from joj.horse.utils.exception_handlers import register_exception_handlers
 from joj.horse.utils.lakefs import LakeFSApiException, try_init_lakefs
 from joj.horse.utils.logger import init_logging  # noqa: F401
+from joj.horse.utils.router import simplify_operation_ids
 from joj.horse.utils.url import get_base_url
 from joj.horse.utils.version import get_git_version, get_version
 
@@ -78,49 +73,11 @@ async def startup_event() -> None:  # pragma: no cover
         exit(-1)
 
 
-@app.exception_handler(AuthJWTException)
-def authjwt_exception_handler(request: Request, exc: AuthJWTException) -> JSONResponse:
-    # noinspection PyUnresolvedReferences
-    return JSONResponse(
-        status_code=exc.status_code, content={"detail": exc.message}
-    )  # pragma: no cover
+# if settings.dsn:  # pragma: no cover
+#     sentry_sdk.init(dsn=settings.dsn, traces_sample_rate=settings.traces_sample_rate)
+#     app.add_middleware(SentryAsgiMiddleware)
+#     logger.info("sentry activated")
 
-
-def business_exception_response(exc: BizError) -> JSONResponse:
-    return JSONResponse(
-        jsonable_encoder(
-            StandardErrorResponse(error_code=exc.error_code, error_msg=exc.error_msg)
-        ),
-        status_code=status.HTTP_200_OK,
-    )
-
-
-@app.exception_handler(sqlalchemy.exc.IntegrityError)
-async def sqlalchemy_integrity_error_handler(
-    request: Request, exc: sqlalchemy.exc.IntegrityError
-) -> JSONResponse:
-    return business_exception_response(BizError(ErrorCode.IntegrityError, str(exc)))
-
-
-@app.exception_handler(BizError)
-async def business_exception_handler(request: Request, exc: BizError) -> JSONResponse:
-    return business_exception_response(exc)
-
-
-@app.exception_handler(Exception)
-async def catch_exceptions_middleware(
-    request: Request, exc: Exception
-) -> JSONResponse:  # pragma: no cover
-    logger.exception(f"Unexpected Error: {exc.__class__.__name__}")
-    return business_exception_response(
-        BizError(ErrorCode.InternalServerError, str(exc))
-    )
-
-
-if settings.dsn:  # pragma: no cover
-    sentry_sdk.init(dsn=settings.dsn, traces_sample_rate=settings.traces_sample_rate)
-    app.add_middleware(SentryAsgiMiddleware)
-    logger.info("sentry activated")
 app.add_middleware(
     RawContextMiddleware,
     plugins=(plugins.RequestIdPlugin(), plugins.CorrelationIdPlugin()),
@@ -133,3 +90,9 @@ if settings.rollbar_access_token and not settings.dsn:  # pragma: no cover
     )
     app.add_middleware(RollbarMiddleware)
     logger.info("rollbar activated")
+
+for route in app.routes:
+    sub_app = route.app
+    if isinstance(sub_app, FastAPI):
+        register_exception_handlers(sub_app)
+        simplify_operation_ids(sub_app)

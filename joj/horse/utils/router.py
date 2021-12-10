@@ -2,11 +2,12 @@ import functools
 from inspect import Parameter, signature
 from typing import Any, Callable, List, get_type_hints
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, FastAPI
+from fastapi.routing import APIRoute
+from loguru import logger
 
 from joj.horse.schemas import BaseModel
 from joj.horse.schemas.permission import PermissionBase
-from joj.horse.utils.auth import ensure_permission
 
 
 class Detail(BaseModel):
@@ -35,6 +36,8 @@ class MyRouter(APIRouter):
 
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
+            from joj.horse.utils.auth import ensure_permission
+
             permissions = kwargs.pop("permissions", None)
             if permissions:
                 new_dependencies = Depends(ensure_permission(permissions))
@@ -60,3 +63,14 @@ class MyRouter(APIRouter):
             kwargs["response_model"] = get_type_hints(endpoint).get("return")
         kwargs["responses"] = {403: {"model": Detail}}
         return super().add_api_route(path, endpoint, **kwargs)
+
+
+def simplify_operation_ids(app: FastAPI) -> None:
+    """
+    Simplify operation IDs so that generated clients have simpler api function names
+    """
+    version = f"v{app.version}"
+    logger.info("Simplify operation ids: {}", version)
+    for route in app.routes:
+        if isinstance(route, APIRoute):
+            route.operation_id = f"{version}_{route.name}"
