@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Any, List, Optional
 
 import click
-import rapidjson
+import orjson
 import uvicorn
 from fastapi import FastAPI
 
@@ -38,18 +38,23 @@ def serve() -> None:  # pragma: no cover
 @click.command("openapi")
 @click.option("-o", "--output", type=click.Path(), required=False, default=None)
 @click.option("-v", "--version", type=str, default="1")
-def openapi(output: Optional[str], version: str) -> None:
+@click.option("--pretty", is_flag=True)
+def openapi(output: Optional[str], version: str, pretty: bool) -> None:
     from joj.horse.app import app
 
     sub_app_path = f"/api/v{version}"
     for route in app.routes:
         sub_app = route.app
         if isinstance(sub_app, FastAPI) and route.path == sub_app_path:
-            openapi_json = rapidjson.dumps(sub_app.openapi(), indent=2)
-            if output is None:
-                print(openapi_json)
+            if pretty:
+                option = orjson.OPT_INDENT_2
             else:
-                with Path(output).open("w", encoding="utf-8") as f:
+                option = 0
+            openapi_json = orjson.dumps(sub_app.openapi(), option=option)
+            if output is None:
+                print(openapi_json.decode("utf-8"))
+            else:
+                with Path(output).open("wb") as f:
                     f.write(openapi_json)
             exit(0)
     exit(-1)

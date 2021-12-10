@@ -2,6 +2,7 @@ import asyncio
 
 import rollbar
 from fastapi import Depends, FastAPI, Request
+from fastapi.responses import ORJSONResponse
 from fastapi_versioning import VersionedFastAPI
 from loguru import logger
 from rollbar.contrib.fastapi import ReporterMiddleware as RollbarMiddleware
@@ -28,6 +29,7 @@ app = FastAPI(
     version=get_version(),
     description=f"Git version: {get_git_version()}",
     dependencies=[Depends(db_session_dependency)],
+    default_response_class=ORJSONResponse,
 )
 init_logging()
 
