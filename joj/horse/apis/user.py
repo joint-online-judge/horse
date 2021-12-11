@@ -133,7 +133,7 @@ router_prefix = "/api/v1"
 
 
 @router.get("")
-async def get_user(
+async def get_current_user(
     auth: Authentication = Depends(),
 ) -> StandardResponse[schemas.UserDetail]:
     user = await parse_uid(auth.jwt.id, auth)
@@ -141,7 +141,7 @@ async def get_user(
 
 
 @router.get("/problems")
-async def get_user_problems(
+async def get_current_user_problems(
     query: schemas.PaginationQuery = Depends(parse_pagination_query),
     auth: Authentication = Depends(),
 ) -> StandardListResponse[schemas.Problem]:
