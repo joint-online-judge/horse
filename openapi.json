@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 1bc3dd1@2021-12-10T21:54:37Z",
+    "description": "Git version: e179b35@2021-12-11T14:02:24Z",
     "version": "1"
   },
   "paths": {
@@ -4588,8 +4588,8 @@
         "tags": [
           "user"
         ],
-        "summary": "Get User",
-        "operationId": "v1_get_user",
+        "summary": "Get Current User",
+        "operationId": "v1_get_current_user",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -4624,8 +4624,8 @@
         "tags": [
           "user"
         ],
-        "summary": "Get User Problems",
-        "operationId": "v1_get_user_problems",
+        "summary": "Get Current User Problems",
+        "operationId": "v1_get_current_user_problems",
         "parameters": [
           {
             "required": false,
