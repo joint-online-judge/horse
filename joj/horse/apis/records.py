@@ -1,16 +1,14 @@
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import Depends
 
 from joj.horse import models, schemas
 from joj.horse.schemas.base import StandardListResponse, StandardResponse
 from joj.horse.schemas.permission import Permission
-from joj.horse.utils.parser import (
+from joj.horse.utils.parser import (  # parse_problem,; parse_problem_set,
     parse_domain_from_auth,
     parse_ordering_query,
     parse_pagination_query,
-    parse_problem,
-    parse_problem_set,
     parse_record,
     parse_user_from_auth,
 )
@@ -25,12 +23,13 @@ router_prefix = "/api/v1"
 @router.get("/records", permissions=[Permission.DomainRecord.view])
 async def list_records_in_domain(
     domain: models.Domain = Depends(parse_domain_from_auth),
-    problem_set: Optional[models.ProblemSet] = Depends(parse_problem_set),
-    problem: Optional[models.Problem] = Depends(parse_problem),
+    # problem_set: Optional[models.ProblemSet] = Depends(parse_problem_set),
+    # problem: Optional[models.Problem] = Depends(parse_problem),
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardListResponse[schemas.Record]:
+    problem_set, problem = None, None  # TODO: real class from parameter
     statement = domain.find_records_statement(user, problem_set, problem)
     records, count = await models.Problem.execute_list_statement(
         statement, ordering, pagination
