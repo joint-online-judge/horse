@@ -126,7 +126,7 @@ async def add_problem_in_problem_set(
         add_problem.problem, domain_auth.auth.domain
     )
     # examine problem visibility
-    parse_problem(problem, domain_auth)
+    parse_problem(problem, domain_auth.auth)
     await problem_set.operate_problem(problem, Operation.Create, add_problem.position)
     return StandardResponse(problem_set)
 

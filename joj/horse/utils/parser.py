@@ -110,9 +110,9 @@ async def parse_problem_without_validation(
 
 def parse_problem(
     problem: models.Problem = Depends(parse_problem_without_validation),
-    domain_auth: DomainAuthentication = Depends(DomainAuthentication),
+    auth: Authentication = Depends(),
 ) -> models.Problem:
-    if not problem.hidden or domain_auth.auth.check(
+    if not problem.hidden or auth.check(
         ScopeType.DOMAIN_PROBLEM, PermissionType.view_hidden
     ):
         return problem
@@ -135,9 +135,9 @@ async def parse_problem_config(
 
 
 def parse_problems(
-    problems: List[str], domain_auth: DomainAuthentication = Depends()
+    problems: List[str], auth: Authentication = Depends()
 ) -> List[models.Problem]:
-    return [parse_problem(oid, domain_auth) for oid in problems]
+    return [parse_problem(oid, auth) for oid in problems]
 
 
 def parse_view_hidden_problem_set(
