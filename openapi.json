@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: b5fd765@2021-12-12T03:04:42Z",
+    "description": "Git version: 612488e@2021-12-12T03:32:30Z",
     "version": "1"
   },
   "paths": {
@@ -4342,28 +4342,6 @@
               "description": "url or id of the domain"
             },
             "name": "domain",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the problem set",
-            "required": true,
-            "schema": {
-              "title": "Problemset",
-              "type": "string",
-              "description": "url or id of the problem set"
-            },
-            "name": "problemSet",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the problem",
-            "required": true,
-            "schema": {
-              "title": "Problem",
-              "type": "string",
-              "description": "url or id of the problem"
-            },
-            "name": "problem",
             "in": "path"
           },
           {
