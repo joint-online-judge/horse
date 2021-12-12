@@ -125,6 +125,21 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
         )
         return statement
 
+    def find_records_statement(
+        self,
+        user: "User",
+        problem_set: Optional["ProblemSet"],
+        problem: Optional["Problem"],
+    ) -> Select:
+        from joj.horse import models
+
+        statement = select(models.Record).where(models.Record.committer_id == user.id)
+        if problem_set:
+            statement = statement.where(models.Record.problem_set_id == problem_set.id)
+        if problem:
+            statement = statement.where(models.Record.problem_id == problem.id)
+        return statement
+
 
 event.listen(Domain, "before_insert", url_pre_save)
 event.listen(Domain, "before_update", url_pre_save)

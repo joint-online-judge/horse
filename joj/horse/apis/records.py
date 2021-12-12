@@ -1,16 +1,18 @@
 from typing import Any, Optional
 
 from fastapi import Depends
-from fastapi.param_functions import Query
 
 from joj.horse import models, schemas
 from joj.horse.schemas.base import StandardListResponse, StandardResponse
-from joj.horse.utils.auth import Authentication
+from joj.horse.schemas.permission import Permission
 from joj.horse.utils.parser import (
+    parse_domain_from_auth,
     parse_ordering_query,
     parse_pagination_query,
+    parse_problem,
+    parse_problem_set,
     parse_record,
-    parse_uid_or_none,
+    parse_user_from_auth,
 )
 from joj.horse.utils.router import MyRouter
 
@@ -20,28 +22,20 @@ router_tag = "record"
 router_prefix = "/api/v1"
 
 
-@router.get("/records")
+@router.get("/records", permissions=[Permission.DomainRecord.view])
 async def list_records_in_domain(
-    domain: Optional[str] = Query(None),
-    problem_set: Optional[str] = Query(None),
-    problem: Optional[str] = Query(None),
+    domain: models.Domain = Depends(parse_domain_from_auth),
+    problem_set: Optional[models.ProblemSet] = Depends(parse_problem_set),
+    problem: Optional[models.Problem] = Depends(parse_problem),
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
-    user: models.User = Depends(parse_uid_or_none),
-    auth: Authentication = Depends(),
+    user: models.User = Depends(parse_user_from_auth),
 ) -> StandardListResponse[schemas.Record]:
-    condition = {}
-    if user:
-        condition["user"] = auth.user.id
-    if domain is not None:
-        condition["domain"] = str(domain)
-    if problem_set is not None:
-        condition["problem_set"] = str(problem_set)
-    if problem is not None:
-        condition["problem"] = str(problem)
-    cursor = schemas.Record.cursor_find(condition, pagination)
-    res = await schemas.Record.to_list(cursor)
-    return StandardResponse(res)
+    statement = domain.find_records_statement(user, problem_set, problem)
+    records, count = await models.Problem.execute_list_statement(
+        statement, ordering, pagination
+    )
+    return StandardResponse(records, count)
 
 
 @router.get("/records/{record}")
