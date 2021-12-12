@@ -34,7 +34,7 @@ async def list_records_in_domain(
     records, count = await models.Problem.execute_list_statement(
         statement, ordering, pagination
     )
-    return StandardResponse(records, count)
+    return StandardListResponse(records, count)
 
 
 @router.get("/records/{record}")
