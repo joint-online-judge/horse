@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 13a066e@2021-12-12T02:38:03Z",
+    "description": "Git version: b5fd765@2021-12-12T03:04:42Z",
     "version": "1"
   },
   "paths": {
@@ -4334,31 +4334,37 @@
         "operationId": "v1_list_records_in_domain",
         "parameters": [
           {
+            "description": "url or id of the domain",
             "required": true,
             "schema": {
               "title": "Domain",
-              "type": "string"
+              "type": "string",
+              "description": "url or id of the domain"
             },
             "name": "domain",
             "in": "path"
           },
           {
-            "required": false,
+            "description": "url or id of the problem set",
+            "required": true,
             "schema": {
               "title": "Problemset",
-              "type": "string"
+              "type": "string",
+              "description": "url or id of the problem set"
             },
             "name": "problemSet",
-            "in": "query"
+            "in": "path"
           },
           {
-            "required": false,
+            "description": "url or id of the problem",
+            "required": true,
             "schema": {
               "title": "Problem",
-              "type": "string"
+              "type": "string",
+              "description": "url or id of the problem"
             },
             "name": "problem",
-            "in": "query"
+            "in": "path"
           },
           {
             "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
@@ -4393,18 +4399,6 @@
               "default": 100
             },
             "name": "limit",
-            "in": "query"
-          },
-          {
-            "description": "user id or 'me' or empty",
-            "required": false,
-            "schema": {
-              "title": "Uid",
-              "type": "string",
-              "description": "user id or 'me' or empty",
-              "default": ""
-            },
-            "name": "uid",
             "in": "query"
           }
         ],
