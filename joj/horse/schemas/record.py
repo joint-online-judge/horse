@@ -14,6 +14,7 @@ class RecordState(StrEnumMixin, Enum):
     # waiting
     processing = "processing"  # upload the submission to S3
     queueing = "queueing"  # queue in celery
+    retrying = "retrying"  # retry in celery
     # working
     fetched = "fetched"  # fetched by a celery worker
     compiling = "compiling"  # only for compiling languages

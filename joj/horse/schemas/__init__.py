@@ -28,7 +28,10 @@ from joj.horse.schemas.domain_user import (
     DomainUserPermission as DomainUserPermission,
     DomainUserUpdate as DomainUserUpdate,
 )
-from joj.horse.schemas.judge import JudgeClaim as JudgeClaim
+from joj.horse.schemas.judge import (
+    JudgeClaim as JudgeClaim,
+    JudgeCredentials as JudgeCredentials,
+)
 from joj.horse.schemas.lakefs import LakeFSReset as LakeFSReset
 from joj.horse.schemas.misc import (
     AuthTokens as AuthTokens,

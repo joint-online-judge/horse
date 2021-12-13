@@ -1,11 +1,12 @@
 from fastapi import Depends
 from loguru import logger
+from starlette.concurrency import run_in_threadpool
 
 from joj.horse import models, schemas
 from joj.horse.schemas.base import Empty, StandardResponse
 from joj.horse.schemas.permission import Permission
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.lakefs import get_problem_config_repo_name, get_record_repo_name
+from joj.horse.utils.lakefs import LakeFSProblemConfig, LakeFSRecord
 from joj.horse.utils.parser import parse_record_judger, parse_user_from_auth
 from joj.horse.utils.router import MyRouter
 
@@ -15,38 +16,57 @@ router_tag = "judge"
 router_prefix = "/api/v1"
 
 
-@router.get("/key", permissions=[Permission.SiteUser.judge])
-async def get_judge_key(
-    user: models.User = Depends(parse_user_from_auth),
-) -> StandardResponse[schemas.UserAccessKey]:
-    access_key = await models.UserAccessKey.get_lakefs_access_key(user)
-    return StandardResponse(access_key)
-
-
 @router.post("/records/{record}/claim", permissions=[Permission.SiteUser.judge])
 async def claim_record_by_judge(
+    judge_claim: schemas.JudgeClaim,
     record: models.Record = Depends(parse_record_judger),
     user: models.User = Depends(parse_user_from_auth),
-) -> StandardResponse[schemas.JudgeClaim]:
-    if record.state != schemas.RecordState.queueing:
+) -> StandardResponse[schemas.JudgeCredentials]:
+    # task_id can only be obtained by listening to the celery task queue
+    # we give the worker with task_id the chance to claim the record
+    # celery tasks can be retried, only one worker can hold the task_id at the same time
+    # if a rejudge is scheduled, task_id changes, so previous task will be ineffective
+    # TODO: we probably need a lock to handle race condition of rejudge and claim
+    if record.task_id is None or record.task_id != judge_claim.task_id:
         raise BizError(ErrorCode.Error)
+    # if record.state not in (schemas.RecordState.queueing, schemas.RecordState.retrying):
+    #     raise BizError(ErrorCode.Error)
+    # we can mark task failed if no problem config is available
     if record.problem_config is None or record.problem is None:
         raise BizError(ErrorCode.Error)
 
-    # record.judger_id = user.id
-    # record.state = schemas.RecordState.fetched
-    # await record.save_model()
+    # we always reset the state to "fetched", for both first attempt and retries
+    record.judger_id = user.id
+    record.state = schemas.RecordState.fetched
+    await record.save_model()
     logger.info("judger claim record: {}", record)
 
-    # f99c8699-ff59-4536-b8b3-ccfbbd086b36
+    # initialize the permission of the judger to lakefs
+    # the user have read access to all problems in the problem group,
+    # actually only the access to one branch is necessary,
+    # but it will create too many policies, so we grant all for simplicity
+    # the user have read/write access to all records in the problem,
+    # because the judger will write test result to the repo
+    await record.fetch_related("problem")
+    access_key = await models.UserAccessKey.get_lakefs_access_key(user)
+    lakefs_problem_config = LakeFSProblemConfig(record.problem)
+    lakefs_record = LakeFSRecord(record.problem, record)
 
-    judge_claim = schemas.JudgeClaim(
-        problem_config_repo_name=get_problem_config_repo_name(record.problem),
+    def sync_func() -> None:
+        lakefs_problem_config.ensure_user_policy(user, "read")
+        lakefs_record.ensure_user_policy(user, "all")
+
+    await run_in_threadpool(sync_func)
+
+    judge_credentials = schemas.JudgeCredentials(
+        access_key_id=access_key.access_key_id,
+        secret_access_key=access_key.secret_access_key,
+        problem_config_repo_name=lakefs_problem_config.repo_name,
         problem_config_commit_id=record.problem_config.commit_id,
-        record_repo_name=get_record_repo_name(record),
+        record_repo_name=lakefs_record.repo_name,
         record_commit_id=record.commit_id,
     )
-    return StandardResponse(judge_claim)
+    return StandardResponse(judge_credentials)
 
 
 @router.post("/records/{record}/state", permissions=[Permission.SiteUser.judge])

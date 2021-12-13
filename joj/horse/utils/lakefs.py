@@ -2,7 +2,7 @@ from functools import lru_cache
 from io import BytesIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import IO, TYPE_CHECKING, Any, BinaryIO, Dict, Optional
+from typing import IO, TYPE_CHECKING, Any, BinaryIO, Dict, Literal, Optional
 from uuid import UUID
 
 import boto3
@@ -24,7 +24,7 @@ from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.retry import retry_init
 
 if TYPE_CHECKING:
-    from joj.horse.models import Problem, Record
+    from joj.horse.models import Problem, Record, User
     from joj.horse.schemas.lakefs import LakeFSReset
 
 
@@ -257,6 +257,46 @@ class LakeFSBase:
                 repository=self.repo_name, branch_creation=new_branch
             )
             logger.info(f"LakeFS create branch: {self.branch}")
+
+    def ensure_policy(self, permission: Literal["read", "all"]) -> models.Policy:
+        if permission != "read" and permission != "all":
+            raise BizError(
+                ErrorCode.InternalServerError, f"permission not defined: {permission}"
+            )
+        client = get_lakefs_client()
+        policy_id = f"{self.repo_name}-{permission}"
+        try:
+            policy = client.auth.get_policy(policy_id=policy_id)
+        except LakeFSApiException:
+            if permission == "read":
+                action = ["fs:List*", "fs:Read*"]
+            elif permission == "all":
+                action = ["fs:*"]
+            else:
+                assert False
+            policy = models.Policy(
+                id=policy_id,
+                statement=[
+                    models.Statement(
+                        effect="allow",
+                        resource=f"arn:lakefs:fs:::repository/{self.repo_name}/*",
+                        action=action,
+                    )
+                ],
+            )
+            policy = client.auth.create_policy(policy=policy)
+            logger.info(f"LakeFS create policy: {policy_id}")
+        return policy
+
+    def ensure_user_policy(
+        self, user: "User", permission: Literal["read", "all"]
+    ) -> None:
+        client = get_lakefs_client()
+        policy = self.ensure_policy(permission)
+        try:
+            client.auth.attach_policy_to_user(user_id=str(user.id), policy_id=policy.id)
+        except LakeFSApiException:
+            pass
 
     def get_file_info(self, file_path: Path, ref: Optional[str] = None) -> FileInfo:
         try:

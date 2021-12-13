@@ -57,6 +57,7 @@ class RecordPermission(PermissionBase):
     view: bool = True
     detail: bool = False
     code: bool = False
+    judge: bool = False
     rejudge: bool = False
 
 
@@ -64,7 +65,6 @@ class UserSpecificPermission(PermissionBase):
     view: bool = True
     view_hidden: bool = False
     view_list: bool = False
-    judge: bool = False
 
 
 class DomainSpecificPermission(PermissionBase):
@@ -120,7 +120,7 @@ DEFAULT_DOMAIN_PERMISSION: Dict[str, DomainPermission] = {
 
 # set permission for judge
 __DEFAULT_JUDGE_PERMISSION = SitePermission.get_default_site_permission(False, False)
-__DEFAULT_JUDGE_PERMISSION.user.judge = True
+__DEFAULT_JUDGE_PERMISSION.record.judge = True
 
 
 DEFAULT_SITE_PERMISSION = {
