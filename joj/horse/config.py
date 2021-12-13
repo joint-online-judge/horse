@@ -66,6 +66,13 @@ class DatabaseSettings(BaseModel):
     redis_password: str = ""
     redis_db_index: int = 0
 
+    # rabbitmq config
+    rabbitmq_host: str = "localhost"
+    rabbitmq_port: int = 5672
+    rabbitmq_username: str = "guest"
+    rabbitmq_password: str = "guest"
+    rabbitmq_vhost: str = ""
+
 
 class ObjectStorageSettings(BaseModel):
     """

@@ -3,8 +3,6 @@ from enum import Enum, IntEnum
 from typing import List, Optional
 from uuid import UUID
 
-from sqlalchemy.schema import Column
-from sqlalchemy.types import JSON
 from sqlmodel import Field
 
 from joj.horse.schemas import BaseModel
@@ -65,12 +63,8 @@ class Record(BaseORMSchema, IDMixin):
     language: str = Field(
         index=False, nullable=False, sa_column_kwargs={"server_default": ""}
     )
-    toolchains: List[str] = Field(
-        [],
-        index=False,
-        sa_column=Column(JSON, nullable=False, server_default="[]"),
-    )
     commit_id: Optional[str] = Field(None, index=False, nullable=True)
+    task_id: Optional[UUID] = Field(None, index=False, nullable=True)
 
     score: int = Field(
         0, index=False, nullable=False, sa_column_kwargs={"server_default": "0"}

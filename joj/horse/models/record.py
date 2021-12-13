@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING, List, Optional
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from celery import Celery
+from celery.result import AsyncResult
 from fastapi import BackgroundTasks
 from loguru import logger
 from sqlalchemy.schema import Column, ForeignKey
@@ -138,18 +139,26 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
 
         try:
             await run_in_threadpool(sync_func)
+            self.task_id = uuid4()
             await self.save_model()
             await self.create_task(celery_app)
-            logger.error("upload record success: {}", self)
+            logger.info("upload record success: {}", self)
         except Exception as e:
             logger.error("upload record failed: {}", self)
             logger.exception(e)
             self.state = RecordState.failed
             await self.save_model()
 
-    async def create_task(self, celery_app: Celery) -> None:
-        # TODO: create a task in celery with this record
-        celery_app.send_task("joj.tiger.compile", args=[self.dict(), ""])
+    async def create_task(self, celery_app: Celery) -> AsyncResult:
+        # create a task in celery with this record
+        # TODO: get queue from problem config or somewhere else
+        result = celery_app.send_task(
+            "joj.tiger.compile",
+            args=[self.dict(), ""],
+            queue="joj.tiger.official.default",
+            task_id=str(self.task_id),
+        )
+        return result
 
     @classmethod
     def get_user_latest_record_key(
