@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: cb658ac@2021-12-13T14:23:18Z",
+    "description": "Git version: adca461@2021-12-13T17:05:38Z",
     "version": "1"
   },
   "paths": {
@@ -4662,6 +4662,62 @@
         ]
       }
     },
+    "/user/password": {
+      "patch": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Change Password",
+        "operationId": "v1_change_password",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserResetPassword"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/users": {
       "get": {
         "tags": [
@@ -6921,7 +6977,7 @@
           "IntegrityError",
           "APINotImplementedError",
           "UserRegisterError",
-          "UserLoginError",
+          "UsernamePasswordError",
           "UserNotFoundError",
           "DomainNotFoundError",
           "InvalidUrlError",
@@ -9019,6 +9075,24 @@
           },
           "data": {
             "$ref": "#/components/schemas/UserList"
+          }
+        }
+      },
+      "UserResetPassword": {
+        "title": "UserResetPassword",
+        "required": [
+          "newPassword"
+        ],
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "title": "Currentpassword",
+            "type": "string",
+            "default": ""
+          },
+          "newPassword": {
+            "title": "Newpassword",
+            "type": "string"
           }
         }
       },
