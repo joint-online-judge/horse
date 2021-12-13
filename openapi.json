@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 27c86c8@2021-12-12T03:59:40Z",
+    "description": "Git version: cb658ac@2021-12-13T14:23:18Z",
     "version": "1"
   },
   "paths": {
@@ -8487,17 +8487,14 @@
             "title": "Language",
             "type": "string"
           },
-          "toolchains": {
-            "title": "Toolchains",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "default": []
-          },
           "commitId": {
             "title": "Commitid",
             "type": "string"
+          },
+          "taskId": {
+            "title": "Taskid",
+            "type": "string",
+            "format": "uuid"
           },
           "score": {
             "title": "Score",
