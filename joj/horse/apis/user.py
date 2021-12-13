@@ -149,3 +149,16 @@ async def get_current_user_problems(
     cursor = models.Problem.cursor_find(condition, query)
     res = await models.Problem.to_list(cursor)
     return StandardListResponse(res)
+
+
+@router.patch("/password")
+async def change_password(
+    user_reset_password: schemas.UserResetPassword,
+    auth: Authentication = Depends(),
+) -> StandardResponse[schemas.User]:
+    user = await parse_uid(auth.jwt.id, auth)
+    await user.reset_password(
+        user_reset_password.current_password,
+        user_reset_password.new_password,
+    )
+    return StandardResponse(user)
