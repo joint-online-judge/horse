@@ -3,10 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from joj.horse import models, schemas
 from joj.horse.models.permission import DefaultRole
+from joj.horse.schemas.auth import JWTAccessToken, auth_jwt_decode_access_token
 from joj.horse.schemas.base import Empty, StandardResponse
 from joj.horse.schemas.misc import Version
-from joj.horse.utils.auth import JWTAccessToken, auth_jwt_decode_access_token
-from joj.horse.utils.db import db_session_dependency
+from joj.horse.services.db import db_session_dependency
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.parser import parse_user_from_auth
 from joj.horse.utils.router import MyRouter
@@ -54,6 +54,8 @@ async def set_root_user(
         raise BizError(ErrorCode.Error)
 
     current_user = await models.User.get_or_none(id=user.id)
+    if current_user is None:
+        raise BizError(ErrorCode.UserNotFoundError)
     current_user.role = DefaultRole.ROOT
     session.sync_session.add(current_user)
     await session.commit()

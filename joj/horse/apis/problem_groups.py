@@ -3,7 +3,7 @@ from sqlmodel import select
 
 from joj.horse import models, schemas
 from joj.horse.schemas import StandardListResponse
-from joj.horse.utils.auth import Authentication
+from joj.horse.schemas.auth import Authentication
 from joj.horse.utils.parser import parse_ordering_query, parse_pagination_query
 from joj.horse.utils.router import MyRouter
 

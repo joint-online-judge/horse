@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Optional, Tuple
+from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID
 
 from sqlalchemy import event
@@ -16,11 +16,9 @@ if TYPE_CHECKING:
         DomainRole,
         DomainUser,
         Problem,
-        ProblemGroup,
         ProblemSet,
         User,
     )
-    from joj.horse.schemas.query import OrderingQuery, PaginationQuery
 
 
 class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
@@ -57,27 +55,27 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
             statement = statement.where(models.Problem.hidden != true())
         return statement
 
-    async def find_problems(
-        self,
-        include_hidden: bool = False,
-        problem_set: Optional["ProblemSet"] = None,
-        problem_group: Optional["ProblemGroup"] = None,
-        ordering: Optional["OrderingQuery"] = None,
-        pagination: Optional["PaginationQuery"] = None,
-    ) -> Tuple[List["Problem"], int]:
-        if problem_set:
-            query_set = problem_set.problems.filter(domain=self)
-        else:
-            query_set = self.problems.all()  # type: ignore
-        if not include_hidden:
-            query_set = query_set.filter(hidden=False)
-        if problem_group:
-            query_set = query_set.filter(problem_group=problem_group)
-        query_set = self.apply_ordering(query_set, ordering)
-        count = await query_set.count()
-        query_set = self.apply_pagination(query_set, pagination)
-        problems = await query_set
-        return problems, count
+    # async def find_problems(
+    #     self,
+    #     include_hidden: bool = False,
+    #     problem_set: Optional["ProblemSet"] = None,
+    #     problem_group: Optional["ProblemGroup"] = None,
+    #     ordering: Optional["OrderingQuery"] = None,
+    #     pagination: Optional["PaginationQuery"] = None,
+    # ) -> Tuple[List["Problem"], int]:
+    #     if problem_set:
+    #         query_set = problem_set.problems.filter(domain=self)
+    #     else:
+    #         query_set = self.problems.all()  # type: ignore
+    #     if not include_hidden:
+    #         query_set = query_set.filter(hidden=False)
+    #     if problem_group:
+    #         query_set = query_set.filter(problem_group=problem_group)
+    #     query_set = self.apply_ordering(query_set, ordering)
+    #     count = await query_set.count()
+    #     query_set = self.apply_pagination(query_set, pagination)
+    #     problems = await query_set
+    #     return problems, count
 
     def find_domain_users_statement(self) -> Select:
         from joj.horse import models
@@ -119,7 +117,7 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
             .where(
                 or_(
                     models.DomainUser.domain_id == self.id,
-                    models.DomainUser.domain_id.is_(None),
+                    models.DomainUser.domain_id.is_(None),  # type: ignore[attr-defined]
                 )
             )
         )

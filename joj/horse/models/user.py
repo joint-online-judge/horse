@@ -7,7 +7,7 @@ from sqlmodel import Field, Relationship
 from joj.horse.models.base import BaseORMModel
 from joj.horse.models.user_oauth_account import UserOAuthAccount
 from joj.horse.schemas.user import UserCreate, UserDetail
-from joj.horse.utils.db import db_session
+from joj.horse.services.db import db_session
 from joj.horse.utils.errors import BizError, ErrorCode
 
 if TYPE_CHECKING:
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
         Record,
         UserAccessKey,
     )
-    from joj.horse.utils.auth import JWTAccessToken
+    from joj.horse.schemas.auth import JWTAccessToken
 
 
 class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
@@ -70,7 +70,7 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
         return values
 
     def verify_password(self, plain_password: str) -> bool:
-        from joj.horse.utils.auth import pwd_context
+        from joj.horse.schemas.auth import pwd_context
 
         return pwd_context.verify(plain_password, self.hashed_password)
 
@@ -83,7 +83,7 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
 
     @classmethod
     def _generate_password_hash(cls, password: str) -> str:
-        from joj.horse.utils.auth import pwd_context
+        from joj.horse.schemas.auth import pwd_context
 
         return pwd_context.hash(password)
 
@@ -157,6 +157,7 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
         jwt_access_token: Optional["JWTAccessToken"],
         register_ip: str,
     ) -> "User":
+        oauth_account: Optional[UserOAuthAccount]
         if user_create.oauth_name:
             if (
                 jwt_access_token is None
@@ -189,7 +190,7 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
         #     # root user can view all domains
         statement = statement.where(models.DomainUser.user_id == self.id)
         if role is not None:
-            statement = statement.where(models.DomainUser.role.in_(role))
+            statement = statement.where(models.DomainUser.role.in_(role))  # type: ignore[attr-defined]
         return statement
 
     @classmethod
@@ -199,8 +200,8 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
             or_(
                 cls.username_lower.ilike(looking_for),  # type: ignore[attr-defined]
                 cls.email_lower.ilike(looking_for),  # type: ignore[attr-defined]
-                cls.student_id.ilike(looking_for),
-                cls.real_name.ilike(looking_for),
+                cls.student_id.ilike(looking_for),  # type: ignore[attr-defined]
+                cls.real_name.ilike(looking_for),  # type: ignore[attr-defined]
             )
         )
         return statement

@@ -4,7 +4,7 @@ import httpx
 from typing_extensions import TypedDict
 
 from joj.horse.schemas import BaseModel
-from joj.horse.utils.oauth import BaseOAuth2, GetProfileError, OAuth2Profile
+from joj.horse.services.oauth import BaseOAuth2, GetProfileError, OAuth2Profile
 
 AUTHORIZE_ENDPOINT = "https://jaccount.sjtu.edu.cn/oauth2/authorize"
 ACCESS_TOKEN_ENDPOINT = "https://jaccount.sjtu.edu.cn/oauth2/token"

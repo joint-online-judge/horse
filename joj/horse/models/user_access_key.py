@@ -9,8 +9,8 @@ from starlette.concurrency import run_in_threadpool
 
 from joj.horse.models.base import BaseORMModel
 from joj.horse.schemas.user_access_key import UserAccessKeyDetail
+from joj.horse.services.lakefs import ensure_credentials, ensure_user
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.lakefs import ensure_credentials, ensure_user
 
 if TYPE_CHECKING:
     from joj.horse.models import User
@@ -41,7 +41,7 @@ class UserAccessKey(BaseORMModel, UserAccessKeyDetail, table=True):  # type: ign
         if access_key is None and credentials is None:
             raise BizError(ErrorCode.Error)
 
-        if credentials is None:
+        if access_key is not None and credentials is None:
             return access_key
 
         if access_key is None:

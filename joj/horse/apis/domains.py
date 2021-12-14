@@ -15,14 +15,14 @@ from joj.horse.models.permission import (
     ScopeType,
 )
 from joj.horse.schemas import Empty, StandardListResponse, StandardResponse
+from joj.horse.schemas.auth import Authentication, DomainAuthentication
 from joj.horse.schemas.base import SearchQueryStr
 from joj.horse.schemas.permission import (
     DEFAULT_DOMAIN_PERMISSION,
     DefaultRole,
     Permission,
 )
-from joj.horse.utils.auth import Authentication, DomainAuthentication
-from joj.horse.utils.db import db_session_dependency
+from joj.horse.services.db import db_session_dependency
 from joj.horse.utils.errors import BizError, ErrorCode, UnauthorizedError
 from joj.horse.utils.parser import (
     parse_domain_from_auth,
@@ -473,9 +473,9 @@ async def join_domain_by_invitation(
     invitation_model = await models.DomainInvitation.get_or_none(
         domain_id=domain.id, code=invitation_code
     )
-    if (
-        invitation_model is None
-        or datetime.now(tz=timezone.utc) > invitation_model.expire_at
+    if invitation_model is None or (
+        invitation_model.expire_at is not None
+        and datetime.now(tz=timezone.utc) > invitation_model.expire_at
     ):
         raise BizError(ErrorCode.DomainInvitationBadRequestError)
     # add member

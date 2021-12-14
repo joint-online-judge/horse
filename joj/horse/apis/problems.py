@@ -1,4 +1,5 @@
-from typing import List
+from typing import List, Optional
+from uuid import UUID
 
 from celery import Celery
 from fastapi import BackgroundTasks, Depends
@@ -7,10 +8,11 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from joj.horse import models, schemas
 from joj.horse.schemas import Empty, StandardListResponse, StandardResponse
+from joj.horse.schemas.auth import Authentication
 from joj.horse.schemas.permission import Permission
-from joj.horse.utils.auth import Authentication
-from joj.horse.utils.db import db_session_dependency
-from joj.horse.utils.lakefs import LakeFSProblemConfig
+from joj.horse.services.celery_app import celery_app_dependency
+from joj.horse.services.db import db_session_dependency
+from joj.horse.services.lakefs import LakeFSProblemConfig
 from joj.horse.utils.parser import (
     parse_domain_from_auth,
     parse_ordering_query,
@@ -22,7 +24,6 @@ from joj.horse.utils.parser import (
     parse_view_hidden_problem,
 )
 from joj.horse.utils.router import MyRouter
-from joj.horse.utils.tasks import celery_app_dependency
 
 router = MyRouter()
 router_name = "domains/{domain}/problems"
@@ -138,6 +139,7 @@ async def clone_problem(
     try:
         res = []
         for problem in problems:
+            problem_group_id: Optional[UUID]
             if new_group:
                 problem_group = models.ProblemGroup()
                 # TODO: transaction (since session has already committed here)

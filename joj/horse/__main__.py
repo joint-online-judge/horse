@@ -5,9 +5,9 @@ import click
 import orjson
 import uvicorn
 from fastapi import FastAPI
+from pydantic_universal_settings import cli, init_settings
 
-from joj.horse.config import get_settings
-from joj.horse.utils.cli import cli_command
+from joj.horse.config import AllSettings
 
 
 @click.group(invoke_without_command=True)
@@ -18,9 +18,9 @@ def cli_group(ctx: Any) -> Any:
         ctx.invoke(serve)
 
 
-@cli_command()
+@cli.command()
 def serve() -> None:  # pragma: no cover
-    settings = get_settings()
+    settings = init_settings(AllSettings)
     reload_dirs: Optional[List[str]] = None
     if settings.debug:
         reload_dirs = ["joj", ".venv/lib/python3.8/site-packages/joj"]

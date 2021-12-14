@@ -9,7 +9,7 @@ from loguru import logger
 
 from joj.horse import models, schemas
 from joj.horse.config import settings
-from joj.horse.utils.auth import (
+from joj.horse.schemas.auth import (
     AuthParams,
     JWTAccessToken,
     JWTToken,
@@ -22,10 +22,10 @@ from joj.horse.utils.auth import (
     auth_jwt_raw_access_token,
     auth_jwt_raw_refresh_token,
 )
+from joj.horse.services.oauth import BaseOAuth2, OAuth2Dependency, OAuth2Token
+from joj.horse.services.oauth.github import GitHubOAuth2
+from joj.horse.services.oauth.jaccount import JaccountOAuth2
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.oauth import BaseOAuth2, OAuth2Dependency, OAuth2Token
-from joj.horse.utils.oauth.github import GitHubOAuth2
-from joj.horse.utils.oauth.jaccount import JaccountOAuth2
 from joj.horse.utils.router import MyRouter
 from joj.horse.utils.url import get_base_url
 
@@ -108,7 +108,7 @@ async def get_logout_response(
 
 
 def get_oauth_router(
-    oauth_clients: List[BaseOAuth2],
+    oauth_clients: List[BaseOAuth2[Any]],
     # backend: BaseAuthentication,
     callback_redirect_url: Optional[str] = None,
 ) -> MyRouter:
@@ -142,7 +142,7 @@ def get_oauth_router(
     @oauth_router.get("/{oauth2}/authorize", name=authorize_route_name)
     async def authorize(
         request: Request,
-        oauth_client: BaseOAuth2 = Depends(oauth2_dependency.oauth_client()),
+        oauth_client: BaseOAuth2[Any] = Depends(oauth2_dependency.oauth_client()),
         auth_parameters: AuthParams = Depends(auth_parameters_dependency),
         auth_jwt: AuthJWT = Depends(AuthJWT),
         scopes: List[str] = Query(None),
@@ -171,7 +171,7 @@ def get_oauth_router(
     async def callback(
         request: Request,
         response: Response,
-        oauth_client: BaseOAuth2 = Depends(oauth2_dependency.oauth_client()),
+        oauth_client: BaseOAuth2[Any] = Depends(oauth2_dependency.oauth_client()),
         auth_jwt: AuthJWT = Depends(AuthJWT),
         access_token_state: Tuple[OAuth2Token, Optional[str]] = Depends(
             oauth2_dependency.access_token_state()
@@ -200,10 +200,11 @@ def get_oauth_router(
             )
         else:
             user = await models.User.get_or_none(id=oauth_account.user_id)
-            user.login_at = datetime.now(tz=timezone.utc)
-            user.login_ip = request.client.host
-            await user.save_model()
-            logger.info(f"user oauth login: {user}")
+            if user is not None:
+                user.login_at = datetime.now(tz=timezone.utc)
+                user.login_ip = request.client.host
+                await user.save_model()
+                logger.info(f"user oauth login: {user}")
 
             access_token, refresh_token = auth_jwt_encode_user(
                 auth_jwt, user=user, oauth_name=oauth_profile.oauth_name
@@ -329,7 +330,7 @@ async def refresh(
     )
 
 
-_oauth_clients: List[BaseOAuth2] = []
+_oauth_clients: List[BaseOAuth2[Any]] = []
 
 if settings.oauth_jaccount:
     _oauth_clients.append(

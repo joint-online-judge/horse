@@ -47,7 +47,7 @@ greenletio = "^0.9.0"
 hiredis = "^2.0.0"
 httpx = "^0.19.0"
 httpx-oauth = "^0.3.7"
-joj-elephant = {git = "https://github.com/joint-online-judge/elephant.git"}
+joj-elephant = {git = "https://github.com/joint-online-judge/elephant.git", branch = "master"}
 lakefs-client = "0.47.0"
 loguru = "^0.5.3"
 makefun = "^1.12.1"
@@ -55,6 +55,7 @@ oauth-jaccount = "^0.1.5"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 pbr = "^5.6.0"
 pydantic = {extras = ["dotenv"], version = "^1.8.2"}
+pydantic-universal-settings = "^0.1.5"
 PyJWT = "^2.3.0"
 pytest = {version = "^6.2.5", optional = true}
 pytest-asyncio = {version = "^0.15.1", optional = true}

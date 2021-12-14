@@ -1,7 +1,4 @@
-from typing import TYPE_CHECKING, Any, Callable
-
-from fastapi import FastAPI
-from pydantic.fields import ModelField
+from typing import Any
 
 from joj.horse.apis import (
     admin as admin,
@@ -26,6 +23,7 @@ from joj.horse.apis.problem_configs import (
 from joj.horse.apis.problem_sets import submit_solution_to_problem_set
 from joj.horse.apis.problems import submit_solution_to_problem
 from joj.horse.app import app
+from joj.horse.utils.router import copy_schema, update_schema_name
 
 
 def include_router(module: Any) -> None:
@@ -48,43 +46,6 @@ include_router(auth)
 include_router(misc)
 include_router(admin)
 include_router(judge)
-
-
-def _get_schema(_app: FastAPI, function: Callable[..., Any]) -> ModelField:
-    for route in _app.routes:
-        if route.endpoint is function:
-            return route.body_field
-    assert False
-
-
-def update_schema_name(_app: FastAPI, function: Callable[..., Any], name: str) -> None:
-    """
-    Updates the Pydantic schema name for a FastAPI function that takes
-    in a fastapi.UploadFile = File(...) or bytes = File(...).
-
-    This is a known issue that was reported on FastAPI#1442 in which
-    the schema for file upload routes were auto-generated with no
-    customization options. This renames the auto-generated schema to
-    something more useful and clear.
-
-    Args:
-        _app: The FastAPI application to modify.
-        function: The function object to modify.
-        name: The new name of the schema.
-    """
-    if not TYPE_CHECKING:
-        schema = _get_schema(_app, function)
-        schema.type_.__name__ = name
-
-
-def copy_schema(
-    _app: FastAPI, function_src: Callable[..., Any], *function_dest: Callable[..., Any]
-) -> None:
-    if not TYPE_CHECKING:
-        for func in function_dest:
-            schema_src = _get_schema(_app, function_src)
-            schema_dest = _get_schema(_app, func)
-            schema_dest.type_ = schema_src.type_
 
 
 update_schema_name(app, submit_solution_to_problem, "ProblemSolutionSubmit")

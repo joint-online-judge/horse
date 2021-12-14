@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Tuple, cast
 import httpx
 from typing_extensions import TypedDict
 
-from joj.horse.utils.oauth import BaseOAuth2, GetProfileError, OAuth2Profile
+from joj.horse.services.oauth import BaseOAuth2, GetProfileError, OAuth2Profile
 
 AUTHORIZE_ENDPOINT = "https://github.com/login/oauth/authorize"
 ACCESS_TOKEN_ENDPOINT = "https://github.com/login/oauth/access_token"

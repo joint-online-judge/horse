@@ -4,14 +4,13 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 from uuid import UUID
 
 from pydantic import EmailStr, validator
-from sqlmodel import Field
+from sqlmodel import Field, SQLModel
 
 from joj.horse.models.permission import DefaultRole
 from joj.horse.schemas.base import (
     BaseModel,
     BaseORMSchema,
     IDMixin,
-    SQLModel,
     TimestampMixin,
     get_datetime_column,
     utcnow,

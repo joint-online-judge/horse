@@ -12,8 +12,8 @@ from starlette.concurrency import run_in_threadpool
 
 from joj.horse.models.base import BaseORMModel
 from joj.horse.schemas.problem_config import ProblemConfigDetail
+from joj.horse.services.lakefs import LakeFSProblemConfig
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.lakefs import LakeFSProblemConfig
 
 if TYPE_CHECKING:
     from joj.horse.models import Problem, Record, User

@@ -6,8 +6,8 @@ from sqlmodel import Field, Relationship, select
 from sqlmodel.sql.sqltypes import GUID
 
 from joj.horse.models.base import BaseORMModel
-from joj.horse.utils.db import db_session
-from joj.horse.utils.oauth import OAuth2Profile
+from joj.horse.services.db import db_session
+from joj.horse.services.oauth import OAuth2Profile
 
 if TYPE_CHECKING:
     from joj.horse.models import User

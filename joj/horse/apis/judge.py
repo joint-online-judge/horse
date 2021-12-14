@@ -5,8 +5,8 @@ from starlette.concurrency import run_in_threadpool
 from joj.horse import models, schemas
 from joj.horse.schemas.base import Empty, StandardResponse
 from joj.horse.schemas.permission import Permission
+from joj.horse.services.lakefs import LakeFSProblemConfig, LakeFSRecord
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.lakefs import LakeFSProblemConfig, LakeFSRecord
 from joj.horse.utils.parser import parse_record_judger, parse_user_from_auth
 from joj.horse.utils.router import MyRouter
 

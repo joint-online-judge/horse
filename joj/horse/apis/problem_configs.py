@@ -9,8 +9,8 @@ from uvicorn.config import logger
 from joj.horse import models, schemas
 from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.permission import Permission
+from joj.horse.services.lakefs import LakeFSProblemConfig
 from joj.horse.utils.base import TemporaryDirectory, iter_file
-from joj.horse.utils.lakefs import LakeFSProblemConfig
 from joj.horse.utils.parser import (
     parse_file_path,
     parse_file_path_from_upload,
@@ -187,6 +187,7 @@ def download_problem_config_archive(
     config: Optional[models.ProblemConfig] = Depends(parse_problem_config),
 ) -> Any:
     # use lakefs to sync and zip files
+    ref: Optional[str]
     if config is not None:
         ref = config.commit_id
     else:
@@ -210,6 +211,7 @@ def download_file_in_problem_config(
     config: Optional[models.ProblemConfig] = Depends(parse_problem_config),
 ) -> Any:
     problem_config = LakeFSProblemConfig(problem)
+    ref: Optional[str]
     if config is not None:
         ref = config.commit_id
     else:

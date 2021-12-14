@@ -5,11 +5,11 @@ from typing import Any, Callable, Coroutine, List, Optional
 from fastapi import Depends, File, Path, Query, UploadFile
 from sqlalchemy.orm import joinedload, subqueryload
 
-from joj.horse import models, schemas
+from joj.horse import models
 from joj.horse.models.permission import PermissionType, ScopeType
+from joj.horse.schemas.auth import Authentication, DomainAuthentication, get_domain
 from joj.horse.schemas.base import NoneEmptyLongStr, NoneNegativeInt, PaginationLimit
 from joj.horse.schemas.query import OrderingQuery, PaginationQuery
-from joj.horse.utils.auth import Authentication, DomainAuthentication, get_domain
 from joj.horse.utils.errors import BizError, ErrorCode
 
 
@@ -63,7 +63,7 @@ async def parse_domain_from_auth(
     domain_auth: DomainAuthentication = Depends(),
 ) -> models.Domain:
     domain = domain_auth.auth.domain
-    if (
+    if domain is None or (
         domain.hidden
         and domain_auth.auth.domain_user is None
         and not domain_auth.auth.check(
@@ -134,12 +134,6 @@ async def parse_problem_config(
     raise BizError(ErrorCode.ProblemConfigNotFoundError)
 
 
-def parse_problems(
-    problems: List[str], auth: Authentication = Depends()
-) -> List[models.Problem]:
-    return [parse_problem(oid, auth) for oid in problems]
-
-
 def parse_view_hidden_problem_set(
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> bool:
@@ -207,8 +201,8 @@ async def parse_problem_problem_set_link(
     raise BizError(ErrorCode.ProblemNotFoundError)
 
 
-async def parse_problem_group(problem_group: str = Path(...)) -> models.ProblemSet:
-    problem_group_model = await models.ProblemGroup.find_by_id(problem_group)
+async def parse_problem_group(problem_group: str = Path(...)) -> models.ProblemGroup:
+    problem_group_model = await models.ProblemGroup.get_or_none(id=problem_group)
     if problem_group_model:
         return problem_group_model
     raise BizError(ErrorCode.ProblemGroupNotFoundError)
@@ -216,9 +210,9 @@ async def parse_problem_group(problem_group: str = Path(...)) -> models.ProblemS
 
 async def parse_record(
     record: str = Path(...), auth: DomainAuthentication = Depends()
-) -> schemas.Record:
-    record_model = await schemas.Record.find_by_id(record)
-    if record_model and record_model.user == auth.user:
+) -> models.Record:
+    record_model = await models.Record.get_or_none(id=record)
+    if record_model:
         return record_model
     raise BizError(ErrorCode.RecordNotFoundError)
 

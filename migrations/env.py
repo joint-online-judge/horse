@@ -2,12 +2,13 @@ import asyncio
 from logging.config import fileConfig
 
 from alembic import context
+from pydantic_universal_settings import init_settings
 from sqlalchemy.engine import Connection
 from sqlmodel import SQLModel
 
 import joj.horse.models  # noqa
-from joj.horse.config import get_settings
-from joj.horse.utils.db import get_db_engine
+from joj.horse.config import AllSettings
+from joj.horse.services.db import get_db_engine
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -68,7 +69,7 @@ async def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    get_settings()
+    init_settings(AllSettings)
     connectable = get_db_engine()
 
     async with connectable.connect() as connection:

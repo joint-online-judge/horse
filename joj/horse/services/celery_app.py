@@ -42,10 +42,5 @@ def get_celery_app() -> Celery:
     return celery_app
 
 
-# @celery_app.task(name="joj.horse.compile")
-# def compile_task_end(result: str) -> None:
-#     pass
-
-
-if __name__ == "__main__":
-    get_celery_app().worker_main(argv=["worker"])
+def celery_app_dependency() -> Celery:
+    return get_celery_app()

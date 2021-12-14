@@ -1,10 +1,10 @@
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 from fastapi import Depends, Path, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi_jwt_auth import AuthJWT
 from passlib.context import CryptContext
-from pydantic import Field, SecretStr, validator
+from pydantic import Field, SecretStr
 from typing_extensions import Literal
 
 from joj.horse.config import settings
@@ -24,6 +24,7 @@ from joj.horse.schemas.permission import (
     ScopeType,
     SitePermission,
 )
+from joj.horse.services.oauth import OAuth2Profile
 from joj.horse.utils.errors import (
     BizError,
     ErrorCode,
@@ -31,7 +32,6 @@ from joj.horse.utils.errors import (
     InternalServerError,
     UnauthorizedError,
 )
-from joj.horse.utils.oauth import OAuth2Profile
 
 jwt_scheme = HTTPBearer(bearerFormat="JWT", auto_error=False)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -250,7 +250,7 @@ def auth_jwt_decode_access_token(
 
 def auth_jwt_decode_oauth_state(
     auth_jwt: AuthJWT,
-    state: str,
+    state: Optional[str],
 ) -> Optional[JWTOAuthToken]:
     payload = auth_jwt.get_raw_jwt(state)
     if payload:
@@ -417,6 +417,12 @@ class Authentication:
         return self.domain.owner_id == self.jwt.id
 
 
+if TYPE_CHECKING:
+
+    class DomainAuthenticationTypeChecking(Authentication):
+        domain: Domain
+
+
 class DomainAuthentication:
     def __init__(
         self,
@@ -426,7 +432,7 @@ class DomainAuthentication:
         domain_role: DefaultRole = Depends(get_domain_role),
         domain_permission: DomainPermission = Depends(get_domain_permission),
     ):
-        self.auth = auth
+        self.auth: "DomainAuthenticationTypeChecking" = auth  # type: ignore
         self.auth.domain = domain
         self.auth.domain_user = domain_user
         self.auth.domain_role = domain_role
@@ -552,7 +558,7 @@ def ensure_permission(
             if len(_arg1) == 1:
                 _perm = construct_perm(_arg1[0])
             elif len(_arg1) == 2:
-                _perm = construct_perm(_arg1[0], _arg1[1])
+                _perm = construct_perm(_arg1[0], _arg1[1])  # type: ignore
         else:
             # accept (permissions, action)
             try:
@@ -561,7 +567,7 @@ def ensure_permission(
                 if _arg2 in ("AND", "OR"):
                     perms = []
                     for child in _arg1:
-                        perms.append(construct_perm(child))
+                        perms.append(construct_perm(child))  # type: ignore
                     if len(perms) == 1:
                         _perm = perms[0]
                     else:
@@ -582,7 +588,7 @@ def ensure_permission(
                 return True
         return False
 
-    perm = construct_perm(arg1, arg2)
+    perm = construct_perm(arg1, arg2)  # type: ignore
     if contains_domain(perm):
         return DomainPermissionChecker(perm)
     return UserPermissionChecker(perm)

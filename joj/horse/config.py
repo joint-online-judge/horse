@@ -1,15 +1,18 @@
-from functools import lru_cache
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Type, Union
 
-from pydantic import (
-    BaseModel,
-    BaseSettings as PydanticBaseSettings,
-    Field,
-    root_validator,
+from pydantic import Field
+from pydantic_universal_settings import (
+    BaseSettings,
+    CLIWatchMixin,
+    EnvFileMixin,
+    add_settings,
+    generate_all_settings,
+    get_settings_proxy,
 )
 
 
-class ServerSettings(BaseModel):
+@add_settings
+class ServerSettings(BaseSettings):
     """
     Server configuration
 
@@ -45,7 +48,8 @@ class ServerSettings(BaseModel):
     )
 
 
-class DatabaseSettings(BaseModel):
+@add_settings
+class DatabaseSettings(BaseSettings):
     """
     Database configuration
 
@@ -74,7 +78,8 @@ class DatabaseSettings(BaseModel):
     rabbitmq_vhost: str = ""
 
 
-class ObjectStorageSettings(BaseModel):
+@add_settings
+class ObjectStorageSettings(BaseSettings):
     """
     Object storage configuration
 
@@ -99,7 +104,8 @@ class ObjectStorageSettings(BaseModel):
     bucket_submission: str = "s3://joj-submission"
 
 
-class AuthSettings(BaseModel):
+@add_settings
+class AuthSettings(BaseSettings):
     """
     Auth configuration
 
@@ -128,25 +134,17 @@ class AuthSettings(BaseModel):
     rollbar_access_token: str = ""
 
 
-AllSettings: List[Type[BaseModel]] = [
-    ServerSettings,
-    DatabaseSettings,
-    ObjectStorageSettings,
-    AuthSettings,
-]
+GeneratedSettings: Type[
+    Union[
+        ServerSettings,
+        DatabaseSettings,
+        ObjectStorageSettings,
+        AuthSettings,
+    ]
+] = generate_all_settings(mixins=[EnvFileMixin, CLIWatchMixin])
 
 
-class AllSettingsValidator(*AllSettings):  # type: ignore
-    pass
-
-
-class Settings(
-    ServerSettings,
-    DatabaseSettings,
-    ObjectStorageSettings,
-    AuthSettings,
-    PydanticBaseSettings,
-):
+class AllSettings(GeneratedSettings):  # type: ignore
     """
     Define the settings (config) of the website.
 
@@ -157,58 +155,5 @@ class Settings(
     4. The default field values for the Settings model
     """
 
-    @classmethod
-    def __inject_cli(cls, values: Dict[str, Any]) -> None:  # pragma: no cover
-        from joj.horse.utils.cli import cli_settings
 
-        AllSettingsValidator(**cli_settings)
-        for key, value in cli_settings.items():
-            if key in values and value is not None:
-                values[key] = value
-
-    @classmethod
-    def __set_default_values(cls, values: Dict[str, Any]) -> None:
-        if "domain" not in values or not values["domain"]:
-            if "host" not in values or "port" not in values:
-                raise ValueError()  # pragma: no cover
-            if values["port"] == 80 or values["port"] == 443:
-                values["domain"] = values["host"]  # pragma: no cover
-            else:
-                values["domain"] = "{}:{}".format(values["host"], values["port"])
-        if "https" not in values or values["https"] is None:
-            if "debug" not in values:
-                raise ValueError()  # pragma: no cover
-            values["https"] = not values["debug"]
-
-    @root_validator()
-    def finalize(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        cls.__inject_cli(values)
-        cls.__set_default_values(values)
-        return values
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-
-
-class SettingsProxy:
-    def __init__(self) -> None:
-        self._settings: Optional[Settings] = None
-
-    def _set(self, _settings: Settings) -> None:
-        self._settings = _settings
-
-    def __getattr__(self, attr: str) -> Any:
-        if self._settings is None:
-            raise ValueError("settings not initialized")  # pragma: no cover
-        return getattr(self._settings, attr)
-
-
-@lru_cache()
-def get_settings() -> Settings:
-    _settings = Settings()
-    settings._set(_settings)  # type: ignore
-    return _settings
-
-
-settings: Union[Settings, SettingsProxy] = SettingsProxy()
+settings: AllSettings = get_settings_proxy()

@@ -13,8 +13,8 @@ from sqlmodel import Field, SQLModel, delete, select, update
 from sqlmodel.engine.result import ScalarResult
 
 from joj.horse.schemas.base import BaseModel, UserInputURL, get_datetime_column, utcnow
+from joj.horse.services.db import db_session
 from joj.horse.utils.base import is_uuid
-from joj.horse.utils.db import db_session
 
 if TYPE_CHECKING:
     from joj.horse.models.domain import Domain

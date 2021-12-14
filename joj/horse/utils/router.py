@@ -1,10 +1,11 @@
 import functools
 from inspect import Parameter, signature
-from typing import Any, Callable, List, get_type_hints
+from typing import TYPE_CHECKING, Any, Callable, List, get_type_hints
 
 from fastapi import APIRouter, Depends, FastAPI
 from fastapi.routing import APIRoute
 from loguru import logger
+from pydantic.fields import ModelField
 
 from joj.horse.schemas import BaseModel
 from joj.horse.schemas.permission import PermissionBase
@@ -36,7 +37,7 @@ class MyRouter(APIRouter):
 
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
-            from joj.horse.utils.auth import ensure_permission
+            from joj.horse.schemas.auth import ensure_permission
 
             permissions = kwargs.pop("permissions", None)
             if permissions:
@@ -74,3 +75,56 @@ def simplify_operation_ids(app: FastAPI) -> None:
     for route in app.routes:
         if isinstance(route, APIRoute):
             route.operation_id = f"{version}_{route.name}"
+
+
+def _get_schema(_app: FastAPI, function: Callable[..., Any]) -> ModelField:
+    """
+    Get the Pydantic schema of a FastAPI function.
+    """
+    for route in _app.routes:
+        if route.endpoint is function:
+            return route.body_field
+    assert False
+
+
+def update_schema_name(_app: FastAPI, function: Callable[..., Any], name: str) -> None:
+    """
+    Updates the Pydantic schema name for a FastAPI function that takes
+    in a fastapi.UploadFile = File(...) or bytes = File(...).
+
+    This is a known issue that was reported on FastAPI#1442 in which
+    the schema for file upload routes were auto-generated with no
+    customization options. This renames the auto-generated schema to
+    something more useful and clear.
+
+    Args:
+        _app: The FastAPI application to modify.
+        function: The function object to modify.
+        name: The new name of the schema.
+    """
+    if not TYPE_CHECKING:
+        schema = _get_schema(_app, function)
+        schema.type_.__name__ = name
+
+
+def copy_schema(
+    _app: FastAPI, function_src: Callable[..., Any], *function_dest: Callable[..., Any]
+) -> None:
+    """
+    Copy the Pydantic schema from a FastAPI function to some other functions.
+
+    This is useful because if update_schema_name is called for two functions
+    with the same schema, two schemas (same but not merged) will be generated
+    and some openapi client generator will provide weird model names.
+
+    Args:
+        _app: The FastAPI application to modify.
+        function_src: The function object to copy the schema from.
+        function_dest: The function objects to copy the schema to.
+    """
+
+    if not TYPE_CHECKING:
+        for func in function_dest:
+            schema_src = _get_schema(_app, function_src)
+            schema_dest = _get_schema(_app, func)
+            schema_dest.type_ = schema_src.type_

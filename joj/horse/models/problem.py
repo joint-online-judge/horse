@@ -9,7 +9,7 @@ from sqlmodel.sql.sqltypes import GUID
 from joj.horse.models.base import DomainURLORMModel, url_pre_save
 from joj.horse.models.link_tables import ProblemProblemSetLink
 from joj.horse.schemas.problem import ProblemDetail
-from joj.horse.utils.db import db_session
+from joj.horse.services.db import db_session
 
 if TYPE_CHECKING:
     from joj.horse.models import (
@@ -64,7 +64,7 @@ class Problem(DomainURLORMModel, ProblemDetail, table=True):  # type: ignore[cal
         statement = (
             models.ProblemConfig.sql_select()
             .where(models.ProblemConfig.problem_id == self.id)
-            .order_by(models.ProblemConfig.created_at.desc())
+            .order_by(models.ProblemConfig.created_at.desc())  # type: ignore
             .limit(1)
         )
         async with db_session() as session:

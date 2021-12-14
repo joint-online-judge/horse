@@ -1,9 +1,9 @@
 from fastapi import Depends
 
-from joj.horse import models, schemas
-from joj.horse.schemas import StandardListResponse, StandardResponse
-from joj.horse.utils.auth import Authentication
-from joj.horse.utils.parser import parse_pagination_query, parse_uid
+from joj.horse import schemas
+from joj.horse.schemas import StandardResponse
+from joj.horse.schemas.auth import Authentication
+from joj.horse.utils.parser import parse_uid
 from joj.horse.utils.router import MyRouter
 
 router = MyRouter()
@@ -140,15 +140,15 @@ async def get_current_user(
     return StandardResponse(user)
 
 
-@router.get("/problems")
-async def get_current_user_problems(
-    query: schemas.PaginationQuery = Depends(parse_pagination_query),
-    auth: Authentication = Depends(),
-) -> StandardListResponse[schemas.Problem]:
-    condition = {"owner": auth.user.id}
-    cursor = models.Problem.cursor_find(condition, query)
-    res = await models.Problem.to_list(cursor)
-    return StandardListResponse(res)
+# @router.get("/problems")
+# async def get_current_user_problems(
+#     query: schemas.PaginationQuery = Depends(parse_pagination_query),
+#     auth: Authentication = Depends(),
+# ) -> StandardListResponse[schemas.Problem]:
+#     condition = {"owner": auth.jwt.id}
+#     cursor = models.Problem.cursor_find(condition, query)
+#     res = await models.Problem.to_list(cursor)
+#     return StandardListResponse(res)
 
 
 @router.patch("/password")

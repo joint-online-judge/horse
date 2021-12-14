@@ -1,15 +1,12 @@
-from datetime import datetime, timedelta
-from typing import List
-
 from celery import Celery
 from fastapi import BackgroundTasks, Depends
 from loguru import logger
 
 from joj.horse import models, schemas
 from joj.horse.schemas import Empty, Operation, StandardListResponse, StandardResponse
+from joj.horse.schemas.auth import DomainAuthentication
 from joj.horse.schemas.permission import Permission
-from joj.horse.utils.auth import DomainAuthentication
-from joj.horse.utils.errors import BizError, ErrorCode
+from joj.horse.services.celery_app import celery_app_dependency
 from joj.horse.utils.parser import (
     parse_domain_from_auth,
     parse_ordering_query,
@@ -23,7 +20,6 @@ from joj.horse.utils.parser import (
     parse_view_hidden_problem_set,
 )
 from joj.horse.utils.router import MyRouter
-from joj.horse.utils.tasks import celery_app_dependency
 
 router = MyRouter()
 router_name = "domains/{domain}/problem_sets"
@@ -201,67 +197,67 @@ async def submit_solution_to_problem_set(
     return StandardResponse(record)
 
 
-@router.get("/{problemSet}/scoreboard", deprecated=True)
-async def get_scoreboard(
-    problem_set: models.ProblemSet = Depends(parse_problem_set),
-    domain: models.Domain = Depends(parse_domain_from_auth),
-    include_hidden: bool = Depends(parse_view_hidden_problem_set),
-) -> StandardResponse[schemas.ScoreBoard]:
-    if problem_set.scoreboard_hidden:
-        raise BizError(ErrorCode.ScoreboardHiddenBadRequestError)
-    # domain: models.Domain = await problem_set.domain.fetch()
-    cursor = models.DomainUser.cursor_join(
-        field="user", condition={"domain": domain.id}
-    )
-    users = await models.User.to_list(cursor)
-    results: List[models.UserScore] = []
-    problem_ids: List[str] = []
-    firstUser = True
-    for user in users:
-        scores: List[models.Score] = []
-        total_score = 0
-        total_time_spent = timedelta(0)
-        problem: models.Problem
-        async for problem in models.Problem.find({"problem_set": problem_set.id}):
-            if firstUser:
-                problem_ids.append(problem.id)
-            record_model: schemas.Record = await schemas.Record.find_one(
-                # {
-                #     "user": str(user.id),
-                #     "problem": problem.id,
-                #     "submit_at": {"$gte": problem_set.unlock_at},
-                #     "status": {"$nin": [RecordStatus.waiting, RecordStatus.judging]},
-                # },
-                sort=[("submit_at", "DESCENDING")],
-            )
-            tried = record_model is not None
-            record = schemas.Record.from_orm(record_model) if record_model else None
-            score = 0
-            time = datetime(1970, 1, 1)
-            time_spent = datetime.utcnow() - problem_set.unlock_at
-            full_score = 1000  # TODO: modify later
-            if record is not None:
-                score = record.score
-                time = record.submit_at
-                time_spent = record_model.submit_at - problem_set.unlock_at
-            total_score += score
-            total_time_spent += time_spent
-            scores.append(
-                models.Score(
-                    score=score,
-                    time=time,
-                    full_score=full_score,
-                    time_spent=time_spent,
-                    tried=tried,
-                )
-            )
-        user_score = models.UserScore(
-            user=user,
-            total_score=total_score,
-            total_time_spent=total_time_spent,
-            scores=scores,
-        )
-        results.append(user_score)
-        firstUser = False
-    results.sort(key=lambda x: (x.total_score, x.total_time_spent))
-    return StandardResponse(models.ScoreBoard(results=results, problem_ids=problem_ids))
+# @router.get("/{problemSet}/scoreboard", deprecated=True)
+# async def get_scoreboard(
+#     problem_set: models.ProblemSet = Depends(parse_problem_set),
+#     domain: models.Domain = Depends(parse_domain_from_auth),
+#     include_hidden: bool = Depends(parse_view_hidden_problem_set),
+# ) -> StandardResponse[schemas.ScoreBoard]:
+#     if problem_set.scoreboard_hidden:
+#         raise BizError(ErrorCode.ScoreboardHiddenBadRequestError)
+#     # domain: models.Domain = await problem_set.domain.fetch()
+#     cursor = models.DomainUser.cursor_join(
+#         field="user", condition={"domain": domain.id}
+#     )
+#     users = await models.User.to_list(cursor)
+#     results: List[models.UserScore] = []
+#     problem_ids: List[str] = []
+#     firstUser = True
+#     for user in users:
+#         scores: List[models.Score] = []
+#         total_score = 0
+#         total_time_spent = timedelta(0)
+#         problem: models.Problem
+#         async for problem in models.Problem.find({"problem_set": problem_set.id}):
+#             if firstUser:
+#                 problem_ids.append(problem.id)
+#             record_model: schemas.Record = await schemas.Record.find_one(
+#                 # {
+#                 #     "user": str(user.id),
+#                 #     "problem": problem.id,
+#                 #     "submit_at": {"$gte": problem_set.unlock_at},
+#                 #     "status": {"$nin": [RecordStatus.waiting, RecordStatus.judging]},
+#                 # },
+#                 sort=[("submit_at", "DESCENDING")],
+#             )
+#             tried = record_model is not None
+#             record = schemas.Record.from_orm(record_model) if record_model else None
+#             score = 0
+#             time = datetime(1970, 1, 1)
+#             time_spent = datetime.utcnow() - problem_set.unlock_at
+#             full_score = 1000  # TODO: modify later
+#             if record is not None:
+#                 score = record.score
+#                 time = record.submit_at
+#                 time_spent = record_model.submit_at - problem_set.unlock_at
+#             total_score += score
+#             total_time_spent += time_spent
+#             scores.append(
+#                 models.Score(
+#                     score=score,
+#                     time=time,
+#                     full_score=full_score,
+#                     time_spent=time_spent,
+#                     tried=tried,
+#                 )
+#             )
+#         user_score = models.UserScore(
+#             user=user,
+#             total_score=total_score,
+#             total_time_spent=total_time_spent,
+#             scores=scores,
+#         )
+#         results.append(user_score)
+#         firstUser = False
+#     results.sort(key=lambda x: (x.total_score, x.total_time_spent))
+#     return StandardResponse(models.ScoreBoard(results=results, problem_ids=problem_ids))

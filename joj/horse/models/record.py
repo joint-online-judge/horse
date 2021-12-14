@@ -11,11 +11,11 @@ from sqlmodel.sql.sqltypes import GUID
 from starlette.concurrency import run_in_threadpool
 
 from joj.horse.models.base import BaseORMModel
+from joj.horse.schemas.cache import get_redis_cache
 from joj.horse.schemas.problem import ProblemSolutionSubmit, RecordStateMixin
 from joj.horse.schemas.record import RecordCodeType, RecordDetail, RecordState
-from joj.horse.utils.cache import get_redis_cache
+from joj.horse.services.lakefs import LakeFSRecord
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.lakefs import LakeFSRecord
 
 if TYPE_CHECKING:
     from joj.horse.models import Problem, ProblemConfig, ProblemSet, User
@@ -194,7 +194,7 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
             cls.sql_select()
             .where(cls.problem_id == problem_id)
             .where(cls.committer_id == user_id)
-            .order_by(cls.created_at.desc())
+            .order_by(cls.created_at.desc())  # type: ignore
             .limit(1)
         )
         if problem_set_id is None:

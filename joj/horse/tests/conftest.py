@@ -14,6 +14,7 @@ from joj.horse import models
 from joj.horse.app import app as fastapi_app
 from joj.horse.config import settings
 from joj.horse.models.permission import DefaultRole
+from joj.horse.services.db import get_db_url
 from joj.horse.tests.utils.utils import (
     GLOBAL_DOMAIN_COUNT,
     GLOBAL_PROBLEM_SET_COUNT,
@@ -26,7 +27,6 @@ from joj.horse.tests.utils.utils import (
     validate_test_problem_set,
     validate_test_user,
 )
-from joj.horse.utils.db import get_db_url
 from joj.horse.utils.logger import init_logging
 
 

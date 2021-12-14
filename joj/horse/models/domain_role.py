@@ -16,7 +16,7 @@ class DomainRole(BaseORMModel, DomainRoleDetail, table=True):  # type: ignore[ca
     __tablename__ = "domain_roles"
     __table_args__ = (UniqueConstraint("domain_id", "role"),)
 
-    permission: Dict[str, Any] = Field(
+    permission: Dict[str, Any] = Field(  # type: ignore
         index=False, sa_column=Column(JSON, nullable=False)
     )
 

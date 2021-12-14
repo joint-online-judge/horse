@@ -154,7 +154,8 @@ class URLORMSchema(BaseORMSchema):
 
 
 class URLCreateMixin(BaseModel):
-    url: UserInputURL = Field("", description="(unique) url of the domain")
+    if not TYPE_CHECKING:
+        url: UserInputURL = Field("", description="(unique) url of the domain")
 
 
 class DomainMixin(BaseModel):
@@ -166,8 +167,8 @@ class IDMixin(BaseModel):
 
 
 class TimestampMixin(BaseModel):
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
 
 
 class EditMetaclass(ModelMetaclass):
@@ -301,15 +302,13 @@ class StandardListResponse(Generic[BT]):
 
     def __new__(
         cls,
-        results: Optional[List[Union[BT, Type[BT], Empty]]] = None,
+        results: Optional[List[BT]] = None,
         count: Optional[int] = None,
     ) -> "StandardListResponse[BT]":
         if results is None:
             results = []
         data_type = len(results) and type(results[0]) or Empty
-        response_type, sub_model_type = get_standard_response_model(
-            data_type, True  # type: ignore
-        )
+        response_type, sub_model_type = get_standard_response_model(data_type, True)
         if count is None:
             count = len(results)
         response_data: PydanticBaseModel

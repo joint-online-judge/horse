@@ -4,7 +4,9 @@ import rollbar
 from fastapi import Depends, FastAPI, Request
 from fastapi.responses import ORJSONResponse
 from fastapi_versioning import VersionedFastAPI
+from lakefs_client.exceptions import ApiException as LakeFSApiException
 from loguru import logger
+from pydantic_universal_settings import init_settings
 from rollbar.contrib.fastapi import ReporterMiddleware as RollbarMiddleware
 from starlette.responses import RedirectResponse
 from starlette_context import plugins
@@ -13,17 +15,17 @@ from tenacity import RetryError
 
 import joj.horse.models  # noqa: F401
 import joj.horse.utils.monkey_patch  # noqa: F401
-from joj.horse.config import get_settings
-from joj.horse.utils.cache import try_init_cache
-from joj.horse.utils.db import db_session_dependency, try_init_db
+from joj.horse.config import AllSettings
+from joj.horse.schemas.cache import try_init_cache
+from joj.horse.services.db import db_session_dependency, try_init_db
+from joj.horse.services.lakefs import try_init_lakefs
 from joj.horse.utils.exception_handlers import register_exception_handlers
-from joj.horse.utils.lakefs import LakeFSApiException, try_init_lakefs
 from joj.horse.utils.logger import init_logging  # noqa: F401
 from joj.horse.utils.router import simplify_operation_ids
 from joj.horse.utils.url import get_base_url
 from joj.horse.utils.version import get_git_version, get_version
 
-settings = get_settings()
+settings = init_settings(AllSettings)
 app = FastAPI(
     title=settings.app_name,
     version=get_version(),
