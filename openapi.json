@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: adca461@2021-12-13T17:05:38Z",
+    "description": "Git version: 8da81a6@2021-12-14T07:11:24Z",
     "version": "1"
   },
   "paths": {
@@ -5860,42 +5860,6 @@
         ]
       }
     },
-    "/judge/key": {
-      "get": {
-        "tags": [
-          "judge"
-        ],
-        "summary": "Get Judge Key",
-        "operationId": "v1_get_judge_key",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserAccessKeyResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
     "/judge/records/{record}/claim": {
       "post": {
         "tags": [
@@ -5904,6 +5868,17 @@
         "summary": "Claim Record By Judge",
         "operationId": "v1_claim_record_by_judge",
         "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
           {
             "required": true,
             "schema": {
@@ -5914,13 +5889,23 @@
             "in": "path"
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JudgeClaim"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JudgeClaimResp"
+                  "$ref": "#/components/schemas/JudgeCredentialsResp"
                 }
               }
             }
@@ -5961,6 +5946,17 @@
         "summary": "Update Record State By Judge",
         "operationId": "v1_update_record_state_by_judge",
         "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
           {
             "required": true,
             "schema": {
@@ -6018,6 +6014,17 @@
         "summary": "Submit Record By Judge",
         "operationId": "v1_submit_record_by_judge",
         "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
           {
             "required": true,
             "schema": {
@@ -6638,6 +6645,7 @@
               "view": true,
               "detail": false,
               "code": false,
+              "judge": false,
               "rejudge": false
             }
           }
@@ -7233,6 +7241,21 @@
       "JudgeClaim": {
         "title": "JudgeClaim",
         "required": [
+          "taskId"
+        ],
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "title": "Taskid",
+            "type": "string"
+          }
+        }
+      },
+      "JudgeCredentials": {
+        "title": "JudgeCredentials",
+        "required": [
+          "accessKeyId",
+          "secretAccessKey",
           "problemConfigRepoName",
           "problemConfigCommitId",
           "recordRepoName",
@@ -7240,6 +7263,14 @@
         ],
         "type": "object",
         "properties": {
+          "accessKeyId": {
+            "title": "Accesskeyid",
+            "type": "string"
+          },
+          "secretAccessKey": {
+            "title": "Secretaccesskey",
+            "type": "string"
+          },
           "problemConfigRepoName": {
             "title": "Problemconfigreponame",
             "type": "string"
@@ -7258,8 +7289,8 @@
           }
         }
       },
-      "JudgeClaimResp": {
-        "title": "JudgeClaimResp",
+      "JudgeCredentialsResp": {
+        "title": "JudgeCredentialsResp",
         "required": [
           "errorCode"
         ],
@@ -7273,7 +7304,7 @@
             "type": "string"
           },
           "data": {
-            "$ref": "#/components/schemas/JudgeClaim"
+            "$ref": "#/components/schemas/JudgeCredentials"
           }
         }
       },
@@ -8660,6 +8691,11 @@
             "type": "boolean",
             "default": false
           },
+          "judge": {
+            "title": "Judge",
+            "type": "boolean",
+            "default": false
+          },
           "rejudge": {
             "title": "Rejudge",
             "type": "boolean",
@@ -8724,6 +8760,7 @@
         "enum": [
           "processing",
           "queueing",
+          "retrying",
           "fetched",
           "compiling",
           "running",
@@ -8860,60 +8897,6 @@
             "title": "Isactive",
             "type": "boolean",
             "default": false
-          }
-        }
-      },
-      "UserAccessKey": {
-        "title": "UserAccessKey",
-        "required": [
-          "id",
-          "service",
-          "accessKeyId",
-          "secretAccessKey",
-          "userId"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "title": "Id",
-            "type": "string",
-            "format": "uuid"
-          },
-          "service": {
-            "title": "Service",
-            "type": "string"
-          },
-          "accessKeyId": {
-            "title": "Accesskeyid",
-            "type": "string"
-          },
-          "secretAccessKey": {
-            "title": "Secretaccesskey",
-            "type": "string"
-          },
-          "userId": {
-            "title": "Userid",
-            "type": "string",
-            "format": "uuid"
-          }
-        }
-      },
-      "UserAccessKeyResp": {
-        "title": "UserAccessKeyResp",
-        "required": [
-          "errorCode"
-        ],
-        "type": "object",
-        "properties": {
-          "errorCode": {
-            "$ref": "#/components/schemas/ErrorCode"
-          },
-          "errorMsg": {
-            "title": "Errormsg",
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/UserAccessKey"
           }
         }
       },
