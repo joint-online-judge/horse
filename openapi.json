@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 8da81a6@2021-12-14T07:11:24Z",
+    "description": "Git version: 6f1193e@2021-12-14T20:40:31Z",
     "version": "1"
   },
   "paths": {
@@ -2564,77 +2564,6 @@
         ]
       }
     },
-    "/domains/{domain}/problem_sets/{problemSet}/scoreboard": {
-      "get": {
-        "tags": [
-          "problem set"
-        ],
-        "summary": "Get Scoreboard",
-        "operationId": "v1_get_scoreboard",
-        "parameters": [
-          {
-            "description": "url or id of the problem set",
-            "required": true,
-            "schema": {
-              "title": "Problemset",
-              "type": "string",
-              "description": "url or id of the problem set"
-            },
-            "name": "problemSet",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ScoreBoardResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "deprecated": true,
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
     "/domains/{domain}/problems": {
       "get": {
         "tags": [
@@ -4591,77 +4520,6 @@
         ]
       }
     },
-    "/user/problems": {
-      "get": {
-        "tags": [
-          "user"
-        ],
-        "summary": "Get Current User Problems",
-        "operationId": "v1_get_current_user_problems",
-        "parameters": [
-          {
-            "required": false,
-            "schema": {
-              "title": "Offset",
-              "minimum": 0.0,
-              "type": "integer",
-              "default": 0
-            },
-            "name": "offset",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Limit",
-              "maximum": 500.0,
-              "minimum": 0.0,
-              "type": "integer",
-              "default": 100
-            },
-            "name": "limit",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemListResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
     "/user/password": {
       "patch": {
         "tags": [
@@ -6265,9 +6123,7 @@
         "title": "DomainDetail",
         "required": [
           "id",
-          "name",
-          "createdAt",
-          "updatedAt"
+          "name"
         ],
         "type": "object",
         "properties": {
@@ -6727,9 +6583,7 @@
           "id",
           "domainId",
           "role",
-          "permission",
-          "createdAt",
-          "updatedAt"
+          "permission"
         ],
         "type": "object",
         "properties": {
@@ -7564,9 +7418,7 @@
         "required": [
           "id",
           "domainId",
-          "title",
-          "createdAt",
-          "updatedAt"
+          "title"
         ],
         "type": "object",
         "properties": {
@@ -7661,9 +7513,7 @@
         "required": [
           "id",
           "domainId",
-          "title",
-          "createdAt",
-          "updatedAt"
+          "title"
         ],
         "type": "object",
         "properties": {
@@ -8142,9 +7992,7 @@
         "required": [
           "id",
           "domainId",
-          "title",
-          "createdAt",
-          "updatedAt"
+          "title"
         ],
         "type": "object",
         "properties": {
@@ -8772,84 +8620,6 @@
         "type": "string",
         "description": "An enumeration."
       },
-      "Score": {
-        "title": "Score",
-        "required": [
-          "score",
-          "time",
-          "fullScore",
-          "timeSpent",
-          "tried"
-        ],
-        "type": "object",
-        "properties": {
-          "score": {
-            "title": "Score",
-            "type": "integer"
-          },
-          "time": {
-            "title": "Time",
-            "type": "string",
-            "format": "date-time"
-          },
-          "fullScore": {
-            "title": "Fullscore",
-            "type": "integer"
-          },
-          "timeSpent": {
-            "title": "Timespent",
-            "type": "number",
-            "format": "time-delta"
-          },
-          "tried": {
-            "title": "Tried",
-            "type": "boolean"
-          }
-        }
-      },
-      "ScoreBoard": {
-        "title": "ScoreBoard",
-        "required": [
-          "problemIds",
-          "results"
-        ],
-        "type": "object",
-        "properties": {
-          "problemIds": {
-            "title": "Problemids",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "results": {
-            "title": "Results",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UserScore"
-            }
-          }
-        }
-      },
-      "ScoreBoardResp": {
-        "title": "ScoreBoardResp",
-        "required": [
-          "errorCode"
-        ],
-        "type": "object",
-        "properties": {
-          "errorCode": {
-            "$ref": "#/components/schemas/ErrorCode"
-          },
-          "errorMsg": {
-            "title": "Errormsg",
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/ScoreBoard"
-          }
-        }
-      },
       "User": {
         "title": "User",
         "required": [
@@ -8932,8 +8702,6 @@
           "id",
           "username",
           "email",
-          "createdAt",
-          "updatedAt",
           "registerIp",
           "loginAt",
           "loginIp"
@@ -9095,37 +8863,6 @@
           },
           "data": {
             "$ref": "#/components/schemas/User"
-          }
-        }
-      },
-      "UserScore": {
-        "title": "UserScore",
-        "required": [
-          "user",
-          "totalScore",
-          "totalTimeSpent",
-          "scores"
-        ],
-        "type": "object",
-        "properties": {
-          "user": {
-            "$ref": "#/components/schemas/User"
-          },
-          "totalScore": {
-            "title": "Totalscore",
-            "type": "integer"
-          },
-          "totalTimeSpent": {
-            "title": "Totaltimespent",
-            "type": "number",
-            "format": "time-delta"
-          },
-          "scores": {
-            "title": "Scores",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Score"
-            }
           }
         }
       },
