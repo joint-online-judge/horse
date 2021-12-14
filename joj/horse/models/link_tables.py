@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
 from sqlalchemy.orm import joinedload
-from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
+from sqlalchemy.schema import Column, ForeignKey
 from sqlmodel import Field, Relationship
 from sqlmodel.sql.sqltypes import GUID
 
@@ -15,7 +15,6 @@ if TYPE_CHECKING:
 
 class ProblemProblemSetLink(ORMUtils, table=True):  # type: ignore[call-arg]
     __tablename__ = "problem_problem_set_links"
-    __table_args__ = (UniqueConstraint("problem_set_id", "position"),)
 
     problem_id: UUID = Field(
         sa_column=Column(
