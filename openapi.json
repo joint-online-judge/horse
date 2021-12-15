@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: eebc26c@2021-12-15T14:51:29Z",
+    "description": "Git version: 5882f3b@2021-12-15T14:55:00Z",
     "version": "1"
   },
   "paths": {
@@ -6889,6 +6889,7 @@
           "DeleteProblemBadRequestError",
           "UserAlreadyInDomainBadRequestError",
           "DomainInvitationBadRequestError",
+          "DomainInvitationExpiredError",
           "ScoreboardHiddenBadRequestError",
           "UserNotJudgerError",
           "DomainNotOwnerError",
