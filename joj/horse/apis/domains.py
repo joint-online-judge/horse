@@ -398,9 +398,13 @@ async def update_domain_role(
 @router.get("/{domain}/invitations", permissions=[Permission.DomainGeneral.edit])
 async def list_domain_invitations(
     domain: models.Domain = Depends(parse_domain_from_auth),
+    ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
+    pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
 ) -> StandardListResponse[schemas.DomainInvitation]:
     statement = domain.find_domain_invitations_statement()
-    invitations, count = await models.DomainRole.execute_list_statement(statement)
+    invitations, count = await models.DomainInvitation.execute_list_statement(
+        statement, ordering, pagination
+    )
     return StandardListResponse(invitations, count)
 
 
