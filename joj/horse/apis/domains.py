@@ -477,11 +477,13 @@ async def join_domain_by_invitation(
     invitation_model = await models.DomainInvitation.get_or_none(
         domain_id=domain.id, code=invitation_code
     )
-    if invitation_model is None or (
+    if invitation_model is None:
+        raise BizError(ErrorCode.DomainInvitationBadRequestError)
+    if (
         invitation_model.expire_at is not None
         and datetime.now(tz=timezone.utc) > invitation_model.expire_at
     ):
-        raise BizError(ErrorCode.DomainInvitationBadRequestError)
+        raise BizError(ErrorCode.DomainInvitationExpiredError)
     # add member
     domain_user = await models.DomainUser.add_domain_user(
         domain_id=domain.id, user_id=user.id, role=invitation_model.role

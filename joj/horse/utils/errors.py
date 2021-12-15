@@ -34,6 +34,7 @@ class ErrorCode(str, Enum):
     DeleteProblemBadRequestError = "DeleteProblemBadRequestError"
     UserAlreadyInDomainBadRequestError = "UserAlreadyInDomainBadRequestError"
     DomainInvitationBadRequestError = "DomainInvitationBadRequestError"
+    DomainInvitationExpiredError = "DomainInvitationExpiredError"
     ScoreboardHiddenBadRequestError = "ScoreboardHiddenBadRequestError"
     UserNotJudgerError = "UserNotJudgerError"
     DomainNotOwnerError = "DomainNotOwnerError"
