@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 5882f3b@2021-12-15T14:55:00Z",
+    "description": "Git version: 78d3530@2021-12-21T19:17:45Z",
     "version": "1"
   },
   "paths": {
@@ -7618,13 +7618,8 @@
             "type": "string",
             "format": "date-time"
           },
-          "recordId": {
-            "title": "Recordid",
-            "type": "string",
-            "format": "uuid"
-          },
-          "recordState": {
-            "$ref": "#/components/schemas/RecordState"
+          "latestRecord": {
+            "$ref": "#/components/schemas/RecordPreview"
           }
         }
       },
@@ -7797,8 +7792,8 @@
           }
         }
       },
-      "ProblemPreviewWithRecordState": {
-        "title": "ProblemPreviewWithRecordState",
+      "ProblemPreviewWithLatestRecord": {
+        "title": "ProblemPreviewWithLatestRecord",
         "required": [
           "id",
           "title"
@@ -7833,13 +7828,8 @@
             "type": "string",
             "format": "uuid"
           },
-          "recordId": {
-            "title": "Recordid",
-            "type": "string",
-            "format": "uuid"
-          },
-          "recordState": {
-            "$ref": "#/components/schemas/RecordState"
+          "latestRecord": {
+            "$ref": "#/components/schemas/RecordPreview"
           }
         }
       },
@@ -8121,7 +8111,7 @@
             "title": "Problems",
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ProblemPreviewWithRecordState"
+              "$ref": "#/components/schemas/ProblemPreviewWithLatestRecord"
             },
             "default": []
           }
@@ -8385,13 +8375,8 @@
             "type": "string",
             "format": "uuid"
           },
-          "recordId": {
-            "title": "Recordid",
-            "type": "string",
-            "format": "uuid"
-          },
-          "recordState": {
-            "$ref": "#/components/schemas/RecordState"
+          "latestRecord": {
+            "$ref": "#/components/schemas/RecordPreview"
           }
         }
       },
@@ -8584,6 +8569,30 @@
             "title": "Rejudge",
             "type": "boolean",
             "default": false
+          }
+        }
+      },
+      "RecordPreview": {
+        "title": "RecordPreview",
+        "required": [
+          "id",
+          "state",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "$ref": "#/components/schemas/RecordState"
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
