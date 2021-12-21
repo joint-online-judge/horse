@@ -17,7 +17,7 @@ from joj.horse.schemas.base import (
     URLORMSchema,
     UserInputURL,
 )
-from joj.horse.schemas.record import RecordCodeType, RecordState
+from joj.horse.schemas.record import RecordCodeType, RecordPreview
 
 if TYPE_CHECKING:
     pass
@@ -85,31 +85,23 @@ class ProblemDetail(TimestampMixin, Problem):
     pass
 
 
-class RecordStateMixin(BaseModel):
-    record_id: Optional[UUID] = None
-    record_state: Optional[RecordState] = None
-
-    def update_by_record_state(self, record_state: "RecordStateMixin") -> None:
-        self.record_id = record_state.record_id
-        self.record_state = record_state.record_state
+class LatestRecordMixin(BaseModel):
+    latest_record: Optional[RecordPreview]
 
 
-class ProblemPreviewWithRecordState(RecordStateMixin, ProblemPreview):
+class ProblemPreviewWithLatestRecord(LatestRecordMixin, ProblemPreview):
     pass
 
 
-class ProblemWithRecordState(RecordStateMixin, Problem):
+class ProblemWithRecordState(LatestRecordMixin, Problem):
     pass
 
 
-class ProblemDetailWithRecordState(RecordStateMixin, ProblemDetail):
+class ProblemDetailWithRecordState(LatestRecordMixin, ProblemDetail):
     pass
 
 
-WithRecordStateType = TypeVar("WithRecordStateType", bound=RecordStateMixin)
-
-
-# ProblemWithRecordStateType = Union[ProblemPreviewWithRecordState, ProblemWithRecordState, ProblemDetailWithRecordState]
+WithLatestRecordType = TypeVar("WithLatestRecordType", bound=LatestRecordMixin)
 
 
 class ProblemSolutionSubmit(BaseModel, metaclass=FormMetaclass):

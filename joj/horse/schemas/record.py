@@ -88,6 +88,11 @@ class RecordDetail(TimestampMixin, Record):
     pass
 
 
+class RecordPreview(IDMixin):
+    state: RecordState
+    created_at: datetime
+
+
 # class Record(BaseODMSchema):
 #     status: RecordStatus = RecordStatus.waiting
 #     score: int = 0

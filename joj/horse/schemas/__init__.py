@@ -46,7 +46,7 @@ from joj.horse.schemas.problem import (
     ProblemDetail as ProblemDetail,
     ProblemDetailWithRecordState as ProblemDetailWithRecordState,
     ProblemEdit as ProblemEdit,
-    ProblemPreviewWithRecordState as ProblemPreviewWithRecordState,
+    ProblemPreviewWithLatestRecord as ProblemPreviewWithLatestRecord,
     ProblemSolutionSubmit as ProblemSolutionSubmit,
     ProblemWithRecordState as ProblemWithRecordState,
 )
@@ -71,6 +71,7 @@ from joj.horse.schemas.record import (
     Record as Record,
     RecordCaseResult as RecordCaseResult,
     RecordCodeType as RecordCodeType,
+    RecordPreview as RecordPreview,
     RecordResult as RecordResult,
     RecordState as RecordState,
 )

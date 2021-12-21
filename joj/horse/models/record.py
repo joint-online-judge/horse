@@ -12,8 +12,13 @@ from starlette.concurrency import run_in_threadpool
 
 from joj.horse.models.base import BaseORMModel
 from joj.horse.schemas.cache import get_redis_cache
-from joj.horse.schemas.problem import ProblemSolutionSubmit, RecordStateMixin
-from joj.horse.schemas.record import RecordCodeType, RecordDetail, RecordState
+from joj.horse.schemas.problem import ProblemSolutionSubmit
+from joj.horse.schemas.record import (
+    RecordCodeType,
+    RecordDetail,
+    RecordPreview,
+    RecordState,
+)
 from joj.horse.services.lakefs import LakeFSRecord
 from joj.horse.utils.errors import BizError, ErrorCode
 
@@ -96,7 +101,7 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
             committer_id=user.id,
         )
         key = cls.get_user_latest_record_key(problem_set_id, problem.id, user.id)
-        value = RecordStateMixin(record_id=record.id, record_state=record.state)
+        value = RecordPreview(**record.dict())
 
         await record.save_model(commit=False, refresh=False)
         problem.num_submit += 1
@@ -177,14 +182,17 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
         problem_id: UUID,
         user_id: UUID,
         use_cache: bool = True,
-    ) -> RecordStateMixin:
+    ) -> Optional[RecordPreview]:
         cache = get_redis_cache()
         key = cls.get_user_latest_record_key(problem_set_id, problem_id, user_id)
         if use_cache:
             value = await cache.get(key, namespace="user_latest_records")
             try:
-                return RecordStateMixin(**value)
-            except (TypeError, ValueError):
+                data = value["record"]
+                if data is None:
+                    return None
+                return RecordPreview(**data)
+            except (TypeError, ValueError, KeyError):
                 pass
             except Exception as e:
                 logger.error("error when loading record from cache:")
@@ -202,21 +210,23 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
         else:
             statement = statement.where(cls.problem_set_id == problem_set_id)
         result = await cls.session_exec(statement)
-        record = result.one_or_none()
-        if record is None:
-            record_state = RecordStateMixin()
+        record_model: "Record" = result.one_or_none()
+        if record_model is None:
+            record = None
         else:
-            record_state = RecordStateMixin(
-                record_id=record.id, record_state=record.state
-            )
+            record = RecordPreview(**record_model.dict())
         if use_cache:
-            await cache.set(key, record_state.dict(), namespace="user_latest_records")
-        return record_state
+            await cache.set(
+                key,
+                {"record": record.dict() if record else None},
+                namespace="user_latest_records",
+            )
+        return record
 
     @classmethod
     async def get_user_latest_records(
         cls, problem_set_id: Optional[UUID], problem_ids: List[UUID], user_id: UUID
-    ) -> List[RecordStateMixin]:
+    ) -> List[Optional[RecordPreview]]:
         cache = get_redis_cache()
         keys = [
             cls.get_user_latest_record_key(problem_set_id, problem_id, user_id)
@@ -225,26 +235,30 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
         values = []
         if keys:
             values = await cache.multi_get(keys, namespace="user_latest_records")
-        record_states = []
+        records = []
         updated_cache_pairs = []
         for i, value in enumerate(values):
-            record_state = None
+            record = None
             try:
-                record_state = RecordStateMixin(**value)
-            except (TypeError, ValueError):
-                pass
+                data = value["record"]
+                if data is not None:
+                    record = RecordPreview(**data)
+                use_cache = True
+            except (TypeError, ValueError, KeyError):
+                use_cache = False
             except Exception as e:
+                use_cache = False
                 logger.error("error when loading records from cache:")
                 logger.exception(e)
-            if record_state is None:
-                record_state = await cls.get_user_latest_record(
+            if not use_cache:
+                record = await cls.get_user_latest_record(
                     problem_set_id=problem_set_id,
                     problem_id=problem_ids[i],
                     user_id=user_id,
                     use_cache=False,
                 )
-                updated_cache_pairs.append((keys[i], record_state.dict()))
-            record_states.append(record_state)
+                updated_cache_pairs.append((keys[i], record.dict() if record else None))
+            records.append(record)
         if updated_cache_pairs:
             await cache.multi_set(updated_cache_pairs, namespace="user_latest_records")
         logger.info(
@@ -252,4 +266,4 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
             len(problem_ids) - len(updated_cache_pairs),
             len(updated_cache_pairs),
         )
-        return record_states
+        return records

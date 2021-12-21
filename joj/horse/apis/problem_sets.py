@@ -65,7 +65,7 @@ async def get_problem_set(
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.ProblemSetDetail]:
     problems = await problem_set.get_problems_with_record_states(
-        cls=schemas.ProblemPreviewWithRecordState, user_id=user.id
+        cls=schemas.ProblemPreviewWithLatestRecord, user_id=user.id
     )
     result = schemas.ProblemSetDetail(
         **problem_set.dict(exclude={"problems": ...}), problems=problems
