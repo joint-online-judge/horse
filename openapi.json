@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 5c80f1d@2021-12-22T08:30:51Z",
+    "description": "Git version: 81180bd@2021-12-22T11:27:51Z",
     "version": "1"
   },
   "paths": {
@@ -7032,8 +7032,6 @@
           "category",
           "username",
           "email",
-          "studentId",
-          "realName",
           "isActive"
         ],
         "type": "object",
@@ -7087,13 +7085,20 @@
             "title": "Email",
             "type": "string"
           },
+          "gravatar": {
+            "title": "Gravatar",
+            "type": "string",
+            "default": ""
+          },
           "studentId": {
             "title": "Studentid",
-            "type": "string"
+            "type": "string",
+            "default": ""
           },
           "realName": {
             "title": "Realname",
-            "type": "string"
+            "type": "string",
+            "default": ""
           },
           "role": {
             "title": "Role",
