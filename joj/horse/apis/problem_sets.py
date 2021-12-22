@@ -64,8 +64,11 @@ async def get_problem_set(
     ),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.ProblemSetDetail]:
-    problems = await problem_set.get_problems_with_record_states(
-        cls=schemas.ProblemPreviewWithLatestRecord, user_id=user.id
+    problems = await models.Problem.get_problems_with_record_states(
+        result_cls=schemas.ProblemPreviewWithLatestRecord,
+        problem_set_id=problem_set.id,
+        problems=problem_set.problems,
+        user_id=user.id,
     )
     result = schemas.ProblemSetDetail(
         **problem_set.dict(exclude={"problems": ...}), problems=problems
@@ -103,9 +106,9 @@ async def list_problems_in_problem_set(
         parse_problem_set_factory(load_problems=True)
     ),
     user: models.User = Depends(parse_user_from_auth),
-) -> StandardListResponse[schemas.ProblemWithRecordState]:
+) -> StandardListResponse[schemas.ProblemWithLatestRecord]:
     problems = await problem_set.get_problems_with_record_states(
-        cls=schemas.ProblemWithRecordState, user_id=user.id
+        cls=schemas.ProblemWithLatestRecord, user_id=user.id
     )
     return StandardListResponse(problems)
 
@@ -133,14 +136,15 @@ async def add_problem_in_problem_set(
 async def get_problem_in_problem_set(
     link: models.ProblemProblemSetLink = Depends(parse_problem_problem_set_link),
     user: models.User = Depends(parse_user_from_auth),
-) -> StandardResponse[schemas.ProblemDetailWithRecordState]:
+) -> StandardResponse[schemas.ProblemDetailWithLatestRecord]:
     # await link.problem_set.operate_problem(link.problem, Operation.Read)
     record = await models.Record.get_user_latest_record(
         problem_set_id=link.problem_set_id, problem_id=link.problem_id, user_id=user.id
     )
-    problem = schemas.ProblemDetailWithRecordState(**link.problem.dict())
-    problem.update_by_record_state(record)
-    return StandardResponse(problem)
+    result = schemas.ProblemDetailWithLatestRecord(
+        **link.problem.dict(), latest_record=record
+    )
+    return StandardResponse(result)
 
 
 @router.patch(

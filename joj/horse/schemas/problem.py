@@ -30,7 +30,7 @@ class ProblemEdit(BaseModel, metaclass=EditMetaclass):
     hidden: Optional[bool]
 
 
-class ProblemPreviewBase(URLORMSchema):
+class ProblemBase(URLORMSchema):
     title: NoneEmptyStr = Field(
         index=False,
         nullable=False,
@@ -45,7 +45,7 @@ class ProblemPreviewBase(URLORMSchema):
     )
 
 
-class ProblemBase(ProblemPreviewBase):
+class ProblemContentMixin(BaseModel):
     content: LongText = Field(
         "",
         index=False,
@@ -55,7 +55,7 @@ class ProblemBase(ProblemPreviewBase):
     )
 
 
-class ProblemCreate(URLCreateMixin, ProblemBase):
+class ProblemCreate(ProblemContentMixin, URLCreateMixin, ProblemBase):
     pass
 
 
@@ -65,7 +65,7 @@ class ProblemClone(BaseModel):
     new_group: bool = Field(False, description="whether to create new problem group")
 
 
-class ProblemPreview(ProblemPreviewBase, IDMixin):
+class ProblemPreview(ProblemBase, IDMixin):
     owner_id: Optional[UUID] = None
 
 
@@ -81,7 +81,7 @@ class Problem(ProblemBase, DomainMixin, IDMixin):
     problem_group_id: Optional[UUID] = None
 
 
-class ProblemDetail(TimestampMixin, Problem):
+class ProblemDetail(TimestampMixin, ProblemContentMixin, Problem):
     pass
 
 
@@ -93,11 +93,11 @@ class ProblemPreviewWithLatestRecord(LatestRecordMixin, ProblemPreview):
     pass
 
 
-class ProblemWithRecordState(LatestRecordMixin, Problem):
+class ProblemWithLatestRecord(LatestRecordMixin, Problem):
     pass
 
 
-class ProblemDetailWithRecordState(LatestRecordMixin, ProblemDetail):
+class ProblemDetailWithLatestRecord(LatestRecordMixin, ProblemDetail):
     pass
 
 

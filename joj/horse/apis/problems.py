@@ -37,12 +37,19 @@ async def list_problems(
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     include_hidden: bool = Depends(parse_view_hidden_problem),
-) -> StandardListResponse[schemas.Problem]:
+    user: models.User = Depends(parse_user_from_auth),
+) -> StandardListResponse[schemas.ProblemWithLatestRecord]:
     statement = domain.find_problems_statement(include_hidden)
     problems, count = await models.Problem.execute_list_statement(
         statement, ordering, pagination
     )
-    return StandardListResponse(problems, count)
+    result = await models.Problem.get_problems_with_record_states(
+        result_cls=schemas.ProblemWithLatestRecord,
+        problem_set_id=None,
+        problems=problems,
+        user_id=user.id,
+    )
+    return StandardListResponse(result, count)
 
 
 @router.post("", permissions=[Permission.DomainProblem.create])
@@ -78,8 +85,15 @@ async def create_problem(
 @router.get("/{problem}", permissions=[Permission.DomainProblem.view])
 async def get_problem(
     problem: models.Problem = Depends(parse_problem),
-) -> StandardResponse[schemas.ProblemDetail]:
-    return StandardResponse(problem)
+    user: models.User = Depends(parse_user_from_auth),
+) -> StandardResponse[schemas.ProblemDetailWithLatestRecord]:
+    record = await models.Record.get_user_latest_record(
+        problem_set_id=None, problem_id=problem.id, user_id=user.id
+    )
+    result = schemas.ProblemDetailWithLatestRecord(
+        **problem.dict(), latest_record=record
+    )
+    return StandardResponse(result)
 
 
 @router.delete("/{problem}", permissions=[Permission.DomainProblem.edit])

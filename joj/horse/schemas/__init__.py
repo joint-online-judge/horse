@@ -44,11 +44,11 @@ from joj.horse.schemas.problem import (
     ProblemClone as ProblemClone,
     ProblemCreate as ProblemCreate,
     ProblemDetail as ProblemDetail,
-    ProblemDetailWithRecordState as ProblemDetailWithRecordState,
+    ProblemDetailWithLatestRecord as ProblemDetailWithLatestRecord,
     ProblemEdit as ProblemEdit,
     ProblemPreviewWithLatestRecord as ProblemPreviewWithLatestRecord,
     ProblemSolutionSubmit as ProblemSolutionSubmit,
-    ProblemWithRecordState as ProblemWithRecordState,
+    ProblemWithLatestRecord as ProblemWithLatestRecord,
 )
 from joj.horse.schemas.problem_config import (
     ProblemConfig as ProblemConfig,

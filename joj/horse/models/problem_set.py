@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Optional, Type
+from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID
 
 from sqlalchemy import event
@@ -10,7 +10,6 @@ from sqlmodel.sql.sqltypes import GUID
 from joj.horse.models.base import DomainURLORMModel, url_pre_save
 from joj.horse.models.link_tables import ProblemProblemSetLink
 from joj.horse.schemas.base import Operation
-from joj.horse.schemas.problem import WithLatestRecordType
 from joj.horse.schemas.problem_set import ProblemSetDetail
 from joj.horse.utils.errors import BizError, ErrorCode
 
@@ -65,21 +64,6 @@ class ProblemSet(DomainURLORMModel, ProblemSetDetail, table=True):  # type: igno
         },
     )
     records: List["Record"] = Relationship(back_populates="problem_set")
-
-    async def get_problems_with_record_states(
-        self, cls: Type[WithLatestRecordType], user_id: UUID
-    ) -> List[WithLatestRecordType]:
-        from joj.horse import models
-
-        problem_ids = [problem.id for problem in self.problems]
-        records = await models.Record.get_user_latest_records(
-            problem_set_id=self.id, problem_ids=problem_ids, user_id=user_id
-        )
-        problems = [
-            cls(**self.problems[i].dict(), latest_record=records[i])
-            for i, record in enumerate(records)
-        ]
-        return problems
 
     async def operate_problem(
         self, problem: "Problem", operation: Operation, position: Optional[int] = None
