@@ -62,10 +62,11 @@ class JWTUserClaims(BaseModel):
     category: Literal["user", "oauth"]
     username: str
     email: str
-    student_id: str
-    real_name: str
-    role: Optional[str]
-    oauth_name: Optional[str]
+    gravatar: str = ""
+    student_id: str = ""
+    real_name: str = ""
+    role: Optional[str] = None
+    oauth_name: Optional[str] = None
     is_active: bool
 
 
@@ -131,6 +132,7 @@ def auth_jwt_encode_user(
             category="user",
             username=user.username,
             email=user.email,
+            gravatar=user.gravatar,
             student_id=user.student_id,
             real_name=user.real_name,
             role=user.role,
@@ -143,6 +145,7 @@ def auth_jwt_encode_user(
             category="oauth",
             username=oauth.account_name,
             email=oauth.account_email,
+            gravatar="",
             student_id=oauth.student_id,
             real_name=oauth.real_name,
             oauth_name=oauth.oauth_name,
