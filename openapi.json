@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 78d3530@2021-12-21T19:17:45Z",
+    "description": "Git version: 5c80f1d@2021-12-22T08:30:51Z",
     "version": "1"
   },
   "paths": {
@@ -2148,7 +2148,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemWithRecordStateListResp"
+                  "$ref": "#/components/schemas/ProblemWithLatestRecordListResp"
                 }
               }
             }
@@ -2307,7 +2307,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailWithRecordStateResp"
+                  "$ref": "#/components/schemas/ProblemDetailWithLatestRecordResp"
                 }
               }
             }
@@ -2660,7 +2660,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemListResp"
+                  "$ref": "#/components/schemas/ProblemWithLatestRecordListResp"
                 }
               }
             }
@@ -2797,7 +2797,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetailResp"
+                  "$ref": "#/components/schemas/ProblemDetailWithLatestRecordResp"
                 }
               }
             }
@@ -7292,13 +7292,6 @@
             "description": "is the problem hidden",
             "default": false
           },
-          "content": {
-            "title": "Content",
-            "maxLength": 65536,
-            "type": "string",
-            "description": "content of the problem",
-            "default": ""
-          },
           "numSubmit": {
             "title": "Numsubmit",
             "type": "integer",
@@ -7449,8 +7442,8 @@
           }
         }
       },
-      "ProblemDetail": {
-        "title": "ProblemDetail",
+      "ProblemDetailWithLatestRecord": {
+        "title": "ProblemDetailWithLatestRecord",
         "required": [
           "id",
           "domainId",
@@ -7486,13 +7479,6 @@
             "description": "is the problem hidden",
             "default": false
           },
-          "content": {
-            "title": "Content",
-            "maxLength": 65536,
-            "type": "string",
-            "description": "content of the problem",
-            "default": ""
-          },
           "numSubmit": {
             "title": "Numsubmit",
             "type": "integer",
@@ -7513,100 +7499,12 @@
             "type": "string",
             "format": "uuid"
           },
-          "createdAt": {
-            "title": "Createdat",
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "title": "Updatedat",
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "ProblemDetailResp": {
-        "title": "ProblemDetailResp",
-        "required": [
-          "errorCode"
-        ],
-        "type": "object",
-        "properties": {
-          "errorCode": {
-            "$ref": "#/components/schemas/ErrorCode"
-          },
-          "errorMsg": {
-            "title": "Errormsg",
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/ProblemDetail"
-          }
-        }
-      },
-      "ProblemDetailWithRecordState": {
-        "title": "ProblemDetailWithRecordState",
-        "required": [
-          "id",
-          "domainId",
-          "title"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "title": "Id",
-            "type": "string",
-            "format": "uuid"
-          },
-          "domainId": {
-            "title": "Domainid",
-            "type": "string",
-            "format": "uuid"
-          },
-          "url": {
-            "title": "Url",
-            "type": "string",
-            "description": "(unique) url of the domain",
-            "default": ""
-          },
-          "title": {
-            "title": "Title",
-            "minLength": 1,
-            "type": "string",
-            "description": "title of the problem"
-          },
-          "hidden": {
-            "title": "Hidden",
-            "type": "boolean",
-            "description": "is the problem hidden",
-            "default": false
-          },
           "content": {
             "title": "Content",
             "maxLength": 65536,
             "type": "string",
             "description": "content of the problem",
             "default": ""
-          },
-          "numSubmit": {
-            "title": "Numsubmit",
-            "type": "integer",
-            "default": 0
-          },
-          "numAccept": {
-            "title": "Numaccept",
-            "type": "integer",
-            "default": 0
-          },
-          "ownerId": {
-            "title": "Ownerid",
-            "type": "string",
-            "format": "uuid"
-          },
-          "problemGroupId": {
-            "title": "Problemgroupid",
-            "type": "string",
-            "format": "uuid"
           },
           "createdAt": {
             "title": "Createdat",
@@ -7623,8 +7521,8 @@
           }
         }
       },
-      "ProblemDetailWithRecordStateResp": {
-        "title": "ProblemDetailWithRecordStateResp",
+      "ProblemDetailWithLatestRecordResp": {
+        "title": "ProblemDetailWithLatestRecordResp",
         "required": [
           "errorCode"
         ],
@@ -7638,7 +7536,7 @@
             "type": "string"
           },
           "data": {
-            "$ref": "#/components/schemas/ProblemDetailWithRecordState"
+            "$ref": "#/components/schemas/ProblemDetailWithLatestRecord"
           }
         }
       },
@@ -8311,8 +8209,8 @@
           }
         }
       },
-      "ProblemWithRecordState": {
-        "title": "ProblemWithRecordState",
+      "ProblemWithLatestRecord": {
+        "title": "ProblemWithLatestRecord",
         "required": [
           "id",
           "domainId",
@@ -8348,13 +8246,6 @@
             "description": "is the problem hidden",
             "default": false
           },
-          "content": {
-            "title": "Content",
-            "maxLength": 65536,
-            "type": "string",
-            "description": "content of the problem",
-            "default": ""
-          },
           "numSubmit": {
             "title": "Numsubmit",
             "type": "integer",
@@ -8380,8 +8271,8 @@
           }
         }
       },
-      "ProblemWithRecordStateList": {
-        "title": "ProblemWithRecordStateList",
+      "ProblemWithLatestRecordList": {
+        "title": "ProblemWithLatestRecordList",
         "type": "object",
         "properties": {
           "count": {
@@ -8393,14 +8284,14 @@
             "title": "Results",
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ProblemWithRecordState"
+              "$ref": "#/components/schemas/ProblemWithLatestRecord"
             },
             "default": []
           }
         }
       },
-      "ProblemWithRecordStateListResp": {
-        "title": "ProblemWithRecordStateListResp",
+      "ProblemWithLatestRecordListResp": {
+        "title": "ProblemWithLatestRecordListResp",
         "required": [
           "errorCode"
         ],
@@ -8414,7 +8305,7 @@
             "type": "string"
           },
           "data": {
-            "$ref": "#/components/schemas/ProblemWithRecordStateList"
+            "$ref": "#/components/schemas/ProblemWithLatestRecordList"
           }
         }
       },
