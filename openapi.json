@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 81180bd@2021-12-22T11:27:51Z",
+    "description": "Git version: 4d93810@2021-12-23T04:29:35Z",
     "version": "1"
   },
   "paths": {
@@ -7392,7 +7392,18 @@
       "ProblemConfigCommit": {
         "title": "ProblemConfigCommit",
         "type": "object",
-        "properties": {}
+        "properties": {
+          "message": {
+            "title": "Message",
+            "type": "string",
+            "default": ""
+          },
+          "dataVersion": {
+            "title": "Dataversion",
+            "type": "integer",
+            "default": 2
+          }
+        }
       },
       "ProblemConfigResp": {
         "title": "ProblemConfigResp",
