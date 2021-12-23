@@ -37,6 +37,24 @@ async-timeout = "*"
 hiredis = "*"
 
 [[package]]
+name = "aioredlock"
+version = "0.7.2"
+description = "Asyncio implemetation of Redis distributed locks"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+aioredis = "*"
+attrs = ">=17.4.0"
+
+[package.extras]
+cicd = ["codecov"]
+examples = ["aiodocker"]
+package = ["bump2version", "twine", "wheel"]
+test = ["pytest (==6.1.0)", "pytest-asyncio", "pytest-mock", "pytest-cov", "flake8"]
+
+[[package]]
 name = "alembic"
 version = "1.7.5"
 description = "A database migration tool for SQLAlchemy."
@@ -156,7 +174,7 @@ name = "attrs"
 version = "21.2.0"
 description = "Classes Without Boilerplate"
 category = "main"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [package.extras]
@@ -1746,7 +1764,7 @@ test = ["asgi-lifespan", "asynctest", "coverage", "pytest", "pytest-asyncio", "p
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "4c10c8577734d570c017d48da481533b4924af8ba7ab3eeb627b90dedc30e213"
+content-hash = "2bcfeb1748a3f8089d39b1106cb5031242f312c88ceae60719a1be19e1f46ac3"
 
 [metadata.files]
 aiocache = [
@@ -1760,6 +1778,10 @@ aiofiles = [
 aioredis = [
     {file = "aioredis-1.3.1-py3-none-any.whl", hash = "sha256:b61808d7e97b7cd5a92ed574937a079c9387fdadd22bfbfa7ad2fd319ecc26e3"},
     {file = "aioredis-1.3.1.tar.gz", hash = "sha256:15f8af30b044c771aee6787e5ec24694c048184c7b9e54c3b60c750a4b93273a"},
+]
+aioredlock = [
+    {file = "aioredlock-0.7.2-py3-none-any.whl", hash = "sha256:573236b5c1c398e644c0ce9b3565a5303651249ff152f0daacdd7847cd1d124b"},
+    {file = "aioredlock-0.7.2.tar.gz", hash = "sha256:9826135c39a4e31a983b201f113ce2ab985829001b76282d897a3ccca701bf05"},
 ]
 alembic = [
     {file = "alembic-1.7.5-py3-none-any.whl", hash = "sha256:a9dde941534e3d7573d9644e8ea62a2953541e27bc1793e166f60b777ae098b4"},

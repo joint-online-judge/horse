@@ -11,6 +11,7 @@ from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.permission import Permission
 from joj.horse.services.lakefs import LakeFSProblemConfig
 from joj.horse.utils.base import TemporaryDirectory, iter_file
+from joj.horse.utils.lock import lock_problem_config
 from joj.horse.utils.parser import (
     parse_file_path,
     parse_file_path_from_upload,
@@ -31,6 +32,7 @@ router_prefix = "/api/v1"
     description="Completely replace the problem config with the archive. "
     "This will delete files not included in the archive.",
     permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
+    dependencies=[Depends(lock_problem_config)],
 )
 def update_problem_config_by_archive(
     file: UploadFile = File(...), problem: models.Problem = Depends(parse_problem)
@@ -83,6 +85,7 @@ def get_file_or_directory_info_in_uncommitted_problem_config(
     description="Replace the file with the same path. "
     "Create directories if needed along the path.",
     permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
+    dependencies=[Depends(lock_problem_config)],
 )
 def upload_file_to_problem_config(
     file: UploadFile = File(...),
@@ -99,6 +102,7 @@ def upload_file_to_problem_config(
     description="Use the filename as path, "
     "file will be uploaded to root of the problem config directory.",
     permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
+    dependencies=[Depends(lock_problem_config)],
 )
 def upload_file_to_root_in_problem_config(
     file: UploadFile = File(...),
@@ -111,6 +115,7 @@ def upload_file_to_root_in_problem_config(
 @router.delete(
     "/config/files/{path:path}",
     permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
+    dependencies=[Depends(lock_problem_config)],
 )
 def delete_file_from_uncommitted_problem_config(
     path: str = Path(...),
@@ -124,6 +129,7 @@ def delete_file_from_uncommitted_problem_config(
 @router.delete(
     "/config/dirs/{path:path}",
     permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
+    dependencies=[Depends(lock_problem_config)],
 )
 def delete_directory_from_uncommitted_problem_config(
     path: str = Path(...),
@@ -143,6 +149,7 @@ def delete_directory_from_uncommitted_problem_config(
     "/config/commit",
     description="Commit all changes through upload / delete as a new problem config version.",
     permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
+    dependencies=[Depends(lock_problem_config)],
 )
 async def commit_problem_config(
     commit: schemas.ProblemConfigCommit = Body(...),
@@ -159,6 +166,7 @@ async def commit_problem_config(
 @router.post(
     "/config/reset",
     permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
+    dependencies=[Depends(lock_problem_config)],
 )
 def reset_problem_config(
     lakefs_reset: schemas.LakeFSReset,

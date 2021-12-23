@@ -11,6 +11,7 @@ class ErrorCode(str, Enum):
     UnknownFieldError = "UnknownFieldError"
     IllegalFieldError = "IllegalFieldError"
     IntegrityError = "IntegrityError"
+    LockError = "LockError"
     # NotFoundError = "NotFoundError"
 
     APINotImplementedError = "APINotImplementedError"
