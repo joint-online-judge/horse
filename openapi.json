@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 4d93810@2021-12-23T04:29:35Z",
+    "description": "Git version: d0524e9@2021-12-23T19:29:15Z",
     "version": "1"
   },
   "paths": {
@@ -3214,17 +3214,6 @@
         "operationId": "v1_update_problem_config_by_archive",
         "parameters": [
           {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          },
-          {
             "description": "url or id of the problem",
             "required": true,
             "schema": {
@@ -3233,6 +3222,17 @@
               "description": "url or id of the problem"
             },
             "name": "problem",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
             "in": "path"
           }
         ],
@@ -3372,17 +3372,6 @@
         "operationId": "v1_upload_file_to_problem_config",
         "parameters": [
           {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          },
-          {
             "description": "url or id of the problem",
             "required": true,
             "schema": {
@@ -3391,6 +3380,17 @@
               "description": "url or id of the problem"
             },
             "name": "problem",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
             "in": "path"
           },
           {
@@ -3468,17 +3468,6 @@
             "in": "path"
           },
           {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          },
-          {
             "description": "url or id of the problem",
             "required": true,
             "schema": {
@@ -3487,6 +3476,17 @@
               "description": "url or id of the problem"
             },
             "name": "problem",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
             "in": "path"
           }
         ],
@@ -3618,17 +3618,6 @@
         "operationId": "v1_upload_file_to_root_in_problem_config",
         "parameters": [
           {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          },
-          {
             "description": "url or id of the problem",
             "required": true,
             "schema": {
@@ -3637,6 +3626,17 @@
               "description": "url or id of the problem"
             },
             "name": "problem",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
             "in": "path"
           }
         ],
@@ -3707,17 +3707,6 @@
             "in": "path"
           },
           {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          },
-          {
             "description": "url or id of the problem",
             "required": true,
             "schema": {
@@ -3726,6 +3715,17 @@
               "description": "url or id of the problem"
             },
             "name": "problem",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
             "in": "path"
           },
           {
@@ -3790,17 +3790,6 @@
         "operationId": "v1_commit_problem_config",
         "parameters": [
           {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          },
-          {
             "description": "url or id of the problem",
             "required": true,
             "schema": {
@@ -3809,6 +3798,17 @@
               "description": "url or id of the problem"
             },
             "name": "problem",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
             "in": "path"
           }
         ],
@@ -3870,17 +3870,6 @@
         "operationId": "v1_reset_problem_config",
         "parameters": [
           {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          },
-          {
             "description": "url or id of the problem",
             "required": true,
             "schema": {
@@ -3889,6 +3878,17 @@
               "description": "url or id of the problem"
             },
             "name": "problem",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
             "in": "path"
           }
         ],
@@ -6872,6 +6872,7 @@
           "UnknownFieldError",
           "IllegalFieldError",
           "IntegrityError",
+          "LockError",
           "APINotImplementedError",
           "UserRegisterError",
           "UsernamePasswordError",
