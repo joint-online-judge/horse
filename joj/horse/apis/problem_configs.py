@@ -150,7 +150,7 @@ async def commit_problem_config(
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.ProblemConfig]:
     result = await models.ProblemConfig.make_commit(
-        problem=problem, committer=user, message=commit.message
+        problem=problem, committer=user, commit=commit
     )
     logger.info("problem config commit: %s", result)
     return StandardResponse(schemas.ProblemConfig.from_orm(result))

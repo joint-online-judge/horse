@@ -18,7 +18,8 @@ class ProblemConfigBase(BaseORMSchema):
 
 
 class ProblemConfigCommit(BaseModel):
-    pass
+    message: str = ""
+    data_version: int = 2
 
 
 class ProblemConfig(ProblemConfigBase, IDMixin):

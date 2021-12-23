@@ -11,7 +11,7 @@ from sqlmodel.sql.sqltypes import GUID
 from starlette.concurrency import run_in_threadpool
 
 from joj.horse.models.base import BaseORMModel
-from joj.horse.schemas.problem_config import ProblemConfigDetail
+from joj.horse.schemas.problem_config import ProblemConfigCommit, ProblemConfigDetail
 from joj.horse.services.lakefs import LakeFSProblemConfig
 from joj.horse.utils.errors import BizError, ErrorCode
 
@@ -40,13 +40,13 @@ class ProblemConfig(BaseORMModel, ProblemConfigDetail, table=True):  # type: ign
 
     @classmethod
     async def make_commit(
-        cls, problem: "Problem", committer: "User", message: str
+        cls, problem: "Problem", committer: "User", commit: ProblemConfigCommit
     ) -> "ProblemConfig":
         def sync_func() -> Commit:
             lakefs_problem_config = LakeFSProblemConfig(problem)
             # manager = Manager(logger, lakefs_problem_config.storage)
             # manager.validate_source()
-            return lakefs_problem_config.commit(message)
+            return lakefs_problem_config.commit(commit.message)
 
         try:
             commit_result = await run_in_threadpool(sync_func)
