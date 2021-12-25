@@ -8,12 +8,7 @@ from joj.horse.config import settings
 
 @lru_cache
 def get_celery_app() -> Celery:
-    backend_url = "redis://:{}@{}:{}/{}".format(
-        settings.redis_password,
-        settings.redis_host,
-        settings.redis_port,
-        settings.redis_db_index,
-    )
+    backend_url = "rpc://"
     broker_url = "amqp://{}:{}@{}:{}/{}".format(
         settings.rabbitmq_username,
         settings.rabbitmq_password,
