@@ -16,12 +16,12 @@ if TYPE_CHECKING:
 class UserOAuthAccount(BaseORMModel, table=True):  # type: ignore[call-arg]
     __tablename__ = "user_oauth_accounts"
 
-    oauth_name: str = Field(index=False)
-    access_token: str = Field(index=False)
-    refresh_token: Optional[str] = Field(index=False, default=None, nullable=True)
-    expires_at: Optional[int] = Field(index=False, default=None, nullable=True)
+    oauth_name: str = Field()
+    access_token: str = Field()
+    refresh_token: Optional[str] = Field(None, nullable=True)
+    expires_at: Optional[int] = Field(None, nullable=True)
     account_id: str = Field(index=True)
-    account_name: Optional[str] = Field(index=True, default=None, nullable=True)
+    account_name: Optional[str] = Field(None, index=True, nullable=True)
     account_email: str = Field(index=True)
 
     user_id: Optional[UUID] = Field(

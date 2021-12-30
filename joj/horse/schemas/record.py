@@ -57,25 +57,16 @@ class RecordCase(BaseModel):
 class Record(BaseORMSchema, IDMixin):
     state: RecordState = Field(
         RecordState.processing,
-        index=False,
         nullable=False,
         sa_column_kwargs={"server_default": str(RecordState.processing)},
     )
-    language: str = Field(
-        index=False, nullable=False, sa_column_kwargs={"server_default": ""}
-    )
-    commit_id: Optional[str] = Field(None, index=False, nullable=True)
-    task_id: Optional[UUID] = Field(None, index=False, nullable=True)
+    language: str = Field(nullable=False, sa_column_kwargs={"server_default": ""})
+    commit_id: Optional[str] = Field(None, nullable=True)
+    task_id: Optional[UUID] = Field(None, nullable=True)
 
-    score: int = Field(
-        0, index=False, nullable=False, sa_column_kwargs={"server_default": "0"}
-    )
-    time_ms: int = Field(
-        0, index=False, nullable=False, sa_column_kwargs={"server_default": "0"}
-    )
-    memory_kb: int = Field(
-        0, index=False, nullable=False, sa_column_kwargs={"server_default": "0"}
-    )
+    score: int = Field(0, nullable=False, sa_column_kwargs={"server_default": "0"})
+    time_ms: int = Field(0, nullable=False, sa_column_kwargs={"server_default": "0"})
+    memory_kb: int = Field(0, nullable=False, sa_column_kwargs={"server_default": "0"})
 
     problem_set_id: Optional[UUID] = None
     problem_id: Optional[UUID] = None

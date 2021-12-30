@@ -27,7 +27,7 @@ class ProblemProblemSetLink(ORMUtils, table=True):  # type: ignore[call-arg]
         ),
     )
     position: int = Field(
-        index=False, nullable=False, sa_column_kwargs={"server_default": "0"}
+        index=True, nullable=False, sa_column_kwargs={"server_default": "0"}
     )
 
     problem: "Problem" = Relationship(back_populates="problem_problem_set_links")

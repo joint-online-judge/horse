@@ -49,44 +49,40 @@ class ProblemSetEdit(BaseModel, metaclass=EditMetaclass):
 
 class ProblemSetBase(URLORMSchema):
     title: NoneEmptyLongStr = Field(
-        index=False,
         nullable=False,
         description="title of the problem set",
     )
     content: LongText = Field(
         "",
-        index=False,
         nullable=False,
         sa_column_kwargs={"server_default": ""},
         description="content of the problem set",
     )
     hidden: bool = Field(
         False,
-        index=False,
         nullable=False,
         sa_column_kwargs={"server_default": "false"},
         description="whether the problem set is hidden",
     )
     scoreboard_hidden: bool = Field(
         False,
-        index=False,
         nullable=False,
         sa_column_kwargs={"server_default": "false"},
         description="whether the scoreboard of the problem set is hidden",
     )
     due_at: Optional[datetime] = Field(
         None,
-        sa_column=get_datetime_column(index=False, nullable=True),
+        sa_column=get_datetime_column(nullable=True),
         description="the problem set is due at this date",
     )
     lock_at: Optional[datetime] = Field(
         None,
-        sa_column=get_datetime_column(index=False, nullable=True),
+        sa_column=get_datetime_column(nullable=True),
         description="the problem set is locked after this date",
     )
     unlock_at: Optional[datetime] = Field(
         None,
-        sa_column=get_datetime_column(index=False, nullable=True),
+        sa_column=get_datetime_column(nullable=True),
         description="the problem set is unlocked after this date",
     )
 
@@ -98,12 +94,8 @@ class ProblemSetCreate(URLCreateMixin, ProblemSetBase):
 
 
 class ProblemSet(ProblemSetBase, DomainMixin, IDMixin):
-    num_submit: int = Field(
-        0, index=False, nullable=False, sa_column_kwargs={"server_default": "0"}
-    )
-    num_accept: int = Field(
-        0, index=False, nullable=False, sa_column_kwargs={"server_default": "0"}
-    )
+    num_submit: int = Field(0, nullable=False, sa_column_kwargs={"server_default": "0"})
+    num_accept: int = Field(0, nullable=False, sa_column_kwargs={"server_default": "0"})
 
     owner_id: Optional[UUID] = None
 

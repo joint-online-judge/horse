@@ -31,12 +31,11 @@ class DomainInvitationBase(URLORMSchema):
     code: LongStr = Field(index=True, nullable=False, description="invitation code")
     expire_at: Optional[datetime] = Field(
         None,
-        sa_column=get_datetime_column(index=False, nullable=True),
+        sa_column=get_datetime_column(nullable=True),
         description="expire time of invitation",
     )
     role: str = Field(
         str(DefaultRole.USER),
-        index=False,
         nullable=False,
         sa_column_kwargs={"server_default": str(DefaultRole.USER)},
         description="domain role after invitation",

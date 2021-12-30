@@ -10,10 +10,10 @@ from joj.horse.schemas.base import BaseModel, BaseORMSchema, IDMixin, TimestampM
 
 class ProblemConfigBase(BaseORMSchema):
     commit_message: str = Field(
-        "", index=False, nullable=False, sa_column_kwargs={"server_default": ""}
+        "", nullable=False, sa_column_kwargs={"server_default": ""}
     )
     data_version: int = Field(
-        2, index=False, nullable=False, sa_column_kwargs={"server_default": "2"}
+        2, nullable=False, sa_column_kwargs={"server_default": "2"}
     )
 
 
@@ -25,12 +25,9 @@ class ProblemConfigCommit(BaseModel):
 class ProblemConfig(ProblemConfigBase, IDMixin):
     languages: List[str] = Field(
         [],
-        index=False,
         sa_column=Column(JSON, nullable=False, server_default="[]"),
     )
-    commit_id: str = Field(
-        "", index=False, nullable=False, sa_column_kwargs={"server_default": ""}
-    )
+    commit_id: str = Field("", nullable=False, sa_column_kwargs={"server_default": ""})
     committer_id: Optional[UUID] = None
 
 

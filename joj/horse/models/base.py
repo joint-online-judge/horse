@@ -197,10 +197,13 @@ class ORMUtils(SQLModel, BaseModel):
 class BaseORMModel(ORMUtils):
     id: UUID = Field(default_factory=uuid4, primary_key=True, nullable=False)
     created_at: Optional[datetime] = Field(
-        None, sa_column=get_datetime_column(server_default=utcnow())
+        None, sa_column=get_datetime_column(index=True, server_default=utcnow())
     )
     updated_at: Optional[datetime] = Field(
-        None, sa_column=get_datetime_column(server_default=utcnow(), onupdate=utcnow())
+        None,
+        sa_column=get_datetime_column(
+            index=True, server_default=utcnow(), onupdate=utcnow()
+        ),
     )
 
 

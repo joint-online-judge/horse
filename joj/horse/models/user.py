@@ -28,7 +28,6 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
 
     hashed_password: str = Field(
         "",
-        index=False,
         nullable=False,
         sa_column_kwargs={"server_default": ""},
     )

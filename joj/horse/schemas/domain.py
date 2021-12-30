@@ -28,28 +28,24 @@ class DomainBase(URLORMSchema):
     )
     gravatar: LongStr = Field(
         "",
-        index=False,
         nullable=False,
         sa_column_kwargs={"server_default": ""},
         description="gravatar url of the domain",
     )
     bulletin: LongText = Field(
         "",
-        index=False,
         nullable=False,
         sa_column_kwargs={"server_default": ""},
         description="bulletin of the domain",
     )
     hidden: bool = Field(
         True,
-        index=False,
         nullable=False,
         sa_column_kwargs={"server_default": "true"},
         description="is the domain hidden",
     )
     tag: LongStr = Field(
         "",
-        index=False,
         nullable=False,
         sa_column_kwargs={"server_default": ""},
         description="tag of the domain",

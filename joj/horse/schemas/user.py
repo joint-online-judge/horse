@@ -44,11 +44,10 @@ class UserCreate(SQLModel):
 
 
 class UserBase(BaseORMSchema):
-    username: str = Field(index=False, nullable=False)
-    email: EmailStr = Field(index=False, nullable=False)
+    username: str = Field(nullable=False)
+    email: EmailStr = Field(nullable=False)
     gravatar: str = Field(
         "",
-        index=False,
         nullable=False,
         sa_column_kwargs={"server_default": ""},
     )
@@ -79,7 +78,6 @@ class User(UserBase, IDMixin):
     )
     is_active: bool = Field(
         False,
-        index=False,
         nullable=False,
         sa_column_kwargs={"server_default": "false"},
     )
@@ -112,17 +110,13 @@ class UserWithDomainRole(UserPreview):
 
 class UserDetail(TimestampMixin, User):
     register_ip: str = Field(
-        index=False,
         nullable=False,
         sa_column_kwargs={"server_default": "127.0.0.1"},
     )
     login_at: datetime = Field(
-        sa_column=get_datetime_column(
-            index=False, nullable=False, server_default=utcnow()
-        ),
+        sa_column=get_datetime_column(nullable=False, server_default=utcnow()),
     )
     login_ip: str = Field(
-        index=False,
         nullable=False,
         sa_column_kwargs={"server_default": "127.0.0.1"},
     )

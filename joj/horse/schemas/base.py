@@ -127,7 +127,7 @@ def ms_utcnow(element: Any, compiler: Any, **kwargs: Any) -> str:
 
 def get_datetime_column(**kwargs: Any) -> Column:
     if "index" not in kwargs:
-        kwargs["index"] = True
+        kwargs["index"] = False
     if "nullable" not in kwargs:
         kwargs["nullable"] = False
     return Column(DateTime(timezone=True), **kwargs)

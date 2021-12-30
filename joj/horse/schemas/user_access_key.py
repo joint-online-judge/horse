@@ -6,9 +6,9 @@ from joj.horse.schemas.base import BaseORMSchema, IDMixin, TimestampMixin
 
 
 class UserAccessKey(BaseORMSchema, IDMixin):
-    service: str = Field(index=False, nullable=False)
-    access_key_id: str = Field(index=False, nullable=False)
-    secret_access_key: str = Field(index=False, nullable=False)
+    service: str = Field(nullable=False)
+    access_key_id: str = Field(nullable=False)
+    secret_access_key: str = Field(nullable=False)
 
     user_id: UUID
 

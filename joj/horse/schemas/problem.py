@@ -32,13 +32,11 @@ class ProblemEdit(BaseModel, metaclass=EditMetaclass):
 
 class ProblemBase(URLORMSchema):
     title: NoneEmptyStr = Field(
-        index=False,
         nullable=False,
         description="title of the problem",
     )
     hidden: bool = Field(
         False,
-        index=False,
         nullable=False,
         sa_column_kwargs={"server_default": "false"},
         description="is the problem hidden",
@@ -48,7 +46,6 @@ class ProblemBase(URLORMSchema):
 class ProblemContentMixin(BaseModel):
     content: LongText = Field(
         "",
-        index=False,
         nullable=False,
         sa_column_kwargs={"server_default": ""},
         description="content of the problem",
@@ -70,12 +67,8 @@ class ProblemPreview(ProblemBase, IDMixin):
 
 
 class Problem(ProblemBase, DomainMixin, IDMixin):
-    num_submit: int = Field(
-        0, index=False, nullable=False, sa_column_kwargs={"server_default": "0"}
-    )
-    num_accept: int = Field(
-        0, index=False, nullable=False, sa_column_kwargs={"server_default": "0"}
-    )
+    num_submit: int = Field(0, nullable=False, sa_column_kwargs={"server_default": "0"})
+    num_accept: int = Field(0, nullable=False, sa_column_kwargs={"server_default": "0"})
 
     owner_id: Optional[UUID] = None
     problem_group_id: Optional[UUID] = None
