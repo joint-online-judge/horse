@@ -47,6 +47,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Extract metadata (tags, labels) for Docker (PyTest)
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         uses: docker/metadata-action@v3
         id: meta_pytest
         with:
@@ -54,6 +55,7 @@ jobs:
           flavor: |
             latest=false
       - name: Build and push Docker image with PyTest
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         id: docker_build_pytest
         uses: docker/build-push-action@v2
         with:
