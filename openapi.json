@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 11d34df@2022-01-02T07:42:26Z",
+    "description": "Git version: 5f46238@2022-01-02T08:09:18Z",
     "version": "1"
   },
   "paths": {
@@ -5370,6 +5370,139 @@
         }
       }
     },
+    "/auth/oauth2": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "List Oauth2",
+        "operationId": "v1_list_oauth2",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuth2ClientListResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/oauth2/{oauth2}/authorize": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Oauth Authorize",
+        "operationId": "v1_oauth_authorize",
+        "parameters": [
+          {
+            "description": "OAuth client name",
+            "required": true,
+            "schema": {
+              "title": "Oauth2",
+              "type": "string",
+              "description": "OAuth client name"
+            },
+            "name": "oauth2",
+            "in": "path"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Scopes",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "name": "scopes",
+            "in": "query"
+          },
+          {
+            "description": "Add Set/Delete-Cookie on response header",
+            "required": false,
+            "schema": {
+              "title": "Cookie",
+              "type": "boolean",
+              "description": "Add Set/Delete-Cookie on response header",
+              "default": true
+            },
+            "name": "cookie",
+            "in": "query"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Responsetype",
+              "enum": [
+                "redirect",
+                "json"
+              ],
+              "type": "string"
+            },
+            "name": "responseType",
+            "in": "query"
+          },
+          {
+            "description": "The redirect url after the operation",
+            "required": false,
+            "schema": {
+              "title": "Redirecturl",
+              "type": "string",
+              "description": "The redirect url after the operation"
+            },
+            "name": "redirectUrl",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedirectResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/version": {
       "get": {
         "tags": [
@@ -7225,6 +7358,67 @@
           }
         }
       },
+      "OAuth2Client": {
+        "title": "OAuth2Client",
+        "required": [
+          "oauthName",
+          "displayName",
+          "icon"
+        ],
+        "type": "object",
+        "properties": {
+          "oauthName": {
+            "title": "Oauthname",
+            "type": "string"
+          },
+          "displayName": {
+            "title": "Displayname",
+            "type": "string"
+          },
+          "icon": {
+            "title": "Icon",
+            "type": "string"
+          }
+        }
+      },
+      "OAuth2ClientList": {
+        "title": "OAuth2ClientList",
+        "type": "object",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer",
+            "default": 0
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OAuth2Client"
+            },
+            "default": []
+          }
+        }
+      },
+      "OAuth2ClientListResp": {
+        "title": "OAuth2ClientListResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OAuth2ClientList"
+          }
+        }
+      },
       "OAuth2PasswordRequestForm": {
         "title": "OAuth2PasswordRequestForm",
         "required": [
@@ -8572,6 +8766,38 @@
         ],
         "type": "string",
         "description": "An enumeration."
+      },
+      "Redirect": {
+        "title": "Redirect",
+        "required": [
+          "redirectUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "redirectUrl": {
+            "title": "Redirecturl",
+            "type": "string"
+          }
+        }
+      },
+      "RedirectResp": {
+        "title": "RedirectResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Redirect"
+          }
+        }
       },
       "User": {
         "title": "User",
