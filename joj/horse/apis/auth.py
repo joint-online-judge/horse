@@ -342,8 +342,7 @@ if settings.oauth_github:
         GitHubOAuth2(settings.oauth_github_id, settings.oauth_github_secret)
     )
 
-for _oauth_client in _oauth_clients:
-    router.include_router(
-        get_oauth_router(_oauth_clients),
-        prefix="/oauth2",
-    )
+router.include_router(
+    get_oauth_router(_oauth_clients),
+    prefix="/oauth2",
+)
