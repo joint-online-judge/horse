@@ -207,5 +207,4 @@ jobs:
           script: |
             cd ~/joj-deploy
             git pull
-            docker-compose -f docker-compose.yml -f docker-compose-ui.yml pull
-            docker-compose -f docker-compose.yml -f docker-compose-ui.yml -f docker-compose-prod.yml up -d
+            ./start.sh stage
