@@ -5,6 +5,8 @@ ENV HOME="/root"
 WORKDIR /root
 
 # install apt dependencies
+ARG APT_MIRROR
+RUN if [ -n "$APT_MIRROR" ]; then sed -i "s@http://deb.debian.org@$APT_MIRROR@g" /etc/apt/sources.list; fi
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
     apt-get install -y --no-install-recommends git rclone && \
@@ -12,6 +14,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
 
 # install poetry
 ARG PYPI_MIRROR
+# RUN if [ -n "$PYPI_MIRROR" ]; then pip install -i $PYPI_MIRROR pip -U; pip config set global.index-url $PYPI_MIRROR; fi
 RUN if [ -n "$PYPI_MIRROR" ]; then pip config set global.index-url $PYPI_MIRROR; fi
 RUN --mount=type=cache,target=/root/.cache pip install poetry
 
