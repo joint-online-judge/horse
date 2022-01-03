@@ -9,6 +9,7 @@ exclude_lines = [
     "if __name__ == \"__main__\":",
     "assert False",
 ]
+omit = ["*/__main__.py", "*/tests/*"]
 
 [tool.coverage.run]
 omit = ["*/__main__.py", "*/tests/*"]
