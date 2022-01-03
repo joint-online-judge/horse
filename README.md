@@ -25,6 +25,7 @@ curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poet
 poetry install --no-dev
 vi .env # configure environment
 ```
+
 ### For developers
 
 ```bash

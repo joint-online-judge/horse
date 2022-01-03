@@ -207,4 +207,4 @@ jobs:
           script: |
             cd ~/joj-deploy
             git pull
-            ./start.sh stage
+            ./start.sh prod
