@@ -9,7 +9,7 @@ exclude_lines = [
     "if __name__ == \"__main__\":",
     "assert False",
 ]
-omit = ["*/__main__.py", "*/tests/*"]
+omit = ["joj/horse/__main__.py", "joj/horse/tests/*"]
 
 [tool.poetry]
 authors = ["JOJ Dev Team <liuyh615@126.com>"]
