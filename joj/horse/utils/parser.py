@@ -43,12 +43,12 @@ def parse_user_from_auth(auth: Authentication = Depends()) -> models.User:
     if auth.jwt.category != "user":
         raise BizError(ErrorCode.UserNotFoundError)
     return models.User(
-        id=auth.jwt.id,
+        id=auth.jwt.id,  # type: ignore
         username=auth.jwt.username,
-        email=auth.jwt.email,
+        email=auth.jwt.email,  # type: ignore
         student_id=auth.jwt.student_id,
         real_name=auth.jwt.real_name,
-        role=auth.jwt.role,
+        role=auth.jwt.role,  # type: ignore
         is_active=auth.jwt.is_active,
     )
 
@@ -240,14 +240,14 @@ def parse_view_hidden_problem(
 
 
 def parse_ordering_query(
-    ordering_fields: List[str] = ["created_at", "updated_at"],
+    ordering_fields: Optional[List[str]] = None,
 ) -> Callable[..., OrderingQuery]:
     description = (
         "Comma seperated list of ordering the results.\n"
         "You may specify reverse orderings by prefixing the field name with '-'.\n\n"
     )
     if ordering_fields is None:
-        ordering_fields = list()
+        ordering_fields = ["created_at", "updated_at"]
     if len(ordering_fields) > 0:
         description += "Available fields: " + ",".join(ordering_fields)
     else:
