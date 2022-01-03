@@ -9,7 +9,7 @@ exclude_lines = [
     "if __name__ == \"__main__\":",
     "assert False",
 ]
-omit = ["setup.py"]
+omit = ["*/__main__.py", "*/tests/*"]
 
 [tool.poetry]
 authors = ["JOJ Dev Team <liuyh615@126.com>"]
