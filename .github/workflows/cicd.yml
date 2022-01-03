@@ -208,3 +208,4 @@ jobs:
             cd ~/joj-deploy
             git pull
             ./start.sh prod
+            docker image prune -f
