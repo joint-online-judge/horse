@@ -11,33 +11,21 @@ The new generation of JOJ Backend. "Horse" is related to speed, an excellent fea
 
 ## Requirements
 
-+ Python >= 3.7
++ Python == 3.8
 + PostgreSQL
 + Redis
 + LakeFS
 
 ## Installation
 
-Refer to <https://joint-online-judge.github.io/horse/> to prepare your environment.
+You should use Docker container for development and production. Check <https://github.com/joint-online-judge/joj-deploy-lite>.
+
+### For Developers (and IntelliSense)
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
-poetry install --no-dev
-vi .env # configure environment
-```
-
-### For developers
-
-```bash
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python - # install poetry
 poetry install -E test
 poetry run pre-commit install
-poetry run pytest -svv
-```
-
-## Usage
-
-```bash
-poetry run python -m joj.horse
 ```
 
 Check <http://127.0.0.1:34765/api/v1> for api documentation.
