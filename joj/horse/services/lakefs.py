@@ -6,7 +6,7 @@ from typing import IO, TYPE_CHECKING, Any, BinaryIO, Dict, Literal, Optional
 from uuid import UUID
 
 import boto3
-import rapidjson
+import orjson
 from greenletio import async_
 from joj.elephant.errors import ElephantError
 from joj.elephant.manager import Manager
@@ -190,7 +190,7 @@ class LakeFSBase:
         if e.body is None:
             return ""
         try:
-            data = rapidjson.loads(e.body)
+            data = orjson.loads(e.body)
             return data["message"]
         except Exception:
             return ""
@@ -400,7 +400,7 @@ class LakeFSBase:
     def get_config(self, ref: str) -> Dict[str, Any]:
         try:
             result = self.download_file(Path("config.json"), ref)
-            return rapidjson.load(result)
+            return orjson.loads(result.read())
         except ElephantError:
             raise BizError(
                 ErrorCode.ProblemConfigValidationError,
