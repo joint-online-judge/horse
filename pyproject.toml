@@ -2,18 +2,6 @@
 build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core>=1.0.0"]
 
-[tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    "if TYPE_CHECKING:",
-    "if __name__ == \"__main__\":",
-    "assert False",
-]
-omit = ["*/__main__.py", "*/tests/*"]
-
-[tool.coverage.run]
-omit = ["*/__main__.py", "*/tests/*"]
-
 [tool.poetry]
 authors = ["JOJ Dev Team <liuyh615@126.com>"]
 description = ""
