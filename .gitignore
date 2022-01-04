@@ -159,3 +159,7 @@ dmypy.json
 # pbr
 AUTHORS
 ChangeLog
+
+/joj/*
+!/joj/horse
+!/joj/__init__.py
