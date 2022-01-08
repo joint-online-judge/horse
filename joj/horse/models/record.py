@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID, uuid4
 
@@ -101,13 +100,16 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
             problem_config_id=problem_config.id,
             committer_id=user.id,
         )
-        key = cls.get_user_latest_record_key(problem_set_id, problem.id, user.id)
-        value = RecordPreview(state=record.state, created_at=datetime.utcnow())
 
         await record.save_model(commit=False, refresh=False)
         problem.num_submit += 1
         await problem.save_model(commit=True, refresh=True)
         await record.refresh_model()
+
+        key = cls.get_user_latest_record_key(problem_set_id, problem.id, user.id)
+        value = RecordPreview(
+            id=record.id, state=record.state, created_at=record.created_at
+        )
 
         cache = get_redis_cache()
         await cache.set(key, value, namespace="user_latest_records")
