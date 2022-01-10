@@ -162,3 +162,13 @@ async def change_password(
         user_reset_password.new_password,
     )
     return StandardResponse(user)
+
+
+@router.patch("/profile")
+async def change_profile(
+    user_change_profile: schemas.UserChangeProfile,
+    auth: Authentication = Depends(),
+) -> StandardResponse[schemas.User]:
+    user = await parse_uid(auth.jwt.id, auth)
+    await user.update_profile(user_change_profile)
+    return StandardResponse(user)

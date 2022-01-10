@@ -43,12 +43,12 @@ def parse_user_from_auth(auth: Authentication = Depends()) -> models.User:
     if auth.jwt.category != "user":
         raise BizError(ErrorCode.UserNotFoundError)
     return models.User(
-        id=auth.jwt.id,  # type: ignore
+        id=auth.jwt.id,
         username=auth.jwt.username,
-        email=auth.jwt.email,  # type: ignore
+        email=auth.jwt.email,
         student_id=auth.jwt.student_id,
         real_name=auth.jwt.real_name,
-        role=auth.jwt.role,  # type: ignore
+        role=auth.jwt.role,
         is_active=auth.jwt.is_active,
     )
 

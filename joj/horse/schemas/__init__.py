@@ -82,6 +82,7 @@ from joj.horse.schemas.score import (
 )
 from joj.horse.schemas.user import (
     User as User,
+    UserChangeProfile as UserChangeProfile,
     UserCreate as UserCreate,
     UserDetail as UserDetail,
     UserPreview as UserPreview,

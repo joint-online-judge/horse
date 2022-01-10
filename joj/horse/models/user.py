@@ -6,7 +6,7 @@ from sqlmodel import Field, Relationship
 
 from joj.horse.models.base import BaseORMModel
 from joj.horse.models.user_oauth_account import UserOAuthAccount
-from joj.horse.schemas.user import UserCreate, UserDetail
+from joj.horse.schemas.user import UserChangeProfile, UserCreate, UserDetail
 from joj.horse.services.db import db_session
 from joj.horse.utils.errors import BizError, ErrorCode
 
@@ -78,6 +78,15 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
             if not self.verify_password(current_password):
                 raise BizError(ErrorCode.UsernamePasswordError, "incorrect password")
         self.hashed_password = self._generate_password_hash(new_password)
+        await self.save_model()
+
+    async def update_profile(self, profile_change: "UserChangeProfile") -> None:
+        if not profile_change.real_name:
+            raise BizError(ErrorCode.UserProfileError, "real name not provided")
+        if not profile_change.gravatar:
+            raise BizError(ErrorCode.UserProfileError, "gravatar not provided")
+        self.real_name = profile_change.real_name
+        self.gravatar = profile_change.gravatar
         await self.save_model()
 
     @classmethod

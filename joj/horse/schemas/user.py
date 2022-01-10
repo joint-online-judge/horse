@@ -19,7 +19,6 @@ from joj.horse.schemas.base import (
 if TYPE_CHECKING:
     from joj.horse.models import DomainUser
 
-
 UID_RE = re.compile(r"-?\d+")
 UNAME_RE = re.compile(r"[^\s\u3000](.{,254}[^\s\u3000])?")
 
@@ -27,6 +26,11 @@ UNAME_RE = re.compile(r"[^\s\u3000](.{,254}[^\s\u3000])?")
 class UserResetPassword(BaseModel):
     current_password: str = ""
     new_password: str
+
+
+class UserChangeProfile(BaseModel):
+    gravatar: Optional[EmailStr] = None
+    real_name: Optional[str] = None
 
 
 class UserCreate(SQLModel):
