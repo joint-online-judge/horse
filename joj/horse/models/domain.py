@@ -126,16 +126,21 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
     def find_records_statement(
         self,
         user: "User",
-        problem_set: Optional["ProblemSet"],
-        problem: Optional["Problem"],
+        problem_set_id: Optional[UUID],
+        problem_id: Optional[UUID],
+        submitter_id: Optional[UUID],
     ) -> Select:
         from joj.horse import models
 
-        statement = select(models.Record).where(models.Record.committer_id == user.id)
-        if problem_set:
-            statement = statement.where(models.Record.problem_set_id == problem_set.id)
-        if problem:
-            statement = statement.where(models.Record.problem_id == problem.id)
+        statement = select(models.Record).where(models.Record.domain_id == self.id)
+        # TODO: are normal users allowed to see others' submissions?
+        # statement = select(models.Record).where(models.Record.committer_id == user.id)
+        if problem_set_id:
+            statement = statement.where(models.Record.problem_set_id == problem_set_id)
+        if problem_id:
+            statement = statement.where(models.Record.problem_id == problem_id)
+        if submitter_id:
+            statement = statement.where(models.Record.committer_id == submitter_id)
         return statement
 
 
