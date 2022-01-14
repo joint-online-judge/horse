@@ -17,7 +17,6 @@ class ErrorCode(str, Enum):
     APINotImplementedError = "APINotImplementedError"
     UserRegisterError = "UserRegisterError"
     UsernamePasswordError = "UsernamePasswordError"
-    UserProfileError = "UserProfileError"
 
     UserNotFoundError = "UserNotFoundError"
     DomainNotFoundError = "DomainNotFoundError"

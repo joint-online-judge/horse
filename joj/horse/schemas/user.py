@@ -10,6 +10,7 @@ from joj.horse.models.permission import DefaultRole
 from joj.horse.schemas.base import (
     BaseModel,
     BaseORMSchema,
+    EditMetaclass,
     IDMixin,
     TimestampMixin,
     get_datetime_column,
@@ -28,7 +29,7 @@ class UserResetPassword(BaseModel):
     new_password: str
 
 
-class UserChangeProfile(BaseModel):
+class UserUpdateProfile(BaseModel, metaclass=EditMetaclass):
     gravatar: Optional[EmailStr] = None
     real_name: Optional[str] = None
 

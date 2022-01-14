@@ -82,11 +82,11 @@ from joj.horse.schemas.score import (
 )
 from joj.horse.schemas.user import (
     User as User,
-    UserChangeProfile as UserChangeProfile,
     UserCreate as UserCreate,
     UserDetail as UserDetail,
     UserPreview as UserPreview,
     UserResetPassword as UserResetPassword,
+    UserUpdateProfile as UserUpdateProfile,
     UserWithDomainRole as UserWithDomainRole,
 )
 from joj.horse.schemas.user_access_key import (

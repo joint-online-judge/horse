@@ -1,4 +1,5 @@
 from fastapi import Depends
+from loguru import logger
 
 from joj.horse import schemas
 from joj.horse.schemas import StandardResponse
@@ -165,10 +166,11 @@ async def change_password(
 
 
 @router.patch("/profile")
-async def change_profile(
-    user_change_profile: schemas.UserChangeProfile,
+async def update_profile(
+    user_update_profile: schemas.UserUpdateProfile,
     auth: Authentication = Depends(),
 ) -> StandardResponse[schemas.User]:
     user = await parse_uid(auth.jwt.id, auth)
-    await user.update_profile(user_change_profile)
+    await user.update_profile(user_update_profile)
+    logger.info(f"update user profile: {user}")
     return StandardResponse(user)
