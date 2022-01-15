@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID
 
 from sqlalchemy import event
+from sqlalchemy.orm import defer
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.sql.expression import Select, or_, true
 from sqlmodel import Field, Relationship, select
@@ -125,7 +126,6 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
 
     def find_records_statement(
         self,
-        user: "User",
         problem_set_id: Optional[UUID],
         problem_id: Optional[UUID],
         submitter_id: Optional[UUID],
@@ -133,8 +133,8 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
         from joj.horse import models
 
         statement = select(models.Record).where(models.Record.domain_id == self.id)
-        # TODO: are normal users allowed to see others' submissions?
-        # statement = select(models.Record).where(models.Record.committer_id == user.id)
+        statement = statement.options(defer("cases"))  # exclude record.cases
+
         if problem_set_id:
             statement = statement.where(models.Record.problem_set_id == problem_set_id)
         if problem_id:

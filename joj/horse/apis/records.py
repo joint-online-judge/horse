@@ -33,12 +33,11 @@ async def list_records_in_domain(
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardListResponse[schemas.Record]:
-    statement = domain.find_records_statement(user, problem_set, problem, submitter_id)
+    statement = domain.find_records_statement(problem_set, problem, submitter_id)
 
     if not domain_auth.auth.check(ScopeType.DOMAIN_RECORD, PermissionType.view):
         statement = statement.where(models.Record.committer_id == user.id)
 
-    # TODO: detail control
     records, count = await models.Record.execute_list_statement(
         statement, ordering, pagination
     )
@@ -47,11 +46,9 @@ async def list_records_in_domain(
 
 @router.get("/records/{record}", permissions=[])
 async def get_record(
-    record: schemas.Record = Depends(parse_record),
-    user: models.User = Depends(parse_user_from_auth),
-) -> StandardResponse[schemas.Record]:
-    # TODO: detail control
-    return StandardResponse(schemas.Record.from_orm(record))
+    record: schemas.RecordDetail = Depends(parse_record),
+) -> StandardResponse[schemas.RecordDetail]:
+    return StandardResponse(schemas.RecordDetail.from_orm(record))
 
 
 @router.get("/records/{record}/code")

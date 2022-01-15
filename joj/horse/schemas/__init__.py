@@ -71,6 +71,7 @@ from joj.horse.schemas.record import (
     Record as Record,
     RecordCaseResult as RecordCaseResult,
     RecordCodeType as RecordCodeType,
+    RecordDetail as RecordDetail,
     RecordPreview as RecordPreview,
     RecordResult as RecordResult,
     RecordState as RecordState,
