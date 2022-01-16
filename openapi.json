@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 9d456e8@2022-01-08T02:21:38Z",
+    "description": "Git version: 07b808e@2022-01-16T17:39:01Z",
     "version": "1"
   },
   "paths": {
@@ -4553,6 +4553,60 @@
             "HTTPBearer": []
           }
         ]
+      },
+      "patch": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Update Current User",
+        "operationId": "v1_update_current_user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserEdit"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/user/password": {
@@ -8967,6 +9021,16 @@
           },
           "data": {
             "$ref": "#/components/schemas/UserDetail"
+          }
+        }
+      },
+      "UserEdit": {
+        "title": "UserEdit",
+        "type": "object",
+        "properties": {
+          "gravatar": {
+            "title": "Gravatar",
+            "type": "string"
           }
         }
       },
