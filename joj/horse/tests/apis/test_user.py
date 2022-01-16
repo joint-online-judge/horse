@@ -1,12 +1,19 @@
+from typing import Dict
+
 import pytest
 from fastapi_jwt_auth import AuthJWT
 from httpx import AsyncClient
 from pytest_lazyfixture import lazy_fixture
 
 from joj.horse import apis
+from joj.horse.app import app
 from joj.horse.models.user import User
-from joj.horse.tests.utils.utils import generate_auth_headers, get_base_url
-from joj.horse.utils.errors import ErrorCode
+from joj.horse.tests.utils.utils import (
+    do_api_request,
+    generate_auth_headers,
+    get_base_url,
+    validate_user_profile,
+)
 
 base_user_url = get_base_url(apis.user)
 base_domain_url = get_base_url(apis.domains)
@@ -45,15 +52,16 @@ class TestUserGet:
     async def test_global_users(self, client: AsyncClient, user: User) -> None:
         headers = generate_auth_headers(user)
         r = await client.get(base_user_url, headers=headers)
-        assert r.status_code == 200
-        res = r.json()
-        assert res["errorCode"] == ErrorCode.Success
-        res = res["data"]
-        assert res["username"] == user.username
-        assert res["email"] == user.email
-        assert res["studentId"] == user.student_id
-        assert res["realName"] == user.real_name
-        assert res["loginIp"] == user.login_ip
+        validate_user_profile(r, user)
+        # assert r.status_code == 200
+        # res = r.json()
+        # assert res["errorCode"] == ErrorCode.Success
+        # res = res["data"]
+        # assert res["username"] == user.username
+        # assert res["email"] == user.email
+        # assert res["studentId"] == user.student_id
+        # assert res["realName"] == user.real_name
+        # assert res["loginIp"] == user.login_ip
 
 
 @pytest.mark.asyncio
@@ -73,6 +81,81 @@ class TestUserGetError:
         headers = {"Authorization": f"Bearer {access_token}"}
         r = await client.get(base_user_url, headers=headers)
         assert r.status_code == 401
+
+
+@pytest.mark.asyncio
+@pytest.mark.depends(name="TestUserPatch", on=["TestUserGet"])
+class TestUserProfilePatch:
+    url_base = "update_profile"
+
+    async def validate_update(
+        self, client: AsyncClient, user: User, data: Dict[str, str]
+    ) -> None:
+        url = app.url_path_for(self.url_base)
+        response = await do_api_request(
+            client,
+            "PATCH",
+            url,
+            user,
+            data=data,
+        )
+        user.update_from_dict(data)
+        validate_user_profile(response, user)
+
+    @pytest.mark.parametrize(
+        "user",
+        [
+            lazy_fixture("global_root_user"),
+            lazy_fixture("global_domain_root_user"),
+            lazy_fixture("global_domain_user"),
+            lazy_fixture("global_guest_user"),
+        ],
+    )
+    async def test_update_all(self, client: AsyncClient, user: User) -> None:
+        patch_data = {
+            "gravatar": "shili2018@fudan.test.test.edu",
+            "real_name": "Shi Li Li",
+        }
+        await self.validate_update(client, user, patch_data)
+
+    @pytest.mark.parametrize(
+        "user",
+        [
+            lazy_fixture("global_root_user"),
+            lazy_fixture("global_domain_root_user"),
+            lazy_fixture("global_domain_user"),
+            lazy_fixture("global_guest_user"),
+        ],
+    )
+    async def test_update_real_name(self, client: AsyncClient, user: User) -> None:
+        patch_data = {"real_name": "xm"}
+        await self.validate_update(client, user, patch_data)
+
+    @pytest.mark.parametrize(
+        "user",
+        [
+            lazy_fixture("global_root_user"),
+            lazy_fixture("global_domain_root_user"),
+            lazy_fixture("global_domain_user"),
+            lazy_fixture("global_guest_user"),
+        ],
+    )
+    async def test_update_gravatar(self, client: AsyncClient, user: User) -> None:
+        patch_data = {"gravatar": "xm@admire.com"}
+        await self.validate_update(client, user, patch_data)
+
+    @pytest.mark.parametrize(
+        "user",
+        [
+            lazy_fixture("global_root_user"),
+            lazy_fixture("global_domain_root_user"),
+            lazy_fixture("global_domain_user"),
+            lazy_fixture("global_guest_user"),
+        ],
+    )
+    async def test_update_none(self, client: AsyncClient, user: User) -> None:
+        patch_data: Dict[str, str] = {}
+        await self.validate_update(client, user, patch_data)
 
 
 # def test_get_user_domains(

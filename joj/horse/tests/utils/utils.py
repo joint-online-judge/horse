@@ -23,7 +23,6 @@ from joj.horse.utils.errors import ErrorCode
 GLOBAL_DOMAIN_COUNT = 3
 GLOBAL_PROBLEM_SET_COUNT = 2
 
-
 user_access_tokens: Dict[UUID, str] = {}
 user_refresh_tokens: Dict[UUID, str] = {}
 
@@ -178,7 +177,7 @@ async def validate_test_domain(
     response: Response,
     owner: models.User,
     domain: Union[Dict[str, str], models.Domain],
-) -> models.Domain:
+) -> Optional[models.Domain]:
     res = validate_response(response)
     assert res["id"]
     data = to_dict(domain)
@@ -188,8 +187,9 @@ async def validate_test_domain(
     assert res["bulletin"] == data.get("bulletin", "")
     assert res["gravatar"] == data.get("gravatar", "")
     if isinstance(domain, dict):
-        domain = await models.Domain.get_or_none(id=res["id"])
-    return domain
+        return await models.Domain.get_or_none(id=res["id"])
+    else:
+        return domain
 
 
 async def create_test_problem_set(
@@ -208,7 +208,7 @@ async def validate_test_problem_set(
     domain: models.Domain,
     owner: models.User,
     problem_set: Union[Dict[str, str], models.ProblemSet],
-) -> models.ProblemSet:
+) -> Optional[models.ProblemSet]:
     res = validate_response(response)
     assert res["id"]
     data = to_dict(problem_set)
@@ -220,8 +220,9 @@ async def validate_test_problem_set(
     assert res["hidden"] == data.get("hidden", False)
     assert res["scoreboardHidden"] == data.get("scoreboardHidden", False)
     if isinstance(problem_set, dict):
-        problem_set = await models.ProblemSet.get_or_none(id=res["id"])
-    return problem_set
+        return await models.ProblemSet.get_or_none(id=res["id"])
+    else:
+        return problem_set
 
 
 def get_base_url(module: Any, **kwargs: Any) -> str:
@@ -239,3 +240,12 @@ def parametrize_global_problem_sets(func: Any) -> Any:
         lazy_fixture(f"global_problem_set_{i}") for i in range(GLOBAL_PROBLEM_SET_COUNT)
     ]
     return pytest.mark.parametrize("problem_set", fixtures)(func)
+
+
+def validate_user_profile(response: Response, user: models.User) -> None:
+    res = validate_response(response)
+    assert res["username"] == user.username
+    assert res["email"] == user.email
+    assert res["studentId"] == user.student_id
+    assert res["realName"] == user.real_name
+    assert res["gravatar"] == user.gravatar
