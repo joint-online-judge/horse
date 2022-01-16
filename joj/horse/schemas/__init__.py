@@ -84,6 +84,7 @@ from joj.horse.schemas.user import (
     User as User,
     UserCreate as UserCreate,
     UserDetail as UserDetail,
+    UserEdit as UserEdit,
     UserPreview as UserPreview,
     UserResetPassword as UserResetPassword,
     UserWithDomainRole as UserWithDomainRole,

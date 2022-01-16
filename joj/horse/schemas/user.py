@@ -10,6 +10,7 @@ from joj.horse.models.permission import DefaultRole
 from joj.horse.schemas.base import (
     BaseModel,
     BaseORMSchema,
+    EditMetaclass,
     IDMixin,
     TimestampMixin,
     get_datetime_column,
@@ -19,7 +20,6 @@ from joj.horse.schemas.base import (
 if TYPE_CHECKING:
     from joj.horse.models import DomainUser
 
-
 UID_RE = re.compile(r"-?\d+")
 UNAME_RE = re.compile(r"[^\s\u3000](.{,254}[^\s\u3000])?")
 
@@ -27,6 +27,10 @@ UNAME_RE = re.compile(r"[^\s\u3000](.{,254}[^\s\u3000])?")
 class UserResetPassword(BaseModel):
     current_password: str = ""
     new_password: str
+
+
+class UserEdit(BaseModel, metaclass=EditMetaclass):
+    gravatar: Optional[str] = None
 
 
 class UserCreate(SQLModel):
