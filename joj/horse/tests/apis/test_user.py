@@ -86,7 +86,7 @@ class TestUserGetError:
 @pytest.mark.asyncio
 @pytest.mark.depends(name="TestUserPatch", on=["TestUserGet"])
 class TestUserProfilePatch:
-    url_base = "update_profile"
+    url_base = "update_current_user"
 
     async def validate_update(
         self, client: AsyncClient, user: User, data: Dict[str, str]
@@ -114,35 +114,35 @@ class TestUserProfilePatch:
     async def test_update_all(self, client: AsyncClient, user: User) -> None:
         patch_data = {
             "gravatar": "shili2018@fudan.test.test.edu",
-            "real_name": "Shi Li Li",
+            # "real_name": "Shi Li Li",
         }
         await self.validate_update(client, user, patch_data)
 
-    @pytest.mark.parametrize(
-        "user",
-        [
-            lazy_fixture("global_root_user"),
-            lazy_fixture("global_domain_root_user"),
-            lazy_fixture("global_domain_user"),
-            lazy_fixture("global_guest_user"),
-        ],
-    )
-    async def test_update_real_name(self, client: AsyncClient, user: User) -> None:
-        patch_data = {"real_name": "xm"}
-        await self.validate_update(client, user, patch_data)
+    # @pytest.mark.parametrize(
+    #     "user",
+    #     [
+    #         lazy_fixture("global_root_user"),
+    #         lazy_fixture("global_domain_root_user"),
+    #         lazy_fixture("global_domain_user"),
+    #         lazy_fixture("global_guest_user"),
+    #     ],
+    # )
+    # async def test_update_real_name(self, client: AsyncClient, user: User) -> None:
+    #     patch_data = {"real_name": "xm"}
+    #     await self.validate_update(client, user, patch_data)
 
-    @pytest.mark.parametrize(
-        "user",
-        [
-            lazy_fixture("global_root_user"),
-            lazy_fixture("global_domain_root_user"),
-            lazy_fixture("global_domain_user"),
-            lazy_fixture("global_guest_user"),
-        ],
-    )
-    async def test_update_gravatar(self, client: AsyncClient, user: User) -> None:
-        patch_data = {"gravatar": "xm@admire.com"}
-        await self.validate_update(client, user, patch_data)
+    # @pytest.mark.parametrize(
+    #     "user",
+    #     [
+    #         lazy_fixture("global_root_user"),
+    #         lazy_fixture("global_domain_root_user"),
+    #         lazy_fixture("global_domain_user"),
+    #         lazy_fixture("global_guest_user"),
+    #     ],
+    # )
+    # async def test_update_gravatar(self, client: AsyncClient, user: User) -> None:
+    #     patch_data = {"gravatar": "xm@admire.com"}
+    #     await self.validate_update(client, user, patch_data)
 
     @pytest.mark.parametrize(
         "user",

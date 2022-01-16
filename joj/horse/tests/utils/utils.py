@@ -188,8 +188,7 @@ async def validate_test_domain(
     assert res["gravatar"] == data.get("gravatar", "")
     if isinstance(domain, dict):
         return await models.Domain.get_or_none(id=res["id"])
-    else:
-        return domain
+    return domain
 
 
 async def create_test_problem_set(
@@ -221,8 +220,7 @@ async def validate_test_problem_set(
     assert res["scoreboardHidden"] == data.get("scoreboardHidden", False)
     if isinstance(problem_set, dict):
         return await models.ProblemSet.get_or_none(id=res["id"])
-    else:
-        return problem_set
+    return problem_set
 
 
 def get_base_url(module: Any, **kwargs: Any) -> str:

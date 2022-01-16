@@ -6,7 +6,7 @@ from sqlmodel import Field, Relationship
 
 from joj.horse.models.base import BaseORMModel
 from joj.horse.models.user_oauth_account import UserOAuthAccount
-from joj.horse.schemas.user import UserCreate, UserDetail, UserUpdateProfile
+from joj.horse.schemas.user import UserCreate, UserDetail
 from joj.horse.services.db import db_session
 from joj.horse.utils.errors import BizError, ErrorCode
 
@@ -79,19 +79,6 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
                 raise BizError(ErrorCode.UsernamePasswordError, "incorrect password")
         self.hashed_password = self._generate_password_hash(new_password)
         await self.save_model()
-
-    async def update_profile(self, profile_change: "UserUpdateProfile") -> None:
-        change_count = 0
-        if profile_change.real_name and profile_change.real_name != self.real_name:
-            self.real_name = profile_change.real_name
-            change_count += 1
-
-        if profile_change.gravatar and profile_change.gravatar != self.gravatar:
-            self.gravatar = profile_change.gravatar
-            change_count += 1
-
-        if change_count > 0:
-            await self.save_model()
 
     @classmethod
     def _generate_password_hash(cls, password: str) -> str:

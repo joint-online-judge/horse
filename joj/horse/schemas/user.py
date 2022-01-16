@@ -29,9 +29,8 @@ class UserResetPassword(BaseModel):
     new_password: str
 
 
-class UserUpdateProfile(BaseModel, metaclass=EditMetaclass):
-    gravatar: Optional[EmailStr] = None
-    real_name: Optional[str] = None
+class UserEdit(BaseModel, metaclass=EditMetaclass):
+    gravatar: Optional[str] = None
 
 
 class UserCreate(SQLModel):

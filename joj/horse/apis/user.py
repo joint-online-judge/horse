@@ -141,6 +141,18 @@ async def get_current_user(
     return StandardResponse(user)
 
 
+@router.patch("")
+async def update_current_user(
+    user_edit: schemas.UserEdit = Depends(schemas.UserEdit.edit_dependency),
+    auth: Authentication = Depends(),
+) -> StandardResponse[schemas.User]:
+    user = await parse_uid(auth.jwt.id, auth)
+    user.update_from_dict(user_edit.dict())
+    logger.info(f"update user: {user}")
+    await user.save_model()
+    return StandardResponse(user)
+
+
 # @router.get("/problems")
 # async def get_current_user_problems(
 #     query: schemas.PaginationQuery = Depends(parse_pagination_query),
@@ -162,15 +174,4 @@ async def change_password(
         user_reset_password.current_password,
         user_reset_password.new_password,
     )
-    return StandardResponse(user)
-
-
-@router.patch("/profile")
-async def update_profile(
-    user_update_profile: schemas.UserUpdateProfile,
-    auth: Authentication = Depends(),
-) -> StandardResponse[schemas.User]:
-    user = await parse_uid(auth.jwt.id, auth)
-    await user.update_profile(user_update_profile)
-    logger.info(f"update user profile: {user}")
     return StandardResponse(user)
