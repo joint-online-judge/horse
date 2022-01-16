@@ -10,7 +10,6 @@ from joj.horse.app import app
 from joj.horse.models.user import User
 from joj.horse.tests.utils.utils import (
     do_api_request,
-    generate_auth_headers,
     get_base_url,
     validate_user_profile,
 )
@@ -50,9 +49,13 @@ class TestUserGet:
         ],
     )
     async def test_global_users(self, client: AsyncClient, user: User) -> None:
-        headers = generate_auth_headers(user)
-        r = await client.get(base_user_url, headers=headers)
-        validate_user_profile(r, user)
+        response = await do_api_request(
+            client,
+            "GET",
+            base_user_url,
+            user,
+        )
+        validate_user_profile(response, user)
         # assert r.status_code == 200
         # res = r.json()
         # assert res["errorCode"] == ErrorCode.Success
@@ -84,8 +87,8 @@ class TestUserGetError:
 
 
 @pytest.mark.asyncio
-@pytest.mark.depends(name="TestUserPatch", on=["TestUserGet"])
-class TestUserProfilePatch:
+@pytest.mark.depends(name="TestUserEdit", on=["TestUserGet"])
+class TestUserEdit:
     url_base = "update_current_user"
 
     async def validate_update(
