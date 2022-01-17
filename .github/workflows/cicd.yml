@@ -91,38 +91,29 @@ jobs:
   test:
     needs: build
     runs-on: ubuntu-20.04
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: pass
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-      redis:
-        image: redis
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Pull docker image
+      - name: Checkout joj-deploy-lite repository
+        uses: actions/checkout@v2
+        with:
+          repository: joint-online-judge/joj-deploy-lite
+          path: joj-deploy-lite
+          ref: master
+      - name: Start docker compose
+        env:
+          HORSE_IMAGE: ${{ needs.build.outputs.tag }}
         run: |
-          echo ${{ needs.build.outputs.tag }}
-          docker pull ${{ needs.build.outputs.tag }}
+          echo $HORSE_IMAGE
+          export HORSE_TAG=${HORSE_IMAGE##*:}
+          echo $HORSE_TAG
+          cd joj-deploy-lite
+          bash ./start.sh lite
+          docker ps
       - name: Test and Generate coverage report
         run: |
-          docker run --name horse --network host ${{ needs.build.outputs.tag }} /bin/bash -c "poetry install --no-dev -E test; pytest -svv --cov=./ --cov-report=xml"
+          docker exec `docker ps -q --filter ancestor=${{ needs.build.outputs.tag }}` \
+            /bin/bash -c "poetry install --no-dev -E test; pytest -svv --cov=./ --cov-report=xml"
           docker cp horse:/root/coverage.xml .
       - name: Upload coverage to Codacy
         uses: codacy/codacy-coverage-reporter-action@v1
