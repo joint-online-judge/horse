@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 07b808e@2022-01-16T17:39:01Z",
+    "description": "Git version: c4ae498@2022-01-17T14:25:17Z",
     "version": "1"
   },
   "paths": {
@@ -2727,7 +2727,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemResp"
+                  "$ref": "#/components/schemas/ProblemDetailResp"
                 }
               }
             }
@@ -4309,6 +4309,42 @@
             "in": "path"
           },
           {
+            "description": "problem set id",
+            "required": false,
+            "schema": {
+              "title": "Problemset",
+              "type": "string",
+              "description": "problem set id",
+              "format": "uuid"
+            },
+            "name": "problemSet",
+            "in": "query"
+          },
+          {
+            "description": "problem id",
+            "required": false,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "problem id",
+              "format": "uuid"
+            },
+            "name": "problem",
+            "in": "query"
+          },
+          {
+            "description": "submitter uid",
+            "required": false,
+            "schema": {
+              "title": "Submitterid",
+              "type": "string",
+              "description": "submitter uid",
+              "format": "uuid"
+            },
+            "name": "submitterId",
+            "in": "query"
+          },
+          {
             "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
             "required": false,
             "schema": {
@@ -4395,7 +4431,8 @@
             "required": true,
             "schema": {
               "title": "Record",
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             },
             "name": "record",
             "in": "path"
@@ -4418,7 +4455,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RecordResp"
+                  "$ref": "#/components/schemas/RecordDetailResp"
                 }
               }
             }
@@ -4463,7 +4500,8 @@
             "required": true,
             "schema": {
               "title": "Record",
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             },
             "name": "record",
             "in": "path"
@@ -6720,7 +6758,7 @@
               }
             ],
             "default": {
-              "view": true,
+              "view": false,
               "detail": false,
               "code": false,
               "judge": false,
@@ -7707,6 +7745,101 @@
           }
         }
       },
+      "ProblemDetail": {
+        "title": "ProblemDetail",
+        "required": [
+          "id",
+          "domainId",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "domainId": {
+            "title": "Domainid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string",
+            "description": "(unique) url of the domain",
+            "default": ""
+          },
+          "title": {
+            "title": "Title",
+            "minLength": 1,
+            "type": "string",
+            "description": "title of the problem"
+          },
+          "hidden": {
+            "title": "Hidden",
+            "type": "boolean",
+            "description": "is the problem hidden",
+            "default": false
+          },
+          "numSubmit": {
+            "title": "Numsubmit",
+            "type": "integer",
+            "default": 0
+          },
+          "numAccept": {
+            "title": "Numaccept",
+            "type": "integer",
+            "default": 0
+          },
+          "ownerId": {
+            "title": "Ownerid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "problemGroupId": {
+            "title": "Problemgroupid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "content": {
+            "title": "Content",
+            "maxLength": 65536,
+            "type": "string",
+            "description": "content of the problem",
+            "default": ""
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ProblemDetailResp": {
+        "title": "ProblemDetailResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProblemDetail"
+          }
+        }
+      },
       "ProblemDetailWithLatestRecord": {
         "title": "ProblemDetailWithLatestRecord",
         "required": [
@@ -8578,12 +8711,18 @@
         "title": "Record",
         "required": [
           "id",
+          "domainId",
           "language"
         ],
         "type": "object",
         "properties": {
           "id": {
             "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "domainId": {
+            "title": "Domainid",
             "type": "string",
             "format": "uuid"
           },
@@ -8599,14 +8738,34 @@
             "title": "Language",
             "type": "string"
           },
-          "commitId": {
-            "title": "Commitid",
-            "type": "string"
+          "score": {
+            "title": "Score",
+            "type": "integer",
+            "default": 0
           },
-          "taskId": {
-            "title": "Taskid",
-            "type": "string",
-            "format": "uuid"
+          "timeMs": {
+            "title": "Timems",
+            "type": "integer",
+            "default": 0
+          },
+          "memoryKb": {
+            "title": "Memorykb",
+            "type": "integer",
+            "default": 0
+          }
+        }
+      },
+      "RecordCase": {
+        "title": "RecordCase",
+        "type": "object",
+        "properties": {
+          "state": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RecordCaseResult"
+              }
+            ],
+            "default": 10
           },
           "score": {
             "title": "Score",
@@ -8622,6 +8781,112 @@
             "title": "Memorykb",
             "type": "integer",
             "default": 0
+          },
+          "returnCode": {
+            "title": "Returncode",
+            "type": "integer",
+            "default": 0
+          }
+        }
+      },
+      "RecordCaseResult": {
+        "title": "RecordCaseResult",
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "type": "integer",
+        "description": "An enumeration."
+      },
+      "RecordCodeType": {
+        "title": "RecordCodeType",
+        "enum": [
+          "text",
+          "archive"
+        ],
+        "type": "string",
+        "description": "An enumeration."
+      },
+      "RecordDetail": {
+        "title": "RecordDetail",
+        "required": [
+          "id",
+          "domainId",
+          "language"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "domainId": {
+            "title": "Domainid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RecordState"
+              }
+            ],
+            "default": "processing"
+          },
+          "language": {
+            "title": "Language",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "integer",
+            "default": 0
+          },
+          "timeMs": {
+            "title": "Timems",
+            "type": "integer",
+            "default": 0
+          },
+          "memoryKb": {
+            "title": "Memorykb",
+            "type": "integer",
+            "default": 0
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "commitId": {
+            "title": "Commitid",
+            "type": "string"
+          },
+          "taskId": {
+            "title": "Taskid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "cases": {
+            "title": "Cases",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecordCase"
+            },
+            "default": []
           },
           "problemSetId": {
             "title": "Problemsetid",
@@ -8650,14 +8915,24 @@
           }
         }
       },
-      "RecordCodeType": {
-        "title": "RecordCodeType",
-        "enum": [
-          "text",
-          "archive"
+      "RecordDetailResp": {
+        "title": "RecordDetailResp",
+        "required": [
+          "errorCode"
         ],
-        "type": "string",
-        "description": "An enumeration."
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RecordDetail"
+          }
+        }
       },
       "RecordList": {
         "title": "RecordList",
@@ -8704,7 +8979,7 @@
           "view": {
             "title": "View",
             "type": "boolean",
-            "default": true
+            "default": false
           },
           "detail": {
             "title": "Detail",
