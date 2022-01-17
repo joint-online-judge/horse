@@ -61,6 +61,7 @@ class ProblemSet(DomainURLORMModel, ProblemSetDetail, table=True):  # type: igno
         link_model=ProblemProblemSetLink,
         sa_relationship_kwargs={
             "order_by": "ProblemProblemSetLink.position",
+            "viewonly": True,
         },
     )
     records: List["Record"] = Relationship(back_populates="problem_set")

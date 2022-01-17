@@ -50,6 +50,9 @@ class Problem(DomainURLORMModel, ProblemDetail, table=True):  # type: ignore[cal
     problem_sets: List["ProblemSet"] = Relationship(
         back_populates="problems",
         link_model=ProblemProblemSetLink,
+        sa_relationship_kwargs={
+            "viewonly": True,
+        },
     )
     problem_problem_set_links: List[ProblemProblemSetLink] = Relationship(
         back_populates="problem",

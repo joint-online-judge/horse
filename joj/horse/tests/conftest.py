@@ -17,13 +17,16 @@ from joj.horse.models.permission import DefaultRole
 from joj.horse.services.db import get_db_url
 from joj.horse.tests.utils.utils import (
     GLOBAL_DOMAIN_COUNT,
+    GLOBAL_PROBLEM_COUNT,
     GLOBAL_PROBLEM_SET_COUNT,
     create_test_domain,
+    create_test_problem,
     create_test_problem_set,
     login_test_user,
     user_access_tokens,
     user_refresh_tokens,
     validate_test_domain,
+    validate_test_problem,
     validate_test_problem_set,
     validate_test_user,
 )
@@ -139,3 +142,39 @@ for i in range(GLOBAL_PROBLEM_SET_COUNT):
     name = f"global_problem_set_{i}"
     fn = pytest.fixture(scope="session", name=name)(global_problem_set_factory(i))
     setattr(sys.modules[__name__], "{}_func".format(name), fn)
+
+
+@pytest.fixture(scope="session")
+async def global_problem_set(
+    global_problem_set_0: models.ProblemSet,
+) -> models.ProblemSet:
+    return global_problem_set_0
+
+
+def global_problem_factory(problem_id: int) -> Any:
+    async def global_problem(
+        client: AsyncClient,
+        global_domain: models.Domain,
+        global_root_user: models.User,
+    ) -> models.Problem:
+        title = f"test_problem_{problem_id}"
+        data = {"title": title, "url": title}
+        response = await create_test_problem(
+            client, global_domain, global_root_user, data
+        )
+        return await validate_test_problem(
+            response, global_domain, global_root_user, data
+        )
+
+    return global_problem
+
+
+for i in range(GLOBAL_PROBLEM_COUNT):
+    name = f"global_problem_{i}"
+    fn = pytest.fixture(scope="session", name=name)(global_problem_factory(i))
+    setattr(sys.modules[__name__], "{}_func".format(name), fn)
+
+
+@pytest.fixture(scope="session")
+async def global_problem(global_problem_0: models.Problem) -> models.Problem:
+    return global_problem_0
