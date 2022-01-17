@@ -122,7 +122,7 @@ jobs:
           docker pull ${{ needs.build.outputs.tag }}
       - name: Test and Generate coverage report
         run: |
-          docker run --name horse --network host ${{ needs.build.outputs.tag }} /bin/bash -c "poetry install --no-dev -E test; pytest --cov=./ --cov-report=xml"
+          docker run --name horse --network host ${{ needs.build.outputs.tag }} /bin/bash -c "poetry install --no-dev -E test; pytest -svv --cov=./ --cov-report=xml"
           docker cp horse:/root/coverage.xml .
       - name: Upload coverage to Codacy
         uses: codacy/codacy-coverage-reporter-action@v1
