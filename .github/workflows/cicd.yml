@@ -110,7 +110,7 @@ jobs:
         run: |
           echo $HORSE_TAG
           cd joj-deploy-lite
-          bash ./start.sh prod
+          bash ./start.sh lite
           docker ps
       # - name: Test and Generate coverage report
       #   run: |
