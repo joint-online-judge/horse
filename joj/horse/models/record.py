@@ -23,12 +23,19 @@ from joj.horse.services.lakefs import LakeFSRecord
 from joj.horse.utils.errors import BizError, ErrorCode
 
 if TYPE_CHECKING:
-    from joj.horse.models import Problem, ProblemConfig, ProblemSet, User
+    from joj.horse.models import Domain, Problem, ProblemConfig, ProblemSet, User
 
 
 class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
     __tablename__ = "records"
     # __table_args__ = (UniqueConstraint("domain_id", "url"),)
+
+    domain_id: UUID = Field(
+        sa_column=Column(
+            GUID, ForeignKey("domains.id", ondelete="CASCADE"), nullable=False
+        )
+    )
+    # domain: "Domain" = Relationship(back_populates="records")
 
     problem_set_id: Optional[UUID] = Field(
         sa_column=Column(

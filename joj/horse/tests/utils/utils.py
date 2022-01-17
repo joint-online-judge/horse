@@ -22,6 +22,7 @@ from joj.horse.utils.errors import ErrorCode
 
 GLOBAL_DOMAIN_COUNT = 3
 GLOBAL_PROBLEM_SET_COUNT = 2
+GLOBAL_PROBLEM_COUNT = 2
 
 user_access_tokens: Dict[UUID, str] = {}
 user_refresh_tokens: Dict[UUID, str] = {}
@@ -223,6 +224,39 @@ async def validate_test_problem_set(
     return problem_set
 
 
+async def create_test_problem(
+    client: AsyncClient, domain: models.Domain, owner: models.User, data: Dict[str, str]
+) -> Response:
+    base_problem_url = get_base_url(apis.problems, domain=domain.id)
+    headers = generate_auth_headers(owner)
+    response = await client.post(
+        f"{base_problem_url}", json=jsonable_encoder(data), headers=headers
+    )
+    return response
+
+
+async def validate_test_problem(
+    response: Response,
+    domain: models.Domain,
+    owner: models.User,
+    problem: Union[Dict[str, str], models.Problem],
+) -> models.Problem:
+    res = validate_response(response)
+    assert res["id"]
+    data = to_dict(problem)
+    validate_url(res, data)
+    validate_domain(res, data, domain, isinstance(problem, models.Problem))
+    validate_owner(res, data, owner, isinstance(problem, models.Problem))
+    assert res["title"] == data["title"]
+    assert res["content"] == data.get("content", "")
+    assert res["hidden"] == data.get("hidden", False)
+    assert res["numSubmit"] == data.get("num_submit", 0)
+    assert res["numAccept"] == data.get("num_accept", 0)
+    if isinstance(problem, dict):
+        problem = await models.Problem.get_or_none(id=res["id"])
+    return problem
+
+
 def get_base_url(module: Any, **kwargs: Any) -> str:
     s = module.router_prefix + ("/" + module.router_name if module.router_name else "")
     return s.format(**kwargs)
@@ -238,6 +272,13 @@ def parametrize_global_problem_sets(func: Any) -> Any:
         lazy_fixture(f"global_problem_set_{i}") for i in range(GLOBAL_PROBLEM_SET_COUNT)
     ]
     return pytest.mark.parametrize("problem_set", fixtures)(func)
+
+
+def parametrize_global_problems(func: Any) -> Any:
+    fixtures = [
+        lazy_fixture(f"global_problem_{i}") for i in range(GLOBAL_PROBLEM_COUNT)
+    ]
+    return pytest.mark.parametrize("problem", fixtures)(func)
 
 
 def validate_user_profile(response: Response, user: models.User) -> None:

@@ -3,10 +3,12 @@ from enum import Enum, IntEnum
 from typing import List, Optional
 from uuid import UUID
 
+from sqlalchemy import JSON
+from sqlalchemy.schema import Column
 from sqlmodel import Field
 
 from joj.horse.schemas import BaseModel
-from joj.horse.schemas.base import BaseORMSchema, IDMixin, TimestampMixin
+from joj.horse.schemas.base import BaseORMSchema, DomainMixin, IDMixin, TimestampMixin
 from joj.horse.utils.base import StrEnumMixin
 
 
@@ -54,29 +56,33 @@ class RecordCase(BaseModel):
     return_code: int = 0
 
 
-class Record(BaseORMSchema, IDMixin):
+class Record(BaseORMSchema, DomainMixin, IDMixin):
     state: RecordState = Field(
         RecordState.processing,
         nullable=False,
         sa_column_kwargs={"server_default": str(RecordState.processing)},
     )
     language: str = Field(nullable=False, sa_column_kwargs={"server_default": ""})
-    commit_id: Optional[str] = Field(None, nullable=True)
-    task_id: Optional[UUID] = Field(None, nullable=True)
 
     score: int = Field(0, nullable=False, sa_column_kwargs={"server_default": "0"})
     time_ms: int = Field(0, nullable=False, sa_column_kwargs={"server_default": "0"})
     memory_kb: int = Field(0, nullable=False, sa_column_kwargs={"server_default": "0"})
+
+
+class RecordDetail(TimestampMixin, Record):
+    commit_id: Optional[str] = Field(None, nullable=True)
+    task_id: Optional[UUID] = Field(None, nullable=True)
+
+    cases: List[RecordCase] = Field(
+        [],
+        sa_column=Column(JSON, nullable=False, server_default="[]"),
+    )
 
     problem_set_id: Optional[UUID] = None
     problem_id: Optional[UUID] = None
     problem_config_id: Optional[UUID] = None
     committer_id: Optional[UUID] = None
     judger_id: Optional[UUID] = None
-
-
-class RecordDetail(TimestampMixin, Record):
-    pass
 
 
 class RecordPreview(IDMixin):

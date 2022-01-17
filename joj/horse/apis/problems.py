@@ -59,7 +59,7 @@ async def create_problem(
     domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_auth),
     session: AsyncSession = Depends(db_session_dependency),
-) -> StandardResponse[schemas.Problem]:
+) -> StandardResponse[schemas.ProblemDetail]:
     try:
         problem_group = models.ProblemGroup()
         session.sync_session.add(problem_group)

@@ -1,6 +1,7 @@
 from datetime import datetime
 from functools import lru_cache
 from typing import Any, Callable, Coroutine, List, Optional
+from uuid import UUID
 
 from fastapi import Depends, File, Path, Query, UploadFile
 from sqlalchemy.orm import joinedload, subqueryload
@@ -209,10 +210,17 @@ async def parse_problem_group(problem_group: str = Path(...)) -> models.ProblemG
 
 
 async def parse_record(
-    record: str = Path(...), auth: DomainAuthentication = Depends()
+    record: UUID = Path(...),
+    domain_auth: DomainAuthentication = Depends(),
+    user: models.User = Depends(parse_user_from_auth),
 ) -> models.Record:
     record_model = await models.Record.get_or_none(id=record)
-    if record_model:
+
+    # either is the user's own record, or it has the permission to view all
+    if record_model and (
+        record_model.committer_id == user.id
+        or domain_auth.auth.check(ScopeType.DOMAIN_RECORD, PermissionType.view)
+    ):
         return record_model
     raise BizError(ErrorCode.RecordNotFoundError)
 

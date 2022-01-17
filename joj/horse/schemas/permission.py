@@ -54,7 +54,7 @@ class ProblemSetPermission(PermissionBase):
 
 
 class RecordPermission(PermissionBase):
-    view: bool = True
+    view: bool = False
     detail: bool = False
     code: bool = False
     judge: bool = False

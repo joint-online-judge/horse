@@ -10,5 +10,5 @@ base_user_url = get_base_url(apis.user)
 @pytest.mark.depends(name="TestProblemSetCreate", on=["TestDomainCreate"])
 class TestProblemSetCreate:
     @parametrize_global_problem_sets
-    async def test_global_domains(self, problem_set: models.ProblemSet) -> None:
+    async def test_global_problem_sets(self, problem_set: models.ProblemSet) -> None:
         pass
