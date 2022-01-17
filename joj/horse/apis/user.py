@@ -1,4 +1,5 @@
 from fastapi import Depends
+from loguru import logger
 
 from joj.horse import schemas
 from joj.horse.schemas import StandardResponse
@@ -137,6 +138,18 @@ async def get_current_user(
     auth: Authentication = Depends(),
 ) -> StandardResponse[schemas.UserDetail]:
     user = await parse_uid(auth.jwt.id, auth)
+    return StandardResponse(user)
+
+
+@router.patch("")
+async def update_current_user(
+    user_edit: schemas.UserEdit = Depends(schemas.UserEdit.edit_dependency),
+    auth: Authentication = Depends(),
+) -> StandardResponse[schemas.User]:
+    user = await parse_uid(auth.jwt.id, auth)
+    user.update_from_dict(user_edit.dict())
+    logger.info(f"update user: {user}")
+    await user.save_model()
     return StandardResponse(user)
 
 
