@@ -113,7 +113,7 @@ jobs:
       - name: Test and Generate coverage report
         run: |
           docker exec -it `docker ps -q --filter ancestor=${{ needs.build.outputs.tag }}` \
-            pytest -svv --cov=./ --cov-report=xml"
+            pytest -svv --cov=./ --cov-report=xml
           docker cp horse:/root/coverage.xml .
       - name: Upload coverage to Codacy
         uses: codacy/codacy-coverage-reporter-action@v1
