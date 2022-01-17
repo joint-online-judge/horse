@@ -105,25 +105,26 @@ jobs:
           HORSE_IMAGE: ${{ needs.build.outputs.tag }}
         run: |
           echo $HORSE_IMAGE
-          HORSE_TAG=${HORSE_IMAGE##*:}
+          export HORSE_TAG=${HORSE_IMAGE##*:}
           echo $HORSE_TAG
           cd joj-deploy-lite
           bash ./start.sh lite
           docker ps
-      # - name: Test and Generate coverage report
-      #   run: |
-      #     docker run --name horse --network host ${{ needs.build.outputs.tag }} /bin/bash -c "poetry install --no-dev -E test; pytest -svv --cov=./ --cov-report=xml"
-      #     docker cp horse:/root/coverage.xml .
-      # - name: Upload coverage to Codacy
-      #   uses: codacy/codacy-coverage-reporter-action@v1
-      #   with:
-      #     project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-      #     coverage-reports: coverage.xml
-      # - name: Upload coverage to Codecov
-      #   uses: codecov/codecov-action@v1
-      #   with:
-      #     token: ${{ secrets.CODECOV_TOKEN }}
-      #     fail_ci_if_error: true
+      - name: Test and Generate coverage report
+        run: |
+          docker exec -it `docker ps -q --filter ancestor=${{ needs.build.outputs.tag }}` \
+            pytest -svv --cov=./ --cov-report=xml"
+          docker cp horse:/root/coverage.xml .
+      - name: Upload coverage to Codacy
+        uses: codacy/codacy-coverage-reporter-action@v1
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: coverage.xml
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
   swagger-codegen:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/master')
     needs: test
