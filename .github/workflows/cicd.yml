@@ -91,49 +91,37 @@ jobs:
   test:
     needs: build
     runs-on: ubuntu-20.04
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: pass
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-      redis:
-        image: redis
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Pull docker image
-        run: |
-          echo ${{ needs.build.outputs.tag }}
-          docker pull ${{ needs.build.outputs.tag }}
-      - name: Test and Generate coverage report
-        run: |
-          docker run --name horse --network host ${{ needs.build.outputs.tag }} /bin/bash -c "poetry install --no-dev -E test; pytest -svv --cov=./ --cov-report=xml"
-          docker cp horse:/root/coverage.xml .
-      - name: Upload coverage to Codacy
-        uses: codacy/codacy-coverage-reporter-action@v1
+      - name: Checkout joj-deploy-lite repository
+        uses: actions/checkout@v2
         with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: coverage.xml
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
+          repository: joint-online-judge/joj-deploy-lite
+          path: joj-deploy-lite
+          ref: master
+      - name: Start docker compose
+        env:
+          HORST_TAG: ${GITHUB_REF##*/}
+        run: |
+          echo ${GITHUB_REF##*/}
+          cd joj-deploy-lite
+          ./start.sh prod
+          docker ps
+      # - name: Test and Generate coverage report
+      #   run: |
+      #     docker run --name horse --network host ${{ needs.build.outputs.tag }} /bin/bash -c "poetry install --no-dev -E test; pytest -svv --cov=./ --cov-report=xml"
+      #     docker cp horse:/root/coverage.xml .
+      # - name: Upload coverage to Codacy
+      #   uses: codacy/codacy-coverage-reporter-action@v1
+      #   with:
+      #     project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+      #     coverage-reports: coverage.xml
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v1
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     fail_ci_if_error: true
   swagger-codegen:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/master')
     needs: test
