@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: eaa141a@2022-01-17T16:33:07Z",
+    "description": "Git version: 62435b4@2022-01-18T20:38:54Z",
     "version": "1"
   },
   "paths": {
@@ -8716,6 +8716,16 @@
         ],
         "type": "object",
         "properties": {
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
+          },
           "id": {
             "title": "Id",
             "type": "string",
@@ -8824,6 +8834,16 @@
         ],
         "type": "object",
         "properties": {
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
+          },
           "id": {
             "title": "Id",
             "type": "string",
@@ -8860,16 +8880,6 @@
             "title": "Memorykb",
             "type": "integer",
             "default": 0
-          },
-          "createdAt": {
-            "title": "Createdat",
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "title": "Updatedat",
-            "type": "string",
-            "format": "date-time"
           },
           "commitId": {
             "title": "Commitid",
