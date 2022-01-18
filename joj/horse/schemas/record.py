@@ -56,7 +56,7 @@ class RecordCase(BaseModel):
     return_code: int = 0
 
 
-class Record(BaseORMSchema, DomainMixin, IDMixin):
+class Record(BaseORMSchema, DomainMixin, IDMixin, TimestampMixin):
     state: RecordState = Field(
         RecordState.processing,
         nullable=False,
@@ -69,7 +69,7 @@ class Record(BaseORMSchema, DomainMixin, IDMixin):
     memory_kb: int = Field(0, nullable=False, sa_column_kwargs={"server_default": "0"})
 
 
-class RecordDetail(TimestampMixin, Record):
+class RecordDetail(Record):
     commit_id: Optional[str] = Field(None, nullable=True)
     task_id: Optional[UUID] = Field(None, nullable=True)
 
