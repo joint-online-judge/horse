@@ -20,6 +20,7 @@ from joj.horse.utils.parser import (
     parse_problem,
     parse_problem_set,
     parse_problem_without_validation,
+    parse_relevant_domain_with_tag,
     parse_user_from_auth,
     parse_view_hidden_problem,
 )
@@ -132,24 +133,13 @@ async def clone_problem(
     auth: Authentication = Depends(),
     session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardListResponse[schemas.Problem]:
+    from_domain = await parse_relevant_domain_with_tag(problem_clone.from_domain)
     problems: List[models.Problem] = [
-        parse_problem(await parse_problem_without_validation(oid, domain), auth)
+        parse_problem(await parse_problem_without_validation(oid, from_domain), auth)
         for oid in problem_clone.problems
     ]
-    problem_set = await parse_problem_set(problem_clone.problem_set, domain)
     new_group = problem_clone.new_group
-    # FIXME: /root/.venv/lib/python3.8/site-packages/sqlmodel/orm/session.py:60:
-    # SAWarning: relationship 'Problem.problem_sets' will copy column problems.id
-    # to column problem_problem_set_links.problem_id, which conflicts with
-    # relationship(s): 'ProblemProblemSetLink.problem' (copies problems.id to
-    # problem_problem_set_links.problem_id). If this is not the intention, consider
-    # if these relationships should be linked with back_populates, or if
-    # viewonly=True should be applied to one or more if they are read-only.
-    # For the less common case that foreign key constraints are partially
-    # overlapping, the orm.foreign() annotation can be used to isolate the
-    # columns that should be written towards.   To silence this warning,
-    # add the parameter 'overlaps="problem"' to the 'Problem.problem_sets'
-    # relationship. (Background on this error at: https://sqlalche.me/e/14/qzyx)
+
     try:
         res = []
         for problem in problems:
@@ -161,7 +151,6 @@ async def clone_problem(
                 problem_group_id = problem_group.id
                 await session.refresh(problem)
                 await session.refresh(domain)
-                await session.refresh(problem_set)
             else:
                 problem_group_id = problem.problem_group_id
             new_problem = models.Problem(
@@ -170,13 +159,12 @@ async def clone_problem(
                 title=problem.title,
                 content=problem.content,
                 problem_group_id=problem_group_id,
-                problem_set_id=problem_set.id,
             )
             await new_problem.save_model()
             res.append(models.Problem.from_orm(new_problem))
             logger.info(f"problem cloned: {new_problem}")
     except Exception as e:
-        logger.exception(f"problems clone to problem set failed: {problem_set}")
+        logger.exception(f"problems clone failed")
         raise e
     return StandardListResponse(res)
 

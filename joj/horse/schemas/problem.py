@@ -57,8 +57,8 @@ class ProblemCreate(ProblemContentMixin, URLCreateMixin, ProblemBase):
 
 
 class ProblemClone(BaseModel):
+    from_domain: str = Field(..., description="url or id of the domain to clone from")
     problems: List[str]
-    problem_set: str = Field(..., description="url or id of the problem set")
     new_group: bool = Field(False, description="whether to create new problem group")
 
 
