@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: b241594@2022-01-23T16:17:20Z",
+    "description": "Git version: f3b5abe@2022-01-23T23:30:52Z",
     "version": "1"
   },
   "paths": {
@@ -958,6 +958,18 @@
             },
             "name": "domain",
             "in": "path"
+          },
+          {
+            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+            "required": false,
+            "schema": {
+              "title": "Ordering",
+              "type": "string",
+              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+              "default": ""
+            },
+            "name": "ordering",
+            "in": "query"
           }
         ],
         "responses": {
@@ -6901,13 +6913,6 @@
         "title": "DomainRoleEdit",
         "type": "object",
         "properties": {
-          "role": {
-            "title": "Role",
-            "maxLength": 256,
-            "minLength": 1,
-            "type": "string",
-            "description": "New role name"
-          },
           "permission": {
             "title": "Permission",
             "type": "object",
