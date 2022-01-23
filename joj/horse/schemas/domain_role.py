@@ -15,7 +15,7 @@ from joj.horse.schemas.permission import DomainPermission
 
 
 class DomainRoleEdit(BaseModel, metaclass=EditMetaclass):
-    role: Optional[NoneEmptyLongStr] = Field(None, description="New role name")
+    # role: Optional[NoneEmptyLongStr] = Field(None, description="New role name")
     permission: Optional[Dict[str, Any]] = Field(
         None, description="The permission which needs to be updated"
     )

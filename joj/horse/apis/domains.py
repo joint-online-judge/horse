@@ -311,9 +311,12 @@ async def search_domain_candidates(
 @router.get("/{domain}/roles", permissions=[Permission.DomainGeneral.view])
 async def list_domain_roles(
     domain: models.Domain = Depends(parse_domain_from_auth),
+    ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
 ) -> StandardListResponse[schemas.DomainRole]:
     statement = domain.find_domain_roles_statement()
-    domain_roles, count = await models.DomainRole.execute_list_statement(statement)
+    domain_roles, count = await models.DomainRole.execute_list_statement(
+        statement, ordering
+    )
     return StandardListResponse(domain_roles, count)
 
 
@@ -372,27 +375,27 @@ async def update_domain_role(
         schemas.DomainRoleEdit.edit_dependency
     ),
     domain_role: models.DomainRole = Depends(parse_domain_role),
-    domain: models.Domain = Depends(parse_domain_from_auth),
-    session: AsyncSession = Depends(db_session_dependency),
+    # domain: models.Domain = Depends(parse_domain_from_auth),
+    # session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardResponse[schemas.DomainRole]:
-    if domain_role_edit.role:
-        if (
-            domain_role.role in READONLY_ROLES
-            or domain_role_edit.role in READONLY_ROLES
-        ):
-            raise BizError(ErrorCode.DomainRoleReadOnlyError)
-        if await models.DomainRole.get_or_none(
-            domain_id=domain.id, role=domain_role_edit.role
-        ):
-            raise BizError(ErrorCode.DomainRoleNotUniqueError)
-
-        domain_users = await models.DomainUser.get_many(
-            domain_id=domain.id, role=domain_role.role
-        )
-        for domain_user in domain_users:
-            domain_user.role = domain_role_edit.role
-            logger.info(f"update domain user: {domain_user}")
-            session.sync_session.add(domain_user)
+    # if domain_role_edit.role:
+    #     if (
+    #         domain_role.role in READONLY_ROLES
+    #         or domain_role_edit.role in READONLY_ROLES
+    #     ):
+    #         raise BizError(ErrorCode.DomainRoleReadOnlyError)
+    #     if await models.DomainRole.get_or_none(
+    #         domain_id=domain.id, role=domain_role_edit.role
+    #     ):
+    #         raise BizError(ErrorCode.DomainRoleNotUniqueError)
+    #
+    #     domain_users = await models.DomainUser.get_many(
+    #         domain_id=domain.id, role=domain_role.role
+    #     )
+    #     for domain_user in domain_users:
+    #         domain_user.role = domain_role_edit.role
+    #         logger.info(f"update domain user: {domain_user}")
+    #         session.sync_session.add(domain_user)
 
     domain_role.update_from_dict(domain_role_edit.dict())
     logger.info(f"update domain role: {domain_role}")
