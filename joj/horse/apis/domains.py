@@ -354,8 +354,13 @@ async def delete_domain_role(
 ) -> StandardResponse[Empty]:
     if domain_role.role in READONLY_ROLES:
         raise BizError(ErrorCode.DomainRoleReadOnlyError)
-    if await models.DomainUser.get_or_none(domain_id=domain.id, role=domain_role.role):
+
+    count = await models.DomainUser.count_domain_user(
+        domain_id=domain.id, role=domain_role.role
+    )
+    if count > 0:
         raise BizError(ErrorCode.DomainRoleUsedError)
+
     logger.info(f"delete domain role: {domain_role}")
     await domain_role.delete_model()
     return StandardResponse()

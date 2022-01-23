@@ -2,7 +2,8 @@ from typing import TYPE_CHECKING, Union
 from uuid import UUID
 
 from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
-from sqlmodel import Field, Relationship
+from sqlalchemy.sql.functions import count
+from sqlmodel import Field, Relationship, select
 from sqlmodel.sql.sqltypes import GUID
 
 from joj.horse.models.base import BaseORMModel
@@ -64,3 +65,17 @@ class DomainUser(BaseORMModel, table=True):  # type: ignore[call-arg]
         # update role
         domain_user.role = role
         return domain_user
+
+    @classmethod
+    async def count_domain_user(
+        cls, domain_id: UUID, role: Union[str, DefaultRole]
+    ) -> int:
+        role = str(role)
+        statement = (
+            select(DomainUser.id)
+            .where(DomainUser.domain_id == domain_id)
+            .where(DomainUser.role == role)
+            .with_only_columns(count())
+        )
+        user_count = (await DomainUser.session_exec(statement)).one_or_none()
+        return 0 if user_count is None else user_count
