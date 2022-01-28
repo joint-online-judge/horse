@@ -18,7 +18,6 @@ from joj.horse.utils.parser import (
     parse_ordering_query,
     parse_pagination_query,
     parse_problem,
-    parse_problem_set,
     parse_problem_without_validation,
     parse_relevant_domain_with_tag,
     parse_user_from_auth,
@@ -164,7 +163,7 @@ async def clone_problem(
             res.append(models.Problem.from_orm(new_problem))
             logger.info(f"problem cloned: {new_problem}")
     except Exception as e:
-        logger.exception(f"problems clone failed")
+        logger.exception(f"problems clone failed: {[problem for problem in problems]}")
         raise e
     return StandardListResponse(res)
 
