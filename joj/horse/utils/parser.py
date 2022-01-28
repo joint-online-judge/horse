@@ -11,7 +11,7 @@ from joj.horse.models.permission import PermissionType, ScopeType
 from joj.horse.schemas.auth import Authentication, DomainAuthentication, get_domain
 from joj.horse.schemas.base import NoneEmptyLongStr, NoneNegativeInt, PaginationLimit
 from joj.horse.schemas.query import OrderingQuery, PaginationQuery
-from joj.horse.utils.errors import BizError, ErrorCode
+from joj.horse.utils.errors import BizError, ErrorCode, ForbiddenError
 
 
 async def parse_uid(
@@ -58,6 +58,19 @@ async def parse_domain_without_validation(
     domain: models.Domain = Depends(get_domain),
 ) -> models.Domain:
     return domain
+
+
+async def parse_relevant_domain_with_tag(
+    relevant_domain_url_or_id: str,
+    domain: models.Domain = Depends(get_domain),
+) -> models.Domain:
+    """
+    Check whether a user in domain has equivalent permission for relevant_domain
+    """
+    relevant_domain = await get_domain(relevant_domain_url_or_id)
+    if relevant_domain.tag != domain.tag:
+        raise ForbiddenError(message="relevant domain Permission Denied.")
+    return relevant_domain
 
 
 async def parse_domain_from_auth(
