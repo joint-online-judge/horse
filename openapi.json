@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: f77c7db@2022-01-28T14:58:26Z",
+    "description": "Git version: fa5e9c9@2022-01-28T15:03:21Z",
     "version": "1"
   },
   "paths": {
@@ -7614,22 +7614,22 @@
       "ProblemClone": {
         "title": "ProblemClone",
         "required": [
-          "problems",
-          "problemSet"
+          "fromDomain",
+          "problems"
         ],
         "type": "object",
         "properties": {
+          "fromDomain": {
+            "title": "Fromdomain",
+            "type": "string",
+            "description": "url or id of the domain to clone from"
+          },
           "problems": {
             "title": "Problems",
             "type": "array",
             "items": {
               "type": "string"
             }
-          },
-          "problemSet": {
-            "title": "Problemset",
-            "type": "string",
-            "description": "url or id of the problem set"
           },
           "newGroup": {
             "title": "Newgroup",
