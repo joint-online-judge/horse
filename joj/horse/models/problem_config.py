@@ -1,8 +1,6 @@
 from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID
 
-from joj.elephant.errors import ElephantError
-
 # from joj.elephant.manager import Manager
 from lakefs_client.models import Commit
 from sqlalchemy.schema import Column, ForeignKey
@@ -10,6 +8,7 @@ from sqlmodel import Field, Relationship
 from sqlmodel.sql.sqltypes import GUID
 from starlette.concurrency import run_in_threadpool
 
+from joj.elephant.errors import ElephantError
 from joj.horse.models.base import BaseORMModel
 from joj.horse.schemas.problem_config import ProblemConfigCommit, ProblemConfigDetail
 from joj.horse.services.lakefs import LakeFSProblemConfig

@@ -220,7 +220,9 @@ async def validate_test_problem_set(
     assert res["hidden"] == data.get("hidden", False)
     assert res["scoreboardHidden"] == data.get("scoreboardHidden", False)
     if isinstance(problem_set, dict):
-        return await models.ProblemSet.get_or_none(id=res["id"])
+        tmp = await models.ProblemSet.get_or_none(id=res["id"])
+        assert tmp is not None
+        return tmp
     return problem_set
 
 
@@ -253,7 +255,9 @@ async def validate_test_problem(
     assert res["numSubmit"] == data.get("num_submit", 0)
     assert res["numAccept"] == data.get("num_accept", 0)
     if isinstance(problem, dict):
-        problem = await models.Problem.get_or_none(id=res["id"])
+        tmp = await models.Problem.get_or_none(id=res["id"])
+        assert tmp is not None
+        return tmp
     return problem
 
 

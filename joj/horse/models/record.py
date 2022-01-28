@@ -23,7 +23,7 @@ from joj.horse.services.lakefs import LakeFSRecord
 from joj.horse.utils.errors import BizError, ErrorCode
 
 if TYPE_CHECKING:
-    from joj.horse.models import Domain, Problem, ProblemConfig, ProblemSet, User
+    from joj.horse.models import Problem, ProblemConfig, ProblemSet, User
 
 
 class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]

@@ -1,28 +1,16 @@
-from typing import Any, Dict, Tuple
-from uuid import uuid4
-
 import pytest
-from httpx import AsyncClient, Response
+from httpx import AsyncClient
 from pytest_lazyfixture import lazy_fixture
 
-from joj.horse import apis, models
+from joj.horse import models
 from joj.horse.app import app
-from joj.horse.models.permission import DefaultRole
 from joj.horse.tests.utils.utils import (
-    GLOBAL_DOMAIN_COUNT,
-    create_test_domain,
     create_test_problem,
     create_test_problem_set,
     do_api_request,
-    get_base_url,
-    get_path_by_url_type,
-    parametrize_global_domains,
-    validate_response,
-    validate_test_domain,
     validate_test_problem,
     validate_test_problem_set,
 )
-from joj.horse.utils.errors import ErrorCode
 
 
 @pytest.fixture(scope="module")

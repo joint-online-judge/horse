@@ -2,6 +2,20 @@
 build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core>=1.0.0"]
 
+[tool.mypy]
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_untyped_defs = true
+exclude = [
+    '/monkey_patch\.py$',
+]
+follow_imports = "normal"
+no_implicit_reexport = true
+plugins = "pydantic.mypy"
+show_error_codes = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
 [tool.poetry]
 authors = ["JOJ Dev Team <liuyh615@126.com>"]
 description = ""
@@ -78,6 +92,12 @@ test = [
     "pytest-depends",
     "pytest-lazy-fixture",
 ]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+warn_untyped_fields = true
 
 [tool.pytest.ini_options]
 filterwarnings = "ignore::DeprecationWarning"

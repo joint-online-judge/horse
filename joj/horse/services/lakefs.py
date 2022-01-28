@@ -2,23 +2,23 @@ from functools import lru_cache
 from io import BytesIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import IO, TYPE_CHECKING, Any, BinaryIO, Dict, Literal, Optional
+from typing import IO, TYPE_CHECKING, Any, BinaryIO, Dict, Literal, Optional, cast
 from uuid import UUID
 
 import boto3
 import orjson
 from greenletio import async_
-from joj.elephant.errors import ElephantError
-from joj.elephant.manager import Manager
-from joj.elephant.rclone import RClone
-from joj.elephant.schemas import ArchiveType, FileInfo
-from joj.elephant.storage import ArchiveStorage, LakeFSStorage, Storage
 from lakefs_client import Configuration, __version__ as lakefs_client_version, models
 from lakefs_client.client import LakeFSClient
 from lakefs_client.exceptions import ApiException as LakeFSApiException
 from loguru import logger
 from patoolib.util import PatoolError
 
+from joj.elephant.errors import ElephantError
+from joj.elephant.manager import Manager
+from joj.elephant.rclone import RClone
+from joj.elephant.schemas import ArchiveType, FileInfo
+from joj.elephant.storage import ArchiveStorage, LakeFSStorage, Storage
 from joj.horse.config import settings
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.retry import retry_init
@@ -210,7 +210,7 @@ class LakeFSBase:
     @property
     def storage(self) -> "Storage":
         if self._storage is None:
-            self._storage = self._get_storage()
+            self._storage = cast(LakeFSStorage, self._get_storage())
         return self._storage
 
     @property
