@@ -32,6 +32,7 @@ app = FastAPI(
     description=f"Git version: {get_git_version()}",
     dependencies=[Depends(db_session_dependency)],
     default_response_class=ORJSONResponse,
+    swagger_ui_parameters={"docExpansion": "none"},
 )
 init_logging()
 
