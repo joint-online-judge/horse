@@ -1,6 +1,6 @@
 import re
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict
 from uuid import UUID
 
 from pydantic import EmailStr, validator
@@ -30,18 +30,18 @@ class UserResetPassword(BaseModel):
 
 
 class UserEdit(BaseModel, metaclass=EditMetaclass):
-    gravatar: Optional[str] = None
+    gravatar: str | None = None
 
 
 class UserCreate(SQLModel):
-    username: Optional[str] = None
-    email: Optional[str] = None
-    password: Optional[str] = None
-    oauth_name: Optional[str] = None
-    oauth_account_id: Optional[str] = None
+    username: str | None = None
+    email: str | None = None
+    password: str | None = None
+    oauth_name: str | None = None
+    oauth_account_id: str | None = None
 
     @validator("email", pre=True, always=True)
-    def validate_email(cls, v: Any) -> Optional[EmailStr]:
+    def validate_email(cls, v: Any) -> EmailStr | None:
         if not v:
             return None
         return EmailStr(v)
@@ -88,14 +88,14 @@ class User(UserBase, IDMixin):
 
 
 class UserWithDomainRole(UserPreview):
-    domain_id: Optional[UUID] = None
-    domain_role: Optional[str] = None
+    domain_id: UUID | None = None
+    domain_role: str | None = None
 
     @classmethod
     def from_domain_user(
         cls,
-        domain_user: Optional["DomainUser"],
-        user: Union["User", Dict[str, Any]],
+        domain_user: "DomainUser" | None,
+        user: "User" | Dict[str, Any],
     ) -> "UserWithDomainRole":
         if domain_user is None:
             domain_id = None

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 from uuid import UUID
 
 from sqlalchemy.schema import Column
@@ -28,7 +28,7 @@ class ProblemConfig(ProblemConfigBase, IDMixin):
         sa_column=Column(JSON, nullable=False, server_default="[]"),
     )
     commit_id: str = Field("", nullable=False, sa_column_kwargs={"server_default": ""})
-    committer_id: Optional[UUID] = None
+    committer_id: UUID | None = None
 
 
 class ProblemConfigDetail(TimestampMixin, ProblemConfig):

@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import Any, List, Literal, Optional, Tuple
+from typing import Any, List, Literal, Tuple
 from urllib.parse import quote_plus
 
 from fastapi import Depends, HTTPException, Query, Request, Response, status
@@ -39,16 +39,15 @@ router_prefix = "/api/v1"
 def auth_parameters_dependency(
     cookie: bool = Query(True, description="Add Set/Delete-Cookie on response header"),
     response_type: Literal["redirect", "json"] = Query(...),
-    redirect_url: Optional[str] = Query(
-        None, description="The redirect url after the operation"
-    ),
+    redirect_url: str
+    | None = Query(None, description="The redirect url after the operation"),
 ) -> AuthParams:
     return AuthParams(
         cookie=cookie, response_type=response_type, redirect_url=redirect_url
     )
 
 
-def set_redirect_response(response: Response, redirect_url: Optional[str]) -> bool:
+def set_redirect_response(response: Response, redirect_url: str | None) -> bool:
     if redirect_url:
         response.status_code = 302
         response.headers["location"] = quote_plus(
@@ -91,7 +90,7 @@ async def get_logout_response(
     response: Response,
     auth_jwt: AuthJWT,
     parameters: AuthParams,
-    oauth_name: Optional[str],
+    oauth_name: str | None,
 ) -> Any:
     if parameters.cookie:
         auth_jwt.unset_jwt_cookies(response)
@@ -110,7 +109,7 @@ async def get_logout_response(
 def get_oauth_router(
     oauth_clients: List[BaseOAuth2[Any]],
     # backend: BaseAuthentication,
-    callback_redirect_url: Optional[str] = None,
+    callback_redirect_url: str | None = None,
 ) -> MyRouter:
     oauth_router = MyRouter()
     authorize_route_name = "oauth_authorize"
@@ -173,7 +172,7 @@ def get_oauth_router(
         response: Response,
         oauth_client: BaseOAuth2[Any] = Depends(oauth2_dependency.oauth_client()),
         auth_jwt: AuthJWT = Depends(AuthJWT),
-        access_token_state: Tuple[OAuth2Token, Optional[str]] = Depends(
+        access_token_state: Tuple[OAuth2Token, str | None] = Depends(
             oauth2_dependency.access_token_state()
         ),
     ) -> schemas.StandardResponse[schemas.AuthTokens]:
@@ -268,9 +267,8 @@ async def register(
     user_create: schemas.UserCreate,
     auth_parameters: AuthParams = Depends(auth_parameters_dependency),
     auth_jwt: AuthJWT = Depends(AuthJWT),
-    jwt_access_token: Optional[JWTAccessToken] = Depends(
-        auth_jwt_decode_access_token_optional
-    ),
+    jwt_access_token: JWTAccessToken
+    | None = Depends(auth_jwt_decode_access_token_optional),
 ) -> schemas.StandardResponse[schemas.AuthTokens]:
     if jwt_access_token is not None and jwt_access_token.category == "user":
         jwt_access_token = None

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List
 from uuid import UUID
 
 from sqlalchemy import event
@@ -28,14 +28,14 @@ class ProblemSet(DomainURLORMModel, ProblemSetDetail, table=True):  # type: igno
     )
     domain: "Domain" = Relationship(back_populates="problem_sets")
 
-    owner_id: Optional[UUID] = Field(
+    owner_id: UUID | None = Field(
         sa_column=Column(
             GUID,
             ForeignKey("users.id", ondelete="SET NULL"),
             nullable=True,
         )
     )
-    owner: Optional["User"] = Relationship(back_populates="owned_problem_sets")
+    owner: "User" | None = Relationship(back_populates="owned_problem_sets")
 
     # problems_link: List["Problem"] = Relationship(
     #     back_populates="problem_problem_set_links",
@@ -67,7 +67,7 @@ class ProblemSet(DomainURLORMModel, ProblemSetDetail, table=True):  # type: igno
     records: List["Record"] = Relationship(back_populates="problem_set")
 
     async def operate_problem(
-        self, problem: "Problem", operation: Operation, position: Optional[int] = None
+        self, problem: "Problem", operation: Operation, position: int | None = None
     ) -> None:
         assert problem.domain_id == self.domain_id
         link = await ProblemProblemSetLink.get_or_none(

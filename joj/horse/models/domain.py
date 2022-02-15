@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List
 from uuid import UUID
 
 from sqlalchemy import event
@@ -30,7 +30,7 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
             GUID, ForeignKey("users.id", ondelete="SET NULL"), nullable=True
         )
     )
-    owner: Optional["User"] = Relationship(back_populates="owned_domains")
+    owner: "User" | None = Relationship(back_populates="owned_domains")
 
     invitations: List["DomainInvitation"] = Relationship(back_populates="domain")
     roles: List["DomainRole"] = Relationship(back_populates="domain")
@@ -59,10 +59,10 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
     # async def find_problems(
     #     self,
     #     include_hidden: bool = False,
-    #     problem_set: Optional["ProblemSet"] = None,
-    #     problem_group: Optional["ProblemGroup"] = None,
-    #     ordering: Optional["OrderingQuery"] = None,
-    #     pagination: Optional["PaginationQuery"] = None,
+    #     problem_set: "ProblemSet" | None = None,
+    #     problem_group: "ProblemGroup" | None = None,
+    #     ordering: "OrderingQuery" | None = None,
+    #     pagination: "PaginationQuery" | None = None,
     # ) -> Tuple[List["Problem"], int]:
     #     if problem_set:
     #         query_set = problem_set.problems.filter(domain=self)
@@ -126,9 +126,9 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
 
     def find_records_statement(
         self,
-        problem_set_id: Optional[UUID],
-        problem_id: Optional[UUID],
-        submitter_id: Optional[UUID],
+        problem_set_id: UUID | None,
+        problem_id: UUID | None,
+        submitter_id: UUID | None,
     ) -> Select:
         from joj.horse import models
 

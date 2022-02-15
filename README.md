@@ -11,7 +11,7 @@ The new generation of JOJ Backend. "Horse" is related to speed, an excellent fea
 
 ## Requirements
 
-+ Python >= 3.8
++ Python >= 3.10
 + PostgreSQL
 + Redis
 + LakeFS

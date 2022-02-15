@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from sqlmodel import Field
 
@@ -15,8 +15,8 @@ from joj.horse.schemas.permission import DomainPermission
 
 
 class DomainRoleEdit(BaseModel, metaclass=EditMetaclass):
-    # role: Optional[NoneEmptyLongStr] = Field(None, description="New role name")
-    permission: Optional[Dict[str, Any]] = Field(
+    # role: NoneEmptyLongStr | None = Field(None, description="New role name")
+    permission: Dict[str, Any] | None = Field(
         None, description="The permission which needs to be updated"
     )
 

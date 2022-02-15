@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Optional, Type
+from typing import TYPE_CHECKING, List, Type
 from uuid import UUID
 
 from sqlalchemy import event
@@ -33,19 +33,19 @@ class Problem(DomainURLORMModel, ProblemDetail, table=True):  # type: ignore[cal
     )
     domain: "Domain" = Relationship(back_populates="problems")
 
-    owner_id: Optional[UUID] = Field(
+    owner_id: UUID | None = Field(
         sa_column=Column(
             GUID, ForeignKey("users.id", ondelete="SET NULL"), nullable=True
         )
     )
-    owner: Optional["User"] = Relationship(back_populates="owned_problems")
+    owner: "User" | None = Relationship(back_populates="owned_problems")
 
-    problem_group_id: Optional[UUID] = Field(
+    problem_group_id: UUID | None = Field(
         sa_column=Column(
             GUID, ForeignKey("problem_groups.id", ondelete="SET NULL"), nullable=True
         )
     )
-    problem_group: Optional["ProblemGroup"] = Relationship(back_populates="problems")
+    problem_group: "ProblemGroup" | None = Relationship(back_populates="problems")
 
     problem_sets: List["ProblemSet"] = Relationship(
         back_populates="problems",
@@ -65,7 +65,7 @@ class Problem(DomainURLORMModel, ProblemDetail, table=True):  # type: ignore[cal
     async def get_problems_with_record_states(
         cls,
         result_cls: Type[WithLatestRecordType],
-        problem_set_id: Optional[UUID],
+        problem_set_id: UUID | None,
         problems: List["Problem"],
         user_id: UUID,
     ) -> List[WithLatestRecordType]:
@@ -81,7 +81,7 @@ class Problem(DomainURLORMModel, ProblemDetail, table=True):  # type: ignore[cal
         ]
         return problems
 
-    async def get_latest_problem_config(self) -> Optional["ProblemConfig"]:
+    async def get_latest_problem_config(self) -> "ProblemConfig" | None:
         from joj.horse import models
 
         statement = (

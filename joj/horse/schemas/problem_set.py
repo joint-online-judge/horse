@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List
 from uuid import UUID
 
 from sqlmodel import Field
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 
 class ProblemSetUpdateProblem(BaseModel):
-    position: Optional[int] = Field(
+    position: int | None = Field(
         None,
         description="the position of the problem in the problem set. "
         "if None, append to the end of the problems list.",
@@ -37,14 +37,14 @@ class ProblemSetAddProblem(ProblemSetUpdateProblem):
 
 
 class ProblemSetEdit(BaseModel, metaclass=EditMetaclass):
-    url: Optional[UserInputURL]
-    title: Optional[NoneEmptyLongStr]
-    content: Optional[LongText]
-    hidden: Optional[bool]
-    scoreboard_hidden: Optional[bool]
-    due_at: Optional[UTCDatetime]
-    lock_at: Optional[UTCDatetime]
-    unlock_at: Optional[UTCDatetime]
+    url: UserInputURL | None
+    title: NoneEmptyLongStr | None
+    content: LongText | None
+    hidden: bool | None
+    scoreboard_hidden: bool | None
+    due_at: UTCDatetime | None
+    lock_at: UTCDatetime | None
+    unlock_at: UTCDatetime | None
 
 
 class ProblemSetBase(URLORMSchema):
@@ -70,17 +70,17 @@ class ProblemSetBase(URLORMSchema):
         sa_column_kwargs={"server_default": "false"},
         description="whether the scoreboard of the problem set is hidden",
     )
-    due_at: Optional[datetime] = Field(
+    due_at: datetime | None = Field(
         None,
         sa_column=get_datetime_column(nullable=True),
         description="the problem set is due at this date",
     )
-    lock_at: Optional[datetime] = Field(
+    lock_at: datetime | None = Field(
         None,
         sa_column=get_datetime_column(nullable=True),
         description="the problem set is locked after this date",
     )
-    unlock_at: Optional[datetime] = Field(
+    unlock_at: datetime | None = Field(
         None,
         sa_column=get_datetime_column(nullable=True),
         description="the problem set is unlocked after this date",
@@ -88,16 +88,16 @@ class ProblemSetBase(URLORMSchema):
 
 
 class ProblemSetCreate(URLCreateMixin, ProblemSetBase):
-    due_at: Optional[UTCDatetime] = None
-    lock_at: Optional[UTCDatetime] = None
-    unlock_at: Optional[UTCDatetime] = None
+    due_at: UTCDatetime | None = None
+    lock_at: UTCDatetime | None = None
+    unlock_at: UTCDatetime | None = None
 
 
 class ProblemSet(ProblemSetBase, DomainMixin, IDMixin):
     num_submit: int = Field(0, nullable=False, sa_column_kwargs={"server_default": "0"})
     num_accept: int = Field(0, nullable=False, sa_column_kwargs={"server_default": "0"})
 
-    owner_id: Optional[UUID] = None
+    owner_id: UUID | None = None
 
 
 class ProblemSetDetail(TimestampMixin, ProblemSet):

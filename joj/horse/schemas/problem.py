@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Optional, TypeVar
+from typing import TYPE_CHECKING, List, TypeVar
 from uuid import UUID
 
 from fastapi import UploadFile
@@ -24,10 +24,10 @@ if TYPE_CHECKING:
 
 
 class ProblemEdit(BaseModel, metaclass=EditMetaclass):
-    url: Optional[UserInputURL]
-    title: Optional[NoneEmptyStr]
-    content: Optional[LongText]
-    hidden: Optional[bool]
+    url: UserInputURL | None
+    title: NoneEmptyStr | None
+    content: LongText | None
+    hidden: bool | None
 
 
 class ProblemBase(URLORMSchema):
@@ -63,15 +63,15 @@ class ProblemClone(BaseModel):
 
 
 class ProblemPreview(ProblemBase, IDMixin):
-    owner_id: Optional[UUID] = None
+    owner_id: UUID | None = None
 
 
 class Problem(ProblemBase, DomainMixin, IDMixin):
     num_submit: int = Field(0, nullable=False, sa_column_kwargs={"server_default": "0"})
     num_accept: int = Field(0, nullable=False, sa_column_kwargs={"server_default": "0"})
 
-    owner_id: Optional[UUID] = None
-    problem_group_id: Optional[UUID] = None
+    owner_id: UUID | None = None
+    problem_group_id: UUID | None = None
 
 
 class ProblemDetail(TimestampMixin, ProblemContentMixin, Problem):
@@ -79,7 +79,7 @@ class ProblemDetail(TimestampMixin, ProblemContentMixin, Problem):
 
 
 class LatestRecordMixin(BaseModel):
-    latest_record: Optional[RecordPreview]
+    latest_record: RecordPreview | None
 
 
 class ProblemPreviewWithLatestRecord(LatestRecordMixin, ProblemPreview):
@@ -99,4 +99,4 @@ WithLatestRecordType = TypeVar("WithLatestRecordType", bound=LatestRecordMixin)
 
 class ProblemSolutionSubmit(BaseModel, metaclass=FormMetaclass):
     code_type: RecordCodeType
-    file: Optional[UploadFile]
+    file: UploadFile | None

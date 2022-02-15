@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum, IntEnum
-from typing import List, Optional
+from typing import List
 from uuid import UUID
 
 from sqlalchemy import JSON
@@ -70,19 +70,19 @@ class Record(BaseORMSchema, DomainMixin, IDMixin, TimestampMixin):
 
 
 class RecordDetail(Record):
-    commit_id: Optional[str] = Field(None, nullable=True)
-    task_id: Optional[UUID] = Field(None, nullable=True)
+    commit_id: str | None = Field(None, nullable=True)
+    task_id: UUID | None = Field(None, nullable=True)
 
     cases: List[RecordCase] = Field(
         [],
         sa_column=Column(JSON, nullable=False, server_default="[]"),
     )
 
-    problem_set_id: Optional[UUID] = None
-    problem_id: Optional[UUID] = None
-    problem_config_id: Optional[UUID] = None
-    committer_id: Optional[UUID] = None
-    judger_id: Optional[UUID] = None
+    problem_set_id: UUID | None = None
+    problem_id: UUID | None = None
+    problem_config_id: UUID | None = None
+    committer_id: UUID | None = None
+    judger_id: UUID | None = None
 
 
 class RecordPreview(IDMixin):
@@ -104,9 +104,9 @@ class RecordPreview(IDMixin):
 #     judge_category: List[str]
 #
 #     submit_at: datetime
-#     judge_at: Optional[datetime]
+#     judge_at: datetime | None
 #
-#     judge_user: Optional[ReferenceSchema[UserBase]]
+#     judge_user: ReferenceSchema[UserBase] | None
 #
 #     compiler_texts: str = ""
 #     cases: List[RecordCase] = []

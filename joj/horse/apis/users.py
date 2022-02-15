@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 
 from fastapi import Depends, Query
 
@@ -40,7 +40,7 @@ async def get_user(
 
 @router.get("/{uid}/domains")
 async def list_user_domains(
-    role: Optional[List[str]] = Query(None),
+    role: List[str] | None = Query(None),
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     user: models.User = Depends(parse_uid),

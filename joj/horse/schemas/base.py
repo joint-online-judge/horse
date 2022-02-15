@@ -10,11 +10,9 @@ from typing import (
     Generator,
     Generic,
     List,
-    Optional,
     Tuple,
     Type,
     TypeVar,
-    Union,
 )
 from uuid import UUID
 
@@ -93,11 +91,11 @@ class UserInputURL(str):
     @classmethod
     def __get_validators__(
         cls,
-    ) -> Generator[Callable[[Union[str, Any]], str], None, None]:
+    ) -> Generator[Callable[[str | Any], str], None, None]:
         yield cls.validate
 
     @classmethod
-    def validate(cls, v: Optional[str]) -> LongStr:
+    def validate(cls, v: str | None) -> LongStr:
         if not v:
             return LongStr("")
         if is_uuid(v):
@@ -167,8 +165,8 @@ class IDMixin(BaseModel):
 
 
 class TimestampMixin(BaseModel):
-    created_at: Optional[datetime]
-    updated_at: Optional[datetime]
+    created_at: datetime | None
+    updated_at: datetime | None
 
 
 class EditMetaclass(ModelMetaclass):
@@ -248,22 +246,22 @@ def get_standard_list_response_sub_model(
 @lru_cache(maxsize=None)
 def get_standard_response_model(
     cls: Type[PydanticBaseModel], is_list: bool = False
-) -> Tuple[Type[PydanticBaseModel], Optional[Type[PydanticBaseModel]]]:
+) -> Tuple[Type[PydanticBaseModel], Type[PydanticBaseModel] | None]:
     name = cls.__name__
-    sub_model: Optional[Type[PydanticBaseModel]]
+    sub_model: Type[PydanticBaseModel] | None
     if is_list:
         model_name = f"{name}ListResp"
         sub_model = get_standard_list_response_sub_model(cls)
-        data_type = (Optional[sub_model], None)
+        data_type = (sub_model | None, None)
     else:
         model_name = f"{name}Resp"
         sub_model = None
-        data_type = (Optional[cls], None)
+        data_type = (cls | None, None)
     return (
         create_model(
             model_name,
             error_code=(ErrorCode, ...),
-            error_msg=(Optional[str], None),
+            error_msg=(str | None, None),
             data=data_type,
             __base__=BaseModel,
         ),
@@ -277,17 +275,15 @@ class Empty(BaseModel):
 
 class StandardErrorResponse(BaseModel):
     error_code: ErrorCode
-    error_msg: Optional[str] = None
-    data: Optional[Any] = None
+    error_msg: str | None = None
+    data: Any | None = None
 
 
 class StandardResponse(Generic[BT]):
     def __class_getitem__(cls, item: Any) -> Type[Any]:
         return get_standard_response_model(item)[0]
 
-    def __new__(
-        cls, data: Union[BT, Type[BT], Empty] = Empty()
-    ) -> "StandardResponse[BT]":
+    def __new__(cls, data: BT | Type[BT] | Empty = Empty()) -> "StandardResponse[BT]":
         response_type, _ = get_standard_response_model(type(data))  # type: ignore
         response_data = data
 
@@ -302,8 +298,8 @@ class StandardListResponse(Generic[BT]):
 
     def __new__(
         cls,
-        results: Optional[List[BT]] = None,
-        count: Optional[int] = None,
+        results: List[BT] | None = None,
+        count: int | None = None,
     ) -> "StandardListResponse[BT]":
         if results is None:
             results = []

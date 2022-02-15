@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 
 from joj.horse.schemas import BaseModel
 
@@ -50,7 +50,7 @@ class Repository(BaseModel):
     private: bool
     fork: bool
     template: bool
-    parent: Optional["Repository"]
+    parent: "Repository" | None
     mirror: bool
     size: int
     html_url: str
@@ -68,12 +68,12 @@ class Repository(BaseModel):
     archived: bool
     created_at: datetime
     updated_at: datetime
-    permissions: Optional[Permission]
+    permissions: Permission | None
     has_issues: bool
-    internal_tracker: Optional[InternalTracker]
-    external_tracker: Optional[ExternalTracker]
+    internal_tracker: InternalTracker | None
+    external_tracker: ExternalTracker | None
     has_wiki: bool
-    external_wiki: Optional[ExternalWiki]
+    external_wiki: ExternalWiki | None
     has_pull_requests: bool
     has_projects: bool
     ignore_whitespace_conflicts: bool
@@ -99,7 +99,7 @@ class Verification(BaseModel):
     verified: bool
     reason: str
     signature: str
-    signer: Optional[PayloadUser]
+    signer: PayloadUser | None
     payload: str
 
 
@@ -107,13 +107,13 @@ class Commit(BaseModel):
     id: str
     message: str
     url: str
-    author: Optional[PayloadUser]
-    committer: Optional[PayloadUser]
-    verification: Optional[Verification]
+    author: PayloadUser | None
+    committer: PayloadUser | None
+    verification: Verification | None
     timestamp: datetime
-    added: Optional[List[str]]
-    removed: Optional[List[str]]
-    modified: Optional[List[str]]
+    added: List[str] | None
+    removed: List[str] | None
+    modified: List[str] | None
 
 
 class GiteaWebhook(BaseModel):
@@ -122,8 +122,8 @@ class GiteaWebhook(BaseModel):
     before: str
     after: str
     compare_url: str
-    commits: Optional[List[Commit]]
-    head_commit: Optional[Commit]
-    repository: Optional[Repository]
-    pusher: Optional[User]
-    sender: Optional[User]
+    commits: List[Commit] | None
+    head_commit: Commit | None
+    repository: Repository | None
+    pusher: User | None
+    sender: User | None

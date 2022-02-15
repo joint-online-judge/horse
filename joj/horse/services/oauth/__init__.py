@@ -3,7 +3,7 @@ Modified based on https://github.com/frankie567/httpx-oauth
 """
 
 import time
-from typing import Any, Dict, Generic, List, Optional, Tuple, TypeVar, cast
+from typing import Any, Dict, Generic, List, Tuple, TypeVar, cast
 from urllib.parse import urlencode
 
 import httpx
@@ -18,19 +18,13 @@ from joj.horse.schemas.base import camelcase_parameters
 class HTTPXOAuthError(Exception):
     """Base exception class for every httpx-oauth errors."""
 
-    pass
-
 
 class GetProfileError(HTTPXOAuthError):
     """Error raised while retrieving user profile from provider API."""
 
-    pass
-
 
 class OAuth2Error(HTTPXOAuthError):
     """Base exception class for OAuth2 client errors."""
-
-    pass
 
 
 class RefreshTokenNotSupportedError(OAuth2Error):
@@ -88,9 +82,9 @@ class BaseOAuth2(Generic[T]):
     client_secret: str
     authorize_endpoint: str
     access_token_endpoint: str
-    refresh_token_endpoint: Optional[str]
-    revoke_token_endpoint: Optional[str]
-    base_scopes: Optional[List[str]]
+    refresh_token_endpoint: str | None
+    revoke_token_endpoint: str | None
+    base_scopes: List[str] | None
     display_name: str
     icon: str
     request_headers: Dict[str, str]
@@ -101,11 +95,11 @@ class BaseOAuth2(Generic[T]):
         client_secret: str,
         authorize_endpoint: str,
         access_token_endpoint: str,
-        refresh_token_endpoint: Optional[str] = None,
-        revoke_token_endpoint: Optional[str] = None,
+        refresh_token_endpoint: str | None = None,
+        revoke_token_endpoint: str | None = None,
         name: str = "oauth2",
-        base_scopes: Optional[List[str]] = None,
-        display_name: Optional[str] = None,
+        base_scopes: List[str] | None = None,
+        display_name: str | None = None,
         icon: str = "",
     ):
         self.client_id = client_id
@@ -123,7 +117,7 @@ class BaseOAuth2(Generic[T]):
             "Accept": "application/json",
         }
 
-    def _parse_scope(self, scope: Optional[List[str]]) -> str:
+    def _parse_scope(self, scope: List[str] | None) -> str:
         scope_set = set()
         if self.base_scopes is not None:
             scope_set.update(set(self.base_scopes))
@@ -135,8 +129,8 @@ class BaseOAuth2(Generic[T]):
         self,
         redirect_uri: str,
         state: str = None,
-        scope: Optional[List[str]] = None,
-        extras_params: Optional[T] = None,
+        scope: List[str] | None = None,
+        extras_params: T | None = None,
     ) -> str:
         params = {
             "response_type": "code",
@@ -229,8 +223,8 @@ OAuth2 = BaseOAuth2[Dict[str, Any]]
 class OAuth2Dependency:
 
     oauth_clients: List[BaseOAuth2[Any]]
-    route_name: Optional[str]
-    redirect_url: Optional[str]
+    route_name: str | None
+    redirect_url: str | None
 
     def __init__(
         self,
@@ -267,7 +261,7 @@ class OAuth2Dependency:
             code: str = None,
             state: str = None,
             error: str = None,
-        ) -> Tuple[OAuth2Token, Optional[str]]:
+        ) -> Tuple[OAuth2Token, str | None]:
             if code is None or error is not None:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,

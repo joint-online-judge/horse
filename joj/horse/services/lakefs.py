@@ -2,7 +2,7 @@ from functools import lru_cache
 from io import BytesIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import IO, TYPE_CHECKING, Any, BinaryIO, Dict, Literal, Optional, cast
+from typing import IO, TYPE_CHECKING, Any, BinaryIO, Dict, Literal, cast
 from uuid import UUID
 
 import boto3
@@ -136,8 +136,8 @@ def ensure_user(user_id: UUID) -> None:
 
 
 def ensure_credentials(
-    user_id: UUID, access_key_id: Optional[str] = None
-) -> Optional[models.CredentialsWithSecret]:
+    user_id: UUID, access_key_id: str | None = None
+) -> models.CredentialsWithSecret | None:
     client = get_lakefs_client()
     if access_key_id is not None:
         try:
@@ -181,9 +181,9 @@ class LakeFSBase:
         self.repo_name: str = f"{self.repo_name_prefix}{self.repo_id}"
         self.branch_name: str = f"{self.branch_name_prefix}{self.branch_id}"
         self.archive_name: str = archive_name
-        self.repo: Optional[models.Repository] = None
-        self.branch: Optional[models.Ref] = None
-        self._storage: Optional[LakeFSStorage] = None
+        self.repo: models.Repository | None = None
+        self.branch: models.Ref | None = None
+        self._storage: LakeFSStorage | None = None
 
     @staticmethod
     def _get_lakefs_exception_message(e: LakeFSApiException) -> str:
@@ -195,7 +195,7 @@ class LakeFSBase:
         except Exception:
             return ""
 
-    def _get_storage(self, ref: Optional[str] = None) -> "Storage":
+    def _get_storage(self, ref: str | None = None) -> "Storage":
         if ref is None:
             ref = self.branch_name
         return LakeFSStorage(
@@ -234,7 +234,7 @@ class LakeFSBase:
             self.repo = client.repositories.create_repository(new_repo)
             logger.info(f"LakeFS create repo: {self.repo}")
 
-    def ensure_branch(self, source_branch_id: Optional[str] = None) -> None:
+    def ensure_branch(self, source_branch_id: str | None = None) -> None:
         self.ensure_repo()
         if self.branch is not None:
             return
@@ -298,7 +298,7 @@ class LakeFSBase:
         except LakeFSApiException:
             pass
 
-    def get_file_info(self, file_path: Path, ref: Optional[str] = None) -> FileInfo:
+    def get_file_info(self, file_path: Path, ref: str | None = None) -> FileInfo:
         try:
             if ref is None:
                 storage = self.storage
@@ -308,7 +308,7 @@ class LakeFSBase:
         except ElephantError as e:
             raise BizError(ErrorCode.ProblemConfigDownloadError, str(e))
 
-    def download_file(self, file_path: Path, ref: Optional[str] = None) -> BinaryIO:
+    def download_file(self, file_path: Path, ref: str | None = None) -> BinaryIO:
         try:
             if ref is None:
                 storage = self.storage
@@ -361,7 +361,7 @@ class LakeFSBase:
             raise BizError(ErrorCode.ProblemConfigUpdateError, str(e))
 
     def download_archive(
-        self, temp_dir: Path, archive_type: ArchiveType, ref: Optional[str] = None
+        self, temp_dir: Path, archive_type: ArchiveType, ref: str | None = None
     ) -> Path:
         self.ensure_branch()
         if ref is None:

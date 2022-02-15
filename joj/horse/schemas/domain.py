@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from sqlmodel import Field
@@ -57,16 +57,16 @@ class DomainCreate(URLCreateMixin, DomainBase):
 
 
 class Domain(DomainBase, IDMixin):
-    owner_id: Optional[UUID] = None
+    owner_id: UUID | None = None
 
 
 class DomainEdit(BaseModel, metaclass=EditMetaclass):
-    url: Optional[UserInputURL]
-    name: Optional[LongStr]
-    gravatar: Optional[LongStr]
-    bulletin: Optional[LongText]
-    hidden: Optional[bool]
-    tag: Optional[LongStr]
+    url: UserInputURL | None
+    name: LongStr | None
+    gravatar: LongStr | None
+    bulletin: LongText | None
+    hidden: bool | None
+    tag: LongStr | None
 
 
 class DomainTransfer(BaseModel):

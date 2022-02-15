@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List
 from uuid import UUID, uuid4
 
 from celery import Celery
@@ -37,43 +37,43 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
     )
     # domain: "Domain" = Relationship(back_populates="records")
 
-    problem_set_id: Optional[UUID] = Field(
+    problem_set_id: UUID | None = Field(
         sa_column=Column(
             GUID, ForeignKey("problem_sets.id", ondelete="SET NULL"), nullable=True
         )
     )
-    problem_set: Optional["ProblemSet"] = Relationship(back_populates="records")
+    problem_set: "ProblemSet" | None = Relationship(back_populates="records")
 
-    problem_id: Optional[UUID] = Field(
+    problem_id: UUID | None = Field(
         sa_column=Column(
             GUID, ForeignKey("problems.id", ondelete="SET NULL"), nullable=True
         )
     )
-    problem: Optional["Problem"] = Relationship(back_populates="records")
+    problem: "Problem" | None = Relationship(back_populates="records")
 
-    problem_config_id: Optional[UUID] = Field(
+    problem_config_id: UUID | None = Field(
         sa_column=Column(
             GUID, ForeignKey("problem_configs.id", ondelete="SET NULL"), nullable=True
         )
     )
-    problem_config: Optional["ProblemConfig"] = Relationship(back_populates="records")
+    problem_config: "ProblemConfig" | None = Relationship(back_populates="records")
 
-    committer_id: Optional[UUID] = Field(
+    committer_id: UUID | None = Field(
         sa_column=Column(
             GUID, ForeignKey("users.id", ondelete="SET NULL"), nullable=True
         )
     )
-    committer: Optional["User"] = Relationship(
+    committer: "User" | None = Relationship(
         back_populates="committed_records",
         sa_relationship_kwargs={"foreign_keys": "[Record.committer_id]"},
     )
 
-    judger_id: Optional[UUID] = Field(
+    judger_id: UUID | None = Field(
         sa_column=Column(
             GUID, ForeignKey("users.id", ondelete="SET NULL"), nullable=True
         )
     )
-    judger: Optional["User"] = Relationship(
+    judger: "User" | None = Relationship(
         back_populates="judged_records",
         sa_relationship_kwargs={"foreign_keys": "[Record.judger_id]"},
     )
@@ -85,7 +85,7 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
         background_tasks: BackgroundTasks,
         celery_app: Celery,
         problem_submit: ProblemSolutionSubmit,
-        problem_set: Optional["ProblemSet"],
+        problem_set: "ProblemSet" | None,
         problem: "Problem",
         user: "User",
     ) -> "Record":
@@ -177,7 +177,7 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
 
     @classmethod
     def get_user_latest_record_key(
-        cls, problem_set_id: Optional[UUID], problem_id: UUID, user_id: UUID
+        cls, problem_set_id: UUID | None, problem_id: UUID, user_id: UUID
     ) -> str:
         if problem_set_id is None:
             return "problem:{}:user:{}".format(problem_id, user_id)
@@ -188,11 +188,11 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
     @classmethod
     async def get_user_latest_record(
         cls,
-        problem_set_id: Optional[UUID],
+        problem_set_id: UUID | None,
         problem_id: UUID,
         user_id: UUID,
         use_cache: bool = True,
-    ) -> Optional[RecordPreview]:
+    ) -> RecordPreview | None:
         cache = get_redis_cache()
         key = cls.get_user_latest_record_key(problem_set_id, problem_id, user_id)
         if use_cache:
@@ -235,8 +235,8 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
 
     @classmethod
     async def get_user_latest_records(
-        cls, problem_set_id: Optional[UUID], problem_ids: List[UUID], user_id: UUID
-    ) -> List[Optional[RecordPreview]]:
+        cls, problem_set_id: UUID | None, problem_ids: List[UUID], user_id: UUID
+    ) -> List[RecordPreview | None]:
         cache = get_redis_cache()
         keys = [
             cls.get_user_latest_record_key(problem_set_id, problem_id, user_id)

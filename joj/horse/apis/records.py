@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from fastapi import Depends, Query
@@ -26,9 +26,9 @@ router_prefix = "/api/v1"
 async def list_records_in_domain(
     domain: models.Domain = Depends(parse_domain_from_auth),
     domain_auth: DomainAuthentication = Depends(),
-    problem_set: Optional[UUID] = Query(None, description="problem set id"),
-    problem: Optional[UUID] = Query(None, description="problem id"),
-    submitter_id: Optional[UUID] = Query(None, description="submitter uid"),
+    problem_set: UUID | None = Query(None, description="problem set id"),
+    problem: UUID | None = Query(None, description="problem id"),
+    submitter_id: UUID | None = Query(None, description="submitter uid"),
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     user: models.User = Depends(parse_user_from_auth),

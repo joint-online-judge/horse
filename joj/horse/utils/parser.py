@@ -1,6 +1,6 @@
 from datetime import datetime
 from functools import lru_cache
-from typing import Any, Callable, Coroutine, List, Optional
+from typing import Any, Callable, Coroutine, List
 from uuid import UUID
 
 from fastapi import Depends, File, Path, Query, UploadFile
@@ -27,9 +27,9 @@ async def parse_uid(
 
 
 async def parse_uid_or_none(
-    uid: Optional[str] = Query("", description="user id or 'me' or empty"),
+    uid: str | None = Query("", description="user id or 'me' or empty"),
     auth: Authentication = Depends(),
-) -> Optional[models.User]:
+) -> models.User | None:
     return await parse_uid(uid, auth) if uid else None
 
 
@@ -261,7 +261,7 @@ def parse_view_hidden_problem(
 
 
 def parse_ordering_query(
-    ordering_fields: Optional[List[str]] = None,
+    ordering_fields: List[str] | None = None,
 ) -> Callable[..., OrderingQuery]:
     description = (
         "Comma seperated list of ordering the results.\n"

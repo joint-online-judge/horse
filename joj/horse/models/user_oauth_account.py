@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict
 from uuid import UUID
 
 from sqlalchemy.schema import Column, ForeignKey
@@ -18,16 +18,16 @@ class UserOAuthAccount(BaseORMModel, table=True):  # type: ignore[call-arg]
 
     oauth_name: str = Field()
     access_token: str = Field()
-    refresh_token: Optional[str] = Field(None, nullable=True)
-    expires_at: Optional[int] = Field(None, nullable=True)
+    refresh_token: str | None = Field(None, nullable=True)
+    expires_at: int | None = Field(None, nullable=True)
     account_id: str = Field(index=True)
-    account_name: Optional[str] = Field(None, index=True, nullable=True)
+    account_name: str | None = Field(None, index=True, nullable=True)
     account_email: str = Field(index=True)
 
-    user_id: Optional[UUID] = Field(
+    user_id: UUID | None = Field(
         sa_column=Column(GUID, ForeignKey("users.id", ondelete="CASCADE"))
     )
-    user: Optional["User"] = Relationship(back_populates="oauth_accounts")
+    user: "User" | None = Relationship(back_populates="oauth_accounts")
 
     @staticmethod
     async def create_or_update(
@@ -44,7 +44,7 @@ class UserOAuthAccount(BaseORMModel, table=True):  # type: ignore[call-arg]
                 .where(UserOAuthAccount.account_id == profile.account_id)
             )
             results = await session.exec(statement)
-            oauth_account: Optional[UserOAuthAccount] = results.one_or_none()
+            oauth_account: UserOAuthAccount | None = results.one_or_none()
             if oauth_account:
                 oauth_account.access_token = access_token
                 oauth_account.refresh_token = refresh_token

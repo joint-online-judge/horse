@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy.orm import joinedload
@@ -36,7 +36,7 @@ class ProblemProblemSetLink(ORMUtils, table=True):  # type: ignore[call-arg]
     @classmethod
     async def find_by_problem_set_and_problem(
         cls, problem_set: str, problem: str
-    ) -> Optional["ProblemProblemSetLink"]:
+    ) -> "ProblemProblemSetLink" | None:
         # this is buggy, do not use!
         # not sure how much it's better than three queries (maybe even worse)
 

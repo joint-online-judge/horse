@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any, List
 
 import click
 import orjson
@@ -21,7 +21,7 @@ def cli_group(ctx: Any) -> Any:
 @cli.command()
 def serve() -> None:  # pragma: no cover
     settings = init_settings(AllSettings)
-    reload_dirs: Optional[List[str]] = None
+    reload_dirs: List[str] | None = None
     if settings.debug:
         reload_dirs = ["joj", ".venv/lib/python3.8/site-packages/joj"]
     uvicorn.run(
@@ -39,7 +39,7 @@ def serve() -> None:  # pragma: no cover
 @click.option("-o", "--output", type=click.Path(), required=False, default=None)
 @click.option("-v", "--version", type=str, default="1")
 @click.option("--pretty", is_flag=True)
-def openapi(output: Optional[str], version: str, pretty: bool) -> None:
+def openapi(output: str | None, version: str, pretty: bool) -> None:
     from joj.horse.app import app
 
     sub_app_path = f"/api/v{version}"

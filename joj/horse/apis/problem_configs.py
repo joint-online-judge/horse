@@ -1,5 +1,5 @@
 import pathlib
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import Body, Depends, File, Path, Query, UploadFile
 from fastapi.responses import StreamingResponse
@@ -192,10 +192,10 @@ def download_problem_config_archive(
     temp_dir: pathlib.Path = Depends(TemporaryDirectory()),
     archive_format: ArchiveType = Query(ArchiveType.zip),
     problem: models.Problem = Depends(parse_problem),
-    config: Optional[models.ProblemConfig] = Depends(parse_problem_config),
+    config: models.ProblemConfig | None = Depends(parse_problem_config),
 ) -> Any:
     # use lakefs to sync and zip files
-    ref: Optional[str]
+    ref: str | None
     if config is not None:
         ref = config.commit_id
     else:
@@ -216,10 +216,10 @@ def download_problem_config_archive(
 def download_file_in_problem_config(
     path: str = Path(...),
     problem: models.Problem = Depends(parse_problem),
-    config: Optional[models.ProblemConfig] = Depends(parse_problem_config),
+    config: models.ProblemConfig | None = Depends(parse_problem_config),
 ) -> Any:
     problem_config = LakeFSProblemConfig(problem)
-    ref: Optional[str]
+    ref: str | None
     if config is not None:
         ref = config.commit_id
     else:

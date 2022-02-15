@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List
 from uuid import UUID
 
 # from joj.elephant.manager import Manager
@@ -21,19 +21,19 @@ if TYPE_CHECKING:
 class ProblemConfig(BaseORMModel, ProblemConfigDetail, table=True):  # type: ignore[call-arg]
     __tablename__ = "problem_configs"
 
-    problem_id: Optional[UUID] = Field(
+    problem_id: UUID | None = Field(
         sa_column=Column(
             GUID, ForeignKey("problems.id", ondelete="SET NULL"), nullable=True
         )
     )
-    problem: Optional["Problem"] = Relationship(back_populates="problem_configs")
+    problem: "Problem" | None = Relationship(back_populates="problem_configs")
 
-    committer_id: Optional[UUID] = Field(
+    committer_id: UUID | None = Field(
         sa_column=Column(
             GUID, ForeignKey("users.id", ondelete="SET NULL"), nullable=True
         )
     )
-    committer: Optional["User"] = Relationship(back_populates="problem_configs")
+    committer: "User" | None = Relationship(back_populates="problem_configs")
 
     records: List["Record"] = Relationship(back_populates="problem_config")
 

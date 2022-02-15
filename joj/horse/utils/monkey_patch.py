@@ -2,18 +2,7 @@ import inspect
 from copy import deepcopy
 from io import IOBase
 from tempfile import SpooledTemporaryFile as SpooledTemporaryFile
-from typing import (
-    Any,
-    AnyStr,
-    Dict,
-    List,
-    Mapping,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import Any, AnyStr, Dict, List, Mapping, Sequence, Tuple, Type
 
 from fastapi import params
 from fastapi.dependencies import utils
@@ -35,7 +24,7 @@ def get_param_field(
     param: inspect.Parameter,
     param_name: str,
     default_field_info: Type[params.Param] = params.Param,
-    force_type: Optional[params.ParamTypes] = None,
+    force_type: params.ParamTypes | None = None,
     ignore_default: bool = False,
 ) -> ModelField:
     default_value = Required
@@ -84,7 +73,7 @@ def get_param_field(
 
 def request_params_to_args(
     required_params: Sequence[ModelField],
-    received_params: Union[Mapping[str, Any], QueryParams, Headers],
+    received_params: Mapping[str, Any] | QueryParams | Headers,
 ) -> Tuple[Dict[str, Any], List[ErrorWrapper]]:
     values = {}
     errors = []

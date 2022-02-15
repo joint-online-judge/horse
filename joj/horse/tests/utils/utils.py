@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, Tuple
 from uuid import UUID
 
 import jwt
@@ -41,7 +41,7 @@ def validate_response(
     return res["data"]
 
 
-def to_dict(data: Union[Dict[Any, Any], BaseModel]) -> Dict[Any, Any]:
+def to_dict(data: Dict[Any, Any] | BaseModel) -> Dict[Any, Any]:
     if isinstance(data, dict):
         return data
     if isinstance(data, models.Domain):
@@ -91,9 +91,9 @@ async def do_api_request(
     method: str,
     url: str,
     user: models.User,
-    query: Optional[Dict[str, str]] = None,
-    data: Optional[Dict[str, str]] = None,
-    headers: Optional[Dict[str, str]] = None,
+    query: Dict[str, str] | None = None,
+    data: Dict[str, str] | None = None,
+    headers: Dict[str, str] | None = None,
 ) -> Response:
     if headers is None:
         headers = generate_auth_headers(user)
@@ -108,7 +108,7 @@ async def do_api_request(
 
 
 async def create_test_user(
-    client: AsyncClient, username: str, password: Optional[str] = None
+    client: AsyncClient, username: str, password: str | None = None
 ) -> Response:
     if password is None:
         password = username
@@ -127,7 +127,7 @@ async def create_test_user(
 
 
 async def login_test_user(
-    client: AsyncClient, username: str, password: Optional[str] = None
+    client: AsyncClient, username: str, password: str | None = None
 ) -> Response:
     if password is None:
         password = username
@@ -177,8 +177,8 @@ async def create_test_domain(
 async def validate_test_domain(
     response: Response,
     owner: models.User,
-    domain: Union[Dict[str, str], models.Domain],
-) -> Optional[models.Domain]:
+    domain: Dict[str, str] | models.Domain,
+) -> models.Domain | None:
     res = validate_response(response)
     assert res["id"]
     data = to_dict(domain)
@@ -207,8 +207,8 @@ async def validate_test_problem_set(
     response: Response,
     domain: models.Domain,
     owner: models.User,
-    problem_set: Union[Dict[str, str], models.ProblemSet],
-) -> Optional[models.ProblemSet]:
+    problem_set: Dict[str, str] | models.ProblemSet,
+) -> models.ProblemSet | None:
     res = validate_response(response)
     assert res["id"]
     data = to_dict(problem_set)
@@ -241,7 +241,7 @@ async def validate_test_problem(
     response: Response,
     domain: models.Domain,
     owner: models.User,
-    problem: Union[Dict[str, str], models.Problem],
+    problem: Dict[str, str] | models.Problem,
 ) -> models.Problem:
     res = validate_response(response)
     assert res["id"]

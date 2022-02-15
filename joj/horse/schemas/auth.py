@@ -36,13 +36,13 @@ from joj.horse.utils.errors import (
 jwt_scheme = HTTPBearer(bearerFormat="JWT", auto_error=False)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-SecretType = Union[str, SecretStr]
+SecretType = str | SecretStr
 
 
 class AuthParams(BaseModel):
     cookie: bool = True
     response_type: Literal["redirect", "json"]
-    redirect_url: Optional[str] = None
+    redirect_url: str | None = None
 
 
 class JWTToken(BaseModel):
@@ -55,7 +55,7 @@ class JWTToken(BaseModel):
     # fastapi_jwt_auth claims
     type: str
     fresh: bool = False
-    csrf: Optional[str] = None
+    csrf: str | None = None
 
 
 class JWTUserClaims(BaseModel):
@@ -65,8 +65,8 @@ class JWTUserClaims(BaseModel):
     gravatar: str = ""
     student_id: str = ""
     real_name: str = ""
-    role: Optional[str] = None
-    oauth_name: Optional[str] = None
+    role: str | None = None
+    oauth_name: str | None = None
     is_active: bool
 
 
@@ -75,7 +75,7 @@ class JWTAccessToken(JWTUserClaims, JWTToken):
 
 
 class JWTRefreshToken(JWTToken):
-    oauth_name: Optional[str]
+    oauth_name: str | None
 
 
 class JWTOAuthToken(JWTToken):
@@ -112,9 +112,9 @@ def get_config() -> Settings:
 
 def auth_jwt_encode_user(
     auth_jwt: AuthJWT,
-    user: Optional[User] = None,
-    oauth: Optional[OAuth2Profile] = None,
-    oauth_name: Optional[str] = None,
+    user: User | None = None,
+    oauth: OAuth2Profile | None = None,
+    oauth_name: str | None = None,
     fresh: bool = True,
 ) -> Tuple[str, str]:
     if user is None and oauth is None:
@@ -178,7 +178,7 @@ def auth_jwt_encode_oauth_state(
     )
 
 
-# def auth_jwt_decode(auth_jwt: AuthJWT) -> Optional[Dict[str, Any]]:
+# def auth_jwt_decode(auth_jwt: AuthJWT) -> Dict[str, Any] | None:
 #     auth_jwt.jwt_optional()
 #     payload = auth_jwt.get_raw_jwt()
 #     return payload
@@ -230,7 +230,7 @@ def auth_jwt_decode_access_token_optional(
     auth_jwt: AuthJWT = Depends(),
     scheme: HTTPAuthorizationCredentials = Depends(jwt_scheme)
     # scheme is only used for authorization in swagger UI
-) -> Optional[JWTAccessToken]:
+) -> JWTAccessToken | None:
     auth_jwt.jwt_optional()
     payload = auth_jwt.get_raw_jwt()
     if not payload:
@@ -242,9 +242,8 @@ def auth_jwt_decode_access_token_optional(
 
 
 def auth_jwt_decode_access_token(
-    jwt_access_token: Optional[JWTAccessToken] = Depends(
-        auth_jwt_decode_access_token_optional
-    ),
+    jwt_access_token: JWTAccessToken
+    | None = Depends(auth_jwt_decode_access_token_optional),
 ) -> JWTAccessToken:
     if jwt_access_token is None:
         raise UnauthorizedError(message="Unauthorized")
@@ -253,8 +252,8 @@ def auth_jwt_decode_access_token(
 
 def auth_jwt_decode_oauth_state(
     auth_jwt: AuthJWT,
-    state: Optional[str],
-) -> Optional[JWTOAuthToken]:
+    state: str | None,
+) -> JWTOAuthToken | None:
     payload = auth_jwt.get_raw_jwt(state)
     if payload:
         try:
@@ -266,8 +265,8 @@ def auth_jwt_decode_oauth_state(
 
 # noinspection PyBroadException
 # def get_current_user_optional(
-#     jwt_access_token: Optional[JWTUserToken] = Depends(auth_jwt_decode_user_optional),
-# ) -> Optional[JWTUserTokenUser]:
+#     jwt_access_token: JWTUserToken | None = Depends(auth_jwt_decode_user_optional),
+# ) -> JWTUserTokenUser | None:
 #     if jwt_access_token is None:
 #         return None
 #     return jwt_access_token.user
@@ -281,8 +280,8 @@ def auth_jwt_decode_oauth_state(
 
 
 # def get_current_oauth_profile_optional(
-#     jwt_access_token: Optional[JWTUserToken] = Depends(auth_jwt_decode_user_optional),
-# ) -> Optional[JWTUserTokenOAuth]:
+#     jwt_access_token: JWTUserToken | None = Depends(auth_jwt_decode_user_optional),
+# ) -> JWTUserTokenOAuth | None:
 #     if jwt_access_token is None:
 #         return None
 #     return jwt_access_token.oauth
@@ -315,7 +314,7 @@ async def get_domain(
 async def get_domain_user(
     jwt_access_token: JWTAccessToken = Depends(auth_jwt_decode_access_token),
     domain: Domain = Depends(get_domain),
-) -> Optional[DomainUser]:
+) -> DomainUser | None:
     if jwt_access_token.category == "user":
         domain_user = await DomainUser.get_or_none(
             domain_id=domain.id, user_id=jwt_access_token.id
@@ -325,7 +324,7 @@ async def get_domain_user(
 
 
 async def get_domain_role(
-    domain_user: Optional[DomainUser] = Depends(get_domain_user),
+    domain_user: DomainUser | None = Depends(get_domain_user),
 ) -> str:
     if domain_user is not None:
         return domain_user.role
@@ -369,18 +368,18 @@ class Authentication:
     ):
         self.jwt: JWTAccessToken = jwt_access_token
         # self.user: User = jwt_access_token.user
-        # self.oauth_profile: Optional[OAuth2Profile] = jwt_access_token.oauth
+        # self.oauth_profile: OAuth2Profile | None = jwt_access_token.oauth
         self.site_role: str = site_role
         self.site_permission: SitePermission = site_permission
-        self.domain: Optional[Domain] = None
-        self.domain_user: Optional[DomainUser] = None
+        self.domain: Domain | None = None
+        self.domain_user: DomainUser | None = None
         self.domain_role: str = DefaultRole.GUEST
         self.domain_permission: DomainPermission = DEFAULT_DOMAIN_PERMISSION[
             DefaultRole.GUEST
         ]
 
     def check(self, scope: ScopeType, permission: PermissionType) -> bool:
-        def _check(permissions: Optional[Dict[str, Any]]) -> bool:
+        def _check(permissions: Dict[str, Any] | None) -> bool:
             if permissions is None:
                 return False
             return bool(permissions.get(permission, False))
@@ -431,7 +430,7 @@ class DomainAuthentication:
         self,
         auth: Authentication = Depends(),
         domain: Domain = Depends(get_domain),
-        domain_user: Optional[DomainUser] = Depends(get_domain_user),
+        domain_user: DomainUser | None = Depends(get_domain_user),
         domain_role: DefaultRole = Depends(get_domain_role),
         domain_permission: DomainPermission = Depends(get_domain_permission),
     ):
@@ -444,16 +443,16 @@ class DomainAuthentication:
 
 PermKeyTuple = Tuple[ScopeType, PermissionType]
 PermComposeIterable = List[  # type: ignore
-    Union[PermKey, PermCompose, PermKeyTuple, "PermComposeTuple"]  # type: ignore
+    PermKey | PermCompose | PermKeyTuple | "PermComposeTuple"  # type: ignore
 ]
-PermComposeTuple = Union[  # type: ignore
-    PermComposeIterable,
-    Tuple[PermComposeIterable],
-    Tuple[PermComposeIterable, Literal["AND", "OR"]],
+PermComposeTuple = Union[
+    PermComposeIterable,  # type: ignore
+    Tuple[PermComposeIterable],  # type: ignore
+    Tuple[PermComposeIterable, Literal["AND", "OR"]],  # type: ignore
 ]
-PermArg1 = Union[  # type: ignore
+PermArg1 = Union[
     ScopeType,
-    PermComposeIterable,
+    PermComposeIterable,  # type: ignore
     PermKey,
     PermCompose,
     PermKeyTuple,
@@ -463,10 +462,10 @@ PermArg2 = Union[PermissionType, Optional[Literal["AND", "OR"]]]
 
 
 class PermissionChecker:
-    def __init__(self, perm: Union[PermKey, PermCompose]):
+    def __init__(self, perm: PermKey | PermCompose):
         self.perm = perm
 
-    def ensure(self, auth: Authentication, perm: Union[PermKey, PermCompose]) -> None:
+    def ensure(self, auth: Authentication, perm: PermKey | PermCompose) -> None:
         if not isinstance(self.perm, PermKey) and not isinstance(
             self.perm, PermCompose
         ):
@@ -478,8 +477,8 @@ class PermissionChecker:
             )
 
     def check(
-        self, auth: Authentication, perm: Union[PermKey, PermCompose]
-    ) -> Optional[PermKey]:
+        self, auth: Authentication, perm: PermKey | PermCompose
+    ) -> PermKey | None:
         if isinstance(perm, PermKey):
             if auth.check(perm.scope, perm.permission):
                 return None
@@ -511,8 +510,8 @@ class DomainPermissionChecker(PermissionChecker):
 
 
 def ensure_permission(
-    arg1: Optional[PermArg1] = None, arg2: Optional[PermArg2] = None
-) -> Optional[Callable[..., None]]:
+    arg1: PermArg1 | None = None, arg2: PermArg2 = None
+) -> Callable[..., None] | None:
     """
     Returns a permission check dependency in fastapi.
     Support flexible formats:
@@ -543,9 +542,9 @@ def ensure_permission(
     """
 
     def construct_perm(
-        _arg1: PermArg1, _arg2: Optional[PermArg2] = None
-    ) -> Union[PermKey, PermCompose]:
-        _perm: Optional[Union[PermKey, PermCompose]] = None
+        _arg1: PermArg1, _arg2: PermArg2 | None = None
+    ) -> PermKey | PermCompose:
+        _perm: PermKey | PermCompose | None = None
         if _arg1 is None:
             if _arg2 is None:
                 _perm = PermCompose(permissions=[], action="AND")
@@ -561,7 +560,7 @@ def ensure_permission(
             if len(_arg1) == 1:
                 _perm = construct_perm(_arg1[0])
             elif len(_arg1) == 2:
-                _perm = construct_perm(_arg1[0], _arg1[1])  # type: ignore
+                _perm = construct_perm(_arg1[0], _arg1[1])
         else:
             # accept (permissions, action)
             try:
@@ -570,7 +569,7 @@ def ensure_permission(
                 if _arg2 in ("AND", "OR"):
                     perms = []
                     for child in _arg1:
-                        perms.append(construct_perm(child))  # type: ignore
+                        perms.append(construct_perm(child))
                     if len(perms) == 1:
                         _perm = perms[0]
                     else:
@@ -583,7 +582,7 @@ def ensure_permission(
             )
         return _perm
 
-    def contains_domain(_perm: Union[PermKey, PermCompose]) -> bool:
+    def contains_domain(_perm: PermKey | PermCompose) -> bool:
         if isinstance(_perm, PermKey):
             return is_domain_permission(_perm.scope)
         for child in _perm.permissions:
@@ -591,7 +590,7 @@ def ensure_permission(
                 return True
         return False
 
-    perm = construct_perm(arg1, arg2)  # type: ignore
+    perm = construct_perm(arg1, arg2)
     if contains_domain(perm):
         return DomainPermissionChecker(perm)
     return UserPermissionChecker(perm)

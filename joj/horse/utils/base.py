@@ -2,7 +2,7 @@ from enum import Enum
 from pathlib import Path
 from shutil import rmtree
 from tempfile import mkdtemp
-from typing import Any, Generator, Optional
+from typing import Any, Generator
 from uuid import UUID
 
 
@@ -22,9 +22,9 @@ def is_uuid(s: Any) -> bool:
 class TemporaryDirectory:
     def __init__(
         self,
-        suffix: Optional[str] = None,
-        prefix: Optional[str] = None,
-        base_dir: Optional[str] = None,
+        suffix: str | None = None,
+        prefix: str | None = None,
+        base_dir: str | None = None,
     ) -> None:
         self.suffix = suffix
         self.prefix = prefix

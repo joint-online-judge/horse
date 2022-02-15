@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import List
 
 import sqlalchemy.exc
 from fastapi import Depends, Query
@@ -45,7 +45,7 @@ router_prefix = "/api/v1"
 
 @router.get("", permissions=[])
 async def list_domains(
-    role: Optional[List[str]] = Query(None),
+    role: List[str] | None = Query(None),
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     user: models.User = Depends(parse_user_from_auth),

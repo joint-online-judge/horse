@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
@@ -38,7 +38,7 @@ class DomainUser(BaseORMModel, table=True):  # type: ignore[call-arg]
 
     @classmethod
     async def add_domain_user(
-        cls, domain_id: UUID, user_id: UUID, role: Union[str, DefaultRole]
+        cls, domain_id: UUID, user_id: UUID, role: str | DefaultRole
     ) -> "DomainUser":
         role = str(role)
         # check domain user
@@ -53,7 +53,7 @@ class DomainUser(BaseORMModel, table=True):  # type: ignore[call-arg]
 
     @classmethod
     async def update_domain_user(
-        cls, domain_id: UUID, user_id: UUID, role: Union[str, DefaultRole]
+        cls, domain_id: UUID, user_id: UUID, role: str | DefaultRole
     ) -> "DomainUser":
         role = str(role)
         # check domain user
@@ -67,9 +67,7 @@ class DomainUser(BaseORMModel, table=True):  # type: ignore[call-arg]
         return domain_user
 
     @classmethod
-    async def count_domain_user(
-        cls, domain_id: UUID, role: Union[str, DefaultRole]
-    ) -> int:
+    async def count_domain_user(cls, domain_id: UUID, role: str | DefaultRole) -> int:
         role = str(role)
         statement = (
             select(DomainUser.id)

@@ -1,4 +1,4 @@
-from typing import Dict, List, Literal, NamedTuple, Optional, Type, TypeVar, Union
+from typing import Dict, List, Literal, NamedTuple, Type, TypeVar
 
 from pydantic import validator
 
@@ -13,7 +13,7 @@ from joj.horse.schemas.base import BaseModel
 class PermissionBase(BaseModel):
     @classmethod
     def get_default(
-        cls: Type["PermissionBase"], value: Optional[bool] = None
+        cls: Type["PermissionBase"], value: bool | None = None
     ) -> "PermissionBase":
         obj = cls()
         if value is not None:
@@ -84,7 +84,7 @@ class DomainPermission(BaseModel):
 
     @classmethod
     def get_default(
-        cls: Type["DomainPermission"], value: Optional[bool] = None
+        cls: Type["DomainPermission"], value: bool | None = None
     ) -> "DomainPermission":
         return DomainPermission(
             general=GeneralPermission.get_default(value),
@@ -101,8 +101,8 @@ class SitePermission(DomainPermission):
     @classmethod
     def get_default_site_permission(
         cls: Type["SitePermission"],
-        value1: Optional[bool] = None,
-        value2: Optional[bool] = None,
+        value1: bool | None = None,
+        value2: bool | None = None,
     ) -> "SitePermission":
         return SitePermission(
             **DomainPermission.get_default(value1).dict(),
@@ -138,13 +138,13 @@ class PermKey(NamedTuple):
 
 
 class PermCompose(BaseModel):
-    permissions: List[Union["PermCompose", PermKey]]
+    permissions: List["PermCompose" | PermKey]
     action: Literal["AND", "OR"] = "AND"
 
     @validator("permissions")
     def validate_permissions(
-        cls, v: List[Union["PermCompose", PermKey]]
-    ) -> List[Union["PermCompose", PermKey]]:
+        cls, v: List["PermCompose" | PermKey]
+    ) -> List["PermCompose" | PermKey]:
         if len(v) == 0:
             raise ValueError("permissions can't be empty list")
         return v

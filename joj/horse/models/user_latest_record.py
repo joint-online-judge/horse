@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
@@ -27,7 +27,7 @@ class UserLatestRecord(BaseORMModel, table=True):  # type: ignore[call-arg]
             GUID, ForeignKey("problems.id", ondelete="CASCADE"), nullable=False
         ),
     )
-    problem_set_id: Optional[UUID] = Field(
+    problem_set_id: UUID | None = Field(
         sa_column=Column(
             GUID, ForeignKey("problem_sets.id", ondelete="CASCADE"), nullable=True
         ),

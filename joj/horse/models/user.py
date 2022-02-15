@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
 from pydantic import EmailStr, root_validator
 from sqlalchemy.sql.expression import Select, or_
@@ -153,10 +153,10 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
     async def create(
         cls,
         user_create: "UserCreate",
-        jwt_access_token: Optional["JWTAccessToken"],
+        jwt_access_token: "JWTAccessToken" | None,
         register_ip: str,
     ) -> "User":
-        oauth_account: Optional[UserOAuthAccount]
+        oauth_account: UserOAuthAccount | None
         if user_create.oauth_name:
             if (
                 jwt_access_token is None
@@ -181,7 +181,7 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
             await session.refresh(user)
             return user
 
-    def find_domains_statement(self, role: Optional[List[str]]) -> Select:
+    def find_domains_statement(self, role: List[str] | None) -> Select:
         from joj.horse import models
 
         statement = models.Domain.sql_select().outerjoin(models.DomainUser).distinct()

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Type, TypeVar
 from uuid import UUID, uuid4
 
 from pydantic.fields import Undefined
@@ -47,7 +47,7 @@ class ORMUtils(SQLModel, BaseModel):
     @classmethod
     async def get_or_none(
         __base_orm_model_cls__: Type["BaseORMModelType"], **kwargs: Any
-    ) -> Optional["BaseORMModelType"]:
+    ) -> "BaseORMModelType" | None:
         async with db_session() as session:
             statement = __base_orm_model_cls__.apply_filtering(
                 select(__base_orm_model_cls__), **kwargs
@@ -102,13 +102,13 @@ class ORMUtils(SQLModel, BaseModel):
     def apply_ordering(
         cls: Type["BaseORMModelType"],
         statement: Select,
-        ordering: Optional["OrderingQuery"],
+        ordering: "OrderingQuery" | None,
     ) -> Select:
         if ordering is None or not ordering.orderings:
             return statement
         order_by_clause = []
         for x in ordering.orderings:
-            asc: Optional[bool] = None
+            asc: bool | None = None
             if x.startswith("-"):
                 asc = False
                 field = x[1:]
@@ -136,7 +136,7 @@ class ORMUtils(SQLModel, BaseModel):
     def apply_count(
         cls: Type["BaseORMModelType"],
         statement: Select,
-        # alt_cls: Optional[Type["BaseORMModelType"]] = None,
+        # alt_cls: Type["BaseORMModelType"] | None = None,
     ) -> Select:
         # if alt_cls is None:
         #     alt_cls = cls
@@ -146,7 +146,7 @@ class ORMUtils(SQLModel, BaseModel):
     def apply_pagination(
         cls: Type["BaseORMModelType"],
         statement: Select,
-        pagination: Optional["PaginationQuery"],
+        pagination: "PaginationQuery" | None,
     ) -> Select:
         if pagination is not None:
             statement = statement.offset(pagination.offset).limit(pagination.limit)
@@ -155,9 +155,9 @@ class ORMUtils(SQLModel, BaseModel):
     @classmethod
     def apply_filtering(
         __base_orm_model_cls__: Type["BaseORMModelType"],
-        __statement__: Union[Select, Update, Delete],
+        __statement__: Select | Update | Delete,
         **kwargs: Any,
-    ) -> Union[Select, Update, Delete]:
+    ) -> Select | Update | Delete:
         statement = select(__base_orm_model_cls__)
         for k, v in kwargs.items():
             statement = statement.where(getattr(__base_orm_model_cls__, k) == v)
@@ -167,9 +167,9 @@ class ORMUtils(SQLModel, BaseModel):
     async def execute_list_statement(
         cls: Type["BaseORMModelType"],
         statement: Select,
-        ordering: Optional["OrderingQuery"] = None,
-        pagination: Optional["PaginationQuery"] = None,
-    ) -> Tuple[Union[List["BaseORMModelType"], List[Row]], int]:
+        ordering: "OrderingQuery" | None = None,
+        pagination: "PaginationQuery" | None = None,
+    ) -> Tuple[List["BaseORMModelType"] | List[Row], int]:
         count_statement = cls.apply_count(statement)
         statement = cls.apply_ordering(statement, ordering)
         statement = cls.apply_pagination(statement, pagination)
@@ -196,10 +196,10 @@ class ORMUtils(SQLModel, BaseModel):
 
 class BaseORMModel(ORMUtils):
     id: UUID = Field(default_factory=uuid4, primary_key=True, nullable=False)
-    created_at: Optional[datetime] = Field(
+    created_at: datetime | None = Field(
         None, sa_column=get_datetime_column(index=True, server_default=utcnow())
     )
-    updated_at: Optional[datetime] = Field(
+    updated_at: datetime | None = Field(
         None,
         sa_column=get_datetime_column(
             index=True, server_default=utcnow(), onupdate=utcnow()
@@ -220,7 +220,7 @@ class URLORMModel(BaseORMModel):
     @classmethod
     async def find_by_url_or_id(
         cls: Type["BaseORMModelType"], url_or_id: str
-    ) -> Optional["BaseORMModelType"]:
+    ) -> "BaseORMModelType" | None:
         if is_uuid(url_or_id):
             statement = select(cls).where(cls.id == url_or_id)
         else:
@@ -245,7 +245,7 @@ class DomainURLORMModel(URLORMModel):
         domain: "Domain",
         url_or_id: str,
         options: Any = None,
-    ) -> Optional["BaseORMModelType"]:
+    ) -> "BaseORMModelType" | None:
         if is_uuid(url_or_id):
             statement = (
                 select(cls).where(cls.id == url_or_id).where(cls.domain_id == domain.id)

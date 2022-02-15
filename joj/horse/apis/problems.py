@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 from uuid import UUID
 
 from celery import Celery
@@ -142,7 +142,7 @@ async def clone_problem(
     try:
         res = []
         for problem in problems:
-            problem_group_id: Optional[UUID]
+            problem_group_id: UUID | None
             if new_group:
                 problem_group = models.ProblemGroup()
                 # TODO: transaction (since session has already committed here)
