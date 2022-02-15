@@ -1,4 +1,4 @@
-from typing import Type, Union
+from typing import Type
 
 from pydantic import Field
 from pydantic_universal_settings import (
@@ -135,7 +135,7 @@ class AuthSettings(BaseSettings):
 
 
 GeneratedSettings: Type[
-    Union[ServerSettings, DatabaseSettings, ObjectStorageSettings, AuthSettings]
+    ServerSettings | DatabaseSettings | ObjectStorageSettings | AuthSettings
 ] = generate_all_settings(mixins=[EnvFileMixin, CLIWatchMixin])
 
 

@@ -23,7 +23,7 @@ def serve() -> None:  # pragma: no cover
     settings = init_settings(AllSettings)
     reload_dirs: List[str] | None = None
     if settings.debug:
-        reload_dirs = ["joj", ".venv/lib/python3.8/site-packages/joj"]
+        reload_dirs = ["joj", ".venv/lib/python3.10/site-packages/joj"]
     uvicorn.run(
         "joj.horse.app:app",
         host=settings.host,
