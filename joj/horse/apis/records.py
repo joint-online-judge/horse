@@ -7,6 +7,7 @@ from joj.horse import models, schemas
 from joj.horse.models.permission import PermissionType, ScopeType
 from joj.horse.schemas.auth import DomainAuthentication
 from joj.horse.schemas.base import StandardListResponse, StandardResponse
+from joj.horse.utils.fastapi.router import MyRouter
 from joj.horse.utils.parser import (
     parse_domain_from_auth,
     parse_ordering_query,
@@ -14,7 +15,6 @@ from joj.horse.utils.parser import (
     parse_record,
     parse_user_from_auth,
 )
-from joj.horse.utils.router import MyRouter
 
 router = MyRouter()
 router_name = "domains/{domain}"

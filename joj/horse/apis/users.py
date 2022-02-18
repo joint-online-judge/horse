@@ -5,12 +5,12 @@ from fastapi import Depends, Query
 from joj.horse import models, schemas
 from joj.horse.schemas import StandardListResponse, StandardResponse
 from joj.horse.schemas.permission import Permission
+from joj.horse.utils.fastapi.router import MyRouter
 from joj.horse.utils.parser import (
     parse_ordering_query,
     parse_pagination_query,
     parse_uid,
 )
-from joj.horse.utils.router import MyRouter
 
 router = MyRouter()
 router_name = "users"

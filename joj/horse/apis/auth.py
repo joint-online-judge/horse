@@ -26,7 +26,7 @@ from joj.horse.services.oauth import BaseOAuth2, OAuth2Dependency, OAuth2Token
 from joj.horse.services.oauth.github import GitHubOAuth2
 from joj.horse.services.oauth.jaccount import JaccountOAuth2
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.router import MyRouter
+from joj.horse.utils.fastapi.router import MyRouter
 from joj.horse.utils.url import get_base_url
 
 router = MyRouter()

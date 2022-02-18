@@ -24,6 +24,7 @@ from joj.horse.schemas.permission import (
 )
 from joj.horse.services.db import db_session_dependency
 from joj.horse.utils.errors import BizError, ErrorCode, UnauthorizedError
+from joj.horse.utils.fastapi.router import MyRouter
 from joj.horse.utils.parser import (
     parse_domain_from_auth,
     parse_domain_invitation,
@@ -35,7 +36,6 @@ from joj.horse.utils.parser import (
     parse_user_from_auth,
     parse_user_from_path_or_query,
 )
-from joj.horse.utils.router import MyRouter
 
 router = MyRouter()
 router_name = "domains"

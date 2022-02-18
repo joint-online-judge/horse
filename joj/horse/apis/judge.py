@@ -7,8 +7,8 @@ from joj.horse.schemas.base import Empty, StandardResponse
 from joj.horse.schemas.permission import Permission
 from joj.horse.services.lakefs import LakeFSProblemConfig, LakeFSRecord
 from joj.horse.utils.errors import BizError, ErrorCode
+from joj.horse.utils.fastapi.router import MyRouter
 from joj.horse.utils.parser import parse_record_judger, parse_user_from_auth
-from joj.horse.utils.router import MyRouter
 
 router = MyRouter()
 router_name = "judge"

@@ -6,8 +6,8 @@ from joj.horse.models.permission import DefaultRole
 from joj.horse.schemas.auth import Authentication
 from joj.horse.schemas.base import StandardListResponse
 from joj.horse.utils.errors import ForbiddenError
+from joj.horse.utils.fastapi.router import MyRouter
 from joj.horse.utils.parser import parse_ordering_query, parse_pagination_query
-from joj.horse.utils.router import MyRouter
 
 
 def ensure_site_root(auth: Authentication = Depends()) -> None:

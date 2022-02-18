@@ -8,8 +8,8 @@ from joj.horse.schemas.base import Empty, StandardResponse
 from joj.horse.schemas.misc import Version
 from joj.horse.services.db import db_session_dependency
 from joj.horse.utils.errors import BizError, ErrorCode
+from joj.horse.utils.fastapi.router import MyRouter
 from joj.horse.utils.parser import parse_user_from_auth
-from joj.horse.utils.router import MyRouter
 from joj.horse.utils.version import get_git_version, get_version
 
 router = MyRouter()

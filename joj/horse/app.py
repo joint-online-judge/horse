@@ -3,7 +3,6 @@ import asyncio
 import rollbar
 from fastapi import Depends, FastAPI, Request
 from fastapi.responses import ORJSONResponse
-from fastapi_versioning import VersionedFastAPI
 from lakefs_client.exceptions import ApiException as LakeFSApiException
 from loguru import logger
 from pydantic_universal_settings import init_settings
@@ -20,8 +19,9 @@ from joj.horse.schemas.cache import try_init_cache
 from joj.horse.services.db import db_session_dependency, try_init_db
 from joj.horse.services.lakefs import try_init_lakefs
 from joj.horse.utils.exception_handlers import register_exception_handlers
+from joj.horse.utils.fastapi.router import simplify_operation_ids
+from joj.horse.utils.fastapi.version import VersionedFastAPI
 from joj.horse.utils.logger import init_logging  # noqa: F401
-from joj.horse.utils.router import simplify_operation_ids
 from joj.horse.utils.url import get_base_url
 from joj.horse.utils.version import get_git_version, get_version
 
@@ -55,7 +55,7 @@ async def redirect_to_docs(request: Request) -> RedirectResponse:  # pragma: no 
     logger.info(base_url)
     logger.info(redirect_url)
 
-    return RedirectResponse(redirect_url + "?docExpansion=none")
+    return RedirectResponse(redirect_url)
 
 
 @app.on_event("startup")

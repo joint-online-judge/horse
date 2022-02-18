@@ -13,6 +13,7 @@ from joj.horse.schemas.permission import Permission
 from joj.horse.services.celery_app import celery_app_dependency
 from joj.horse.services.db import db_session_dependency
 from joj.horse.services.lakefs import LakeFSProblemConfig
+from joj.horse.utils.fastapi.router import MyRouter
 from joj.horse.utils.parser import (
     parse_domain_from_auth,
     parse_ordering_query,
@@ -23,7 +24,6 @@ from joj.horse.utils.parser import (
     parse_user_from_auth,
     parse_view_hidden_problem,
 )
-from joj.horse.utils.router import MyRouter
 
 router = MyRouter()
 router_name = "domains/{domain}/problems"

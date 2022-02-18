@@ -11,6 +11,7 @@ from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.permission import Permission
 from joj.horse.services.lakefs import LakeFSProblemConfig
 from joj.horse.utils.base import TemporaryDirectory, iter_file
+from joj.horse.utils.fastapi.router import MyRouter
 from joj.horse.utils.lock import lock_problem_config
 from joj.horse.utils.parser import (
     parse_file_path,
@@ -19,7 +20,6 @@ from joj.horse.utils.parser import (
     parse_problem_config,
     parse_user_from_auth,
 )
-from joj.horse.utils.router import MyRouter
 
 router = MyRouter()
 router_name = "domains/{domain}/problems/{problem}"

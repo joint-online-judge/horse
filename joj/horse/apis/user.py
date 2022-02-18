@@ -4,8 +4,8 @@ from loguru import logger
 from joj.horse import schemas
 from joj.horse.schemas import StandardResponse
 from joj.horse.schemas.auth import Authentication
+from joj.horse.utils.fastapi.router import MyRouter
 from joj.horse.utils.parser import parse_uid
-from joj.horse.utils.router import MyRouter
 
 router = MyRouter()
 router_name = "user"

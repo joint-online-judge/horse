@@ -23,7 +23,7 @@ from joj.horse.apis.problem_configs import (
 from joj.horse.apis.problem_sets import submit_solution_to_problem_set
 from joj.horse.apis.problems import submit_solution_to_problem
 from joj.horse.app import app
-from joj.horse.utils.router import copy_schema, update_schema_name
+from joj.horse.utils.fastapi.router import copy_schema, update_schema_name
 
 
 def include_router(module: Any) -> None:
