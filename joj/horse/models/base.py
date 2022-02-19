@@ -23,9 +23,20 @@ from sqlalchemy.sql.functions import count
 from sqlmodel import Field, SQLModel, delete, select, update
 from sqlmodel.engine.result import ScalarResult
 
+# SAWarning: Class SelectOfScalar will not make use of SQL compilation
+# caching as it does not set the 'inherit_cache' attribute to ``True``.
+# monkey patch from https://github.com/tiangolo/sqlmodel/issues/189#issuecomment-1025190094
+from sqlmodel.sql.expression import (
+    Select as sm_Select,
+    SelectOfScalar as sm_SelectOfScalar,
+)
+
 from joj.horse.schemas.base import BaseModel, UserInputURL, get_datetime_column, utcnow
 from joj.horse.services.db import db_session
 from joj.horse.utils.base import is_uuid
+
+sm_SelectOfScalar.inherit_cache = True
+sm_Select.inherit_cache = True
 
 if TYPE_CHECKING:
     from joj.horse.models.domain import Domain
