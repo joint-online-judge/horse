@@ -114,7 +114,7 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
         jwt_access_token: "JWTAccessToken",
         register_ip: str,
     ) -> Tuple["User", "UserOAuthAccount"]:
-        oauth_account = await UserOAuthAccount.get_or_none(
+        oauth_account = await UserOAuthAccount.one_or_none(
             oauth_name=jwt_access_token.oauth_name,
             account_id=jwt_access_token.id,
         )

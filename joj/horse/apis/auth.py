@@ -199,7 +199,7 @@ def get_oauth_router(
                 auth_jwt, oauth=oauth_profile
             )
         else:
-            user = await models.User.get_or_none(id=oauth_account.user_id)
+            user = await models.User.one_or_none(id=oauth_account.user_id)
             if user is not None:
                 user.login_at = datetime.now(tz=timezone.utc)
                 user.login_ip = request.client.host
@@ -230,7 +230,7 @@ async def login(
     auth_jwt: AuthJWT = Depends(AuthJWT),
     credentials: OAuth2PasswordRequestForm = Depends(),
 ) -> schemas.StandardResponse[schemas.AuthTokens]:
-    user = await models.User.get_or_none(username=credentials.username)
+    user = await models.User.one_or_none(username=credentials.username)
     if not user:
         raise BizError(ErrorCode.UsernamePasswordError, "user not found")
     if not user.verify_password(credentials.password):
@@ -318,7 +318,7 @@ async def refresh(
     auth_jwt: AuthJWT = Depends(AuthJWT),
     jwt_refresh_token: JWTToken = Depends(auth_jwt_decode_refresh_token),
 ) -> schemas.StandardResponse[schemas.AuthTokens]:
-    user = await models.User.get_or_none(id=jwt_refresh_token.id)
+    user = await models.User.one_or_none(id=jwt_refresh_token.id)
     if user is None:
         access_token, refresh_token = "", ""
     else:

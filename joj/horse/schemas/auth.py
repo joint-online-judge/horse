@@ -317,7 +317,7 @@ async def get_domain_user(
     domain: Domain = Depends(get_domain),
 ) -> Optional[DomainUser]:
     if jwt_access_token.category == "user":
-        domain_user = await DomainUser.get_or_none(
+        domain_user = await DomainUser.one_or_none(
             domain_id=domain.id, user_id=jwt_access_token.id
         )
         return domain_user
@@ -339,7 +339,7 @@ async def get_domain_permission(
     if domain_role == DefaultRole.ROOT:
         return DEFAULT_DOMAIN_PERMISSION[DefaultRole.ROOT]
     if domain:
-        _domain_role = await DomainRole.get_or_none(
+        _domain_role = await DomainRole.one_or_none(
             domain_id=domain.id, role=domain_role
         )
     else:

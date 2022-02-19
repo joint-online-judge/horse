@@ -29,7 +29,7 @@ class UserAccessKey(BaseORMModel, UserAccessKeyDetail, table=True):  # type: ign
 
     @classmethod
     async def get_lakefs_access_key(cls, user: "User") -> "UserAccessKey":
-        access_key = await cls.get_or_none(service="lakefs", user_id=user.id)
+        access_key = await cls.one_or_none(service="lakefs", user_id=user.id)
         access_key_id = access_key.access_key_id if access_key else None
 
         def sync_func() -> Optional[CredentialsWithSecret]:

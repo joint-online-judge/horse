@@ -70,7 +70,7 @@ class ProblemSet(DomainURLORMModel, ProblemSetDetail, table=True):  # type: igno
         self, problem: "Problem", operation: Operation, position: Optional[int] = None
     ) -> None:
         assert problem.domain_id == self.domain_id
-        link = await ProblemProblemSetLink.get_or_none(
+        link = await ProblemProblemSetLink.one_or_none(
             problem_set_id=self.id, problem_id=problem.id
         )
         if operation == Operation.Create:

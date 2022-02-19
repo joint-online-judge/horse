@@ -152,7 +152,7 @@ async def transfer_domain(
     # can not transfer to self
     if domain.owner_id == target_user.id:
         raise BizError(ErrorCode.DomainNotOwnerError)
-    domain_user = await models.DomainUser.get_or_none(
+    domain_user = await models.DomainUser.one_or_none(
         domain_id=domain.id, user_id=target_user.id
     )
     # can only transfer the domain to a root user in the domain
@@ -208,7 +208,7 @@ async def get_domain_user(
     domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_path_or_query),
 ) -> StandardResponse[schemas.UserWithDomainRole]:
-    domain_user = await models.DomainUser.get_or_none(
+    domain_user = await models.DomainUser.one_or_none(
         domain_id=domain.id, user_id=user.id
     )
     if domain_user is None:
@@ -224,7 +224,7 @@ async def remove_domain_user(
     user: models.User = Depends(parse_user_from_path_or_query),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
 ) -> StandardResponse[Empty]:
-    domain_user = await models.DomainUser.get_or_none(
+    domain_user = await models.DomainUser.one_or_none(
         domain_id=domain.id, user_id=user.id
     )
     if not domain_user:
@@ -272,12 +272,12 @@ async def get_domain_user_permission(
     domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_path_or_query),
 ) -> StandardResponse[schemas.DomainUserPermission]:
-    domain_user = await models.DomainUser.get_or_none(
+    domain_user = await models.DomainUser.one_or_none(
         domain_id=domain.id, user_id=user.id
     )
     if domain_user is None:
         raise BizError(ErrorCode.DomainUserNotFoundError)
-    domain_role = await models.DomainRole.get_or_none(
+    domain_role = await models.DomainRole.one_or_none(
         domain_id=domain.id, role=domain_user.role
     )
     if domain_role is None:
@@ -327,7 +327,7 @@ async def create_domain_role(
 ) -> StandardResponse[schemas.DomainRole]:
     if domain_role_create.role in READONLY_ROLES:
         raise BizError(ErrorCode.DomainRoleReadOnlyError)
-    if await models.DomainRole.get_or_none(
+    if await models.DomainRole.one_or_none(
         domain_id=domain.id, role=domain_role_create.role
     ):
         raise BizError(ErrorCode.DomainRoleNotUniqueError)
@@ -384,12 +384,12 @@ async def update_domain_role(
     #         or domain_role_edit.role in READONLY_ROLES
     #     ):
     #         raise BizError(ErrorCode.DomainRoleReadOnlyError)
-    #     if await models.DomainRole.get_or_none(
+    #     if await models.DomainRole.one_or_none(
     #         domain_id=domain.id, role=domain_role_edit.role
     #     ):
     #         raise BizError(ErrorCode.DomainRoleNotUniqueError)
     #
-    #     domain_users = await models.DomainUser.get_many(
+    #     domain_users = await models.DomainUser.all(
     #         domain_id=domain.id, role=domain_role.role
     #     )
     #     for domain_user in domain_users:
@@ -421,7 +421,7 @@ async def create_domain_invitation(
     invitation_create: schemas.DomainInvitationCreate,
     domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> StandardResponse[schemas.DomainInvitation]:
-    if await models.DomainInvitation.get_or_none(
+    if await models.DomainInvitation.one_or_none(
         domain_id=domain.id, code=invitation_create.code
     ):
         raise BizError(
@@ -482,7 +482,7 @@ async def join_domain_by_invitation(
     if domain is None:
         raise BizError(ErrorCode.DomainInvitationBadRequestError)
     # validate the invitation
-    invitation_model = await models.DomainInvitation.get_or_none(
+    invitation_model = await models.DomainInvitation.one_or_none(
         domain_id=domain.id, code=invitation_code
     )
     if invitation_model is None:

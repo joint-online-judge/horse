@@ -20,7 +20,7 @@ async def parse_uid(
 ) -> models.User:
     if uid == "me":
         return parse_user_from_auth(auth)
-    user = await models.User.get_or_none(id=uid)
+    user = await models.User.one_or_none(id=uid)
     if user:
         return user
     raise BizError(ErrorCode.UserNotFoundError)
@@ -92,7 +92,7 @@ async def parse_domain_role(
     role: NoneEmptyLongStr = Path(..., description="name of the domain role"),
     domain: models.Domain = Depends(parse_domain_from_auth),
 ) -> models.DomainRole:
-    domain_role_model = await models.DomainRole.get_or_none(
+    domain_role_model = await models.DomainRole.one_or_none(
         domain_id=domain.id, role=role
     )
     if domain_role_model is None:
@@ -140,7 +140,7 @@ async def parse_problem_config(
     if config == "latest":
         config_model = await problem.get_latest_problem_config()
     else:
-        config_model = await models.ProblemConfig.get_or_none(
+        config_model = await models.ProblemConfig.one_or_none(
             problem_id=problem.id, id=config
         )
     if config_model:
@@ -205,7 +205,7 @@ async def parse_problem_problem_set_link(
     problem_set: models.ProblemSet = Depends(parse_problem_set),
     problem: models.Problem = Depends(parse_problem_without_validation),
 ) -> models.ProblemProblemSetLink:
-    link = await models.ProblemProblemSetLink.get_or_none(
+    link = await models.ProblemProblemSetLink.one_or_none(
         problem_set_id=problem_set.id, problem_id=problem.id
     )
     if link is not None:
@@ -216,7 +216,7 @@ async def parse_problem_problem_set_link(
 
 
 async def parse_problem_group(problem_group: str = Path(...)) -> models.ProblemGroup:
-    problem_group_model = await models.ProblemGroup.get_or_none(id=problem_group)
+    problem_group_model = await models.ProblemGroup.one_or_none(id=problem_group)
     if problem_group_model:
         return problem_group_model
     raise BizError(ErrorCode.ProblemGroupNotFoundError)
@@ -227,7 +227,7 @@ async def parse_record(
     domain_auth: DomainAuthentication = Depends(),
     user: models.User = Depends(parse_user_from_auth),
 ) -> models.Record:
-    record_model = await models.Record.get_or_none(id=record)
+    record_model = await models.Record.one_or_none(id=record)
 
     # either is the user's own record, or it has the permission to view all
     if record_model and (

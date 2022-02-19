@@ -1,5 +1,16 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+)
 from uuid import UUID, uuid4
 
 from pydantic.fields import Undefined
@@ -40,37 +51,73 @@ class ORMUtils(SQLModel, BaseModel):
         return delete(cls)
 
     @classmethod
-    async def session_exec(cls, statement: Select) -> ScalarResult["BaseORMModelType"]:
+    async def session_exec(
+        cls: Type["BaseORMModelType"], statement: Select
+    ) -> ScalarResult["BaseORMModelType"]:
         async with db_session() as session:
             return await session.exec(statement)
 
     @classmethod
-    async def get_or_none(
-        __base_orm_model_cls__: Type["BaseORMModelType"], **kwargs: Any
-    ) -> Optional["BaseORMModelType"]:
-        async with db_session() as session:
-            statement = __base_orm_model_cls__.apply_filtering(
-                select(__base_orm_model_cls__), **kwargs
-            )
-            try:
-                results = await session.exec(statement)
-            except StatementError:
-                return None
-            return results.one_or_none()
+    async def select_exec(
+        cls: Type["BaseORMModelType"], **kwargs: Any
+    ) -> ScalarResult["BaseORMModelType"]:
+        return await cls.session_exec(cls.apply_filtering(select(cls), **kwargs))
 
     @classmethod
-    async def get_many(
-        __base_orm_model_cls__: Type["BaseORMModelType"], **kwargs: Any
+    async def all(
+        cls: Type["BaseORMModelType"], **kwargs: Any
     ) -> List["BaseORMModelType"]:
-        async with db_session() as session:
-            statement = __base_orm_model_cls__.apply_filtering(
-                select(__base_orm_model_cls__), **kwargs
-            )
-            try:
-                results = await session.exec(statement)
-            except StatementError:
-                return []
-            return results.all()
+        return (await cls.select_exec(**kwargs)).all()
+
+    @classmethod
+    async def partitions(
+        cls: Type["BaseORMModelType"], size: Optional[int] = None, **kwargs: Any
+    ) -> Iterator[List["BaseORMModelType"]]:
+        return (await cls.select_exec(**kwargs)).partitions(size)
+
+    @classmethod
+    async def first(
+        cls: Type["BaseORMModelType"], **kwargs: Any
+    ) -> Optional["BaseORMModelType"]:
+        return (await cls.select_exec(**kwargs)).first()
+
+    @classmethod
+    async def one_or_none(
+        cls: Type["BaseORMModelType"], **kwargs: Any
+    ) -> Optional["BaseORMModelType"]:
+        return (await cls.select_exec(**kwargs)).one_or_none()
+
+    @classmethod
+    async def one(cls: Type["BaseORMModelType"], **kwargs: Any) -> "BaseORMModelType":
+        return (await cls.select_exec(**kwargs)).one()
+
+    # @classmethod
+    # async def get_or_none(
+    #     __base_orm_model_cls__: Type["BaseORMModelType"], **kwargs: Any
+    # ) -> Optional["BaseORMModelType"]:
+    #     async with db_session() as session:
+    #         statement = __base_orm_model_cls__.apply_filtering(
+    #             select(__base_orm_model_cls__), **kwargs
+    #         )
+    #         try:
+    #             results = await session.exec(statement)
+    #         except StatementError:
+    #             return None
+    #         return results.one_or_none()  # raise MultipleResultsFound
+
+    # @classmethod
+    # async def get_many(
+    #     __base_orm_model_cls__: Type["BaseORMModelType"], **kwargs: Any
+    # ) -> List["BaseORMModelType"]:
+    #     async with db_session() as session:
+    #         statement = __base_orm_model_cls__.apply_filtering(
+    #             select(__base_orm_model_cls__), **kwargs
+    #         )
+    #         try:
+    #             results = await session.exec(statement)
+    #         except StatementError:
+    #             return []
+    #         return results.all()
 
     async def save_model(self, commit: bool = True, refresh: bool = True) -> None:
         async with db_session() as session:
@@ -100,7 +147,7 @@ class ORMUtils(SQLModel, BaseModel):
 
     @classmethod
     def apply_ordering(
-        cls: Type["BaseORMModelType"],
+        cls,
         statement: Select,
         ordering: Optional["OrderingQuery"],
     ) -> Select:
@@ -134,7 +181,7 @@ class ORMUtils(SQLModel, BaseModel):
 
     @classmethod
     def apply_count(
-        cls: Type["BaseORMModelType"],
+        cls,
         statement: Select,
         # alt_cls: Optional[Type["BaseORMModelType"]] = None,
     ) -> Select:
@@ -144,7 +191,7 @@ class ORMUtils(SQLModel, BaseModel):
 
     @classmethod
     def apply_pagination(
-        cls: Type["BaseORMModelType"],
+        cls,
         statement: Select,
         pagination: Optional["PaginationQuery"],
     ) -> Select:
@@ -165,7 +212,7 @@ class ORMUtils(SQLModel, BaseModel):
 
     @classmethod
     async def execute_list_statement(
-        cls: Type["BaseORMModelType"],
+        cls,
         statement: Select,
         ordering: Optional["OrderingQuery"] = None,
         pagination: Optional["PaginationQuery"] = None,
@@ -218,9 +265,7 @@ class URLORMModel(BaseORMModel):
     url: str = Field(..., index=True, nullable=False, sa_column_kwargs={"unique": True})
 
     @classmethod
-    async def find_by_url_or_id(
-        cls: Type["BaseORMModelType"], url_or_id: str
-    ) -> Optional["BaseORMModelType"]:
+    async def find_by_url_or_id(cls, url_or_id: str) -> Optional["BaseORMModelType"]:
         if is_uuid(url_or_id):
             statement = select(cls).where(cls.id == url_or_id)
         else:
@@ -241,7 +286,7 @@ class DomainURLORMModel(URLORMModel):
 
     @classmethod
     async def find_by_domain_url_or_id(
-        cls: Type["BaseORMModelType"],
+        cls,
         domain: "Domain",
         url_or_id: str,
         options: Any = None,

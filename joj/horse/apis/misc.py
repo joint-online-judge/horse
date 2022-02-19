@@ -49,11 +49,10 @@ async def set_root_user(
     user: models.User = Depends(parse_user_from_auth),
     session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardResponse[schemas.User]:
-    root_user = await models.User.get_or_none(role=DefaultRole.ROOT)
-    if root_user is not None:
+    root_user = await models.User.all(role=DefaultRole.ROOT)
+    if root_user != []:
         raise BizError(ErrorCode.Error)
-
-    current_user = await models.User.get_or_none(id=user.id)
+    current_user = await models.User.one_or_none(id=user.id)
     if current_user is None:
         raise BizError(ErrorCode.UserNotFoundError)
     current_user.role = DefaultRole.ROOT

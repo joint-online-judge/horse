@@ -29,5 +29,5 @@ class DomainRole(BaseORMModel, DomainRoleDetail, table=True):  # type: ignore[ca
 
     @classmethod
     async def ensure_exists(cls, domain_id: UUID, role: str) -> None:
-        if await DomainRole.get_or_none(domain_id=domain_id, role=role) is None:
+        if await DomainRole.one_or_none(domain_id=domain_id, role=role) is None:
             raise BizError(ErrorCode.DomainRoleNotFoundError)

@@ -158,7 +158,7 @@ async def validate_test_user(
     )
     assert payload["username"] == username
     assert payload["sub"]
-    user = await models.User.get_or_none(id=payload["sub"])
+    user = await models.User.one_or_none(id=payload["sub"])
     assert user
     return user, res["accessToken"], res["refreshToken"]
 
@@ -188,7 +188,7 @@ async def validate_test_domain(
     assert res["bulletin"] == data.get("bulletin", "")
     assert res["gravatar"] == data.get("gravatar", "")
     if isinstance(domain, dict):
-        return await models.Domain.get_or_none(id=res["id"])
+        return await models.Domain.one_or_none(id=res["id"])
     return domain
 
 
@@ -220,7 +220,7 @@ async def validate_test_problem_set(
     assert res["hidden"] == data.get("hidden", False)
     assert res["scoreboardHidden"] == data.get("scoreboardHidden", False)
     if isinstance(problem_set, dict):
-        tmp = await models.ProblemSet.get_or_none(id=res["id"])
+        tmp = await models.ProblemSet.one_or_none(id=res["id"])
         assert tmp is not None
         return tmp
     return problem_set
@@ -255,7 +255,7 @@ async def validate_test_problem(
     assert res["numSubmit"] == data.get("num_submit", 0)
     assert res["numAccept"] == data.get("num_accept", 0)
     if isinstance(problem, dict):
-        tmp = await models.Problem.get_or_none(id=res["id"])
+        tmp = await models.Problem.one_or_none(id=res["id"])
         assert tmp is not None
         return tmp
     return problem

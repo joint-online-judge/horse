@@ -42,7 +42,7 @@ class DomainUser(BaseORMModel, table=True):  # type: ignore[call-arg]
     ) -> "DomainUser":
         role = str(role)
         # check domain user
-        domain_user = await DomainUser.get_or_none(domain_id=domain_id, user_id=user_id)
+        domain_user = await DomainUser.one_or_none(domain_id=domain_id, user_id=user_id)
         if domain_user is not None:
             raise BizError(ErrorCode.UserAlreadyInDomainBadRequestError)
         # check domain role
@@ -57,7 +57,7 @@ class DomainUser(BaseORMModel, table=True):  # type: ignore[call-arg]
     ) -> "DomainUser":
         role = str(role)
         # check domain user
-        domain_user = await DomainUser.get_or_none(domain_id=domain_id, user_id=user_id)
+        domain_user = await DomainUser.one_or_none(domain_id=domain_id, user_id=user_id)
         if domain_user is None:
             raise BizError(ErrorCode.UserAlreadyInDomainBadRequestError)
         # check domain role
