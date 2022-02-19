@@ -49,21 +49,8 @@ class UserCreate(SQLModel):
 
 class UserBase(BaseORMSchema):
     username: str = Field(nullable=False)
-    email: EmailStr = Field(nullable=False)
     gravatar: str = Field(
         "",
-        nullable=False,
-        sa_column_kwargs={"server_default": ""},
-    )
-    student_id: str = Field(
-        "",
-        index=True,
-        nullable=False,
-        sa_column_kwargs={"server_default": ""},
-    )
-    real_name: str = Field(
-        "",
-        index=True,
         nullable=False,
         sa_column_kwargs={"server_default": ""},
     )
@@ -113,6 +100,19 @@ class UserWithDomainRole(UserPreview):
 
 
 class UserDetail(TimestampMixin, User):
+    email: EmailStr = Field(nullable=False)
+    student_id: str = Field(
+        "",
+        index=True,
+        nullable=False,
+        sa_column_kwargs={"server_default": ""},
+    )
+    real_name: str = Field(
+        "",
+        index=True,
+        nullable=False,
+        sa_column_kwargs={"server_default": ""},
+    )
     register_ip: str = Field(
         nullable=False,
         sa_column_kwargs={"server_default": "127.0.0.1"},

@@ -145,7 +145,7 @@ async def get_current_user(
 async def update_current_user(
     user_edit: schemas.UserEdit = Depends(schemas.UserEdit.edit_dependency),
     auth: Authentication = Depends(),
-) -> StandardResponse[schemas.User]:
+) -> StandardResponse[schemas.UserDetail]:
     user = await parse_uid(auth.jwt.id, auth)
     user.update_from_dict(user_edit.dict())
     logger.info(f"update user: {user}")
@@ -168,7 +168,7 @@ async def update_current_user(
 async def change_password(
     user_reset_password: schemas.UserResetPassword,
     auth: Authentication = Depends(),
-) -> StandardResponse[schemas.User]:
+) -> StandardResponse[schemas.UserDetail]:
     user = await parse_uid(auth.jwt.id, auth)
     await user.reset_password(
         user_reset_password.current_password,

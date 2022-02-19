@@ -288,7 +288,6 @@ def parametrize_global_problems(func: Any) -> Any:
 def validate_user_profile(response: Response, user: models.User) -> None:
     res = validate_response(response)
     assert res["username"] == user.username
-    assert res["email"] == user.email
     assert res["studentId"] == user.student_id
     assert res["realName"] == user.real_name
     assert res["gravatar"] == user.gravatar
