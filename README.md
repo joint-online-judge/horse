@@ -33,7 +33,11 @@ Check <http://127.0.0.1:34765/api/v1> for api documentation.
 ## Checklist Before Commit
 
 + Update poetry dependencies: `poetry update`
-+ Update SQL tables: `poetry run alembic revision --autogenerate -m "<comments>"`
++ Update SQL tables:
+```
+docker exec -it `docker ps -q --filter ancestor=ghcr.io/joint-online-judge/horse:test` poetry run alembic revision --autogenerate -m "<comments>"
+docker exec -it `docker ps -q --filter ancestor=ghcr.io/joint-online-judge/horse:test` poetry run alembic upgrade head
+```
 
 ## License
 
