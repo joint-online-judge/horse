@@ -124,6 +124,12 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
         )
         return statement
 
+    @classmethod
+    def find_tags_statement(cls, query: str) -> Select:
+        looking_for = f"%{query}%"
+        statement = select(cls.tag).where(cls.tag.ilike(looking_for)).distinct()  # type: ignore[attr-defined]
+        return statement
+
     def find_records_statement(
         self,
         problem_set_id: Optional[UUID],

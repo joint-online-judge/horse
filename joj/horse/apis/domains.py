@@ -17,6 +17,7 @@ from joj.horse.models.permission import (
 from joj.horse.schemas import Empty, StandardListResponse, StandardResponse
 from joj.horse.schemas.auth import Authentication, DomainAuthentication
 from joj.horse.schemas.base import SearchQueryStr
+from joj.horse.schemas.domain import DomainTag
 from joj.horse.schemas.permission import (
     DEFAULT_DOMAIN_PERMISSION,
     DefaultRole,
@@ -92,6 +93,15 @@ async def create_domain(
         logger.exception(f"domain creation failed: {domain_create.url}")
         raise e
     return StandardResponse(domain)
+
+
+@router.get("/tags", permissions=[Permission.SiteDomain.create])
+async def search_domain_tags(
+    query: SearchQueryStr = Query(..., description="search query"),
+) -> StandardListResponse[DomainTag]:
+    statement = models.Domain.find_tags_statement(query)
+    rows, count = await models.Domain.execute_list_statement(statement)
+    return StandardListResponse(rows, count)
 
 
 @router.get("/{domain}", permissions=[Permission.DomainGeneral.view])

@@ -75,3 +75,7 @@ class DomainTransfer(BaseModel):
 
 class DomainDetail(TimestampMixin, Domain):
     pass
+
+
+class DomainTag(BaseModel):
+    __root__: LongStr
