@@ -33,7 +33,7 @@ Check <http://127.0.0.1:34765/api/v1> for api documentation.
 ## Checklist Before Commit
 
 + Update poetry dependencies: `poetry update`
-+ Update SQL tables: `poetry run alembic revision -m "<comments>"`
++ Update SQL tables: `poetry run alembic revision --autogenerate -m "<comments>"`
 
 ## License
 
