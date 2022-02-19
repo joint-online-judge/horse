@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 6cd4dbf@2022-02-19T13:21:15Z",
+    "description": "Git version: 7bd720a@2022-02-19T13:26:22Z",
     "version": "1"
   },
   "paths": {
@@ -6413,11 +6413,11 @@
             "description": "is the domain hidden",
             "default": true
           },
-          "tag": {
-            "title": "Tag",
+          "group": {
+            "title": "Group",
             "maxLength": 256,
             "type": "string",
-            "description": "tag of the domain",
+            "description": "group name of the domain",
             "default": ""
           },
           "ownerId": {
@@ -6467,11 +6467,11 @@
             "description": "is the domain hidden",
             "default": true
           },
-          "tag": {
-            "title": "Tag",
+          "group": {
+            "title": "Group",
             "maxLength": 256,
             "type": "string",
-            "description": "tag of the domain",
+            "description": "group name of the domain",
             "default": ""
           }
         }
@@ -6522,11 +6522,11 @@
             "description": "is the domain hidden",
             "default": true
           },
-          "tag": {
-            "title": "Tag",
+          "group": {
+            "title": "Group",
             "maxLength": 256,
             "type": "string",
-            "description": "tag of the domain",
+            "description": "group name of the domain",
             "default": ""
           },
           "ownerId": {
@@ -6592,8 +6592,8 @@
             "title": "Hidden",
             "type": "boolean"
           },
-          "tag": {
-            "title": "Tag",
+          "group": {
+            "title": "Group",
             "maxLength": 256,
             "type": "string"
           }
