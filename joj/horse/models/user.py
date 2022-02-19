@@ -182,7 +182,7 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
             return user
 
     def find_domains_statement(
-        self, roles: Optional[List[str]], tags: Optional[List[str]]
+        self, roles: Optional[List[str]], groups: Optional[List[str]]
     ) -> Select:
         from joj.horse import models
 
@@ -192,8 +192,8 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
         statement = statement.where(models.DomainUser.user_id == self.id)
         if roles is not None:
             statement = statement.where(models.DomainUser.role.in_(roles))  # type: ignore[attr-defined]
-        if tags is not None:
-            statement = statement.where(models.Domain.tag.in_(tags))  # type: ignore[attr-defined]
+        if groups is not None:
+            statement = statement.where(models.Domain.tag.in_(groups))  # type: ignore[attr-defined]
         return statement
 
     @classmethod
