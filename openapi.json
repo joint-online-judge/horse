@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 1a646c2@2022-02-19T11:05:10Z",
+    "description": "Git version: 4e88176@2022-02-19T13:04:07Z",
     "version": "1"
   },
   "paths": {
@@ -124,6 +124,66 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DomainResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/domains/tags": {
+      "get": {
+        "tags": [
+          "domain"
+        ],
+        "summary": "Search Domain Tags",
+        "operationId": "v1_search_domain_tags",
+        "parameters": [
+          {
+            "description": "search query",
+            "required": true,
+            "schema": {
+              "title": "Query",
+              "minLength": 2,
+              "type": "string",
+              "description": "search query"
+            },
+            "name": "query",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DomainTagListResp"
                 }
               }
             }
@@ -6975,6 +7035,49 @@
           },
           "data": {
             "$ref": "#/components/schemas/DomainRole"
+          }
+        }
+      },
+      "DomainTag": {
+        "title": "DomainTag",
+        "maxLength": 256,
+        "type": "string"
+      },
+      "DomainTagList": {
+        "title": "DomainTagList",
+        "type": "object",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer",
+            "default": 0
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DomainTag"
+            },
+            "default": []
+          }
+        }
+      },
+      "DomainTagListResp": {
+        "title": "DomainTagListResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DomainTagList"
           }
         }
       },
