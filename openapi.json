@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 1654841@2022-02-19T13:17:30Z",
+    "description": "Git version: 6cd4dbf@2022-02-19T13:21:15Z",
     "version": "1"
   },
   "paths": {
@@ -30,13 +30,13 @@
           {
             "required": false,
             "schema": {
-              "title": "Tags",
+              "title": "Groups",
               "type": "array",
               "items": {
                 "type": "string"
               }
             },
-            "name": "tags",
+            "name": "groups",
             "in": "query"
           },
           {
@@ -168,13 +168,13 @@
         ]
       }
     },
-    "/domains/tags": {
+    "/domains/groups": {
       "get": {
         "tags": [
           "domain"
         ],
-        "summary": "Search Domain Tags",
-        "operationId": "v1_search_domain_tags",
+        "summary": "Search Domain Groups",
+        "operationId": "v1_search_domain_groups",
         "parameters": [
           {
             "description": "search query",
@@ -4969,13 +4969,13 @@
           {
             "required": false,
             "schema": {
-              "title": "Tags",
+              "title": "Groups",
               "type": "array",
               "items": {
                 "type": "string"
               }
             },
-            "name": "tags",
+            "name": "groups",
             "in": "query"
           },
           {
