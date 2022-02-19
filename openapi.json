@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 4e88176@2022-02-19T13:04:07Z",
+    "description": "Git version: 1654841@2022-02-19T13:17:30Z",
     "version": "1"
   },
   "paths": {
@@ -18,13 +18,25 @@
           {
             "required": false,
             "schema": {
-              "title": "Role",
+              "title": "Roles",
               "type": "array",
               "items": {
                 "type": "string"
               }
             },
-            "name": "role",
+            "name": "roles",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Tags",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "name": "tags",
             "in": "query"
           },
           {
@@ -4952,6 +4964,18 @@
               }
             },
             "name": "role",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Tags",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "name": "tags",
             "in": "query"
           },
           {
