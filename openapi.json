@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 07316f1@2022-02-19T10:40:47Z",
+    "description": "Git version: 9a6ad1c@2022-02-19T11:02:02Z",
     "version": "1"
   },
   "paths": {
@@ -4626,7 +4626,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserResp"
+                  "$ref": "#/components/schemas/UserDetailResp"
                 }
               }
             }
@@ -4682,7 +4682,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserResp"
+                  "$ref": "#/components/schemas/UserDetailResp"
                 }
               }
             }
@@ -9148,8 +9148,7 @@
         "title": "User",
         "required": [
           "id",
-          "username",
-          "email"
+          "username"
         ],
         "type": "object",
         "properties": {
@@ -9162,23 +9161,8 @@
             "title": "Username",
             "type": "string"
           },
-          "email": {
-            "title": "Email",
-            "type": "string",
-            "format": "email"
-          },
           "gravatar": {
             "title": "Gravatar",
-            "type": "string",
-            "default": ""
-          },
-          "studentId": {
-            "title": "Studentid",
-            "type": "string",
-            "default": ""
-          },
-          "realName": {
-            "title": "Realname",
             "type": "string",
             "default": ""
           },
@@ -9241,23 +9225,8 @@
             "title": "Username",
             "type": "string"
           },
-          "email": {
-            "title": "Email",
-            "type": "string",
-            "format": "email"
-          },
           "gravatar": {
             "title": "Gravatar",
-            "type": "string",
-            "default": ""
-          },
-          "studentId": {
-            "title": "Studentid",
-            "type": "string",
-            "default": ""
-          },
-          "realName": {
-            "title": "Realname",
             "type": "string",
             "default": ""
           },
@@ -9280,6 +9249,21 @@
             "title": "Updatedat",
             "type": "string",
             "format": "date-time"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string",
+            "format": "email"
+          },
+          "studentId": {
+            "title": "Studentid",
+            "type": "string",
+            "default": ""
+          },
+          "realName": {
+            "title": "Realname",
+            "type": "string",
+            "default": ""
           },
           "registerIp": {
             "title": "Registerip",
@@ -9404,8 +9388,7 @@
         "title": "UserWithDomainRole",
         "required": [
           "id",
-          "username",
-          "email"
+          "username"
         ],
         "type": "object",
         "properties": {
@@ -9418,23 +9401,8 @@
             "title": "Username",
             "type": "string"
           },
-          "email": {
-            "title": "Email",
-            "type": "string",
-            "format": "email"
-          },
           "gravatar": {
             "title": "Gravatar",
-            "type": "string",
-            "default": ""
-          },
-          "studentId": {
-            "title": "Studentid",
-            "type": "string",
-            "default": ""
-          },
-          "realName": {
-            "title": "Realname",
             "type": "string",
             "default": ""
           },
