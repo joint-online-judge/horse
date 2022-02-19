@@ -181,15 +181,19 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
             await session.refresh(user)
             return user
 
-    def find_domains_statement(self, role: Optional[List[str]]) -> Select:
+    def find_domains_statement(
+        self, roles: Optional[List[str]], tags: Optional[List[str]]
+    ) -> Select:
         from joj.horse import models
 
         statement = models.Domain.sql_select().outerjoin(models.DomainUser).distinct()
         # if user.role != "root":
         #     # root user can view all domains
         statement = statement.where(models.DomainUser.user_id == self.id)
-        if role is not None:
-            statement = statement.where(models.DomainUser.role.in_(role))  # type: ignore[attr-defined]
+        if roles is not None:
+            statement = statement.where(models.DomainUser.role.in_(roles))  # type: ignore[attr-defined]
+        if tags is not None:
+            statement = statement.where(models.Domain.tag.in_(tags))  # type: ignore[attr-defined]
         return statement
 
     @classmethod

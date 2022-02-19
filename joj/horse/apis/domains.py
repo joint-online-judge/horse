@@ -46,13 +46,14 @@ router_prefix = "/api/v1"
 
 @router.get("", permissions=[])
 async def list_domains(
-    role: Optional[List[str]] = Query(None),
+    roles: Optional[List[str]] = Query(None),
+    tags: Optional[List[str]] = Query(None),
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardListResponse[schemas.Domain]:
     """List all domains that the current user has a role."""
-    statement = user.find_domains_statement(role)
+    statement = user.find_domains_statement(roles, tags)
     domains, count = await models.Domain.execute_list_statement(
         statement, ordering, pagination
     )

@@ -31,6 +31,7 @@ async def list_users(
     return StandardListResponse(problem_sets, count)
 
 
+# TODO: stricter permission for following 3 endpoints
 @router.get("/{uid}")
 async def get_user(
     user: models.User = Depends(parse_uid),
@@ -41,11 +42,12 @@ async def get_user(
 @router.get("/{uid}/domains")
 async def list_user_domains(
     role: Optional[List[str]] = Query(None),
+    tags: Optional[List[str]] = Query(None),
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     user: models.User = Depends(parse_uid),
 ) -> StandardListResponse[schemas.Domain]:
-    statement = user.find_domains_statement(role)
+    statement = user.find_domains_statement(role, tags)
     domains, count = await models.Domain.execute_list_statement(
         statement, ordering, pagination
     )
