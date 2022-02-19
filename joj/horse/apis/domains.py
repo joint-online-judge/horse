@@ -139,9 +139,9 @@ async def update_domain(
     domain: models.Domain = Depends(parse_domain_from_auth),
     domain_auth: DomainAuthentication = Depends(),
 ) -> StandardResponse[schemas.Domain]:
-    if domain_edit.tag is not Undefined:
+    if domain_edit.group is not Undefined:
         if not domain_auth.auth.check(ScopeType.SITE_DOMAIN, PermissionType.edit):
-            raise UnauthorizedError("only user with SiteDomain.edit can update tag")
+            raise UnauthorizedError("only user with SiteDomain.edit can update group")
 
     domain.update_from_dict(domain_edit.dict())
     logger.info(f"update domain: {domain}")

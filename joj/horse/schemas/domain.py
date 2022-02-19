@@ -44,11 +44,11 @@ class DomainBase(URLORMSchema):
         sa_column_kwargs={"server_default": "true"},
         description="is the domain hidden",
     )
-    tag: LongStr = Field(
+    group: LongStr = Field(
         "",
         nullable=False,
         sa_column_kwargs={"server_default": ""},
-        description="tag of the domain",
+        description="group name of the domain",
     )
 
 
@@ -66,7 +66,7 @@ class DomainEdit(BaseModel, metaclass=EditMetaclass):
     gravatar: Optional[LongStr]
     bulletin: Optional[LongText]
     hidden: Optional[bool]
-    tag: Optional[LongStr]
+    group: Optional[LongStr]
 
 
 class DomainTransfer(BaseModel):

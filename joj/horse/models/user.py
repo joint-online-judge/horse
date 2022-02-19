@@ -193,7 +193,7 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
         if roles is not None:
             statement = statement.where(models.DomainUser.role.in_(roles))  # type: ignore[attr-defined]
         if groups is not None:
-            statement = statement.where(models.Domain.tag.in_(groups))  # type: ignore[attr-defined]
+            statement = statement.where(models.Domain.group.in_(groups))  # type: ignore[attr-defined]
         return statement
 
     @classmethod

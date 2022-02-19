@@ -127,7 +127,7 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
     @classmethod
     def find_groups_statement(cls, query: str) -> Select:
         looking_for = f"%{query}%"
-        statement = select(cls.tag).where(cls.tag.ilike(looking_for)).distinct()  # type: ignore[attr-defined]
+        statement = select(cls.group).where(cls.group.ilike(looking_for)).distinct()  # type: ignore[attr-defined]
         return statement
 
     def find_records_statement(
