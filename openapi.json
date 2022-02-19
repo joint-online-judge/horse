@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 65fc83e@2022-02-19T07:09:03Z",
+    "description": "Git version: a34c3a9@2022-02-19T10:17:25Z",
     "version": "1"
   },
   "paths": {
@@ -6222,6 +6222,7 @@
         "enum": [
           "zip",
           "tar",
+          "rar",
           "unknown"
         ],
         "type": "string",
