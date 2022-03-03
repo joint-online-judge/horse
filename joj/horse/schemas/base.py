@@ -150,7 +150,7 @@ class BaseORMSchema(SQLModel, BaseModel):
 
 
 class URLORMSchema(BaseORMSchema):
-    url: str = Field("", description="(unique) url of the domain")
+    url: str = Field("", description="(unique) url of the domain", nullable=False)
 
 
 class URLCreateMixin(BaseModel):
