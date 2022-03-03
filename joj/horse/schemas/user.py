@@ -124,3 +124,7 @@ class UserDetail(TimestampMixin, User):
         nullable=False,
         sa_column_kwargs={"server_default": "127.0.0.1"},
     )
+
+
+class UserDetailWithDomainRole(UserDetail):
+    ...

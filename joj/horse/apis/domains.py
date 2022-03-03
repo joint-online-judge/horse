@@ -196,7 +196,7 @@ async def add_domain_user(
     domain_user_add: schemas.DomainUserAdd,
     domain: models.Domain = Depends(parse_domain_from_auth),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
-) -> StandardResponse[schemas.UserWithDomainRole]:
+) -> StandardResponse[schemas.UserDetailWithDomainRole]:
     role = domain_user_add.role
     # only root member (or site root) can add root member
     if role == DefaultRole.ROOT and not domain_auth.auth.is_domain_root():
@@ -210,7 +210,7 @@ async def add_domain_user(
     logger.info(f"create domain user: {domain_user}")
     await domain_user.save_model()
     return StandardResponse(
-        schemas.UserWithDomainRole.from_domain_user(domain_user, user_dict)
+        schemas.UserDetailWithDomainRole.from_domain_user(domain_user, user_dict)
     )
 
 
@@ -257,7 +257,7 @@ async def update_domain_user(
     domain: models.Domain = Depends(parse_domain_from_auth),
     user: models.User = Depends(parse_user_from_path_or_query),
     domain_auth: DomainAuthentication = Depends(DomainAuthentication),
-) -> StandardResponse[schemas.UserWithDomainRole]:
+) -> StandardResponse[schemas.UserDetailWithDomainRole]:
     # domain owner must be root member
     role = domain_user_update.role
     if role != DefaultRole.ROOT and domain_auth.auth.is_domain_owner():
@@ -272,7 +272,7 @@ async def update_domain_user(
     logger.info(f"update domain user: {domain_user}")
     await domain_user.save_model()
     return StandardResponse(
-        schemas.UserWithDomainRole.from_domain_user(domain_user, user)
+        schemas.UserDetailWithDomainRole.from_domain_user(domain_user, user)
     )
 
 
@@ -307,14 +307,14 @@ async def search_domain_candidates(
     domain: models.Domain = Depends(parse_domain_from_auth),
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query(["username"])),
     query: SearchQueryStr = Query(..., description="search query"),
-) -> StandardListResponse[schemas.UserWithDomainRole]:
+) -> StandardListResponse[schemas.UserDetailWithDomainRole]:
     pagination = schemas.PaginationQuery(offset=0, limit=10)
     statement = domain.find_candidates_statement(query)
     rows, count = await models.User.execute_list_statement(
         statement, ordering, pagination
     )
     domain_users = [
-        schemas.UserWithDomainRole.from_domain_user(*row[::-1]) for row in rows
+        schemas.UserDetailWithDomainRole.from_domain_user(*row[::-1]) for row in rows
     ]
     return StandardListResponse(domain_users, count)
 
