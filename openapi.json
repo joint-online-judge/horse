@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 095866f@2022-03-03T13:20:06Z",
+    "description": "Git version: d940f65@2022-03-03T13:42:26Z",
     "version": "1"
   },
   "paths": {
@@ -610,7 +610,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserWithDomainRoleResp"
+                  "$ref": "#/components/schemas/UserDetailWithDomainRoleResp"
                 }
               }
             }
@@ -826,7 +826,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserWithDomainRoleResp"
+                  "$ref": "#/components/schemas/UserDetailWithDomainRoleResp"
                 }
               }
             }
@@ -979,7 +979,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserWithDomainRoleListResp"
+                  "$ref": "#/components/schemas/UserDetailWithDomainRoleListResp"
                 }
               }
             }
@@ -9423,6 +9423,139 @@
           },
           "data": {
             "$ref": "#/components/schemas/UserDetail"
+          }
+        }
+      },
+      "UserDetailWithDomainRole": {
+        "title": "UserDetailWithDomainRole",
+        "required": [
+          "id",
+          "username",
+          "email",
+          "registerIp",
+          "loginAt",
+          "loginIp"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          },
+          "gravatar": {
+            "title": "Gravatar",
+            "type": "string",
+            "default": ""
+          },
+          "role": {
+            "title": "Role",
+            "type": "string",
+            "default": "user"
+          },
+          "isActive": {
+            "title": "Isactive",
+            "type": "boolean",
+            "default": false
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string",
+            "format": "email"
+          },
+          "studentId": {
+            "title": "Studentid",
+            "type": "string",
+            "default": ""
+          },
+          "realName": {
+            "title": "Realname",
+            "type": "string",
+            "default": ""
+          },
+          "registerIp": {
+            "title": "Registerip",
+            "type": "string"
+          },
+          "loginAt": {
+            "title": "Loginat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "loginIp": {
+            "title": "Loginip",
+            "type": "string"
+          }
+        }
+      },
+      "UserDetailWithDomainRoleList": {
+        "title": "UserDetailWithDomainRoleList",
+        "type": "object",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer",
+            "default": 0
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserDetailWithDomainRole"
+            },
+            "default": []
+          }
+        }
+      },
+      "UserDetailWithDomainRoleListResp": {
+        "title": "UserDetailWithDomainRoleListResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserDetailWithDomainRoleList"
+          }
+        }
+      },
+      "UserDetailWithDomainRoleResp": {
+        "title": "UserDetailWithDomainRoleResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserDetailWithDomainRole"
           }
         }
       },
