@@ -17,7 +17,7 @@ repos:
     hooks:
       - id: pyupgrade
   - repo: https://github.com/hadialqattan/pycln
-    rev: v0.0.4
+    rev: v1.2.4
     hooks:
       - id: pycln
   # - repo: https://github.com/PyCQA/bandit
@@ -30,7 +30,7 @@ repos:
       - id: isort
         args: [ "--profile", "black", "--filter-files", "--combine-as" ]
   - repo: https://github.com/psf/black
-    rev: 22.1.0
+    rev: 21.6b0
     hooks:
       - id: black
   - repo: https://github.com/pycqa/flake8
