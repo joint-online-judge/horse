@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: e060a79@2022-03-05T15:17:44Z",
+    "description": "Git version: 1ba9201@2022-03-06T09:39:13Z",
     "version": "1"
   },
   "paths": {
@@ -9451,6 +9451,15 @@
             "title": "Gravatar",
             "type": "string",
             "default": ""
+          },
+          "domainId": {
+            "title": "Domainid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "domainRole": {
+            "title": "Domainrole",
+            "type": "string"
           },
           "role": {
             "title": "Role",
