@@ -126,5 +126,5 @@ class UserDetail(TimestampMixin, User):
     )
 
 
-class UserDetailWithDomainRole(UserDetail):
+class UserDetailWithDomainRole(UserDetail, UserWithDomainRole):
     ...
