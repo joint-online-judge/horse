@@ -1,9 +1,28 @@
 from collections import defaultdict
-from typing import Any, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Tuple, TypeVar, cast
 
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
-from fastapi_versioning.versioning import version_to_route
+from starlette.routing import BaseRoute
+
+CallableT = TypeVar("CallableT", bound=Callable[..., Any])
+
+
+def version(major: int, minor: int = 0) -> Callable[[CallableT], CallableT]:
+    def decorator(func: CallableT) -> CallableT:
+        func._api_version = (major, minor)  # type: ignore
+        return func
+
+    return decorator
+
+
+def version_to_route(
+    route: BaseRoute,
+    default_version: Tuple[int, int],
+) -> Tuple[Tuple[int, int], APIRoute]:
+    api_route = cast(APIRoute, route)
+    version = getattr(api_route.endpoint, "_api_version", default_version)
+    return version, api_route
 
 
 def VersionedFastAPI(

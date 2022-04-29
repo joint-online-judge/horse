@@ -47,7 +47,6 @@ coverage = {version = "^5.5", optional = true}
 fastapi = {extras = ["all"], version = "==0.74.0"}
 fastapi-jwt-auth = {git = "https://github.com/joint-online-judge/fastapi-jwt-auth.git", branch = "feature/pyjwt-2.1.0"}
 fastapi-utils = "^0.2.1"
-fastapi-versioning = "^0.10.0"
 GitPython = "^3.1.20"
 greenletio = "^0.9.0"
 hiredis = "^2.0.0"
