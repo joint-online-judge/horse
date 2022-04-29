@@ -237,10 +237,9 @@ class SpooledTemporaryFileIOBase(IOBase):
         """
         if size is None:
             return self.file._file.truncate()  # type: ignore
-        else:
-            if size > self._max_size:  # type: ignore
-                self.file.rollover()
-            return self.file._file.truncate(size)  # type: ignore
+        if size > self._max_size:  # type: ignore
+            self.file.rollover()
+        return self.file._file.truncate(size)  # type: ignore
 
     def writable(self, *args, **kwargs):  # type: ignore
         """

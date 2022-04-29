@@ -337,8 +337,7 @@ class LakeFSBase:
         try:
             if recursive:
                 return self.storage.delete_tree(file_path)
-            else:
-                return self.storage.delete_dir(file_path)
+            return self.storage.delete_dir(file_path)
         except ElephantError as e:
             raise BizError(ErrorCode.ProblemConfigUpdateError, str(e))
 
