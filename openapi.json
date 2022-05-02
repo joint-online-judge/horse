@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 97b01fb@2022-04-29T05:21:52Z",
+    "description": "Git version: 7bcba27@2022-05-02T10:53:46Z",
     "version": "1"
   },
   "paths": {
@@ -7241,9 +7241,10 @@
           "ProblemSetNotFoundError",
           "ProblemGroupNotFoundError",
           "ProblemConfigNotFoundError",
-          "ProblemConfigValidationError",
-          "ProblemConfigUpdateError",
-          "ProblemConfigDownloadError",
+          "FileValidationError",
+          "FileUpdateError",
+          "FileDownloadError",
+          "UnsupportedLanguageError",
           "RecordNotFoundError",
           "DeleteProblemBadRequestError",
           "UserAlreadyInDomainBadRequestError",
@@ -8726,10 +8727,16 @@
       "ProblemSolutionSubmit": {
         "title": "ProblemSolutionSubmit",
         "required": [
+          "language",
           "codeType"
         ],
         "type": "object",
         "properties": {
+          "language": {
+            "title": "Language",
+            "maxLength": 256,
+            "type": "string"
+          },
           "codeType": {
             "$ref": "#/components/schemas/RecordCodeType"
           },
@@ -8737,6 +8744,11 @@
             "title": "File",
             "type": "string",
             "format": "binary"
+          },
+          "codeText": {
+            "title": "Codetext",
+            "maxLength": 10485760,
+            "type": "string"
           }
         }
       },
