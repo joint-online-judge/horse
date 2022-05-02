@@ -87,6 +87,10 @@ class NoneEmptyLongStr(LongStr, NoneEmptyStr):
     pass
 
 
+class CodeText(ConstrainedStr):
+    max_length = 10 * 1024 * 1024
+
+
 class UserInputURL(str):
     URL_RE = re.compile(r"[\w-]+", flags=re.ASCII)
 

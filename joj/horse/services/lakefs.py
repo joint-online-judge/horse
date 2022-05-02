@@ -18,7 +18,7 @@ from joj.elephant.errors import ElephantError
 from joj.elephant.manager import Manager
 from joj.elephant.rclone import RClone
 from joj.elephant.schemas import ArchiveType, FileInfo
-from joj.elephant.storage import ArchiveStorage, LakeFSStorage, Storage
+from joj.elephant.storage import ArchiveStorage, CodeTextStorage, LakeFSStorage, Storage
 from joj.horse.config import settings
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.retry import retry_init
@@ -306,7 +306,7 @@ class LakeFSBase:
                 storage = self._get_storage(ref)
             return storage.getinfo(file_path)
         except ElephantError as e:
-            raise BizError(ErrorCode.ProblemConfigDownloadError, str(e))
+            raise BizError(ErrorCode.FileDownloadError, str(e))
 
     def download_file(self, file_path: Path, ref: Optional[str] = None) -> BinaryIO:
         try:
@@ -319,19 +319,19 @@ class LakeFSBase:
             file.seek(0)
             return file
         except ElephantError as e:
-            raise BizError(ErrorCode.ProblemConfigDownloadError, str(e))
+            raise BizError(ErrorCode.FileDownloadError, str(e))
 
     def upload_file(self, file_path: Path, file: BinaryIO) -> FileInfo:
         try:
             return self.storage.upload(file_path, file)
         except ElephantError as e:
-            raise BizError(ErrorCode.ProblemConfigUpdateError, str(e))
+            raise BizError(ErrorCode.FileUpdateError, str(e))
 
     def delete_file(self, file_path: Path) -> FileInfo:
         try:
             return self.storage.delete(file_path)
         except ElephantError as e:
-            raise BizError(ErrorCode.ProblemConfigUpdateError, str(e))
+            raise BizError(ErrorCode.FileUpdateError, str(e))
 
     def delete_directory(self, file_path: Path, recursive: bool) -> FileInfo:
         try:
@@ -339,7 +339,7 @@ class LakeFSBase:
                 return self.storage.delete_tree(file_path)
             return self.storage.delete_dir(file_path)
         except ElephantError as e:
-            raise BizError(ErrorCode.ProblemConfigUpdateError, str(e))
+            raise BizError(ErrorCode.FileUpdateError, str(e))
 
     def upload_archive(self, filename: str, file: IO[bytes]) -> None:
         self.ensure_branch()
@@ -357,7 +357,19 @@ class LakeFSBase:
             temp_file.close()
 
         except ElephantError as e:
-            raise BizError(ErrorCode.ProblemConfigUpdateError, str(e))
+            raise BizError(ErrorCode.FileUpdateError, str(e))
+
+    def upload_text(self, filename: str, code_text: str) -> None:
+        self.ensure_branch()
+
+        try:
+            source = CodeTextStorage(filename, code_text)
+            manager = Manager(get_rclone(), source, self.storage)
+            logger.info(source.filename)
+            manager.sync_without_validation()
+
+        except ElephantError as e:
+            raise BizError(ErrorCode.FileUpdateError, str(e))
 
     def download_archive(
         self, temp_dir: Path, archive_type: ArchiveType, ref: Optional[str] = None
@@ -376,7 +388,7 @@ class LakeFSBase:
                 filename += ".tar.gz"
             else:
                 raise BizError(
-                    ErrorCode.ProblemConfigDownloadError,
+                    ErrorCode.FileDownloadError,
                     "archive type not supported!",
                 )
 
@@ -392,7 +404,7 @@ class LakeFSBase:
             return temp_file_path
 
         except (ElephantError, PatoolError) as e:
-            raise BizError(ErrorCode.ProblemConfigDownloadError, str(e))
+            raise BizError(ErrorCode.FileDownloadError, str(e))
         except Exception as e:
             raise e
 
@@ -402,7 +414,7 @@ class LakeFSBase:
             return orjson.loads(result.read())
         except ElephantError:
             raise BizError(
-                ErrorCode.ProblemConfigValidationError,
+                ErrorCode.FileValidationError,
                 "config.json not found in problem config.",
             )
 
@@ -418,7 +430,7 @@ class LakeFSBase:
             return result
         except LakeFSApiException as e:
             raise BizError(
-                ErrorCode.ProblemConfigUpdateError,
+                ErrorCode.FileUpdateError,
                 self._get_lakefs_exception_message(e),
             )
 
@@ -439,7 +451,7 @@ class LakeFSBase:
             )
         except LakeFSApiException as e:
             raise BizError(
-                ErrorCode.ProblemConfigUpdateError,
+                ErrorCode.FileUpdateError,
                 self._get_lakefs_exception_message(e),
             )
 

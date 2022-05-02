@@ -1,9 +1,9 @@
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, cast
 from uuid import UUID, uuid4
 
 from celery import Celery
 from celery.result import AsyncResult
-from fastapi import BackgroundTasks
+from fastapi import BackgroundTasks, UploadFile
 from loguru import logger
 from sqlalchemy.schema import Column, ForeignKey
 from sqlmodel import Field, Relationship
@@ -92,13 +92,8 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
         problem_config = await problem.get_latest_problem_config()
         if problem_config is None:
             raise BizError(ErrorCode.ProblemConfigNotFoundError)
-
-        if (
-            problem_submit.code_type == RecordCodeType.archive
-            and problem_submit.file is None
-        ):
-            raise BizError(ErrorCode.Error)
-
+        if problem_submit.language not in problem_config.languages:
+            raise BizError(ErrorCode.UnsupportedLanguageError)
         problem_set_id = problem_set.id if problem_set else None
         record = cls(
             domain_id=problem.domain_id,
@@ -106,6 +101,7 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
             problem_id=problem.id,
             problem_config_id=problem_config.id,
             committer_id=user.id,
+            language=problem_submit.language,
         )
 
         await record.save_model(commit=False, refresh=False)
@@ -141,10 +137,14 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
             lakefs_record.ensure_branch()
 
             if problem_submit.code_type == RecordCodeType.archive:
-                if problem_submit.file is None:
-                    raise BizError(ErrorCode.Error)
+                problem_submit.file = cast(UploadFile, problem_submit.file)
                 lakefs_record.upload_archive(
                     problem_submit.file.filename, problem_submit.file.file
+                )
+            elif problem_submit.code_type == RecordCodeType.text:
+                lakefs_record.upload_text(
+                    "main.c",  # TODO: read filename from problem config
+                    cast(str, problem_submit.code_text),
                 )
 
             commit = lakefs_record.commit(f"record: {self.id}")

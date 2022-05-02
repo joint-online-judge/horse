@@ -1,15 +1,18 @@
-from typing import TYPE_CHECKING, List, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, TypeVar
 from uuid import UUID
 
 from fastapi import UploadFile
+from pydantic import root_validator
 from sqlmodel import Field
 
 from joj.horse.schemas.base import (
     BaseModel,
+    CodeText,
     DomainMixin,
     EditMetaclass,
     FormMetaclass,
     IDMixin,
+    LongStr,
     LongText,
     NoneEmptyStr,
     TimestampMixin,
@@ -98,5 +101,19 @@ WithLatestRecordType = TypeVar("WithLatestRecordType", bound=LatestRecordMixin)
 
 
 class ProblemSolutionSubmit(BaseModel, metaclass=FormMetaclass):
+    language: LongStr
     code_type: RecordCodeType
     file: Optional[UploadFile]
+    code_text: Optional[CodeText]
+
+    @root_validator()
+    def check_submission(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        if (
+            values.get("code_type") == RecordCodeType.archive
+            and values.get("file") is None
+        ) or (
+            values.get("code_type") == RecordCodeType.text
+            and values.get("code_text") is None
+        ):
+            raise ValueError("code not found in submission")
+        return values

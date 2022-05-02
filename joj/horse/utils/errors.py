@@ -26,9 +26,10 @@ class ErrorCode(str, Enum):
     ProblemGroupNotFoundError = "ProblemGroupNotFoundError"
 
     ProblemConfigNotFoundError = "ProblemConfigNotFoundError"
-    ProblemConfigValidationError = "ProblemConfigValidationError"
-    ProblemConfigUpdateError = "ProblemConfigUpdateError"
-    ProblemConfigDownloadError = "ProblemConfigDownloadError"
+    FileValidationError = "FileValidationError"
+    FileUpdateError = "FileUpdateError"
+    FileDownloadError = "FileDownloadError"
+    UnsupportedLanguageError = "UnsupportedLanguageError"
 
     RecordNotFoundError = "RecordNotFoundError"
 

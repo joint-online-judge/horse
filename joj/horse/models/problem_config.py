@@ -56,5 +56,5 @@ class ProblemConfig(BaseORMModel, ProblemConfigDetail, table=True):  # type: ign
             )
             await problem_config.save_model()
         except ElephantError as e:
-            raise BizError(ErrorCode.ProblemConfigValidationError, e.message)
+            raise BizError(ErrorCode.FileValidationError, e.message)
         return problem_config

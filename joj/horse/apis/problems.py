@@ -178,6 +178,7 @@ async def submit_solution_to_problem(
     problem: models.Problem = Depends(parse_problem),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.Record]:
+    # TODO: check problem_submit.language is in problem.problem_configs.languages
     record = await models.Record.submit(
         background_tasks=background_tasks,
         celery_app=celery_app,
