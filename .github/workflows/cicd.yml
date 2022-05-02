@@ -111,6 +111,7 @@ jobs:
           bash ./start.sh lite
           docker ps
       - name: Test and Generate coverage report
+        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
           docker exec horse /bin/bash -c "pytest -svv --cov=./ --cov-report=xml"
           docker cp horse:/root/coverage.xml .
