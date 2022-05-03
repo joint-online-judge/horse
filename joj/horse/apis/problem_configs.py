@@ -1,5 +1,5 @@
 import io
-import pathlib
+from pathlib import Path as PathlibPath
 from typing import Any, Dict, Optional
 
 import orjson
@@ -51,7 +51,7 @@ def update_problem_config_by_archive(
     permissions=[Permission.DomainProblem.view_config],
 )
 def download_uncommitted_problem_config_as_archive(
-    temp_dir: pathlib.Path = Depends(TemporaryDirectory()),
+    temp_dir: PathlibPath = Depends(TemporaryDirectory()),
     archive_format: ArchiveType = Query(ArchiveType.zip),
     problem: models.Problem = Depends(parse_problem),
 ) -> StandardResponse[Empty]:
@@ -78,7 +78,7 @@ def get_file_or_directory_info_in_uncommitted_problem_config(
     problem: models.Problem = Depends(parse_problem),
 ) -> StandardResponse[FileInfo]:
     problem_config = LakeFSProblemConfig(problem)
-    file_info = problem_config.get_file_info(pathlib.Path(path))
+    file_info = problem_config.get_file_info(PathlibPath(path))
     return StandardResponse(file_info)
 
 
@@ -95,7 +95,7 @@ def upload_file_to_problem_config(
     path: str = Depends(parse_file_path),
 ) -> StandardResponse[FileInfo]:
     problem_config = LakeFSProblemConfig(problem)
-    file_info = problem_config.upload_file(pathlib.Path(path), file.file)
+    file_info = problem_config.upload_file(PathlibPath(path), file.file)
     return StandardResponse(file_info)
 
 
@@ -124,7 +124,7 @@ def delete_file_from_uncommitted_problem_config(
     problem: models.Problem = Depends(parse_problem),
 ) -> StandardResponse[FileInfo]:
     problem_config = LakeFSProblemConfig(problem)
-    file_info = problem_config.delete_file(pathlib.Path(path))
+    file_info = problem_config.delete_file(PathlibPath(path))
     return StandardResponse(file_info)
 
 
@@ -143,7 +143,7 @@ def delete_directory_from_uncommitted_problem_config(
     ),
 ) -> StandardResponse[FileInfo]:
     problem_config = LakeFSProblemConfig(problem)
-    file_info = problem_config.delete_directory(pathlib.Path(path), recursive)
+    file_info = problem_config.delete_directory(PathlibPath(path), recursive)
     return StandardResponse(file_info)
 
 
@@ -197,7 +197,7 @@ def update_problem_config_json(
 ) -> StandardResponse[FileInfo]:
     problem_config = LakeFSProblemConfig(problem)
     file_info = problem_config.upload_file(
-        pathlib.Path("config.json"),
+        PathlibPath("config.json"),
         io.BytesIO(orjson.dumps(config, option=orjson.OPT_INDENT_2)),
     )
     return StandardResponse(file_info)
@@ -208,7 +208,7 @@ def update_problem_config_json(
     permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
 )
 def download_problem_config_archive(
-    temp_dir: pathlib.Path = Depends(TemporaryDirectory()),
+    temp_dir: PathlibPath = Depends(TemporaryDirectory()),
     archive_format: ArchiveType = Query(ArchiveType.zip),
     problem: models.Problem = Depends(parse_problem),
     config: Optional[models.ProblemConfig] = Depends(parse_problem_config),
@@ -243,8 +243,8 @@ def download_file_in_problem_config(
         ref = config.commit_id
     else:
         ref = None
-    file = problem_config.download_file(pathlib.Path(path), ref)
+    file = problem_config.download_file(PathlibPath(path), ref)
     response = StreamingResponse(file)
-    filename = pathlib.Path(path).name
+    filename = PathlibPath(path).name
     response.content_disposition = f'attachment; filename="{filename}"'
     return response

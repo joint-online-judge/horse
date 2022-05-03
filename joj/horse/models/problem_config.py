@@ -1,4 +1,4 @@
-import pathlib
+from pathlib import Path
 from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID
 
@@ -53,9 +53,7 @@ class ProblemConfig(BaseORMModel, ProblemConfigDetail, table=True):  # type: ign
         try:
             commit_result = await run_in_threadpool(sync_func)
             lakefs_problem_config = LakeFSProblemConfig(problem)
-            config_file = lakefs_problem_config.download_file(
-                pathlib.Path("config.json")
-            )
+            config_file = lakefs_problem_config.download_file(Path("config.json"))
             config_dict = orjson.loads(config_file.read())
             languages = []
             if isinstance(config_dict, dict) and "languages" in config_dict:
