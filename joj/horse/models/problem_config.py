@@ -1,5 +1,8 @@
+import pathlib
 from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID
+
+import orjson
 
 # from joj.elephant.manager import Manager
 from lakefs_client.models import Commit
@@ -49,10 +52,19 @@ class ProblemConfig(BaseORMModel, ProblemConfigDetail, table=True):  # type: ign
 
         try:
             commit_result = await run_in_threadpool(sync_func)
+            lakefs_problem_config = LakeFSProblemConfig(problem)
+            config_file = lakefs_problem_config.download_file(
+                pathlib.Path("config.json")
+            )
+            config_dict = orjson.loads(config_file.read())
+            languages = []
+            if isinstance(config_dict, dict) and "languages" in config_dict:
+                languages = config_dict["languages"]
             problem_config = cls(
                 problem_id=problem.id,
                 committer_id=committer.id,
                 commit_id=commit_result.id,
+                languages=languages,
             )
             await problem_config.save_model()
         except ElephantError as e:
