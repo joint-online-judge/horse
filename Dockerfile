@@ -28,7 +28,6 @@ ARG PYTEST
 COPY pyproject.toml poetry.lock README.md /root/
 COPY joj/horse/__init__.py /root/joj/horse/
 RUN --mount=type=cache,target=/root/.cache if [ -n "$PYTEST" ]; then poetry install -E test; else poetry install --no-dev; fi
-RUN --mount=type=cache,target=/root/.cache poetry add git+https://github.com/joint-online-judge/elephant.git
 COPY . /root
 # RUN --mount=type=cache,target=/root/.cache poetry install --no-dev
 
