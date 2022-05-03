@@ -70,25 +70,6 @@ def download_file_in_uncommitted_problem_config(
     return download_file_in_problem_config(path, problem, None)
 
 
-@router.put(
-    "/config/files/config.json",
-    description="Replace the file with the same path. "
-    "Create directories if needed along the path.",
-    permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
-    dependencies=[Depends(lock_problem_config)],
-)
-def upload_config_json_file_to_problem_config(
-    config: Dict[str, Any] = Body(...),
-    problem: models.Problem = Depends(parse_problem),
-) -> StandardResponse[FileInfo]:
-    problem_config = LakeFSProblemConfig(problem)
-    file_info = problem_config.upload_file(
-        pathlib.Path("config.json"),
-        io.BytesIO(orjson.dumps(config, option=orjson.OPT_INDENT_2)),
-    )
-    return StandardResponse(file_info)
-
-
 @router.get(
     "/config/file_info/{path:path}", permissions=[Permission.DomainProblem.view_config]
 )
@@ -203,6 +184,23 @@ async def get_problem_config_json(
     config: models.ProblemConfig = Depends(parse_problem_config),
 ) -> StandardResponse[schemas.ProblemConfig]:
     return StandardResponse(schemas.ProblemConfig.from_orm(config))
+
+
+@router.put(
+    "/config",
+    permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
+    dependencies=[Depends(lock_problem_config)],
+)
+def update_problem_config_json(
+    config: Dict[str, Any] = Body(...),
+    problem: models.Problem = Depends(parse_problem),
+) -> StandardResponse[FileInfo]:
+    problem_config = LakeFSProblemConfig(problem)
+    file_info = problem_config.upload_file(
+        pathlib.Path("config.json"),
+        io.BytesIO(orjson.dumps(config, option=orjson.OPT_INDENT_2)),
+    )
+    return StandardResponse(file_info)
 
 
 @router.get(
