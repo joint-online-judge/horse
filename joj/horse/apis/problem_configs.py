@@ -187,7 +187,7 @@ async def get_problem_config_json(
 
 
 @router.put(
-    "/config",
+    "/configs",
     permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
     dependencies=[Depends(lock_problem_config)],
 )
