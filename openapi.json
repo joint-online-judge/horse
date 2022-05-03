@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 9b73af8@2022-05-02T19:19:37Z",
+    "description": "Git version: f5a4712@2022-05-03T17:15:26Z",
     "version": "1"
   },
   "paths": {
@@ -4074,6 +4074,87 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemConfigResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/domains/{domain}/problems/{problem}/configs": {
+      "put": {
+        "tags": [
+          "problem config"
+        ],
+        "summary": "Update Problem Config Json",
+        "operationId": "v1_update_problem_config_json",
+        "parameters": [
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "title": "Config",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileInfoResp"
                 }
               }
             }
@@ -8728,7 +8809,7 @@
         "title": "ProblemSolutionSubmit",
         "required": [
           "language",
-          "codeType"
+          "files"
         ],
         "type": "object",
         "properties": {
@@ -8737,18 +8818,13 @@
             "maxLength": 256,
             "type": "string"
           },
-          "codeType": {
-            "$ref": "#/components/schemas/RecordCodeType"
-          },
-          "file": {
-            "title": "File",
-            "type": "string",
-            "format": "binary"
-          },
-          "codeText": {
-            "title": "Codetext",
-            "maxLength": 10485760,
-            "type": "string"
+          "files": {
+            "title": "Files",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            }
           }
         }
       },
@@ -8959,15 +9035,6 @@
           10
         ],
         "type": "integer",
-        "description": "An enumeration."
-      },
-      "RecordCodeType": {
-        "title": "RecordCodeType",
-        "enum": [
-          "text",
-          "archive"
-        ],
-        "type": "string",
         "description": "An enumeration."
       },
       "RecordDetail": {
