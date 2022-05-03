@@ -183,6 +183,10 @@ jobs:
                   -c build/python-client.json
             - name: Monkeypatch namespace package
               run: sed -i 's/find_packages/find_namespace_packages/g' build/client/python/setup.py
+            - name: Monkeypatch requires
+              run: |
+                  sed -i 's/dateutil\"]/dateutil\", \"aiohttp\"]/g' setup.py
+                  sed -i '/REQUIRES.append(\"aiohttp\")/d' setup.py
             - name: Find joj/horse_client
               run: ls -lha build/client/python/
             - name: Push to client repo
