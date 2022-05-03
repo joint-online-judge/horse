@@ -2,7 +2,7 @@ from functools import lru_cache
 from io import BytesIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import IO, TYPE_CHECKING, Any, BinaryIO, Dict, Literal, Optional, cast
+from typing import IO, TYPE_CHECKING, Any, BinaryIO, Dict, List, Literal, Optional, cast
 from uuid import UUID
 
 import boto3
@@ -18,7 +18,13 @@ from joj.elephant.errors import ElephantError
 from joj.elephant.manager import Manager
 from joj.elephant.rclone import RClone
 from joj.elephant.schemas import ArchiveType, FileInfo
-from joj.elephant.storage import ArchiveStorage, CodeTextStorage, LakeFSStorage, Storage
+from joj.elephant.storage import (
+    ArchiveStorage,
+    CodeTextStorage,
+    LakeFSStorage,
+    MultipleFilesStorage,
+    Storage,
+)
 from joj.horse.config import settings
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.retry import retry_init
@@ -338,6 +344,20 @@ class LakeFSBase:
             if recursive:
                 return self.storage.delete_tree(file_path)
             return self.storage.delete_dir(file_path)
+        except ElephantError as e:
+            raise BizError(ErrorCode.FileUpdateError, str(e))
+
+    def upload_multiple_files(
+        self, filenames: List[str], files: List[IO[bytes]]
+    ) -> None:
+        self.ensure_branch()
+
+        try:
+            logger.info(f"write files to MultipleFilesStorage: {filenames}")
+            source = MultipleFilesStorage(filenames, files)
+            manager = Manager(get_rclone(), source, self.storage)
+            manager.sync_without_validation()
+
         except ElephantError as e:
             raise BizError(ErrorCode.FileUpdateError, str(e))
 

@@ -1,9 +1,9 @@
-from typing import TYPE_CHECKING, List, Optional, cast
+from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID, uuid4
 
 from celery import Celery
 from celery.result import AsyncResult
-from fastapi import BackgroundTasks, UploadFile
+from fastapi import BackgroundTasks
 from loguru import logger
 from sqlalchemy.schema import Column, ForeignKey
 from sqlmodel import Field, Relationship
@@ -13,12 +13,7 @@ from starlette.concurrency import run_in_threadpool
 from joj.horse.models.base import BaseORMModel
 from joj.horse.schemas.cache import get_redis_cache
 from joj.horse.schemas.problem import ProblemSolutionSubmit
-from joj.horse.schemas.record import (
-    RecordCodeType,
-    RecordDetail,
-    RecordPreview,
-    RecordState,
-)
+from joj.horse.schemas.record import RecordDetail, RecordPreview, RecordState
 from joj.horse.services.lakefs import LakeFSRecord
 from joj.horse.utils.errors import BizError, ErrorCode
 
@@ -92,8 +87,9 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
         problem_config = await problem.get_latest_problem_config()
         if problem_config is None:
             raise BizError(ErrorCode.ProblemConfigNotFoundError)
-        if problem_submit.language not in problem_config.languages:
-            raise BizError(ErrorCode.UnsupportedLanguageError)
+        # TODO: parse languages from config
+        # if problem_submit.language not in problem_config.languages:
+        #     raise BizError(ErrorCode.UnsupportedLanguageError)
         problem_set_id = problem_set.id if problem_set else None
         record = cls(
             domain_id=problem.domain_id,
@@ -135,17 +131,14 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
         def sync_func() -> None:
             lakefs_record = LakeFSRecord(problem, self)
             lakefs_record.ensure_branch()
-
-            if problem_submit.code_type == RecordCodeType.archive:
-                problem_submit.file = cast(UploadFile, problem_submit.file)
-                lakefs_record.upload_archive(
-                    problem_submit.file.filename, problem_submit.file.file
-                )
-            elif problem_submit.code_type == RecordCodeType.text:
-                lakefs_record.upload_text(
-                    "main.c",  # TODO: read filename from problem config
-                    cast(str, problem_submit.code_text),
-                )
+            # problem_submit.file = cast(UploadFile, problem_submit.file)
+            # lakefs_record.upload_archive(
+            #     problem_submit.file.filename, problem_submit.file.file
+            # )
+            lakefs_record.upload_multiple_files(
+                [file.filename for file in problem_submit.files],
+                [file.file for file in problem_submit.files],
+            )
 
             commit = lakefs_record.commit(f"record: {self.id}")
             logger.info(commit)
@@ -153,6 +146,8 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
             self.commit_id = commit.id
 
         try:
+            file = problem_submit.files[0]
+            logger.info(file)
             await run_in_threadpool(sync_func)
             self.task_id = uuid4()
             await self.save_model()

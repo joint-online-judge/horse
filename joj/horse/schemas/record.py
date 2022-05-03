@@ -43,11 +43,6 @@ class RecordCaseResult(IntEnum):
     etc = 10
 
 
-class RecordCodeType(StrEnumMixin, Enum):
-    text = "text"
-    archive = "archive"
-
-
 class RecordCase(BaseModel):
     state: RecordCaseResult = RecordCaseResult.etc
     score: int = 0
