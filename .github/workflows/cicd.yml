@@ -26,6 +26,7 @@ jobs:
       - name: commit and push updated poetry.lock
         uses: EndBug/add-and-commit@v9
         with:
+          default_author: user_info
           message: 'update joj-elephant in poetry.lock'
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
