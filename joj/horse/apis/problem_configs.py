@@ -1,6 +1,8 @@
+import io
 import pathlib
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
+import orjson
 from fastapi import Body, Depends, File, Path, Query, UploadFile
 from fastapi.responses import StreamingResponse
 from uvicorn.config import logger
@@ -66,6 +68,25 @@ def download_file_in_uncommitted_problem_config(
     problem: models.Problem = Depends(parse_problem),
 ) -> Any:
     return download_file_in_problem_config(path, problem, None)
+
+
+@router.put(
+    "/config/files/config.json",
+    description="Replace the file with the same path. "
+    "Create directories if needed along the path.",
+    permissions=[Permission.DomainProblem.view_config, Permission.DomainProblem.edit],
+    dependencies=[Depends(lock_problem_config)],
+)
+def upload_config_json_file_to_problem_config(
+    config: Dict[str, Any] = Body(...),
+    problem: models.Problem = Depends(parse_problem),
+) -> StandardResponse[FileInfo]:
+    problem_config = LakeFSProblemConfig(problem)
+    file_info = problem_config.upload_file(
+        pathlib.Path("config.json"),
+        io.BytesIO(orjson.dumps(config, option=orjson.OPT_INDENT_2)),
+    )
+    return StandardResponse(file_info)
 
 
 @router.get(
