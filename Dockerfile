@@ -14,7 +14,6 @@ RUN --mount=type=cache,target=/var/cache/apt \
 
 # install poetry
 ARG PYPI_MIRROR
-# RUN if [ -n "$PYPI_MIRROR" ]; then pip install -i $PYPI_MIRROR pip -U; pip config set global.index-url $PYPI_MIRROR; fi
 RUN if [ -n "$PYPI_MIRROR" ]; then pip config set global.index-url $PYPI_MIRROR; fi
 RUN --mount=type=cache,target=/root/.cache pip install poetry
 
@@ -29,7 +28,6 @@ COPY pyproject.toml poetry.lock README.md /root/
 COPY joj/horse/__init__.py /root/joj/horse/
 RUN --mount=type=cache,target=/root/.cache if [ -n "$PYTEST" ]; then poetry install -E test; else poetry install --no-dev; fi
 COPY . /root
-# RUN --mount=type=cache,target=/root/.cache poetry install --no-dev
 
 ENV HOST="localhost" \
     PORT=34765 \
