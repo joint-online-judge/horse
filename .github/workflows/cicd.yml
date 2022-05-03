@@ -13,6 +13,21 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: update joj-elephant in poetry.lock
+        run: |
+          ELEPHANT_REF=$(git ls-remote --heads https://github.com/joint-online-judge/elephant.git refs/heads/master | awk '{print $1}')
+          echo $ELEPHANT_REF
+          ELEPHANT_URL_LINE_NO=$(awk '/joint-online-judge\/elephant.git/{ print NR; exit }' poetry.lock)
+          echo $ELEPHANT_URL_LINE_NO
+          ELEPHANT_REF_LINE_NO=$(($ELEPHANT_URL_LINE_NO-2))
+          echo $ELEPHANT_REF_LINE_NO
+          sed -i "${ELEPHANT_REF_LINE_NO}s/.*/resolved_reference = \"$ELEPHANT_REF\"/" poetry.lock
+          git --no-pager diff
+      - name: commit and push updated poetry.lock
+        uses: EndBug/add-and-commit@v9
+        with:
+          default_author: github_actions
+          message: 'update joj-elephant in poetry.lock'
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Login to Docker Hub
