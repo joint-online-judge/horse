@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 33a5688@2022-05-03T22:27:18Z",
+    "description": "Git version: 40ddcb7@2022-05-04T05:20:29Z",
     "version": "1"
   },
   "paths": {
@@ -8033,6 +8033,14 @@
             "title": "Updatedat",
             "type": "string",
             "format": "date-time"
+          },
+          "languages": {
+            "title": "Languages",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
           }
         }
       },
@@ -8128,6 +8136,14 @@
             "title": "Updatedat",
             "type": "string",
             "format": "date-time"
+          },
+          "languages": {
+            "title": "Languages",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
           },
           "latestRecord": {
             "$ref": "#/components/schemas/RecordPreview"
