@@ -2,6 +2,8 @@ from typing import TYPE_CHECKING, List, Optional, TypeVar
 from uuid import UUID
 
 from fastapi import UploadFile
+from sqlalchemy.schema import Column
+from sqlalchemy.types import JSON
 from sqlmodel import Field
 
 from joj.horse.schemas.base import (
@@ -76,7 +78,10 @@ class Problem(ProblemBase, DomainMixin, IDMixin):
 
 
 class ProblemDetail(TimestampMixin, ProblemContentMixin, Problem):
-    pass
+    languages: List[str] = Field(
+        [],
+        sa_column=Column(JSON, nullable=False, server_default="[]"),
+    )
 
 
 class LatestRecordMixin(BaseModel):

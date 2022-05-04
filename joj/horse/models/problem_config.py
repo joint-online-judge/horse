@@ -65,6 +65,8 @@ class ProblemConfig(BaseORMModel, ProblemConfigDetail, table=True):  # type: ign
                 languages=languages,
             )
             await problem_config.save_model()
+            problem.languages = languages
+            await problem.save_model()
         except ElephantError as e:
             raise BizError(ErrorCode.FileValidationError, e.message)
         return problem_config
