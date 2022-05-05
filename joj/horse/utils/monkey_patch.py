@@ -133,7 +133,7 @@ utils.request_params_to_args = request_params_to_args
 
 
 # pragma: no cover
-class SpooledTemporaryFileIOBase(IOBase):
+class SpooledTemporaryFileIOBase(IOBase):  # lgtm [py/iter-returns-non-self]
     def __init__(self, file: SpooledTemporaryFile):  # type: ignore
         self.file = file
 

@@ -12,7 +12,7 @@ from starlette_context import plugins
 from starlette_context.middleware import RawContextMiddleware
 from tenacity import RetryError
 
-import joj.horse.models  # noqa: F401
+import joj.horse.models  # noqa: F401 lgtm [py/unused-import]
 import joj.horse.utils.monkey_patch  # noqa: F401
 from joj.horse.config import AllSettings
 from joj.horse.schemas.cache import try_init_cache
@@ -36,7 +36,7 @@ app = FastAPI(
 )
 init_logging()
 
-import joj.horse.apis  # noqa: F401
+import joj.horse.apis  # noqa: F401 lgtm [py/unused-import]
 
 app = VersionedFastAPI(
     app,

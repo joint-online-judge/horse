@@ -41,7 +41,7 @@ async def jwt_decoded(
 @router.get("/test/report")
 async def test_error_report() -> StandardResponse[Empty]:
     assert False
-    return StandardResponse()
+    return StandardResponse()  # lgtm [py/unreachable-statement]
 
 
 @router.post("/set_root_user")

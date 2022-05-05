@@ -176,7 +176,7 @@ class TimestampMixin(BaseModel):
 
 
 class EditMetaclass(ModelMetaclass):
-    async def edit_dependency(cls: Any) -> Any:  # pragma: no cover
+    async def edit_dependency(self: Any) -> Any:  # pragma: no cover
         pass
 
     def __new__(mcs, name: str, bases: Any, class_dict: Any, **kwargs: Any) -> Any:
@@ -199,7 +199,7 @@ class FormMetaclass(ModelMetaclass):
     The form_dependency class method can be used with FastAPI endpoints.
     """
 
-    async def form_dependency(cls: Any) -> Any:  # pragma: no cover
+    async def form_dependency(self: Any) -> Any:  # pragma: no cover
         pass
 
     def __new__(mcs, name: str, bases: Any, class_dict: Any, **kwargs: Any) -> Any:

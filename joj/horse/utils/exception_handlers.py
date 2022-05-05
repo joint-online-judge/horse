@@ -7,7 +7,7 @@ from starlette.responses import JSONResponse
 
 from joj.horse.schemas.base import StandardErrorResponse
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.logger import init_logging  # noqa: F401
+from joj.horse.utils.logger import init_logging  # noqa: F401 lgtm [py/unused-import]
 
 
 def authjwt_exception_handler(request: Request, exc: AuthJWTException) -> JSONResponse:
