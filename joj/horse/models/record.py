@@ -145,8 +145,6 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
             self.commit_id = commit.id
 
         try:
-            file = problem_submit.files[0]
-            logger.info(file)
             await run_in_threadpool(sync_func)
             self.task_id = uuid4()
             await self.save_model()
@@ -162,7 +160,7 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
         # create a task in celery with this record
         # TODO: get queue from problem config or somewhere else
         result = celery_app.send_task(
-            "joj.tiger.compile",
+            "joj.tiger.task",
             args=[self.dict(), ""],
             queue="joj.tiger.official.default",
             task_id=str(self.task_id),
