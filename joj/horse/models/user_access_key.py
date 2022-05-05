@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from lakefs_client.models import CredentialsWithSecret
@@ -32,7 +32,7 @@ class UserAccessKey(BaseORMModel, UserAccessKeyDetail, table=True):  # type: ign
         access_key = await cls.one_or_none(service="lakefs", user_id=user.id)
         access_key_id = access_key.access_key_id if access_key else None
 
-        def sync_func() -> Optional[CredentialsWithSecret]:
+        def sync_func() -> CredentialsWithSecret:
             ensure_user(user.id)
             return ensure_credentials(user.id, access_key_id)
 

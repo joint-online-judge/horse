@@ -36,7 +36,7 @@ from sqlalchemy.sql.functions import FunctionElement
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.types import DateTime
 from sqlmodel import Field, SQLModel
-from starlette.datastructures import MultiDict
+from starlette.datastructures import QueryParams
 
 from joj.horse.utils.base import is_uuid
 from joj.horse.utils.errors import ErrorCode
@@ -366,11 +366,8 @@ def camelcase_parameters(func: Any) -> Any:
 
 def camelcase_parameters_dependency(request: Request) -> None:
     query_params = request.query_params
-    new_params = MultiDict()
+    new_params = list()
     for k, v in query_params.multi_items():
-        if "_" in k:
-            camel = snake2camel(k, start_lower=True)
-            new_params.append(camel, v)
-        else:
-            new_params.append(k, v)
-    request._query_params = new_params
+        camel = snake2camel(k, start_lower=True) if "_" in k else k
+        new_params.append((camel, v))
+    request._query_params = QueryParams(new_params)

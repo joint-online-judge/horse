@@ -87,9 +87,8 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
         problem_config = await problem.get_latest_problem_config()
         if problem_config is None:
             raise BizError(ErrorCode.ProblemConfigNotFoundError)
-        # TODO: parse languages from config
-        # if problem_submit.language not in problem_config.languages:
-        #     raise BizError(ErrorCode.UnsupportedLanguageError)
+        if problem_submit.language not in problem_config.languages:
+            raise BizError(ErrorCode.UnsupportedLanguageError)
         problem_set_id = problem_set.id if problem_set else None
         record = cls(
             domain_id=problem.domain_id,
