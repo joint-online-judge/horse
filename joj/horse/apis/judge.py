@@ -19,17 +19,17 @@ router_prefix = "/api/v1"
 @router.post(
     "/records/{record}/judge/claim", permissions=[Permission.DomainRecord.judge]
 )
-async def claim_record_by_judge(
-    judge_claim: schemas.JudgeClaim,
+async def claim_record_by_judger(
+    judger_claim: schemas.JudgerClaim,
     record: models.Record = Depends(parse_record_judger),
     user: models.User = Depends(parse_user_from_auth),
-) -> StandardResponse[schemas.JudgeCredentials]:
+) -> StandardResponse[schemas.JudgerCredentials]:
     # task_id can only be obtained by listening to the celery task queue
     # we give the worker with task_id the chance to claim the record
     # celery tasks can be retried, only one worker can hold the task_id at the same time
     # if a rejudge is scheduled, task_id changes, so previous task will be ineffective
     # TODO: we probably need a lock to handle race condition of rejudge and claim
-    if record.task_id is None or record.task_id != judge_claim.task_id:
+    if record.task_id is None or str(record.task_id) != judger_claim.task_id:
         raise BizError(ErrorCode.Error)
     # if record.state not in (schemas.RecordState.queueing, schemas.RecordState.retrying):
     #     raise BizError(ErrorCode.Error)
@@ -60,7 +60,7 @@ async def claim_record_by_judge(
 
     await run_in_threadpool(sync_func)
 
-    judge_credentials = schemas.JudgeCredentials(
+    judger_credentials = schemas.JudgerCredentials(
         access_key_id=access_key.access_key_id,
         secret_access_key=access_key.secret_access_key,
         problem_config_repo_name=lakefs_problem_config.repo_name,
@@ -68,13 +68,13 @@ async def claim_record_by_judge(
         record_repo_name=lakefs_record.repo_name,
         record_commit_id=record.commit_id,
     )
-    return StandardResponse(judge_credentials)
+    return StandardResponse(judger_credentials)
 
 
 @router.post(
     "/records/{record}/judge/state", permissions=[Permission.DomainRecord.judge]
 )
-async def update_record_state_by_judge(
+async def update_record_state_by_judger(
     record: models.Record = Depends(parse_record_judger),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.Record]:
@@ -95,7 +95,7 @@ async def update_record_state_by_judge(
 @router.post(
     "/records/{record}/judge/judgment", permissions=[Permission.DomainRecord.judge]
 )
-async def submit_record_by_judge(
+async def submit_record_by_judger(
     record_result: schemas.RecordResult,
     record: models.Record = Depends(parse_record_judger),
     user: models.User = Depends(parse_user_from_auth),

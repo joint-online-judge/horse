@@ -29,8 +29,8 @@ from joj.horse.schemas.domain_user import (
     DomainUserUpdate as DomainUserUpdate,
 )
 from joj.horse.schemas.judge import (
-    JudgeClaim as JudgeClaim,
-    JudgeCredentials as JudgeCredentials,
+    JudgerClaim as JudgerClaim,
+    JudgerCredentials as JudgerCredentials,
 )
 from joj.horse.schemas.lakefs import LakeFSReset as LakeFSReset
 from joj.horse.schemas.misc import (

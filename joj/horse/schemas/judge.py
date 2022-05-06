@@ -1,11 +1,11 @@
 from joj.horse.schemas import BaseModel
 
 
-class JudgeClaim(BaseModel):
+class JudgerClaim(BaseModel):
     task_id: str
 
 
-class JudgeCredentials(BaseModel):
+class JudgerCredentials(BaseModel):
     access_key_id: str
     secret_access_key: str
     problem_config_repo_name: str
