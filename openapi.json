@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 12d10a5@2022-05-06T16:12:55Z",
+    "description": "Git version: 46b709e@2022-05-06T20:04:13Z",
     "version": "1"
   },
   "paths": {
@@ -6153,9 +6153,63 @@
             "HTTPBearer": []
           }
         ]
+      },
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Create Judger",
+        "operationId": "v1_create_judger",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JudgerCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthTokensResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
-    "/judge/records/{record}/claim": {
+    "/domains/{domain}/records/{record}/judge/claim": {
       "post": {
         "tags": [
           "judge"
@@ -6233,7 +6287,7 @@
         ]
       }
     },
-    "/judge/records/{record}/state": {
+    "/domains/{domain}/records/{record}/judge/state": {
       "post": {
         "tags": [
           "judge"
@@ -6301,7 +6355,7 @@
         ]
       }
     },
-    "/judge/records/{record}/judgment": {
+    "/domains/{domain}/records/{record}/judge/judgment": {
       "post": {
         "tags": [
           "judge"
@@ -7641,6 +7695,24 @@
           },
           "data": {
             "$ref": "#/components/schemas/JudgeCredentials"
+          }
+        }
+      },
+      "JudgerCreate": {
+        "title": "JudgerCreate",
+        "type": "object",
+        "properties": {
+          "username": {
+            "title": "Username",
+            "type": "string"
+          },
+          "password": {
+            "title": "Password",
+            "type": "string"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
           }
         }
       },
@@ -9408,12 +9480,12 @@
             "title": "Username",
             "type": "string"
           },
-          "email": {
-            "title": "Email",
-            "type": "string"
-          },
           "password": {
             "title": "Password",
+            "type": "string"
+          },
+          "email": {
+            "title": "Email",
             "type": "string"
           },
           "oauth_name": {
