@@ -11,12 +11,14 @@ from joj.horse.utils.fastapi.router import MyRouter
 from joj.horse.utils.parser import parse_record_judger, parse_user_from_auth
 
 router = MyRouter()
-router_name = "judge"
+router_name = "domains/{domain}"
 router_tag = "judge"
 router_prefix = "/api/v1"
 
 
-@router.post("/records/{record}/claim", permissions=[Permission.DomainRecord.judge])
+@router.post(
+    "/records/{record}/judge/claim", permissions=[Permission.DomainRecord.judge]
+)
 async def claim_record_by_judge(
     judge_claim: schemas.JudgeClaim,
     record: models.Record = Depends(parse_record_judger),
@@ -69,7 +71,9 @@ async def claim_record_by_judge(
     return StandardResponse(judge_credentials)
 
 
-@router.post("/records/{record}/state", permissions=[Permission.DomainRecord.judge])
+@router.post(
+    "/records/{record}/judge/state", permissions=[Permission.DomainRecord.judge]
+)
 async def update_record_state_by_judge(
     record: models.Record = Depends(parse_record_judger),
     user: models.User = Depends(parse_user_from_auth),
@@ -88,7 +92,9 @@ async def update_record_state_by_judge(
     return StandardResponse(record)
 
 
-@router.post("/records/{record}/judgment", permissions=[Permission.DomainRecord.judge])
+@router.post(
+    "/records/{record}/judge/judgment", permissions=[Permission.DomainRecord.judge]
+)
 async def submit_record_by_judge(
     record_result: schemas.RecordResult,
     record: models.Record = Depends(parse_record_judger),
