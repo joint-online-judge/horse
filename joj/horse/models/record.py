@@ -161,7 +161,7 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
         # TODO: get queue from problem config or somewhere else
         result = celery_app.send_task(
             "joj.tiger.task",
-            args=[self.dict(), ""],
+            args=[self.dict(), "http://horse:34765"],  # TODO: read from settings
             queue="joj.tiger.official.default",
             task_id=str(self.task_id),
         )
