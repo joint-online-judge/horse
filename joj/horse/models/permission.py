@@ -8,7 +8,7 @@ class DefaultRole(StrEnumMixin, Enum):
     ADMIN = "admin"
     USER = "user"
     GUEST = "guest"
-    JUDGE = "judge"
+    JUDGER = "judger"
 
 
 class ScopeType(StrEnumMixin, Enum):
@@ -50,5 +50,5 @@ class PermissionType(StrEnumMixin, Enum):
     unknown = "unknown"
 
 
-FIXED_ROLES = {DefaultRole.JUDGE}
-READONLY_ROLES = {DefaultRole.ROOT, DefaultRole.GUEST, DefaultRole.JUDGE}
+FIXED_ROLES = {DefaultRole.JUDGER}
+READONLY_ROLES = {DefaultRole.ROOT, DefaultRole.GUEST, DefaultRole.JUDGER}

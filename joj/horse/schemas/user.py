@@ -33,18 +33,21 @@ class UserEdit(BaseModel, metaclass=EditMetaclass):
     gravatar: Optional[str] = None
 
 
-class UserCreate(SQLModel):
+class JudgerCreate(SQLModel):
     username: Optional[str] = None
-    email: Optional[str] = None
     password: Optional[str] = None
-    oauth_name: Optional[str] = None
-    oauth_account_id: Optional[str] = None
+    email: Optional[str] = None
 
     @validator("email", pre=True, always=True)
     def validate_email(cls, v: Any) -> Optional[EmailStr]:
         if not v:
             return None
         return EmailStr(v)
+
+
+class UserCreate(JudgerCreate):
+    oauth_name: Optional[str] = None
+    oauth_account_id: Optional[str] = None
 
 
 class UserBase(BaseORMSchema):

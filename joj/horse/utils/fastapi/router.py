@@ -82,8 +82,8 @@ def _get_schema(_app: FastAPI, function: Callable[..., Any]) -> ModelField:
     Get the Pydantic schema of a FastAPI function.
     """
     for route in _app.routes:
-        if route.endpoint is function:
-            return route.body_field
+        if route.endpoint is function:  # type: ignore
+            return route.body_field  # type: ignore
     assert False
 
 

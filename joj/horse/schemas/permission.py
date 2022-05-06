@@ -118,9 +118,9 @@ DEFAULT_DOMAIN_PERMISSION: Dict[str, DomainPermission] = {
     DefaultRole.GUEST: DomainPermission.get_default(False),
 }
 
-# set permission for judge
-__DEFAULT_JUDGE_PERMISSION = SitePermission.get_default_site_permission(False, False)
-__DEFAULT_JUDGE_PERMISSION.record.judge = True
+# set permission for judger
+__DEFAULT_JUDGER_PERMISSION = SitePermission.get_default_site_permission(False, False)
+__DEFAULT_JUDGER_PERMISSION.record.judge = True
 
 
 DEFAULT_SITE_PERMISSION = {
@@ -128,7 +128,7 @@ DEFAULT_SITE_PERMISSION = {
     DefaultRole.ADMIN: SitePermission.get_default_site_permission(None, True),
     DefaultRole.USER: SitePermission.get_default_site_permission(False, None),
     DefaultRole.GUEST: SitePermission.get_default_site_permission(False, False),
-    DefaultRole.JUDGE: __DEFAULT_JUDGE_PERMISSION,
+    DefaultRole.JUDGER: __DEFAULT_JUDGER_PERMISSION,
 }
 
 

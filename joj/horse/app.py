@@ -97,7 +97,7 @@ if settings.rollbar_access_token and not settings.dsn:  # pragma: no cover
     logger.info("rollbar activated")
 
 for route in app.routes:
-    sub_app = route.app
+    sub_app = route.app  # type: ignore
     if isinstance(sub_app, FastAPI):
         register_exception_handlers(sub_app)
         simplify_operation_ids(sub_app)

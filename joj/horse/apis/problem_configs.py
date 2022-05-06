@@ -1,6 +1,6 @@
 import io
 from pathlib import Path as PathlibPath
-from typing import Any, Dict, Optional
+from typing import Any, BinaryIO, Dict, Optional, cast
 
 import orjson
 from fastapi import Body, Depends, File, Path, Query, UploadFile
@@ -95,7 +95,7 @@ def upload_file_to_problem_config(
     path: str = Depends(parse_file_path),
 ) -> StandardResponse[FileInfo]:
     problem_config = LakeFSProblemConfig(problem)
-    file_info = problem_config.upload_file(PathlibPath(path), file.file)
+    file_info = problem_config.upload_file(PathlibPath(path), cast(BinaryIO, file.file))
     return StandardResponse(file_info)
 
 
@@ -223,7 +223,7 @@ def download_problem_config_archive(
     file_path = problem_config.download_archive(temp_dir, archive_format, ref)
     # TODO: cache the archive
     response = StreamingResponse(iter_file(file_path))
-    response.content_disposition = f'attachment; filename="{file_path.name}"'
+    # response.content_disposition = f'attachment; filename="{file_path.name}"'
     return response
 
 
@@ -245,6 +245,6 @@ def download_file_in_problem_config(
         ref = None
     file = problem_config.download_file(PathlibPath(path), ref)
     response = StreamingResponse(file)
-    filename = PathlibPath(path).name
-    response.content_disposition = f'attachment; filename="{filename}"'
+    # filename = PathlibPath(path).name
+    # response.content_disposition = f'attachment; filename="{filename}"'
     return response

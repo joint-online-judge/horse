@@ -5,8 +5,9 @@ from sqlalchemy.sql.expression import Select, or_
 from sqlmodel import Field, Relationship
 
 from joj.horse.models.base import BaseORMModel
+from joj.horse.models.permission import DefaultRole
 from joj.horse.models.user_oauth_account import UserOAuthAccount
-from joj.horse.schemas.user import UserCreate, UserDetail
+from joj.horse.schemas.user import JudgerCreate, UserCreate, UserDetail
 from joj.horse.services.db import db_session
 from joj.horse.utils.errors import BizError, ErrorCode
 
@@ -180,6 +181,29 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
             await session.commit()
             await session.refresh(user)
             return user
+
+    @classmethod
+    async def create_judger(cls, judger_create: "JudgerCreate") -> "User":
+        if not judger_create.password:
+            raise BizError(ErrorCode.UserRegisterError, "password not provided")
+        if not judger_create.username:
+            raise BizError(ErrorCode.UserRegisterError, "username not provided")
+        if not judger_create.email:
+            raise BizError(ErrorCode.UserRegisterError, "email not provided")
+        hashed_password = cls._generate_password_hash(judger_create.password)
+        user = User(
+            role=str(DefaultRole.JUDGER),
+            username=judger_create.username,
+            email=judger_create.email,
+            student_id="",
+            real_name="",
+            is_active=True,
+            hashed_password=hashed_password,
+            register_ip="0.0.0.0",
+            login_ip="0.0.0.0",
+        )
+        await user.save_model()
+        return user
 
     def find_domains_statement(
         self, roles: Optional[List[str]], groups: Optional[List[str]]

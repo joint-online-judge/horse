@@ -1,9 +1,10 @@
 from fastapi import Depends
+from fastapi_jwt_auth import AuthJWT
 from sqlmodel import select
 
 from joj.horse import models, schemas
 from joj.horse.models.permission import DefaultRole
-from joj.horse.schemas.auth import Authentication
+from joj.horse.schemas.auth import Authentication, auth_jwt_encode_user
 from joj.horse.schemas.base import StandardListResponse
 from joj.horse.utils.errors import ForbiddenError
 from joj.horse.utils.fastapi.router import MyRouter
@@ -83,26 +84,24 @@ async def list_judgers(
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
 ) -> StandardListResponse[schemas.User]:
-    statement = select(models.User).where(models.User.role == DefaultRole.JUDGE)
+    statement = select(models.User).where(models.User.role == DefaultRole.JUDGER)
     users, count = await models.User.execute_list_statement(
         statement, ordering, pagination
     )
     return StandardListResponse(users, count)
 
 
-# @router.post("/judgers")
-# async def create_judger(
-#     uname: str, mail: EmailStr, auth: Authentication = Depends()
-# ) -> StandardResponse[schemas.User]:
-#     # TODO: scope
-#     user_schema = models.User(
-#         scope="sjtu",
-#         role=DefaultRole.JUDGE,
-#         uname=uname,
-#         mail=mail,
-#         register_timestamp=datetime.utcnow(),
-#         login_timestamp=datetime.utcnow(),
-#     )
-#     user = models.User(**user_schema.to_model())
-#     await user.commit()
-#     return StandardResponse(models.User.from_orm(user))
+@router.post("/judgers")
+async def create_judger(
+    judger_create: schemas.JudgerCreate,
+    auth_jwt: AuthJWT = Depends(AuthJWT),
+) -> schemas.StandardResponse[schemas.AuthTokens]:
+    user_model = await models.User.create_judger(judger_create)
+    access_token, refresh_token = auth_jwt_encode_user(auth_jwt, user=user_model)
+    return schemas.StandardResponse(
+        schemas.AuthTokens(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            token_type="bearer",
+        )
+    )

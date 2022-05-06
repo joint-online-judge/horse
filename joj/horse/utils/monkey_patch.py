@@ -17,11 +17,8 @@ from typing import (
 
 from fastapi import params
 from fastapi.dependencies import utils
-from fastapi.dependencies.utils import (
-    create_response_field,
-    is_scalar_field,
-    is_scalar_sequence_field,
-)
+from fastapi.dependencies.utils import create_response_field  # type: ignore
+from fastapi.dependencies.utils import is_scalar_field, is_scalar_sequence_field
 from fastapi_utils.camelcase import snake2camel
 from pydantic.error_wrappers import ErrorWrapper
 from pydantic.errors import MissingError
@@ -86,7 +83,7 @@ def request_params_to_args(
     required_params: Sequence[ModelField],
     received_params: Union[Mapping[str, Any], QueryParams, Headers],
 ) -> Tuple[Dict[str, Any], List[ErrorWrapper]]:
-    values = {}
+    values = {}  # type: ignore
     errors = []
     for field in required_params:
         if is_scalar_sequence_field(field) and isinstance(
@@ -98,7 +95,7 @@ def request_params_to_args(
             if not value:
                 value = field.default
         else:
-            value = received_params.get(field.alias)
+            value = received_params.get(field.alias)  # type: ignore
             if value is None:
                 value = received_params.get(field.name)
 

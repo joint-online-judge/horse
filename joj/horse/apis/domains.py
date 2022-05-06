@@ -76,7 +76,7 @@ async def create_domain(
         session.sync_session.add(domain_user)
         logger.info(f"create domain user: {domain_user}")
         for role in DefaultRole:
-            # skip fixed roles (judge)
+            # skip fixed roles (judger)
             if role in FIXED_ROLES:
                 continue
             domain_role = models.DomainRole(
