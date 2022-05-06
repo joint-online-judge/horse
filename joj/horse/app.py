@@ -13,7 +13,7 @@ from starlette_context.middleware import RawContextMiddleware
 from tenacity import RetryError
 
 import joj.horse.models  # noqa: F401 lgtm [py/unused-import]
-import joj.horse.utils.monkey_patch  # noqa: F401
+import joj.horse.utils.monkey_patch  # noqa: F401 lgtm [py/unused-import]
 from joj.horse.config import AllSettings
 from joj.horse.schemas.cache import try_init_cache
 from joj.horse.services.db import db_session_dependency, try_init_db
