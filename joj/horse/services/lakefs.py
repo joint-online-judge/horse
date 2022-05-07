@@ -159,6 +159,12 @@ def ensure_credentials(
     return credentials
 
 
+def delete_credentials(username: str, access_key_id: str) -> None:
+    client = get_lakefs_client()
+    client.auth.delete_credentials(user_id=username, access_key_id=access_key_id)
+    logger.info("LakeFS delete credentials: {}", access_key_id)
+
+
 def get_problem_config_repo_name(problem: "Problem") -> str:
     return f"joj-config-{problem.problem_group_id}"
 

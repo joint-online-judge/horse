@@ -73,6 +73,8 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
         sa_relationship_kwargs={"foreign_keys": "[Record.judger_id]"},
     )
 
+    lakefs_access_key_id: Optional[str] = Field(None, nullable=True)
+
     @classmethod
     async def submit(
         cls,
