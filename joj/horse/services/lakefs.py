@@ -3,7 +3,6 @@ from io import BytesIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import IO, TYPE_CHECKING, Any, BinaryIO, Dict, List, Literal, Optional, cast
-from uuid import UUID
 
 import boto3
 import orjson
@@ -131,18 +130,18 @@ def examine_lakefs_buckets() -> None:
             examine_bucket(bucket)
 
 
-def ensure_user(user_id: UUID) -> None:
+def ensure_user(username: str) -> None:
     client = get_lakefs_client()
     try:
-        client.auth.get_user(user_id=str(user_id))
+        client.auth.get_user(user_id=username)
     except LakeFSApiException:
-        user_creation = models.UserCreation(id=str(user_id))
+        user_creation = models.UserCreation(id=username)
         user = client.auth.create_user(user_creation=user_creation)
         logger.info("LakeFS create user: {}", user)
 
 
 def ensure_credentials(
-    user_id: UUID, access_key_id: Optional[str] = None
+    username: str, access_key_id: Optional[str] = None
 ) -> models.CredentialsWithSecret:
     client = get_lakefs_client()
     # TODO: lakefs will not return secret_access_key for existed credentials
@@ -154,7 +153,7 @@ def ensure_credentials(
     #     except LakeFSApiException:
     #         logger.warning("LakeFS invalid credentials: {}", access_key_id)
     credentials: models.CredentialsWithSecret = client.auth.create_credentials(
-        user_id=str(user_id)
+        user_id=username
     )
     logger.info("LakeFS create credentials: {}", access_key_id)
     return credentials
