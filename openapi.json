@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 0ada93f@2022-05-06T20:49:07Z",
+    "description": "Git version: 6c53391@2022-05-07T19:36:22Z",
     "version": "1"
   },
   "paths": {
@@ -6287,13 +6287,13 @@
         ]
       }
     },
-    "/domains/{domain}/records/{record}/judge/state": {
-      "post": {
+    "/domains/{domain}/records/{record}/judge": {
+      "put": {
         "tags": [
           "judge"
         ],
-        "summary": "Update Record State By Judger",
-        "operationId": "v1_update_record_state_by_judger",
+        "summary": "Submit Record By Judger",
+        "operationId": "v1_submit_record_by_judger",
         "parameters": [
           {
             "description": "url or id of the domain",
@@ -6316,13 +6316,23 @@
             "in": "path"
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordSubmit"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RecordResp"
+                  "$ref": "#/components/schemas/EmptyResp"
                 }
               }
             }
@@ -6355,14 +6365,24 @@
         ]
       }
     },
-    "/domains/{domain}/records/{record}/judge/judgment": {
-      "post": {
+    "/domains/{domain}/records/{record}/cases/{case}/judge": {
+      "put": {
         "tags": [
           "judge"
         ],
-        "summary": "Submit Record By Judger",
-        "operationId": "v1_submit_record_by_judger",
+        "summary": "Submit Case By Judger",
+        "operationId": "v1_submit_case_by_judger",
         "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Case",
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "name": "case",
+            "in": "path"
+          },
           {
             "description": "url or id of the domain",
             "required": true,
@@ -6388,7 +6408,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RecordResult"
+                "$ref": "#/components/schemas/RecordCaseSubmit"
               }
             }
           },
@@ -9071,6 +9091,11 @@
             "title": "Memorykb",
             "type": "integer",
             "default": 0
+          },
+          "judgedAt": {
+            "title": "Judgedat",
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -9084,7 +9109,7 @@
                 "$ref": "#/components/schemas/RecordCaseResult"
               }
             ],
-            "default": 10
+            "default": "etc"
           },
           "score": {
             "title": "Score",
@@ -9105,25 +9130,68 @@
             "title": "Returncode",
             "type": "integer",
             "default": 0
+          },
+          "stdout": {
+            "title": "Stdout",
+            "type": "string",
+            "default": ""
+          },
+          "stderr": {
+            "title": "Stderr",
+            "type": "string",
+            "default": ""
           }
         }
       },
       "RecordCaseResult": {
         "title": "RecordCaseResult",
         "enum": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9,
-          10
+          "accepted",
+          "wrong_answer",
+          "time_limit_exceeded",
+          "memory_limit_exceeded",
+          "output_limit_exceeded",
+          "runtime_error",
+          "compile_error",
+          "system_error",
+          "canceled",
+          "etc"
         ],
-        "type": "integer",
+        "type": "string",
         "description": "An enumeration."
+      },
+      "RecordCaseSubmit": {
+        "title": "RecordCaseSubmit",
+        "type": "object",
+        "properties": {
+          "state": {
+            "$ref": "#/components/schemas/RecordCaseResult"
+          },
+          "score": {
+            "title": "Score",
+            "type": "integer"
+          },
+          "timeMs": {
+            "title": "Timems",
+            "type": "integer"
+          },
+          "memoryKb": {
+            "title": "Memorykb",
+            "type": "integer"
+          },
+          "returnCode": {
+            "title": "Returncode",
+            "type": "integer"
+          },
+          "stdout": {
+            "title": "Stdout",
+            "type": "string"
+          },
+          "stderr": {
+            "title": "Stderr",
+            "type": "string"
+          }
+        }
       },
       "RecordDetail": {
         "title": "RecordDetail",
@@ -9180,6 +9248,11 @@
             "title": "Memorykb",
             "type": "integer",
             "default": 0
+          },
+          "judgedAt": {
+            "title": "Judgedat",
+            "type": "string",
+            "format": "date-time"
           },
           "commitId": {
             "title": "Commitid",
@@ -9356,15 +9429,25 @@
           }
         }
       },
-      "RecordResult": {
-        "title": "RecordResult",
-        "required": [
-          "state",
-          "score",
-          "timeMs",
-          "memoryKb",
-          "judgeAt"
+      "RecordState": {
+        "title": "RecordState",
+        "enum": [
+          "processing",
+          "queueing",
+          "retrying",
+          "fetched",
+          "compiling",
+          "running",
+          "judging",
+          "accepted",
+          "rejected",
+          "failed"
         ],
+        "type": "string",
+        "description": "An enumeration."
+      },
+      "RecordSubmit": {
+        "title": "RecordSubmit",
         "type": "object",
         "properties": {
           "state": {
@@ -9382,29 +9465,12 @@
             "title": "Memorykb",
             "type": "integer"
           },
-          "judgeAt": {
-            "title": "Judgeat",
+          "judgedAt": {
+            "title": "Judgedat",
             "type": "string",
             "format": "date-time"
           }
         }
-      },
-      "RecordState": {
-        "title": "RecordState",
-        "enum": [
-          "processing",
-          "queueing",
-          "retrying",
-          "fetched",
-          "compiling",
-          "running",
-          "judging",
-          "accepted",
-          "rejected",
-          "failed"
-        ],
-        "type": "string",
-        "description": "An enumeration."
       },
       "Redirect": {
         "title": "Redirect",
