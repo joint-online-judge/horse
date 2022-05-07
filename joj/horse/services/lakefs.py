@@ -145,13 +145,14 @@ def ensure_credentials(
     user_id: UUID, access_key_id: Optional[str] = None
 ) -> models.CredentialsWithSecret:
     client = get_lakefs_client()
-    if access_key_id is not None:
-        try:
-            return client.auth.get_credentials(
-                user_id=str(user_id), access_key_id=access_key_id
-            )
-        except LakeFSApiException:
-            logger.warning("LakeFS invalid credentials: {}", access_key_id)
+    # TODO: lakefs will not return secret_access_key for existed credentials
+    # if access_key_id is not None:
+    #     try:
+    #         return client.auth.get_credentials(
+    #             user_id=str(user_id), access_key_id=access_key_id
+    #         )
+    #     except LakeFSApiException:
+    #         logger.warning("LakeFS invalid credentials: {}", access_key_id)
     credentials: models.CredentialsWithSecret = client.auth.create_credentials(
         user_id=str(user_id)
     )

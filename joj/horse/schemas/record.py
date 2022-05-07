@@ -1,5 +1,5 @@
 from datetime import datetime
-from enum import Enum, IntEnum
+from enum import Enum
 from typing import List, Optional
 from uuid import UUID
 
@@ -8,7 +8,13 @@ from sqlalchemy.schema import Column
 from sqlmodel import Field
 
 from joj.horse.schemas import BaseModel
-from joj.horse.schemas.base import BaseORMSchema, DomainMixin, IDMixin, TimestampMixin
+from joj.horse.schemas.base import (
+    BaseORMSchema,
+    DomainMixin,
+    EditMetaclass,
+    IDMixin,
+    TimestampMixin,
+)
 from joj.horse.utils.base import StrEnumMixin
 
 
@@ -30,17 +36,17 @@ class RecordState(StrEnumMixin, Enum):
     failed = "failed"
 
 
-class RecordCaseResult(IntEnum):
-    accepted = 1
-    wrong_answer = 2
-    time_limit_exceeded = 3
-    memory_limit_exceeded = 4
-    output_limit_exceeded = 5
-    runtime_error = 6
-    compile_error = 7
-    system_error = 8
-    canceled = 9
-    etc = 10
+class RecordCaseResult(StrEnumMixin, Enum):
+    accepted = "accepted"
+    wrong_answer = "wrong_answer"
+    time_limit_exceeded = "time_limit_exceeded"
+    memory_limit_exceeded = "memory_limit_exceeded"
+    output_limit_exceeded = "output_limit_exceeded"
+    runtime_error = "runtime_error"
+    compile_error = "compile_error"
+    system_error = "system_error"
+    canceled = "canceled"
+    etc = "etc"
 
 
 class RecordCase(BaseModel):
@@ -49,6 +55,8 @@ class RecordCase(BaseModel):
     time_ms: int = 0
     memory_kb: int = 0
     return_code: int = 0
+    stdout: str = ""
+    stderr: str = ""
 
 
 class Record(BaseORMSchema, DomainMixin, IDMixin, TimestampMixin):
@@ -62,6 +70,7 @@ class Record(BaseORMSchema, DomainMixin, IDMixin, TimestampMixin):
     score: int = Field(0, nullable=False, sa_column_kwargs={"server_default": "0"})
     time_ms: int = Field(0, nullable=False, sa_column_kwargs={"server_default": "0"})
     memory_kb: int = Field(0, nullable=False, sa_column_kwargs={"server_default": "0"})
+    judged_at: Optional[datetime]
 
 
 class RecordDetail(Record):
@@ -85,53 +94,19 @@ class RecordPreview(IDMixin):
     created_at: datetime
 
 
-# class Record(BaseODMSchema):
-#     status: RecordStatus = RecordStatus.waiting
-#     score: int = 0
-#     time_ms: int = 0
-#     memory_kb: int = 0
-#     domain: ReferenceSchema[Domain]
-#     problem: ReferenceSchema[Problem]
-#     problem_data: int = 0
-#     user: ReferenceSchema[UserBase]
-#     code_type: RecordCodeType
-#     code: str
-#     judge_category: List[str]
-#
-#     submit_at: datetime
-#     judge_at: Optional[datetime]
-#
-#     judge_user: Optional[ReferenceSchema[UserBase]]
-#
-#     compiler_texts: str = ""
-#     cases: List[RecordCase] = []
-#
-#     _validate_domain: Callable[[AnyCallable], classmethod] = reference_schema_validator(
-#         "domain", Domain
-#     )
-#     _validate_user: Callable[[AnyCallable], classmethod] = reference_schema_validator(
-#         "user", UserBase
-#     )
-#     _validate_judge_user: Callable[
-#         [AnyCallable], classmethod
-#     ] = reference_schema_validator("judge_user", UserBase)
-#     _validate_problem: Callable[
-#         [AnyCallable], classmethod
-#     ] = reference_schema_validator("problem", Problem)
+class RecordSubmit(BaseModel, metaclass=EditMetaclass):
+    state: Optional[RecordState]
+    score: Optional[int]
+    time_ms: Optional[int]
+    memory_kb: Optional[int]
+    judged_at: Optional[datetime]
 
 
-class ListRecords(BaseModel):
-    results: List[Record]
-
-
-# class RecordCaseResult(BaseModel):
-#     index: int
-#     result: RecordCase
-
-
-class RecordResult(BaseModel):
-    state: RecordState
-    score: int
-    time_ms: int
-    memory_kb: int
-    judge_at: datetime
+class RecordCaseSubmit(BaseModel, metaclass=EditMetaclass):
+    state: Optional[RecordCaseResult]
+    score: Optional[int]
+    time_ms: Optional[int]
+    memory_kb: Optional[int]
+    return_code: Optional[int]
+    stdout: Optional[str]
+    stderr: Optional[str]

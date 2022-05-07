@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
 
-import git
 import pbr.version
+from git.exc import GitCommandError, InvalidGitRepositoryError
+from git.repo.base import Repo
 from loguru import logger
 
 
@@ -11,7 +12,7 @@ def get_version() -> str:
 
 def get_git_version() -> str:
     try:
-        repo = git.Repo(__file__, search_parent_directories=True)
+        repo = Repo(__file__, search_parent_directories=True)
         return (
             repo.git.describe(always=True, tags=True)
             + "@"
@@ -19,9 +20,6 @@ def get_git_version() -> str:
                 repo.head.commit.committed_date, tz=timezone.utc
             ).strftime("%Y-%m-%dT%H:%M:%SZ")
         )
-    except (
-        git.InvalidGitRepositoryError,
-        git.GitCommandError,
-    ) as e:  # pragma: no cover
+    except (InvalidGitRepositoryError, GitCommandError) as e:  # pragma: no cover
         logger.error(f"Failed to get repository: {repr(e)}")
         return "unknown"

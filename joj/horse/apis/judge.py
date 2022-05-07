@@ -1,9 +1,13 @@
+from copy import deepcopy
+from enum import Enum
+
 from fastapi import Depends
 from loguru import logger
+from pydantic.fields import Undefined
 from starlette.concurrency import run_in_threadpool
 
 from joj.horse import models, schemas
-from joj.horse.schemas.base import Empty, StandardResponse
+from joj.horse.schemas.base import Empty, NoneNegativeInt, StandardResponse
 from joj.horse.schemas.permission import Permission
 from joj.horse.services.lakefs import LakeFSProblemConfig, LakeFSRecord
 from joj.horse.utils.errors import BizError, ErrorCode
@@ -49,8 +53,8 @@ async def claim_record_by_judger(
     # but it will create too many policies, so we grant all for simplicity
     # the user have read/write access to all records in the problem,
     # because the judger will write test result to the repo
-    await record.fetch_related("problem")
     access_key = await models.UserAccessKey.get_lakefs_access_key(user)
+    await record.fetch_related("problem")
     lakefs_problem_config = LakeFSProblemConfig(record.problem)
     lakefs_record = LakeFSRecord(record.problem, record)
 
@@ -71,51 +75,72 @@ async def claim_record_by_judger(
     return StandardResponse(judger_credentials)
 
 
-@router.post(
-    "/records/{record}/judge/state", permissions=[Permission.DomainRecord.judge]
-)
-async def update_record_state_by_judger(
-    record: models.Record = Depends(parse_record_judger),
-    user: models.User = Depends(parse_user_from_auth),
-) -> StandardResponse[schemas.Record]:
-    if record.judger_id != user.id:
-        raise BizError(ErrorCode.Error)
-    if record.state not in (
-        schemas.RecordState.fetched,
-        schemas.RecordState.compiling,
-        schemas.RecordState.running,
-        schemas.RecordState.judging,
-    ):
-        raise BizError(ErrorCode.Error)
-    record.state = schemas.RecordState.fetched
-    await record.save_model()
-    return StandardResponse(record)
+# @router.post(
+#     "/records/{record}/judge/state", permissions=[Permission.DomainRecord.judge]
+# )
+# async def update_record_state_by_judger(
+#     record: models.Record = Depends(parse_record_judger),
+#     user: models.User = Depends(parse_user_from_auth),
+# ) -> StandardResponse[schemas.Record]:
+#     if record.judger_id != user.id:
+#         raise BizError(ErrorCode.Error)
+#     if record.state not in (
+#         schemas.RecordState.fetched,
+#         schemas.RecordState.compiling,
+#         schemas.RecordState.running,
+#         schemas.RecordState.judging,
+#     ):
+#         raise BizError(ErrorCode.Error)
+#     record.state = schemas.RecordState.fetched
+#     await record.save_model()
+#     return StandardResponse(record)
 
 
-@router.post(
-    "/records/{record}/judge/judgment", permissions=[Permission.DomainRecord.judge]
-)
+@router.put("/records/{record}/judge", permissions=[Permission.DomainRecord.judge])
 async def submit_record_by_judger(
-    record_result: schemas.RecordResult,
+    record_result: schemas.RecordSubmit = Depends(schemas.RecordSubmit.edit_dependency),
     record: models.Record = Depends(parse_record_judger),
-    user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[Empty]:
-    if record.state != schemas.RecordState.fetched:
-        raise BizError(ErrorCode.Error)
-
+    # TODO: check current record state
+    # if record.state != schemas.RecordState.fetched:
+    #     raise BizError(ErrorCode.Error)
+    # TODO: revoke the lakefs access key once the record is fully judged
+    record.update_from_dict(record_result.dict())
+    await record.save_model()
     return StandardResponse()
 
 
-# @router.post("/records/{record}/cases/http")
-# async def http_record_cases(
-#     record_case_result: schemas.RecordCaseResult,
-#     record: schemas.Record = Depends(parse_record_judger),
-#     auth: Authentication = Depends(),
-# ) -> StandardResponse[Empty]:
-#     if auth.user.role != DefaultRole.JUDGE:
-#         raise BizError(ErrorCode.UserNotJudgerError)
-#     data = record_case_result.dict()
-#     logger.info(f"receive from record cases http: {data}")
-#     record.cases[data["index"]].update(data["result"])
-#     await record.commit()
-#     return StandardResponse()
+@router.put(
+    "/records/{record}/cases/{case}/judge",
+    permissions=[Permission.DomainRecord.judge],
+)
+async def submit_case_by_judger(
+    case: NoneNegativeInt,
+    record_case_result: schemas.RecordCaseSubmit = Depends(
+        schemas.RecordCaseSubmit.edit_dependency
+    ),
+    record: models.Record = Depends(parse_record_judger),
+) -> StandardResponse[Empty]:
+    # TODO: check current record state
+    # if record.state != schemas.RecordState.fetched:
+    #     raise BizError(ErrorCode.Error)
+    case_idx = case
+    del case
+    length_diff = case_idx - len(record.cases) + 1
+    record.time_ms = 0
+    record.memory_kb = 0
+    record.score = 0
+    record.cases = deepcopy(record.cases)  # make sqlalchemy modify the model
+    if length_diff > 0:
+        record.cases.extend([schemas.RecordCase().dict() for _ in range(length_diff)])
+    for k, v in record_case_result.dict().items():
+        if v is not Undefined:
+            if isinstance(v, (str, Enum)):
+                v = str(v)
+            record.cases[case_idx][k] = v
+    for case in record.cases:
+        record.time_ms += case["time_ms"]
+        record.memory_kb += case["memory_kb"]
+        record.score += case["score"]
+    await record.save_model()
+    return StandardResponse()

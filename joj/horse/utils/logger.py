@@ -2,6 +2,7 @@
 """Configure handlers and formats for application loggers."""
 import logging
 import sys
+from typing import Union, cast
 
 # if you dont like imports of private modules
 # you can move it to typing.py module
@@ -21,6 +22,7 @@ class InterceptHandler(logging.Handler):
 
     def emit(self, record: logging.LogRecord) -> None:
         # Get corresponding Loguru level if it exists
+        level: Union[int, str]
         try:
             level = logger.level(record.levelname).name
         except ValueError:
@@ -75,16 +77,16 @@ def init_logging(test: bool = False) -> None:
         logger.add(sys.stderr, level="DEBUG", enqueue=True)
         logger.add(
             "uvicorn.log",
-            filter=lambda record: record["name"].startswith("uvicorn"),
+            filter=lambda record: cast(str, record["name"]).startswith("uvicorn"),
             enqueue=True,
         )
         logger.add(
             "joj.horse.log",
-            filter=lambda record: record["name"].startswith("joj.horse"),
+            filter=lambda record: cast(str, record["name"]).startswith("joj.horse"),
             enqueue=True,
         )
         logger.add(
             "sqlalchemy.log",
-            filter=lambda record: record["name"].startswith("sqlalchemy"),
+            filter=lambda record: cast(str, record["name"]).startswith("sqlalchemy"),
             enqueue=True,
         )

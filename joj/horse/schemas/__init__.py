@@ -69,11 +69,13 @@ from joj.horse.schemas.query import (
 )
 from joj.horse.schemas.record import (
     Record as Record,
+    RecordCase as RecordCase,
     RecordCaseResult as RecordCaseResult,
+    RecordCaseSubmit as RecordCaseSubmit,
     RecordDetail as RecordDetail,
     RecordPreview as RecordPreview,
-    RecordResult as RecordResult,
     RecordState as RecordState,
+    RecordSubmit as RecordSubmit,
 )
 from joj.horse.schemas.score import (
     Score as Score,
