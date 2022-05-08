@@ -1,5 +1,9 @@
+import logging
 from functools import lru_cache
 
+logging.getLogger("aiocache.serializers").handlers = [
+    logging.NullHandler()
+]  # disable aiocache.serializers logger
 from aiocache import caches
 from aiocache.base import BaseCache
 
