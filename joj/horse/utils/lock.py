@@ -1,46 +1,42 @@
 from typing import AsyncGenerator
 
 from aioredlock import Lock, LockError
-from fastapi import Depends
+from fastapi import Path
 from loguru import logger
 
-from joj.horse import models
 from joj.horse.services.lock_manager import get_lock_manager
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.parser import parse_problem, parse_record_judger
 
 
-async def lock_problem_config(
-    problem: models.Problem = Depends(parse_problem),
-) -> AsyncGenerator[Lock, None]:
+async def lock_problem_config(problem: str = Path(...)) -> AsyncGenerator[Lock, None]:
     lock_manager = get_lock_manager()
     lock = None
-    resource = f"problem:{problem.id}:config"
+    resource = f"problem:{problem}:config"
     try:
-        logger.info("redis lock {}", resource)
+        logger.debug("redis lock {}", resource)
         lock = await lock_manager.lock(resource, lock_timeout=10)
+        logger.debug("redis locked {}", resource)
         yield lock
     except LockError:
         raise BizError(ErrorCode.LockError, resource)
     finally:
         if lock is not None:
-            logger.info("redis unlock {}", resource)
+            logger.debug("redis unlock {}", resource)
             await lock_manager.unlock(lock)
 
 
-async def lock_record_judger(
-    record: models.Record = Depends(parse_record_judger),
-) -> AsyncGenerator[Lock, None]:
+async def lock_record_judger(record: str = Path(...)) -> AsyncGenerator[Lock, None]:
     lock_manager = get_lock_manager()
     lock = None
-    resource = f"record:{record.id}:judger"
+    resource = f"record:{record}:judger"
     try:
-        logger.info("redis lock {}", resource)
+        logger.debug("redis lock {}", resource)
         lock = await lock_manager.lock(resource, lock_timeout=10)
+        logger.debug("redis locked {}", resource)
         yield lock
     except LockError:
         raise BizError(ErrorCode.LockError, resource)
     finally:
         if lock is not None:
-            logger.info("redis unlock {}", resource)
+            logger.debug("redis unlock {}", resource)
             await lock_manager.unlock(lock)
