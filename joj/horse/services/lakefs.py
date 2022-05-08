@@ -148,7 +148,7 @@ def ensure_credentials(
     # if access_key_id is not None:
     #     try:
     #         return client.auth.get_credentials(
-    #             user_id=str(user_id), access_key_id=access_key_id
+    #             user_id=username, access_key_id=access_key_id
     #         )
     #     except LakeFSApiException:
     #         logger.warning("LakeFS invalid credentials: {}", access_key_id)
@@ -305,7 +305,9 @@ class LakeFSBase:
         client = get_lakefs_client()
         policy = self.ensure_policy(permission)
         try:
-            client.auth.attach_policy_to_user(user_id=str(user.id), policy_id=policy.id)
+            client.auth.attach_policy_to_user(
+                user_id=user.username, policy_id=policy.id
+            )
         except LakeFSApiException:
             pass
 
