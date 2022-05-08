@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: c90a1f1@2022-05-08T15:16:12Z",
+    "description": "Git version: 95652f1@2022-05-08T17:53:17Z",
     "version": "1"
   },
   "paths": {
@@ -6296,6 +6296,15 @@
         "operationId": "v1_submit_record_by_judger",
         "parameters": [
           {
+            "required": true,
+            "schema": {
+              "title": "Record",
+              "type": "string"
+            },
+            "name": "record",
+            "in": "path"
+          },
+          {
             "description": "url or id of the domain",
             "required": true,
             "schema": {
@@ -6304,15 +6313,6 @@
               "description": "url or id of the domain"
             },
             "name": "domain",
-            "in": "path"
-          },
-          {
-            "required": true,
-            "schema": {
-              "title": "Record",
-              "type": "string"
-            },
-            "name": "record",
             "in": "path"
           }
         ],
@@ -6384,6 +6384,15 @@
             "in": "path"
           },
           {
+            "required": true,
+            "schema": {
+              "title": "Record",
+              "type": "string"
+            },
+            "name": "record",
+            "in": "path"
+          },
+          {
             "description": "url or id of the domain",
             "required": true,
             "schema": {
@@ -6392,15 +6401,6 @@
               "description": "url or id of the domain"
             },
             "name": "domain",
-            "in": "path"
-          },
-          {
-            "required": true,
-            "schema": {
-              "title": "Record",
-              "type": "string"
-            },
-            "name": "record",
             "in": "path"
           }
         ],
