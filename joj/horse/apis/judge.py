@@ -2,6 +2,7 @@ from copy import deepcopy
 from enum import Enum
 
 from fastapi import Depends
+from loguru import logger
 from pydantic.fields import Undefined
 from starlette.concurrency import run_in_threadpool
 
@@ -15,6 +16,7 @@ from joj.horse.services.lakefs import (
 )
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.fastapi.router import MyRouter
+from joj.horse.utils.lock import lock_record_judger
 from joj.horse.utils.parser import parse_record_judger, parse_user_from_auth
 
 router = MyRouter()
@@ -55,6 +57,8 @@ async def claim_record_by_judger(
     # the user have read/write access to all records in the problem,
     # because the judger will write test result to the repo
     access_key = await models.UserAccessKey.get_lakefs_access_key(user)
+    access_key_id = access_key.access_key_id
+    secret_access_key = access_key.secret_access_key
     record.lakefs_access_key_id = access_key.access_key_id
     await record.save_model()
     await record.fetch_related("problem")
@@ -68,8 +72,8 @@ async def claim_record_by_judger(
     await run_in_threadpool(sync_func)
 
     judger_credentials = schemas.JudgerCredentials(
-        access_key_id=access_key.access_key_id,
-        secret_access_key=access_key.secret_access_key,
+        access_key_id=access_key_id,
+        secret_access_key=secret_access_key,
         problem_config_repo_name=lakefs_problem_config.repo_name,
         problem_config_commit_id=record.problem_config.commit_id,
         record_repo_name=lakefs_record.repo_name,
@@ -99,7 +103,11 @@ async def claim_record_by_judger(
 #     return StandardResponse(record)
 
 
-@router.put("/records/{record}/judge", permissions=[Permission.DomainRecord.judge])
+@router.put(
+    "/records/{record}/judge",
+    permissions=[Permission.DomainRecord.judge],
+    dependencies=[Depends(lock_record_judger)],
+)
 async def submit_record_by_judger(
     record_result: schemas.RecordSubmit = Depends(schemas.RecordSubmit.edit_dependency),
     record: models.Record = Depends(parse_record_judger),
@@ -127,6 +135,7 @@ async def submit_record_by_judger(
 @router.put(
     "/records/{record}/cases/{case}/judge",
     permissions=[Permission.DomainRecord.judge],
+    dependencies=[Depends(lock_record_judger)],
 )
 async def submit_case_by_judger(
     case: NoneNegativeInt,
@@ -134,27 +143,39 @@ async def submit_case_by_judger(
         schemas.RecordCaseSubmit.edit_dependency
     ),
     record: models.Record = Depends(parse_record_judger),
+    user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[Empty]:
     # TODO: check current record state
     # if record.state != schemas.RecordState.fetched:
     #     raise BizError(ErrorCode.Error)
     case_idx = case
     del case
-    length_diff = case_idx - len(record.cases) + 1
     record.time_ms = 0
     record.memory_kb = 0
     record.score = 0
-    record.cases = deepcopy(record.cases)  # make sqlalchemy modify the model
-    if length_diff > 0:
-        record.cases.extend([schemas.RecordCase().dict() for _ in range(length_diff)])
+    logger.debug(
+        f"{user.username} submit case {case_idx} of record {record.id} cases before: {record.cases}"
+    )
+    # record.cases = deepcopy(record.cases)  # make sqlalchemy modify the model
+    # logger.debug(f"{user.username} submit case {case_idx} of record {record.id} cases copied: {record.cases}")
+    new_cases = [schemas.RecordCase().dict() for _ in range(case_idx + 1)]
+    for i, old_case in enumerate(record.cases):
+        new_cases[i] = deepcopy(old_case)
+    new_cases[0]["state"] = record_case_result.state
     for k, v in record_case_result.dict().items():
         if v is not Undefined:
             if isinstance(v, (str, Enum)):
                 v = str(v)
-            record.cases[case_idx][k] = v
-    for case in record.cases:
-        record.time_ms += case["time_ms"]
-        record.memory_kb += case["memory_kb"]
-        record.score += case["score"]
+            new_cases[case_idx][k] = v
+    # FIXME: it does not work correctly on async case submission, the cases will be cleared,
+    # maybe the order of lock and db session?
+    record.cases = new_cases
+    for new_case in new_cases:
+        record.time_ms += new_case["time_ms"]
+        record.memory_kb += new_case["memory_kb"]
+        record.score += new_case["score"]
     await record.save_model()
+    logger.debug(
+        f"{user.username} submit case {case_idx} of record {record.id} cases after: {record.cases}"
+    )
     return StandardResponse()
