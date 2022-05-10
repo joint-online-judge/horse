@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: b343911@2022-05-10T10:42:09Z",
+    "description": "Git version: 4555c06@2022-05-10T17:39:17Z",
     "version": "1"
   },
   "paths": {
@@ -4551,7 +4551,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RecordListResp"
+                  "$ref": "#/components/schemas/RecordListDetailListResp"
                 }
               }
             }
@@ -9317,8 +9317,89 @@
           }
         }
       },
-      "RecordList": {
-        "title": "RecordList",
+      "RecordListDetail": {
+        "title": "RecordListDetail",
+        "required": [
+          "id",
+          "domainId",
+          "language"
+        ],
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "domainId": {
+            "title": "Domainid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RecordState"
+              }
+            ],
+            "default": "processing"
+          },
+          "language": {
+            "title": "Language",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "integer",
+            "default": 0
+          },
+          "timeMs": {
+            "title": "Timems",
+            "type": "integer",
+            "default": 0
+          },
+          "memoryKb": {
+            "title": "Memorykb",
+            "type": "integer",
+            "default": 0
+          },
+          "judgedAt": {
+            "title": "Judgedat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "problemSetId": {
+            "title": "Problemsetid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "problemSetTitle": {
+            "title": "Problemsettitle",
+            "type": "string"
+          },
+          "problemId": {
+            "title": "Problemid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "problemTitle": {
+            "title": "Problemtitle",
+            "type": "string"
+          }
+        }
+      },
+      "RecordListDetailList": {
+        "title": "RecordListDetailList",
         "type": "object",
         "properties": {
           "count": {
@@ -9330,14 +9411,14 @@
             "title": "Results",
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Record"
+              "$ref": "#/components/schemas/RecordListDetail"
             },
             "default": []
           }
         }
       },
-      "RecordListResp": {
-        "title": "RecordListResp",
+      "RecordListDetailListResp": {
+        "title": "RecordListDetailListResp",
         "required": [
           "errorCode"
         ],
@@ -9351,7 +9432,7 @@
             "type": "string"
           },
           "data": {
-            "$ref": "#/components/schemas/RecordList"
+            "$ref": "#/components/schemas/RecordListDetailList"
           }
         }
       },
