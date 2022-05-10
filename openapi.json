@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 4555c06@2022-05-10T17:39:17Z",
+    "description": "Git version: c3a0def@2022-05-10T18:12:53Z",
     "version": "1"
   },
   "paths": {
@@ -4073,7 +4073,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemConfigResp"
+                  "$ref": "#/components/schemas/ProblemConfigDataDetailResp"
                 }
               }
             }
@@ -7996,6 +7996,82 @@
             "title": "Dataversion",
             "type": "integer",
             "default": 2
+          }
+        }
+      },
+      "ProblemConfigDataDetail": {
+        "title": "ProblemConfigDataDetail",
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "commitMessage": {
+            "title": "Commitmessage",
+            "type": "string",
+            "default": ""
+          },
+          "dataVersion": {
+            "title": "Dataversion",
+            "type": "integer",
+            "default": 2
+          },
+          "languages": {
+            "title": "Languages",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          },
+          "commitId": {
+            "title": "Commitid",
+            "type": "string",
+            "default": ""
+          },
+          "committerId": {
+            "title": "Committerid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "title": "Data",
+            "type": "object",
+            "default": {}
+          }
+        }
+      },
+      "ProblemConfigDataDetailResp": {
+        "title": "ProblemConfigDataDetailResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProblemConfigDataDetail"
           }
         }
       },
