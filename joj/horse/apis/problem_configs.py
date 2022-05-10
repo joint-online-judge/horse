@@ -13,6 +13,7 @@ from joj.horse.schemas import Empty, StandardResponse
 from joj.horse.schemas.permission import Permission
 from joj.horse.services.lakefs import LakeFSProblemConfig
 from joj.horse.utils.base import TemporaryDirectory, iter_file
+from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.fastapi.router import MyRouter
 from joj.horse.utils.lock import lock_problem_config
 from joj.horse.utils.parser import (
@@ -182,8 +183,19 @@ def reset_problem_config(
 @router.get("/configs/{config}", permissions=[Permission.DomainProblem.view_config])
 async def get_problem_config_json(
     config: models.ProblemConfig = Depends(parse_problem_config),
-) -> StandardResponse[schemas.ProblemConfig]:
-    return StandardResponse(schemas.ProblemConfig.from_orm(config))
+    problem: models.Problem = Depends(parse_problem),
+) -> StandardResponse[schemas.ProblemConfigDataDetail]:
+    problem_config = LakeFSProblemConfig(problem)
+    try:
+        data = problem_config.get_config(config.commit_id)
+    except BizError as e:
+        if e.error_code != ErrorCode.FileValidationError:
+            raise e
+    # TODO: cache the archive
+    # response = StreamingResponse(iter_file(file_path))
+    res = schemas.ProblemConfigDataDetail.from_orm(config)
+    res.data = data
+    return StandardResponse(res)
 
 
 @router.put(

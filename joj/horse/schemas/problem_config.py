@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from sqlalchemy.schema import Column
@@ -33,3 +33,7 @@ class ProblemConfig(ProblemConfigBase, IDMixin):
 
 class ProblemConfigDetail(TimestampMixin, ProblemConfig):
     pass
+
+
+class ProblemConfigDataDetail(ProblemConfigDetail):
+    data: Dict[str, Any] = {}
