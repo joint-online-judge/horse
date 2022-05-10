@@ -11,7 +11,6 @@ from pydantic_universal_settings import (
 )
 
 
-@add_settings
 class ServerSettings(BaseSettings):
     """
     Server configuration
@@ -48,7 +47,9 @@ class ServerSettings(BaseSettings):
     )
 
 
-@add_settings
+add_settings(ServerSettings)
+
+
 class DatabaseSettings(BaseSettings):
     """
     Database configuration
@@ -78,7 +79,9 @@ class DatabaseSettings(BaseSettings):
     rabbitmq_vhost: str = ""
 
 
-@add_settings
+add_settings(DatabaseSettings)
+
+
 class ObjectStorageSettings(BaseSettings):
     """
     Object storage configuration
@@ -104,7 +107,9 @@ class ObjectStorageSettings(BaseSettings):
     bucket_submission: str = "s3://joj-submission"
 
 
-@add_settings
+add_settings(ObjectStorageSettings)
+
+
 class AuthSettings(BaseSettings):
     """
     Auth configuration
@@ -134,6 +139,8 @@ class AuthSettings(BaseSettings):
     rollbar_access_token: str = ""
 
 
+add_settings(AuthSettings)
+
 GeneratedSettings: Type[
     Union[
         ServerSettings,
@@ -156,4 +163,10 @@ class AllSettings(GeneratedSettings):  # type: ignore
     """
 
 
-settings: AllSettings = get_settings_proxy()
+class UnionSettings(
+    ServerSettings, DatabaseSettings, ObjectStorageSettings, AuthSettings
+):
+    pass
+
+
+settings: UnionSettings = get_settings_proxy()

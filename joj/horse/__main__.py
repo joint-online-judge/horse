@@ -7,20 +7,20 @@ import uvicorn
 from fastapi import FastAPI
 from pydantic_universal_settings import cli, init_settings
 
-from joj.horse.config import AllSettings
+from joj.horse.config import AllSettings, UnionSettings
 
 
 @click.group(invoke_without_command=True)
 @click.help_option("--help", "-h")
 @click.pass_context
-def cli_group(ctx: Any) -> Any:
+def cli_group(ctx: click.Context) -> Any:
     if ctx.invoked_subcommand is None:
         ctx.invoke(serve)
 
 
 @cli.command()
 def serve() -> None:  # pragma: no cover
-    settings = init_settings(AllSettings)
+    settings: UnionSettings = init_settings(AllSettings)
     reload_dirs: Optional[List[str]] = None
     if settings.debug:
         reload_dirs = ["joj", ".venv/lib/python3.8/site-packages/joj"]
@@ -44,8 +44,8 @@ def openapi(output: Optional[str], version: str, pretty: bool) -> None:
 
     sub_app_path = f"/api/v{version}"
     for route in app.routes:
-        sub_app = route.app
-        if isinstance(sub_app, FastAPI) and route.path == sub_app_path:
+        sub_app = route.app  # type: ignore
+        if isinstance(sub_app, FastAPI) and route.path == sub_app_path:  # type: ignore
             if pretty:
                 option = orjson.OPT_INDENT_2
             else:
