@@ -138,8 +138,20 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
     ) -> Select:
         from joj.horse import models
 
-        statement = select(models.Record).where(models.Record.domain_id == self.id)
+        statement = select(
+            models.Record, models.Problem.title, models.ProblemSet.title
+        ).where(models.Record.domain_id == self.id)
         statement = statement.options(defer("cases"))  # exclude record.cases
+        statement = statement.outerjoin_from(
+            models.Record,
+            models.ProblemSet,
+            models.Record.problem_set_id == models.ProblemSet.id,
+        )
+        statement = statement.outerjoin_from(
+            models.Record,
+            models.Problem,
+            models.Record.problem_id == models.Problem.id,
+        )
 
         if problem_set_id:
             statement = statement.where(models.Record.problem_set_id == problem_set_id)

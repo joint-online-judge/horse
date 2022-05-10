@@ -32,16 +32,17 @@ async def list_records_in_domain(
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     user: models.User = Depends(parse_user_from_auth),
-) -> StandardListResponse[schemas.Record]:
+) -> StandardListResponse[schemas.RecordListDetail]:
     statement = domain.find_records_statement(problem_set, problem, submitter_id)
 
     if not domain_auth.auth.check(ScopeType.DOMAIN_RECORD, PermissionType.view):
         statement = statement.where(models.Record.committer_id == user.id)
 
-    records, count = await models.Record.execute_list_statement(
+    rows, count = await models.Record.execute_list_statement(
         statement, ordering, pagination
     )
-    return StandardListResponse(records, count)
+    record_list_details = [schemas.RecordListDetail.from_row(*row) for row in rows]
+    return StandardListResponse(record_list_details, count)
 
 
 @router.get("/records/{record}", permissions=[])

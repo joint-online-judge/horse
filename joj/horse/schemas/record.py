@@ -73,6 +73,26 @@ class Record(BaseORMSchema, DomainMixin, IDMixin, TimestampMixin):
     judged_at: Optional[datetime]
 
 
+class RecordListDetail(Record):
+    problem_set_id: Optional[UUID] = None
+    problem_set_title: Optional[str] = None
+    problem_id: Optional[UUID] = None
+    problem_title: Optional[str] = None
+
+    @classmethod
+    def from_row(
+        cls,
+        record: "Record",
+        problem_title: Optional[str],
+        problem_set_title: Optional[str],
+    ) -> "RecordListDetail":
+        return cls(
+            **record.dict(),
+            problem_title=problem_title,
+            problem_set_title=problem_set_title,
+        )
+
+
 class RecordDetail(Record):
     commit_id: Optional[str] = Field(None, nullable=True)
     task_id: Optional[UUID] = Field(None, nullable=True)
