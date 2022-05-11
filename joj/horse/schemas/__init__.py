@@ -55,6 +55,7 @@ from joj.horse.schemas.problem_config import (
     ProblemConfigCommit as ProblemConfigCommit,
     ProblemConfigDataDetail as ProblemConfigDataDetail,
     ProblemConfigDetail as ProblemConfigDetail,
+    ProblemConfigJson as ProblemConfigJson,
 )
 from joj.horse.schemas.problem_group import ProblemGroup as ProblemGroup
 from joj.horse.schemas.problem_set import (

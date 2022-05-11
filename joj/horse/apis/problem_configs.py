@@ -1,6 +1,6 @@
 import io
 from pathlib import Path as PathlibPath
-from typing import Any, BinaryIO, Dict, Optional, cast
+from typing import Any, BinaryIO, Optional, cast
 
 import orjson
 from fastapi import Body, Depends, File, Path, Query, UploadFile
@@ -41,6 +41,7 @@ def update_problem_config_by_archive(
     file: UploadFile = File(...), problem: models.Problem = Depends(parse_problem)
 ) -> StandardResponse[Empty]:
     logger.info("problem config archive name: %s", file.filename)
+    # TODO: validate config.json
     problem_config = LakeFSProblemConfig(problem)
     problem_config.upload_archive(file.filename, file.file)
     return StandardResponse()
@@ -95,6 +96,7 @@ def upload_file_to_problem_config(
     problem: models.Problem = Depends(parse_problem),
     path: str = Depends(parse_file_path),
 ) -> StandardResponse[FileInfo]:
+    # TODO: validate config.json
     problem_config = LakeFSProblemConfig(problem)
     file_info = problem_config.upload_file(PathlibPath(path), cast(BinaryIO, file.file))
     return StandardResponse(file_info)
@@ -193,9 +195,11 @@ async def get_problem_config_json(
             raise e
     # TODO: cache the archive
     # response = StreamingResponse(iter_file(file_path))
-    res = schemas.ProblemConfigDataDetail.from_orm(config)
-    res.data = data
-    return StandardResponse(res)
+    return StandardResponse(
+        schemas.ProblemConfigDataDetail(
+            **schemas.ProblemConfigDetail.from_orm(config).dict(), data=data
+        )
+    )
 
 
 @router.put(
@@ -204,13 +208,13 @@ async def get_problem_config_json(
     dependencies=[Depends(lock_problem_config)],
 )
 def update_problem_config_json(
-    config: Dict[str, Any] = Body(...),
+    config: schemas.ProblemConfigJson,
     problem: models.Problem = Depends(parse_problem),
 ) -> StandardResponse[FileInfo]:
     problem_config = LakeFSProblemConfig(problem)
     file_info = problem_config.upload_file(
         PathlibPath("config.json"),
-        io.BytesIO(orjson.dumps(config, option=orjson.OPT_INDENT_2)),
+        io.BytesIO(orjson.dumps(config.dict(), option=orjson.OPT_INDENT_2)),
     )
     return StandardResponse(file_info)
 
