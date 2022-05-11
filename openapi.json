@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: c3a0def@2022-05-10T18:12:53Z",
+    "description": "Git version: 229685b@2022-05-11T18:09:02Z",
     "version": "1"
   },
   "paths": {
@@ -4141,8 +4141,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "title": "Config",
-                "type": "object"
+                "$ref": "#/components/schemas/ProblemConfigJson"
               }
             }
           },
@@ -6509,6 +6508,50 @@
           }
         }
       },
+      "Case": {
+        "title": "Case",
+        "type": "object",
+        "properties": {
+          "time": {
+            "title": "Time",
+            "type": "string"
+          },
+          "memory": {
+            "title": "Memory",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "integer"
+          },
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "executeFiles": {
+            "title": "Executefiles",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "executeArgs": {
+            "title": "Executeargs",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "executeInputFile": {
+            "title": "Executeinputfile",
+            "type": "string"
+          },
+          "executeOutputFile": {
+            "title": "Executeoutputfile",
+            "type": "string"
+          }
+        }
+      },
       "Detail": {
         "title": "Detail",
         "required": [
@@ -7757,6 +7800,101 @@
           }
         }
       },
+      "Language": {
+        "title": "Language",
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "compileFiles": {
+            "title": "Compilefiles",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "compileArgs": {
+            "title": "Compileargs",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "lintFiles": {
+            "title": "Lintfiles",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "lintArgs": {
+            "title": "Lintargs",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "caseDefault": {
+            "$ref": "#/components/schemas/Case"
+          },
+          "cases": {
+            "title": "Cases",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Case"
+            }
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        }
+      },
+      "LanguageDefault": {
+        "title": "LanguageDefault",
+        "type": "object",
+        "properties": {
+          "compileFiles": {
+            "title": "Compilefiles",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "compileArgs": {
+            "title": "Compileargs",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "lintFiles": {
+            "title": "Lintfiles",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "lintArgs": {
+            "title": "Lintargs",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "caseDefault": {
+            "$ref": "#/components/schemas/Case"
+          },
+          "cases": {
+            "title": "Cases",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Case"
+            }
+          }
+        }
+      },
       "OAuth2Client": {
         "title": "OAuth2Client",
         "required": [
@@ -7963,14 +8101,6 @@
             "type": "integer",
             "default": 2
           },
-          "languages": {
-            "title": "Languages",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "default": []
-          },
           "commitId": {
             "title": "Commitid",
             "type": "string",
@@ -8002,7 +8132,8 @@
       "ProblemConfigDataDetail": {
         "title": "ProblemConfigDataDetail",
         "required": [
-          "id"
+          "id",
+          "data"
         ],
         "type": "object",
         "properties": {
@@ -8020,14 +8151,6 @@
             "title": "Dataversion",
             "type": "integer",
             "default": 2
-          },
-          "languages": {
-            "title": "Languages",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "default": []
           },
           "commitId": {
             "title": "Commitid",
@@ -8050,9 +8173,7 @@
             "format": "date-time"
           },
           "data": {
-            "title": "Data",
-            "type": "object",
-            "default": {}
+            "$ref": "#/components/schemas/ProblemConfigJson"
           }
         }
       },
@@ -8072,6 +8193,25 @@
           },
           "data": {
             "$ref": "#/components/schemas/ProblemConfigDataDetail"
+          }
+        }
+      },
+      "ProblemConfigJson": {
+        "title": "ProblemConfigJson",
+        "required": [
+          "languages"
+        ],
+        "type": "object",
+        "properties": {
+          "languages": {
+            "title": "Languages",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Language"
+            }
+          },
+          "languageDefault": {
+            "$ref": "#/components/schemas/LanguageDefault"
           }
         }
       },
