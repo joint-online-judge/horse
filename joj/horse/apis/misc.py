@@ -22,14 +22,6 @@ async def version() -> Version:
     return Version(version=get_version(), git=get_git_version())
 
 
-# @router.get("/jwt")
-# async def jwt(auth_jwt: AuthJWT = Depends(), auth: Authentication = Depends()) -> JWT:
-#     if auth.jwt:
-#         access_token, refresh_token =
-#         return JWT(jwt=auth_jwt_encode_user(auth_jwt, auth.user, auth.oauth_profile))
-#     raise UnauthorizedError(message="JWT not found")
-
-
 @router.get("/jwt_decoded")
 async def jwt_decoded(
     jwt_access_token: JWTAccessToken = Depends(auth_jwt_decode_access_token),

@@ -4,8 +4,6 @@ import logging
 import sys
 from typing import Union, cast
 
-# if you dont like imports of private modules
-# you can move it to typing.py module
 from loguru import logger
 from uvicorn.logging import AccessFormatter
 

@@ -113,16 +113,6 @@ async def update_problem(
     return StandardResponse(problem)
 
 
-# @router.patch(
-#     "/{problem}/config",
-#     permissions=[Permission.DomainProblem.view_config],
-# )
-# async def update_problem_config(
-#     config: UploadFile = File(...), problem: models.Problem = Depends(parse_problem)
-# ) -> StandardResponse[schemas.Problem]:
-#     return StandardResponse(problem)
-
-
 @router.post("/clone", permissions=[Permission.DomainProblem.view_config])
 async def clone_problem(
     problem_clone: schemas.ProblemClone,

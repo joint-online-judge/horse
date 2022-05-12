@@ -33,39 +33,6 @@ async def list_users(
     return StandardListResponse(users, count)
 
 
-# @router.post("/users")
-# async def create_user(
-#     student_id: str,
-#     jaccount_name: str,
-#     real_name: str,
-#     ip: str,
-#     auth: Authentication = Depends(),
-# ) -> StandardResponse[schemas.User]:
-#     user = await models.User.login_by_jaccount(
-#         student_id=student_id, jaccount_name=jaccount_name, real_name=real_name, ip=ip
-#     )
-#     assert user is not None
-#     return StandardResponse(models.User.from_orm(user))
-
-
-# @router.delete("/users/{uid}")
-# async def delete_user(
-#     user: models.User = Depends(parse_uid), auth: Authentication = Depends()
-# ) -> StandardResponse[Empty]:
-#     await user.delete_model()
-#     return StandardResponse()
-
-
-# @router.get("/domain_users")
-# async def list_domain_users(
-#     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
-#     auth: Authentication = Depends(),
-# ) -> StandardListResponse[models.DomainUser]:
-#     cursor = models.DomainUser.cursor_find({}, query)
-#     res = await models.DomainUser.to_list(cursor)
-#     return StandardListResponse(res)
-
-
 @router.get("/domain_roles")
 async def list_domain_roles(
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),

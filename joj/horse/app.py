@@ -1,12 +1,10 @@
 import asyncio
 
-import rollbar
 from fastapi import Depends, FastAPI, Request
 from fastapi.responses import ORJSONResponse
 from lakefs_client.exceptions import ApiException as LakeFSApiException
 from loguru import logger
 from pydantic_universal_settings import init_settings
-from rollbar.contrib.fastapi import ReporterMiddleware as RollbarMiddleware
 from starlette.responses import RedirectResponse
 from starlette_context import plugins
 from starlette_context.middleware import RawContextMiddleware
@@ -78,16 +76,22 @@ async def startup_event() -> None:  # pragma: no cover
         exit(-1)
 
 
-# if settings.dsn:  # pragma: no cover
-#     sentry_sdk.init(dsn=settings.dsn, traces_sample_rate=settings.traces_sample_rate)
-#     app.add_middleware(SentryAsgiMiddleware)
-#     logger.info("sentry activated")
+if settings.dsn:  # pragma: no cover
+    import sentry_sdk
+    from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
+
+    sentry_sdk.init(dsn=settings.dsn, traces_sample_rate=settings.traces_sample_rate)
+    app.add_middleware(SentryAsgiMiddleware)
+    logger.info("sentry activated")
 
 app.add_middleware(
     RawContextMiddleware,
     plugins=(plugins.RequestIdPlugin(), plugins.CorrelationIdPlugin()),
 )
 if settings.rollbar_access_token and not settings.dsn:  # pragma: no cover
+    import rollbar
+    from rollbar.contrib.fastapi import ReporterMiddleware as RollbarMiddleware
+
     rollbar.init(
         settings.rollbar_access_token,
         environment="production" if not settings.debug else "debug",

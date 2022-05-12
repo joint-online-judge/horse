@@ -81,27 +81,6 @@ async def claim_record_by_judger(
     return StandardResponse(judger_credentials)
 
 
-# @router.post(
-#     "/records/{record}/judge/state", permissions=[Permission.DomainRecord.judge]
-# )
-# async def update_record_state_by_judger(
-#     record: models.Record = Depends(parse_record_judger),
-#     user: models.User = Depends(parse_user_from_auth),
-# ) -> StandardResponse[schemas.Record]:
-#     if record.judger_id != user.id:
-#         raise BizError(ErrorCode.Error)
-#     if record.state not in (
-#         schemas.RecordState.fetched,
-#         schemas.RecordState.compiling,
-#         schemas.RecordState.running,
-#         schemas.RecordState.judging,
-#     ):
-#         raise BizError(ErrorCode.Error)
-#     record.state = schemas.RecordState.fetched
-#     await record.save_model()
-#     return StandardResponse(record)
-
-
 @router.put(
     "/records/{record}/judge",
     permissions=[Permission.DomainRecord.judge],

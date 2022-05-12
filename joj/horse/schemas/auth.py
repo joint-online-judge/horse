@@ -178,12 +178,6 @@ def auth_jwt_encode_oauth_state(
     )
 
 
-# def auth_jwt_decode(auth_jwt: AuthJWT) -> Optional[Dict[str, Any]]:
-#     auth_jwt.jwt_optional()
-#     payload = auth_jwt.get_raw_jwt()
-#     return payload
-
-
 def auth_jwt_decode_refresh_token(
     auth_jwt: AuthJWT = Depends(),
 ) -> JWTToken:
@@ -262,30 +256,6 @@ def auth_jwt_decode_oauth_state(
         except Exception:
             raise UnauthorizedError(message="JWT Format Error")
     return None
-
-
-# noinspection PyBroadException
-# def get_current_user_optional(
-#     jwt_access_token: Optional[JWTUserToken] = Depends(auth_jwt_decode_user_optional),
-# ) -> Optional[JWTUserTokenUser]:
-#     if jwt_access_token is None:
-#         return None
-#     return jwt_access_token.user
-# try:
-#     user = await User.find_by_uname(scope=jwt_access_token.scope, uname=jwt_access_token.name)
-#     if user is None:
-#         raise Exception()
-# except Exception:
-#     raise UnauthorizedError(message="Unauthorized")
-# return user
-
-
-# def get_current_oauth_profile_optional(
-#     jwt_access_token: Optional[JWTUserToken] = Depends(auth_jwt_decode_user_optional),
-# ) -> Optional[JWTUserTokenOAuth]:
-#     if jwt_access_token is None:
-#         return None
-#     return jwt_access_token.oauth
 
 
 def get_site_role(

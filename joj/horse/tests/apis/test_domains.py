@@ -24,22 +24,6 @@ base_user_url = get_base_url(apis.user)
 base_domain_url = get_base_url(apis.domains)
 
 
-# domain = models.DomainCreate(
-#     url=random_lower_string(),
-#     name=random_lower_string(),
-#     bulletin=random_lower_string(),
-#     gravatar=random_lower_string(),
-# )
-# data = jsonable_encoder(domain)
-# domain_edit = models.DomainEdit(
-#     name=random_lower_string(),
-#     bulletin=random_lower_string(),
-#     gravatar=random_lower_string(),
-# )
-# update_data = jsonable_encoder(domain_edit)
-# NEW_DOMAIN = {}
-
-
 @pytest.mark.asyncio
 @pytest.mark.depends(name="TestDomainCreate", on=["TestUserGet"])
 class TestDomainCreate:
@@ -422,7 +406,7 @@ class TestDomainUserRemove:
         url = app.url_path_for(
             self.url_base,
             domain=global_domain_0.url,
-            user=global_domain_root_user.id,
+            user=str(global_domain_root_user.id),
         )
         response = await do_api_request(client, "DELETE", url, global_root_user)
         assert response.status_code == 200
@@ -432,7 +416,7 @@ class TestDomainUserRemove:
         url = app.url_path_for(
             TestDomainUserGet.url_base,
             domain=global_domain_0.url,
-            user=global_domain_root_user.id,
+            user=str(global_domain_root_user.id),
         )
         response = await do_api_request(client, "GET", url, global_root_user)
         assert response.status_code == 200
@@ -520,31 +504,6 @@ class TestDomainTransfer:
         await self.api_test_helper(request, client, global_domain_1, name)
 
 
-# def test_list_domains(
-#     client: TestClient, test_user_token_headers: Dict[str, str], test_user: User
-# ) -> None:
-#     r = client.get(f"{base_domain_url}", headers=test_user_token_headers)
-#     assert r.status_code == 200
-#     res = r.json()
-#     assert res["errorCode"] == ErrorCode.Success
-#     res = res["data"]["results"]
-#     assert len(res) == 1
-#     assert res[0] == NEW_DOMAIN
-
-
-# def test_get_domain(
-#     client: TestClient, test_user_token_headers: Dict[str, str], test_user: User
-# ) -> None:
-#     r = client.get(f"{base_domain_url}/{domain.url}", headers=test_user_token_headers)
-#     assert r.status_code == 200
-#     res = r.json()
-#     assert res["errorCode"] == ErrorCode.Success
-#     res = res["data"]
-#     assert NEW_DOMAIN["owner"] == res["owner"]["id"]
-#     res["owner"] = NEW_DOMAIN["owner"]
-#     assert res == NEW_DOMAIN
-
-
 # def test_member_join_in_domain_expired(
 #     client: TestClient,
 #     test_user_token_headers: Dict[str, str],
@@ -559,25 +518,6 @@ class TestDomainTransfer:
 #     assert r.status_code == 200
 #     res = r.json()
 #     assert res["errorCode"] == ErrorCode.DomainInvitationBadRequestError
-
-
-# def test_update_domain(
-#     client: TestClient, test_user_token_headers: Dict[str, str], test_user: User
-# ) -> None:
-#     r = client.patch(
-#         f"{base_domain_url}/{domain.url}",
-#         json=update_data,
-#         headers=test_user_token_headers,
-#     )
-#     assert r.status_code == 200
-#     res = r.json()
-#     assert res["errorCode"] == ErrorCode.Success
-#     res = res["data"]
-#     assert res["url"] == domain.url
-#     assert res["name"] == domain_edit.name
-#     assert res["bulletin"] == domain_edit.bulletin
-#     assert res["gravatar"] == domain_edit.gravatar
-#     assert res["owner"] == str(test_user.id)
 
 
 # def test_add_member_to_domain(

@@ -13,13 +13,6 @@ from joj.horse import apis, models, schemas
 from joj.horse.config import settings
 from joj.horse.utils.errors import ErrorCode
 
-# def random_lower_string(length: int = 32) -> str:
-#     return "".join(random.choices(string.ascii_lowercase, k=length))
-
-
-# def random_ip() -> str:
-#     return ".".join(map(str, (random.randint(0, 255) for _ in range(4))))
-
 GLOBAL_DOMAIN_COUNT = 3
 GLOBAL_PROBLEM_SET_COUNT = 2
 GLOBAL_PROBLEM_COUNT = 2
