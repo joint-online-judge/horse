@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 229685b@2022-05-11T18:09:02Z",
+    "description": "Git version: c31343f@2022-05-12T02:05:27Z",
     "version": "1"
   },
   "paths": {
@@ -6364,7 +6364,7 @@
         ]
       }
     },
-    "/domains/{domain}/records/{record}/cases/{case}/judge": {
+    "/domains/{domain}/records/{record}/cases/{index}/judge": {
       "put": {
         "tags": [
           "judge"
@@ -6375,11 +6375,11 @@
           {
             "required": true,
             "schema": {
-              "title": "Case",
+              "title": "Index",
               "minimum": 0.0,
               "type": "integer"
             },
-            "name": "case",
+            "name": "index",
             "in": "path"
           },
           {
