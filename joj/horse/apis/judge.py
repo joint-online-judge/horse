@@ -133,12 +133,12 @@ async def submit_record_by_judger(
 
 
 @router.put(
-    "/records/{record}/cases/{case}/judge",
+    "/records/{record}/cases/{index}/judge",
     permissions=[Permission.DomainRecord.judge],
     dependencies=[Depends(lock_record_judger)],
 )
 async def submit_case_by_judger(
-    case: NoneNegativeInt,
+    index: NoneNegativeInt,
     record_case_result: schemas.RecordCaseSubmit = Depends(
         schemas.RecordCaseSubmit.edit_dependency
     ),
@@ -148,15 +148,13 @@ async def submit_case_by_judger(
     # TODO: check current record state
     # if record.state != schemas.RecordState.fetched:
     #     raise BizError(ErrorCode.Error)
-    case_idx = case
-    del case
-    length_diff = case_idx - len(record.cases) + 1
+    length_diff = index - len(record.cases) + 1
     record.time_ms = 0
     record.memory_kb = 0
     record.score = 0
     record.cases = deepcopy(record.cases)  # make sqlalchemy modify the model
     logger.debug(
-        f"{user.username} submit case {case_idx} of record {record.id} cases before: {record.cases}"
+        f"{user.username} submit case {index} of record {record.id} cases before: {record.cases}"
     )
     if length_diff > 0:
         record.cases.extend([schemas.RecordCase().dict() for _ in range(length_diff)])
@@ -164,13 +162,13 @@ async def submit_case_by_judger(
         if v is not Undefined:
             if isinstance(v, (str, Enum)):
                 v = str(v)
-            record.cases[case_idx][k] = v
+            record.cases[index][k] = v
     for new_case in record.cases:
         record.time_ms += new_case["time_ms"]
         record.memory_kb += new_case["memory_kb"]
         record.score += new_case["score"]
     await record.save_model()
     logger.debug(
-        f"{user.username} submit case {case_idx} of record {record.id} cases after: {record.cases}"
+        f"{user.username} submit case {index} of record {record.id} cases after: {record.cases}"
     )
     return StandardResponse()
