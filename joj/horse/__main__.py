@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 from typing import Any, List, Optional
 
@@ -46,16 +47,12 @@ def openapi(output: Optional[str], version: str, pretty: bool) -> None:
     for route in app.routes:
         sub_app = route.app  # type: ignore
         if isinstance(sub_app, FastAPI) and route.path == sub_app_path:  # type: ignore
-            if pretty:
-                option = orjson.OPT_INDENT_2
-            else:
-                option = 0
-            openapi_json = orjson.dumps(sub_app.openapi(), option=option)
-            if output is None:
-                print(openapi_json.decode("utf-8"))
-            else:
-                with Path(output).open("wb") as f:
-                    f.write(openapi_json)
+            option = orjson.OPT_INDENT_2 if pretty else 0
+            openapi_dict = sub_app.openapi()
+            openapi_dict["servers"] = [{"url": sub_app_path}]
+            openapi_json = orjson.dumps(openapi_dict, option=option)
+            f = sys.stdout if output is None else Path(output).open("w")
+            f.write(openapi_json.decode("utf-8"))
             exit(0)
     exit(-1)
 
