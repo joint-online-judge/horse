@@ -22,7 +22,6 @@ from joj.horse.utils.parser import parse_record_judger, parse_user_from_auth
 router = MyRouter()
 router_name = "domains/{domain}"
 router_tag = "judge"
-router_prefix = "/api/v1"
 
 
 @router.post(

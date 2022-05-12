@@ -10,7 +10,6 @@ from joj.horse.utils.parser import parse_ordering_query, parse_pagination_query
 router = MyRouter()
 router_name = "problem_groups"
 router_tag = "problem group"
-router_prefix = "/api/v1"
 
 
 @router.get("")

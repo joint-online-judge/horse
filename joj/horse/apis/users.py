@@ -15,7 +15,6 @@ from joj.horse.utils.parser import (
 router = MyRouter()
 router_name = "users"
 router_tag = "user"
-router_prefix = "/api/v1"
 
 
 @router.get("", permissions=[Permission.SiteUser.view_list])

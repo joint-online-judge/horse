@@ -24,7 +24,6 @@ from joj.horse.utils.parser import (
 router = MyRouter()
 router_name = "domains/{domain}/problem_sets"
 router_tag = "problem set"
-router_prefix = "/api/v1"
 
 
 @router.get("", permissions=[Permission.DomainProblemSet.view])

@@ -41,7 +41,6 @@ from joj.horse.utils.parser import (
 router = MyRouter()
 router_name = "domains"
 router_tag = "domain"
-router_prefix = "/api/v1"
 
 
 @router.get("", permissions=[])

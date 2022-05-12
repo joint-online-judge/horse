@@ -27,7 +27,6 @@ from joj.horse.utils.parser import (
 router = MyRouter()
 router_name = "domains/{domain}/problems/{problem}"
 router_tag = "problem config"
-router_prefix = "/api/v1"
 
 
 @router.put(

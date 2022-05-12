@@ -10,7 +10,6 @@ from joj.horse.utils.parser import parse_uid
 router = MyRouter()
 router_name = "user"
 router_tag = "user"
-router_prefix = "/api/v1"
 
 
 # @router.get("/logout", response_model=Redirect)

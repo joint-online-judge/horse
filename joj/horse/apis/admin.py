@@ -19,7 +19,6 @@ def ensure_site_root(auth: Authentication = Depends()) -> None:
 router = MyRouter(dependencies=[Depends(ensure_site_root)])
 router_name = "admin"
 router_tag = "admin"
-router_prefix = "/api/v1"
 
 
 @router.get("/users")

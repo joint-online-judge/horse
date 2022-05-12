@@ -32,7 +32,6 @@ from joj.horse.utils.url import get_base_url
 router = MyRouter()
 router_name = "auth"
 router_tag = "auth"
-router_prefix = "/api/v1"
 
 
 # @camelcase_parameters
