@@ -262,7 +262,7 @@ async def validate_test_problem(
 
 
 def get_base_url(module: Any, **kwargs: Any) -> str:
-    s = module.router_prefix + ("/" + module.router_name if module.router_name else "")
+    s = "/api/v1" + ("/" + module.router_name if module.router_name else "")
     return s.format(**kwargs)
 
 
