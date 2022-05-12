@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: c31343f@2022-05-12T02:05:27Z",
+    "description": "Git version: 64cd9ac@2022-05-12T02:56:21Z",
     "version": "1"
   },
   "paths": {
@@ -10325,5 +10325,10 @@
         "bearerFormat": "JWT"
       }
     }
-  }
+  },
+  "servers": [
+    {
+      "url": "/api/v1"
+    }
+  ]
 }
