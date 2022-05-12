@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: ed0122c@2022-05-12T03:18:43Z",
+    "description": "Git version: 9123c97@2022-05-12T03:29:47Z",
     "version": "1"
   },
   "paths": {
@@ -4620,75 +4620,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RecordDetailResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/domains/{domain}/records/{record}/code": {
-      "get": {
-        "tags": [
-          "record"
-        ],
-        "summary": "Get Record Code",
-        "operationId": "v1_get_record_code",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "Record",
-              "type": "string",
-              "format": "uuid"
-            },
-            "name": "record",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Response Get Record Code Domains  Domain  Records  Record  Code Get"
                 }
               }
             }
