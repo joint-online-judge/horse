@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 0528610@2022-05-14T16:56:19Z",
+    "description": "Git version: b3db0dc@2022-05-14T18:00:18Z",
     "version": "1"
   },
   "paths": {
@@ -7427,8 +7427,7 @@
           },
           "size_bytes": {
             "title": "Size Bytes",
-            "type": "integer",
-            "default": 0
+            "type": "integer"
           }
         }
       },
