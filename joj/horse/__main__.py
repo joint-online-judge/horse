@@ -6,6 +6,7 @@ import click
 import orjson
 import uvicorn
 from fastapi import FastAPI
+from loguru import logger
 from pydantic_universal_settings import cli, init_settings
 
 from joj.horse.config import AllSettings, UnionSettings
@@ -25,6 +26,7 @@ def serve() -> None:  # pragma: no cover
     reload_dirs: Optional[List[str]] = None
     if settings.debug:
         reload_dirs = ["joj", ".venv/lib/python3.8/site-packages/joj"]
+        logger.debug(f"reload_dirs: {reload_dirs}")
     uvicorn.run(
         "joj.horse.app:app",
         host=settings.host,

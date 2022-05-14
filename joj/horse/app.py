@@ -33,6 +33,8 @@ app = FastAPI(
     swagger_ui_parameters={"docExpansion": "none"},
 )
 init_logging()
+if settings.debug:
+    logger.debug(f"settings: {settings}")
 
 import joj.horse.apis  # noqa: F401 lgtm [py/unused-import]
 

@@ -67,6 +67,7 @@ def init_logging(test: bool = False) -> None:
     # change handler for default uvicorn logger
     logging.getLogger("uvicorn").handlers = [InterceptHandler()]
     logging.getLogger("uvicorn.access").handlers = [InterceptHandler()]
+    logging.getLogger("uvicorn.error").handlers = [InterceptHandler()]
     logging.getLogger("sqlalchemy").handlers = [InterceptHandler()]
 
     # set logs output, level and format
