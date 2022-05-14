@@ -32,7 +32,11 @@ from joj.horse.schemas.judge import (
     JudgerClaim as JudgerClaim,
     JudgerCredentials as JudgerCredentials,
 )
-from joj.horse.schemas.lakefs import LakeFSReset as LakeFSReset
+from joj.horse.schemas.lakefs import (
+    DiffList as DiffList,
+    LakeFSReset as LakeFSReset,
+    ObjectStatsList as ObjectStatsList,
+)
 from joj.horse.schemas.misc import (
     AuthTokens as AuthTokens,
     OAuth2Client as OAuth2Client,

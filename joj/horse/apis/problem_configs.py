@@ -60,6 +60,59 @@ def download_uncommitted_problem_config_as_archive(
 
 
 @router.get(
+    "/config/ls",
+    permissions=[Permission.DomainProblem.view_config],
+)
+async def list_latest_problem_config_objects_under_a_given_prefix(
+    problem: models.Problem = Depends(parse_problem),
+    after: str = Query("", description="return items after this value"),
+    amount: int = Query(100, description="how many items to return"),
+    delimiter: str = Query(
+        "", description="delimiter used to group common prefixes by"
+    ),
+    prefix: str = Query("", description="return items prefixed with this value"),
+) -> StandardResponse[schemas.ObjectStatsList]:
+    config_model = await problem.get_latest_problem_config()
+    if config_model is None:
+        raise BizError(ErrorCode.ProblemConfigNotFoundError)
+    problem_config = LakeFSProblemConfig(problem)
+    data = problem_config.ls(
+        ref=config_model.commit_id,
+        after=after,
+        amount=amount,
+        delimiter=delimiter,
+        prefix=prefix,
+    )
+    object_stats_list = schemas.ObjectStatsList(**data.to_dict())
+    return StandardResponse(object_stats_list)
+
+
+@router.get(
+    "/config/diff",
+    permissions=[Permission.DomainProblem.view_config],
+)
+async def diff_problem_config_default_branch(
+    problem: models.Problem = Depends(parse_problem),
+    after: str = Query("", description="return items after this value"),
+    amount: int = Query(100, description="how many items to return"),
+    delimiter: str = Query(
+        "", description="delimiter used to group common prefixes by"
+    ),
+    prefix: str = Query("", description="return items prefixed with this value"),
+) -> StandardResponse[schemas.DiffList]:
+    problem_config = LakeFSProblemConfig(problem)
+    data = problem_config.diff(
+        branch=problem_config.branch_name,
+        after=after,
+        amount=amount,
+        delimiter=delimiter,
+        prefix=prefix,
+    )
+    object_stats_list = schemas.DiffList(**data.to_dict())
+    return StandardResponse(object_stats_list)
+
+
+@router.get(
     "/config/files/{path:path}",
     # response_class=StreamingResponse,
     permissions=[Permission.DomainProblem.view_config],

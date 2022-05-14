@@ -461,6 +461,58 @@ class LakeFSBase:
                 self._get_lakefs_exception_message(e),
             )
 
+    def ls(
+        self,
+        ref: str,
+        # user_metadata: bool = True,
+        after: str = "",
+        amount: int = 100,
+        delimiter: str = "",
+        prefix: str = "",
+    ) -> models.ObjectStatsList:
+        try:
+            client = get_lakefs_client()
+            result: models.ObjectStatsList = client.objects.list_objects(
+                repository=self.repo_name,
+                ref=ref,
+                # user_metadata=user_metadata,
+                after=after,
+                amount=amount,
+                delimiter=delimiter,
+                prefix=prefix,
+            )
+            return result
+        except LakeFSApiException as e:
+            raise BizError(
+                ErrorCode.Error,
+                self._get_lakefs_exception_message(e),
+            )
+
+    def diff(
+        self,
+        branch: str,
+        after: str = "",
+        amount: int = 100,
+        delimiter: str = "",
+        prefix: str = "",
+    ) -> models.DiffList:
+        try:
+            client = get_lakefs_client()
+            result: models.DiffList = client.branches.diff_branch(
+                repository=self.repo_name,
+                branch=branch,
+                after=after,
+                amount=amount,
+                delimiter=delimiter,
+                prefix=prefix,
+            )
+            return result
+        except LakeFSApiException as e:
+            raise BizError(
+                ErrorCode.Error,
+                self._get_lakefs_exception_message(e),
+            )
+
     async def commit_async(self, message: str) -> models.Commit:
         return await async_(self.commit)(message)
 
