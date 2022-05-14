@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: b3db0dc@2022-05-14T18:00:18Z",
+    "description": "Git version: 4bafe89@2022-05-14T18:47:05Z",
     "version": "1"
   },
   "paths": {
@@ -3369,6 +3369,242 @@
         ]
       }
     },
+    "/domains/{domain}/problems/{problem}/config/ls": {
+      "get": {
+        "tags": [
+          "problem config"
+        ],
+        "summary": "List Latest Problem Config Objects Under A Given Prefix",
+        "operationId": "v1_list_latest_problem_config_objects_under_a_given_prefix",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          },
+          {
+            "description": "return items after this value",
+            "required": false,
+            "schema": {
+              "title": "After",
+              "type": "string",
+              "description": "return items after this value",
+              "default": ""
+            },
+            "name": "after",
+            "in": "query"
+          },
+          {
+            "description": "how many items to return",
+            "required": false,
+            "schema": {
+              "title": "Amount",
+              "type": "integer",
+              "description": "how many items to return",
+              "default": 100
+            },
+            "name": "amount",
+            "in": "query"
+          },
+          {
+            "description": "delimiter used to group common prefixes by",
+            "required": false,
+            "schema": {
+              "title": "Delimiter",
+              "type": "string",
+              "description": "delimiter used to group common prefixes by",
+              "default": ""
+            },
+            "name": "delimiter",
+            "in": "query"
+          },
+          {
+            "description": "return items prefixed with this value",
+            "required": false,
+            "schema": {
+              "title": "Prefix",
+              "type": "string",
+              "description": "return items prefixed with this value",
+              "default": ""
+            },
+            "name": "prefix",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectStatsListResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/domains/{domain}/problems/{problem}/config/diff": {
+      "get": {
+        "tags": [
+          "problem config"
+        ],
+        "summary": "Diff Problem Config Default Branch",
+        "operationId": "v1_diff_problem_config_default_branch",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          },
+          {
+            "description": "return items after this value",
+            "required": false,
+            "schema": {
+              "title": "After",
+              "type": "string",
+              "description": "return items after this value",
+              "default": ""
+            },
+            "name": "after",
+            "in": "query"
+          },
+          {
+            "description": "how many items to return",
+            "required": false,
+            "schema": {
+              "title": "Amount",
+              "type": "integer",
+              "description": "how many items to return",
+              "default": 100
+            },
+            "name": "amount",
+            "in": "query"
+          },
+          {
+            "description": "delimiter used to group common prefixes by",
+            "required": false,
+            "schema": {
+              "title": "Delimiter",
+              "type": "string",
+              "description": "delimiter used to group common prefixes by",
+              "default": ""
+            },
+            "name": "delimiter",
+            "in": "query"
+          },
+          {
+            "description": "return items prefixed with this value",
+            "required": false,
+            "schema": {
+              "title": "Prefix",
+              "type": "string",
+              "description": "return items prefixed with this value",
+              "default": ""
+            },
+            "name": "prefix",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiffListResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/domains/{domain}/problems/{problem}/config/files/{path}": {
       "get": {
         "tags": [
@@ -6496,6 +6732,81 @@
           }
         }
       },
+      "Diff": {
+        "title": "Diff",
+        "required": [
+          "type",
+          "path",
+          "path_type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/DiffTypeEnum"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "path_type": {
+            "$ref": "#/components/schemas/PathTypeEnum"
+          },
+          "size_bytes": {
+            "title": "Size Bytes",
+            "type": "integer"
+          }
+        }
+      },
+      "DiffList": {
+        "title": "DiffList",
+        "required": [
+          "pagination",
+          "results"
+        ],
+        "type": "object",
+        "properties": {
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Diff"
+            }
+          }
+        }
+      },
+      "DiffListResp": {
+        "title": "DiffListResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DiffList"
+          }
+        }
+      },
+      "DiffTypeEnum": {
+        "title": "DiffTypeEnum",
+        "enum": [
+          "added",
+          "removed",
+          "changed",
+          "conflict"
+        ],
+        "type": "string",
+        "description": "An enumeration."
+      },
       "Domain": {
         "title": "Domain",
         "required": [
@@ -7921,6 +8232,119 @@
             "type": "string"
           }
         }
+      },
+      "ObjectStats": {
+        "title": "ObjectStats",
+        "required": [
+          "path",
+          "path_type",
+          "checksum",
+          "mtime"
+        ],
+        "type": "object",
+        "properties": {
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "path_type": {
+            "$ref": "#/components/schemas/PathTypeEnum"
+          },
+          "checksum": {
+            "title": "Checksum",
+            "type": "string"
+          },
+          "size_bytes": {
+            "title": "Size Bytes",
+            "type": "integer"
+          },
+          "mtime": {
+            "title": "Mtime",
+            "type": "integer"
+          },
+          "content_type": {
+            "title": "Content Type",
+            "type": "string"
+          }
+        }
+      },
+      "ObjectStatsList": {
+        "title": "ObjectStatsList",
+        "required": [
+          "pagination",
+          "results"
+        ],
+        "type": "object",
+        "properties": {
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ObjectStats"
+            }
+          }
+        }
+      },
+      "ObjectStatsListResp": {
+        "title": "ObjectStatsListResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ObjectStatsList"
+          }
+        }
+      },
+      "Pagination": {
+        "title": "Pagination",
+        "required": [
+          "has_more",
+          "next_offset",
+          "results",
+          "max_per_page"
+        ],
+        "type": "object",
+        "properties": {
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "next_offset": {
+            "title": "Next Offset",
+            "type": "string"
+          },
+          "results": {
+            "title": "Results",
+            "minimum": 0.0,
+            "type": "integer"
+          },
+          "max_per_page": {
+            "title": "Max Per Page",
+            "minimum": 0.0,
+            "type": "integer"
+          }
+        }
+      },
+      "PathTypeEnum": {
+        "title": "PathTypeEnum",
+        "enum": [
+          "common_prefix",
+          "object"
+        ],
+        "type": "string",
+        "description": "An enumeration."
       },
       "Problem": {
         "title": "Problem",
