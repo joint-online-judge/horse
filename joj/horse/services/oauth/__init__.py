@@ -157,65 +157,80 @@ class BaseOAuth2(Generic[T]):
         return f"{self.authorize_endpoint}?{urlencode(params)}"
 
     async def get_access_token(self, code: str, redirect_uri: str) -> OAuth2Token:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                self.access_token_endpoint,
-                data={
-                    "grant_type": "authorization_code",
-                    "code": code,
-                    "redirect_uri": redirect_uri,
-                    "client_id": self.client_id,
-                    "client_secret": self.client_secret,
-                },
-                headers=self.request_headers,
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    self.access_token_endpoint,
+                    data={
+                        "grant_type": "authorization_code",
+                        "code": code,
+                        "redirect_uri": redirect_uri,
+                        "client_id": self.client_id,
+                        "client_secret": self.client_secret,
+                    },
+                    headers=self.request_headers,
+                )
+
+                data = cast(Dict[str, Any], response.json())
+
+                if response.status_code == 400:
+                    raise GetAccessTokenError(data)
+
+                return OAuth2Token(data)
+        except httpx.HTTPError as e:
+            raise GetAccessTokenError(
+                f"HTTP Exception for {self.access_token_endpoint} - {e}"
             )
-
-            data = cast(Dict[str, Any], response.json())
-
-            if response.status_code == 400:
-                raise GetAccessTokenError(data)
-
-            return OAuth2Token(data)
 
     async def refresh_token(self, refresh_token: str) -> OAuth2Token:
         if self.refresh_token_endpoint is None:
             raise RefreshTokenNotSupportedError()
 
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                self.refresh_token_endpoint,
-                data={
-                    "grant_type": "refresh_token",
-                    "refresh_token": refresh_token,
-                    "client_id": self.client_id,
-                    "client_secret": self.client_secret,
-                },
-                headers=self.request_headers,
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    self.refresh_token_endpoint,
+                    data={
+                        "grant_type": "refresh_token",
+                        "refresh_token": refresh_token,
+                        "client_id": self.client_id,
+                        "client_secret": self.client_secret,
+                    },
+                    headers=self.request_headers,
+                )
+
+                data = cast(Dict[str, Any], response.json())
+
+                if response.status_code == 400:
+                    raise RefreshTokenError(data)
+
+                return OAuth2Token(data)
+        except httpx.HTTPError as e:
+            raise RefreshTokenError(
+                f"HTTP Exception for {self.refresh_token_endpoint} - {e}"
             )
-
-            data = cast(Dict[str, Any], response.json())
-
-            if response.status_code == 400:
-                raise RefreshTokenError(data)
-
-            return OAuth2Token(data)
 
     async def revoke_token(self, token: str, token_type_hint: str = None) -> None:
         if self.revoke_token_endpoint is None:
             raise RevokeTokenNotSupportedError()
 
-        async with httpx.AsyncClient() as client:
-            data = {"token": token}
+        try:
+            async with httpx.AsyncClient() as client:
+                data = {"token": token}
 
-            if token_type_hint is not None:
-                data["token_type_hint"] = token_type_hint
+                if token_type_hint is not None:
+                    data["token_type_hint"] = token_type_hint
 
-            response = await client.post(
-                self.revoke_token_endpoint, data=data, headers=self.request_headers
+                response = await client.post(
+                    self.revoke_token_endpoint, data=data, headers=self.request_headers
+                )
+
+                if response.status_code == 400:
+                    raise RevokeTokenError(response.json())
+        except httpx.HTTPError as e:
+            raise RevokeTokenError(
+                f"HTTP Exception for {self.revoke_token_endpoint} - {e}"
             )
-
-            if response.status_code == 400:
-                raise RevokeTokenError(response.json())
 
     async def get_profile(
         self, token: Dict[str, Any]
