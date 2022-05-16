@@ -78,6 +78,8 @@ class RecordListDetail(Record):
     problem_set_title: Optional[str] = None
     problem_id: Optional[UUID] = None
     problem_title: Optional[str] = None
+    committer_id: Optional[UUID] = None
+    committer_username: Optional[str] = None
 
     @classmethod
     def from_row(
@@ -85,11 +87,13 @@ class RecordListDetail(Record):
         record: "Record",
         problem_title: Optional[str],
         problem_set_title: Optional[str],
+        committer_username: Optional[str],
     ) -> "RecordListDetail":
         return cls(
             **record.dict(),
             problem_title=problem_title,
             problem_set_title=problem_set_title,
+            committer_username=committer_username,
         )
 
 

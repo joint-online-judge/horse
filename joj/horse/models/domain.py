@@ -139,7 +139,10 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
         from joj.horse import models
 
         statement = select(
-            models.Record, models.Problem.title, models.ProblemSet.title
+            models.Record,
+            models.Problem.title,
+            models.ProblemSet.title,
+            models.User.username,
         ).where(models.Record.domain_id == self.id)
         statement = statement.options(defer("cases"))  # exclude record.cases
         statement = statement.outerjoin_from(
@@ -151,6 +154,11 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
             models.Record,
             models.Problem,
             models.Record.problem_id == models.Problem.id,
+        )
+        statement = statement.outerjoin_from(
+            models.Record,
+            models.User,
+            models.Record.committer_id == models.User.id,
         )
 
         if problem_set_id:
