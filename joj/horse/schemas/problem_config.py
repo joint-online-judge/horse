@@ -74,7 +74,7 @@ class ProblemConfigJson(BaseModel):
                     "execute_output_file",
                 ]
                 for field in required_fields:
-                    if language.get(field) is None:
+                    if case.get(field) is None:
                         raise ValueError(
                             f"languages[{i}].cases[{j}] missing field {field}"
                         )
