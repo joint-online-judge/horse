@@ -66,7 +66,7 @@ async def claim_record_by_judger(
 
     def sync_func() -> None:
         lakefs_problem_config.ensure_user_policy(user, "read")
-        lakefs_record.ensure_user_policy(user, "all")
+        lakefs_record.ensure_user_policy(user, "read")
 
     await run_in_threadpool(sync_func)
 

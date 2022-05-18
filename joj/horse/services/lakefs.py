@@ -269,7 +269,7 @@ class LakeFSBase:
             )
             logger.info(f"LakeFS create branch: {self.branch}")
 
-    def ensure_policy(self, permission: Literal["read", "all"]) -> models.Policy:
+    def ensure_policy(self, permission: Literal["read"]) -> models.Policy:
         if permission != "read" and permission != "all":
             raise BizError(
                 ErrorCode.InternalServerError, f"permission not defined: {permission}"
@@ -280,28 +280,44 @@ class LakeFSBase:
             policy = client.auth.get_policy(policy_id=policy_id)
         except LakeFSApiException:
             if permission == "read":
-                action = ["fs:List*", "fs:Read*"]
-            elif permission == "all":
-                action = ["fs:*"]
+                policy = models.Policy(
+                    id=policy_id,
+                    statement=[
+                        models.Statement(
+                            action=[
+                                "fs:ReadRepository",
+                                "fs:ReadCommit",
+                                "fs:ListBranches",
+                                "fs:ListTags",
+                                "fs:ListObjects",
+                            ],
+                            effect="allow",
+                            resource=f"arn:lakefs:fs:::repository/{self.repo_name}",
+                        ),
+                        models.Statement(
+                            action=["fs:ReadBranch"],
+                            effect="allow",
+                            resource=f"arn:lakefs:fs:::repository/{self.repo_name}/branch/*",
+                        ),
+                        models.Statement(
+                            action=["fs:ListObjects", "fs:ReadObject"],
+                            effect="allow",
+                            resource=f"arn:lakefs:fs:::repository/{self.repo_name}/object/*",
+                        ),
+                        models.Statement(
+                            action=["fs:ReadConfig"],
+                            effect="allow",
+                            resource="*",
+                        ),
+                    ],
+                )
             else:
                 assert False
-            policy = models.Policy(
-                id=policy_id,
-                statement=[
-                    models.Statement(
-                        effect="allow",
-                        resource=f"arn:lakefs:fs:::repository/{self.repo_name}/*",
-                        action=action,
-                    )
-                ],
-            )
             policy = client.auth.create_policy(policy=policy)
             logger.info(f"LakeFS create policy: {policy_id}")
         return policy
 
-    def ensure_user_policy(
-        self, user: "User", permission: Literal["read", "all"]
-    ) -> None:
+    def ensure_user_policy(self, user: "User", permission: Literal["read"]) -> None:
         client = get_lakefs_client()
         policy = self.ensure_policy(permission)
         try:
