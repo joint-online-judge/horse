@@ -23,8 +23,6 @@ class Case(BaseModel):
 class LanguageDefault(BaseModel):
     compile_files: Optional[List[str]]
     compile_args: Optional[List[str]]
-    lint_files: Optional[List[str]]
-    lint_args: Optional[List[str]]
     case_default: Optional[Case]
     cases: Optional[List[Case]]
 
