@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 961f678@2022-05-17T03:46:15Z",
+    "description": "Git version: ded693e@2022-05-18T20:23:21Z",
     "version": "1"
   },
   "paths": {
@@ -8062,20 +8062,6 @@
               "type": "string"
             }
           },
-          "lintFiles": {
-            "title": "Lintfiles",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "lintArgs": {
-            "title": "Lintargs",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
           "caseDefault": {
             "$ref": "#/components/schemas/Case"
           },
@@ -8105,20 +8091,6 @@
           },
           "compileArgs": {
             "title": "Compileargs",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "lintFiles": {
-            "title": "Lintfiles",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "lintArgs": {
-            "title": "Lintargs",
             "type": "array",
             "items": {
               "type": "string"
