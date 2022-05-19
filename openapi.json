@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: c41bfc4@2022-05-18T21:45:42Z",
+    "description": "Git version: 6a64ecc@2022-05-19T15:50:22Z",
     "version": "1"
   },
   "paths": {
@@ -40,12 +40,12 @@
             "in": "query"
           },
           {
-            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+            "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
             "required": false,
             "schema": {
               "title": "Ordering",
               "type": "string",
-              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+              "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
               "default": ""
             },
             "name": "ordering",
@@ -502,12 +502,12 @@
             "in": "path"
           },
           {
-            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+            "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
             "required": false,
             "schema": {
               "title": "Ordering",
               "type": "string",
-              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+              "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
               "default": ""
             },
             "name": "ordering",
@@ -961,12 +961,12 @@
             "in": "query"
           },
           {
-            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: username",
+            "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: username",
             "required": false,
             "schema": {
               "title": "Ordering",
               "type": "string",
-              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: username",
+              "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: username",
               "default": ""
             },
             "name": "ordering",
@@ -1032,12 +1032,12 @@
             "in": "path"
           },
           {
-            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+            "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
             "required": false,
             "schema": {
               "title": "Ordering",
               "type": "string",
-              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+              "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
               "default": ""
             },
             "name": "ordering",
@@ -1392,12 +1392,12 @@
             "in": "path"
           },
           {
-            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+            "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
             "required": false,
             "schema": {
               "title": "Ordering",
               "type": "string",
-              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+              "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
               "default": ""
             },
             "name": "ordering",
@@ -1837,12 +1837,12 @@
             "in": "path"
           },
           {
-            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+            "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
             "required": false,
             "schema": {
               "title": "Ordering",
               "type": "string",
-              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+              "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
               "default": ""
             },
             "name": "ordering",
@@ -2703,12 +2703,12 @@
             "in": "path"
           },
           {
-            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+            "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
             "required": false,
             "schema": {
               "title": "Ordering",
               "type": "string",
-              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+              "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
               "default": ""
             },
             "name": "ordering",
@@ -3207,13 +3207,13 @@
         ]
       }
     },
-    "/domains/{domain}/problems/{problem}/config": {
+    "/domains/{domain}/problems/{problem}/configs": {
       "get": {
         "tags": [
           "problem config"
         ],
-        "summary": "Download Uncommitted Problem Config As Archive",
-        "operationId": "v1_download_uncommitted_problem_config_as_archive",
+        "summary": "List Problem Config Commits",
+        "operationId": "v1_list_problem_config_commits",
         "parameters": [
           {
             "description": "url or id of the domain",
@@ -3238,16 +3238,38 @@
             "in": "path"
           },
           {
+            "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
             "required": false,
             "schema": {
-              "allOf": [
-                {
-                  "$ref": "#/components/schemas/ArchiveType"
-                }
-              ],
-              "default": "zip"
+              "title": "Ordering",
+              "type": "string",
+              "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+              "default": ""
             },
-            "name": "archiveFormat",
+            "name": "ordering",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Offset",
+              "minimum": 0.0,
+              "type": "integer",
+              "default": 0
+            },
+            "name": "offset",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Limit",
+              "maximum": 500.0,
+              "minimum": 0.0,
+              "type": "integer",
+              "default": 100
+            },
+            "name": "limit",
             "in": "query"
           }
         ],
@@ -3257,7 +3279,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EmptyResp"
+                  "$ref": "#/components/schemas/ProblemConfigDetailListResp"
                 }
               }
             }
@@ -3289,7 +3311,7 @@
           }
         ]
       },
-      "put": {
+      "post": {
         "tags": [
           "problem config"
         ],
@@ -3336,7 +3358,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EmptyResp"
+                  "$ref": "#/components/schemas/ProblemConfigDetailResp"
                 }
               }
             }
@@ -3369,7 +3391,262 @@
         ]
       }
     },
-    "/domains/{domain}/problems/{problem}/config/ls": {
+    "/domains/{domain}/problems/{problem}/configs/json": {
+      "post": {
+        "tags": [
+          "problem config"
+        ],
+        "summary": "Update Problem Config Json",
+        "operationId": "v1_update_problem_config_json",
+        "parameters": [
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProblemConfigJson"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemConfigDetailResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/domains/{domain}/problems/{problem}/configs/{config}": {
+      "get": {
+        "tags": [
+          "problem config"
+        ],
+        "summary": "Download Problem Config Archive",
+        "operationId": "v1_download_problem_config_archive",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          },
+          {
+            "description": "'latest' or id of the config",
+            "required": true,
+            "schema": {
+              "title": "Config",
+              "type": "string",
+              "description": "'latest' or id of the config"
+            },
+            "name": "config",
+            "in": "path"
+          },
+          {
+            "required": false,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/ArchiveType"
+                }
+              ],
+              "default": "zip"
+            },
+            "name": "archiveFormat",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Download Problem Config Archive Domains  Domain  Problems  Problem  Configs  Config  Get"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/domains/{domain}/problems/{problem}/configs/{config}/json": {
+      "get": {
+        "tags": [
+          "problem config"
+        ],
+        "summary": "Get Problem Config Json",
+        "operationId": "v1_get_problem_config_json",
+        "parameters": [
+          {
+            "description": "url or id of the domain",
+            "required": true,
+            "schema": {
+              "title": "Domain",
+              "type": "string",
+              "description": "url or id of the domain"
+            },
+            "name": "domain",
+            "in": "path"
+          },
+          {
+            "description": "'latest' or id of the config",
+            "required": true,
+            "schema": {
+              "title": "Config",
+              "type": "string",
+              "description": "'latest' or id of the config"
+            },
+            "name": "config",
+            "in": "path"
+          },
+          {
+            "description": "url or id of the problem",
+            "required": true,
+            "schema": {
+              "title": "Problem",
+              "type": "string",
+              "description": "url or id of the problem"
+            },
+            "name": "problem",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemConfigDataDetailResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/domains/{domain}/problems/{problem}/configs/latest/ls": {
       "get": {
         "tags": [
           "problem config"
@@ -3487,7 +3764,7 @@
         ]
       }
     },
-    "/domains/{domain}/problems/{problem}/config/diff": {
+    "/domains/{domain}/problems/{problem}/configs/latest/diff": {
       "get": {
         "tags": [
           "problem config"
@@ -3605,1007 +3882,6 @@
         ]
       }
     },
-    "/domains/{domain}/problems/{problem}/config/files/{path}": {
-      "get": {
-        "tags": [
-          "problem config"
-        ],
-        "summary": "Download File In Uncommitted Problem Config",
-        "operationId": "v1_download_file_in_uncommitted_problem_config",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "Path",
-              "type": "string"
-            },
-            "name": "path",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the problem",
-            "required": true,
-            "schema": {
-              "title": "Problem",
-              "type": "string",
-              "description": "url or id of the problem"
-            },
-            "name": "problem",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Response Download File In Uncommitted Problem Config Domains  Domain  Problems  Problem  Config Files  Path  Get"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "problem config"
-        ],
-        "summary": "Upload File To Problem Config",
-        "description": "Replace the file with the same path. Create directories if needed along the path.",
-        "operationId": "v1_upload_file_to_problem_config",
-        "parameters": [
-          {
-            "description": "url or id of the problem",
-            "required": true,
-            "schema": {
-              "title": "Problem",
-              "type": "string",
-              "description": "url or id of the problem"
-            },
-            "name": "problem",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          },
-          {
-            "required": true,
-            "schema": {
-              "title": "Path",
-              "type": "string"
-            },
-            "name": "path",
-            "in": "path"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "$ref": "#/components/schemas/FileUpload"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FileInfoResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "problem config"
-        ],
-        "summary": "Delete File From Uncommitted Problem Config",
-        "operationId": "v1_delete_file_from_uncommitted_problem_config",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "Path",
-              "type": "string"
-            },
-            "name": "path",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the problem",
-            "required": true,
-            "schema": {
-              "title": "Problem",
-              "type": "string",
-              "description": "url or id of the problem"
-            },
-            "name": "problem",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FileInfoResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/domains/{domain}/problems/{problem}/config/file_info/{path}": {
-      "get": {
-        "tags": [
-          "problem config"
-        ],
-        "summary": "Get File Or Directory Info In Uncommitted Problem Config",
-        "operationId": "v1_get_file_or_directory_info_in_uncommitted_problem_config",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "Path",
-              "type": "string"
-            },
-            "name": "path",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the problem",
-            "required": true,
-            "schema": {
-              "title": "Problem",
-              "type": "string",
-              "description": "url or id of the problem"
-            },
-            "name": "problem",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FileInfoResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/domains/{domain}/problems/{problem}/config/files": {
-      "put": {
-        "tags": [
-          "problem config"
-        ],
-        "summary": "Upload File To Root In Problem Config",
-        "description": "Use the filename as path, file will be uploaded to root of the problem config directory.",
-        "operationId": "v1_upload_file_to_root_in_problem_config",
-        "parameters": [
-          {
-            "description": "url or id of the problem",
-            "required": true,
-            "schema": {
-              "title": "Problem",
-              "type": "string",
-              "description": "url or id of the problem"
-            },
-            "name": "problem",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "$ref": "#/components/schemas/FileUpload"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FileInfoResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/domains/{domain}/problems/{problem}/config/dirs/{path}": {
-      "delete": {
-        "tags": [
-          "problem config"
-        ],
-        "summary": "Delete Directory From Uncommitted Problem Config",
-        "operationId": "v1_delete_directory_from_uncommitted_problem_config",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "Path",
-              "type": "string"
-            },
-            "name": "path",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the problem",
-            "required": true,
-            "schema": {
-              "title": "Problem",
-              "type": "string",
-              "description": "url or id of the problem"
-            },
-            "name": "problem",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          },
-          {
-            "description": "Act as -r in the rm command. If false, only empty directory can be deleted.",
-            "required": false,
-            "schema": {
-              "title": "Recursive",
-              "type": "boolean",
-              "description": "Act as -r in the rm command. If false, only empty directory can be deleted.",
-              "default": false
-            },
-            "name": "recursive",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FileInfoResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/domains/{domain}/problems/{problem}/config/commit": {
-      "post": {
-        "tags": [
-          "problem config"
-        ],
-        "summary": "Commit Problem Config",
-        "description": "Commit all changes through upload / delete as a new problem config version.",
-        "operationId": "v1_commit_problem_config",
-        "parameters": [
-          {
-            "description": "url or id of the problem",
-            "required": true,
-            "schema": {
-              "title": "Problem",
-              "type": "string",
-              "description": "url or id of the problem"
-            },
-            "name": "problem",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProblemConfigCommit"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemConfigResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/domains/{domain}/problems/{problem}/config/reset": {
-      "post": {
-        "tags": [
-          "problem config"
-        ],
-        "summary": "Reset Problem Config",
-        "operationId": "v1_reset_problem_config",
-        "parameters": [
-          {
-            "description": "url or id of the problem",
-            "required": true,
-            "schema": {
-              "title": "Problem",
-              "type": "string",
-              "description": "url or id of the problem"
-            },
-            "name": "problem",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LakeFSReset"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmptyResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/domains/{domain}/problems/{problem}/configs/{config}": {
-      "get": {
-        "tags": [
-          "problem config"
-        ],
-        "summary": "Get Problem Config Json",
-        "operationId": "v1_get_problem_config_json",
-        "parameters": [
-          {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          },
-          {
-            "description": "'latest' or id of the config",
-            "required": true,
-            "schema": {
-              "title": "Config",
-              "type": "string",
-              "description": "'latest' or id of the config"
-            },
-            "name": "config",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the problem",
-            "required": true,
-            "schema": {
-              "title": "Problem",
-              "type": "string",
-              "description": "url or id of the problem"
-            },
-            "name": "problem",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemConfigDataDetailResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/domains/{domain}/problems/{problem}/configs": {
-      "put": {
-        "tags": [
-          "problem config"
-        ],
-        "summary": "Update Problem Config Json",
-        "operationId": "v1_update_problem_config_json",
-        "parameters": [
-          {
-            "description": "url or id of the problem",
-            "required": true,
-            "schema": {
-              "title": "Problem",
-              "type": "string",
-              "description": "url or id of the problem"
-            },
-            "name": "problem",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProblemConfigJson"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FileInfoResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/domains/{domain}/problems/{problem}/configs/{config}/files": {
-      "get": {
-        "tags": [
-          "problem config"
-        ],
-        "summary": "Download Problem Config Archive",
-        "operationId": "v1_download_problem_config_archive",
-        "parameters": [
-          {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the problem",
-            "required": true,
-            "schema": {
-              "title": "Problem",
-              "type": "string",
-              "description": "url or id of the problem"
-            },
-            "name": "problem",
-            "in": "path"
-          },
-          {
-            "description": "'latest' or id of the config",
-            "required": true,
-            "schema": {
-              "title": "Config",
-              "type": "string",
-              "description": "'latest' or id of the config"
-            },
-            "name": "config",
-            "in": "path"
-          },
-          {
-            "required": false,
-            "schema": {
-              "allOf": [
-                {
-                  "$ref": "#/components/schemas/ArchiveType"
-                }
-              ],
-              "default": "zip"
-            },
-            "name": "archiveFormat",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Response Download Problem Config Archive Domains  Domain  Problems  Problem  Configs  Config  Files Get"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/domains/{domain}/problems/{problem}/configs/{config}/files/{path}": {
-      "get": {
-        "tags": [
-          "problem config"
-        ],
-        "summary": "Download File In Problem Config",
-        "operationId": "v1_download_file_in_problem_config",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "Path",
-              "type": "string"
-            },
-            "name": "path",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the domain",
-            "required": true,
-            "schema": {
-              "title": "Domain",
-              "type": "string",
-              "description": "url or id of the domain"
-            },
-            "name": "domain",
-            "in": "path"
-          },
-          {
-            "description": "url or id of the problem",
-            "required": true,
-            "schema": {
-              "title": "Problem",
-              "type": "string",
-              "description": "url or id of the problem"
-            },
-            "name": "problem",
-            "in": "path"
-          },
-          {
-            "description": "'latest' or id of the config",
-            "required": true,
-            "schema": {
-              "title": "Config",
-              "type": "string",
-              "description": "'latest' or id of the config"
-            },
-            "name": "config",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Response Download File In Problem Config Domains  Domain  Problems  Problem  Configs  Config  Files  Path  Get"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
     "/problem_groups": {
       "get": {
         "tags": [
@@ -4615,12 +3891,12 @@
         "operationId": "v1_list_problem_groups",
         "parameters": [
           {
-            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+            "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
             "required": false,
             "schema": {
               "title": "Ordering",
               "type": "string",
-              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+              "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
               "default": ""
             },
             "name": "ordering",
@@ -4745,12 +4021,12 @@
             "in": "query"
           },
           {
-            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+            "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
             "required": false,
             "schema": {
               "title": "Ordering",
               "type": "string",
-              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+              "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
               "default": ""
             },
             "name": "ordering",
@@ -5053,12 +4329,12 @@
             "in": "query"
           },
           {
-            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: username",
+            "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: username",
             "required": false,
             "schema": {
               "title": "Ordering",
               "type": "string",
-              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: username",
+              "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: username",
               "default": ""
             },
             "name": "ordering",
@@ -5226,12 +4502,12 @@
             "in": "query"
           },
           {
-            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+            "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
             "required": false,
             "schema": {
               "title": "Ordering",
               "type": "string",
-              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+              "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
               "default": ""
             },
             "name": "ordering",
@@ -6081,12 +5357,12 @@
         "operationId": "v1_list_users",
         "parameters": [
           {
-            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+            "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
             "required": false,
             "schema": {
               "title": "Ordering",
               "type": "string",
-              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+              "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
               "default": ""
             },
             "name": "ordering",
@@ -6164,12 +5440,12 @@
         "operationId": "v1_list_domain_roles",
         "parameters": [
           {
-            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+            "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
             "required": false,
             "schema": {
               "title": "Ordering",
               "type": "string",
-              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+              "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
               "default": ""
             },
             "name": "ordering",
@@ -6247,12 +5523,12 @@
         "operationId": "v1_list_judgers",
         "parameters": [
           {
-            "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+            "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
             "required": false,
             "schema": {
               "title": "Ordering",
               "type": "string",
-              "description": "Comma seperated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+              "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
               "default": ""
             },
             "name": "ordering",
@@ -7704,63 +6980,6 @@
         "type": "string",
         "description": "An enumeration."
       },
-      "FileInfo": {
-        "title": "FileInfo",
-        "required": [
-          "path",
-          "is_dir"
-        ],
-        "type": "object",
-        "properties": {
-          "path": {
-            "title": "Path",
-            "type": "string"
-          },
-          "is_dir": {
-            "title": "Is Dir",
-            "type": "boolean"
-          },
-          "checksum": {
-            "title": "Checksum",
-            "type": "string"
-          },
-          "mtime": {
-            "title": "Mtime",
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "string"
-              }
-            ]
-          },
-          "size_bytes": {
-            "title": "Size Bytes",
-            "type": "integer"
-          }
-        }
-      },
-      "FileInfoResp": {
-        "title": "FileInfoResp",
-        "required": [
-          "errorCode"
-        ],
-        "type": "object",
-        "properties": {
-          "errorCode": {
-            "$ref": "#/components/schemas/ErrorCode"
-          },
-          "errorMsg": {
-            "title": "Errormsg",
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/FileInfo"
-          }
-        }
-      },
       "FileUpload": {
         "title": "FileUpload",
         "required": [
@@ -8017,27 +7236,6 @@
           },
           "data": {
             "$ref": "#/components/schemas/JudgerCredentials"
-          }
-        }
-      },
-      "LakeFSReset": {
-        "title": "LakeFSReset",
-        "type": "object",
-        "properties": {
-          "type": {
-            "title": "Type",
-            "enum": [
-              "file",
-              "dir",
-              "all"
-            ],
-            "type": "string",
-            "default": "all"
-          },
-          "path": {
-            "title": "Path",
-            "type": "string",
-            "default": ""
           }
         }
       },
@@ -8405,56 +7603,6 @@
           }
         }
       },
-      "ProblemConfig": {
-        "title": "ProblemConfig",
-        "required": [
-          "id"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "title": "Id",
-            "type": "string",
-            "format": "uuid"
-          },
-          "commitMessage": {
-            "title": "Commitmessage",
-            "type": "string",
-            "default": ""
-          },
-          "dataVersion": {
-            "title": "Dataversion",
-            "type": "integer",
-            "default": 2
-          },
-          "commitId": {
-            "title": "Commitid",
-            "type": "string",
-            "default": ""
-          },
-          "committerId": {
-            "title": "Committerid",
-            "type": "string",
-            "format": "uuid"
-          }
-        }
-      },
-      "ProblemConfigCommit": {
-        "title": "ProblemConfigCommit",
-        "type": "object",
-        "properties": {
-          "message": {
-            "title": "Message",
-            "type": "string",
-            "default": ""
-          },
-          "dataVersion": {
-            "title": "Dataversion",
-            "type": "integer",
-            "default": 2
-          }
-        }
-      },
       "ProblemConfigDataDetail": {
         "title": "ProblemConfigDataDetail",
         "required": [
@@ -8522,6 +7670,107 @@
           }
         }
       },
+      "ProblemConfigDetail": {
+        "title": "ProblemConfigDetail",
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "commitMessage": {
+            "title": "Commitmessage",
+            "type": "string",
+            "default": ""
+          },
+          "dataVersion": {
+            "title": "Dataversion",
+            "type": "integer",
+            "default": 2
+          },
+          "commitId": {
+            "title": "Commitid",
+            "type": "string",
+            "default": ""
+          },
+          "committerId": {
+            "title": "Committerid",
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ProblemConfigDetailList": {
+        "title": "ProblemConfigDetailList",
+        "type": "object",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer",
+            "default": 0
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProblemConfigDetail"
+            },
+            "default": []
+          }
+        }
+      },
+      "ProblemConfigDetailListResp": {
+        "title": "ProblemConfigDetailListResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProblemConfigDetailList"
+          }
+        }
+      },
+      "ProblemConfigDetailResp": {
+        "title": "ProblemConfigDetailResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProblemConfigDetail"
+          }
+        }
+      },
       "ProblemConfigJson": {
         "title": "ProblemConfigJson",
         "required": [
@@ -8538,25 +7787,6 @@
           },
           "languageDefault": {
             "$ref": "#/components/schemas/LanguageDefault"
-          }
-        }
-      },
-      "ProblemConfigResp": {
-        "title": "ProblemConfigResp",
-        "required": [
-          "errorCode"
-        ],
-        "type": "object",
-        "properties": {
-          "errorCode": {
-            "$ref": "#/components/schemas/ErrorCode"
-          },
-          "errorMsg": {
-            "title": "Errormsg",
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/ProblemConfig"
           }
         }
       },
