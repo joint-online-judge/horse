@@ -55,6 +55,7 @@ from joj.horse.schemas.problem import (
     ProblemWithLatestRecord as ProblemWithLatestRecord,
 )
 from joj.horse.schemas.problem_config import (
+    ConfigJsonOnMissing as ConfigJsonOnMissing,
     ProblemConfig as ProblemConfig,
     ProblemConfigCommit as ProblemConfigCommit,
     ProblemConfigDataDetail as ProblemConfigDataDetail,

@@ -6,6 +6,7 @@ from typing import IO, TYPE_CHECKING, Any, BinaryIO, Dict, List, Literal, Option
 
 import boto3
 import orjson
+from fs.errors import ResourceNotFound
 from greenletio import async_
 from lakefs_client import Configuration, __version__ as lakefs_client_version, models
 from lakefs_client.client import LakeFSClient
@@ -24,6 +25,7 @@ from joj.elephant.storage import (
     MultipleFilesStorage,
     Storage,
 )
+from joj.horse import schemas
 from joj.horse.config import settings
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.retry import retry_init
@@ -384,7 +386,12 @@ class LakeFSBase:
         except ElephantError as e:
             raise BizError(ErrorCode.FileUpdateError, str(e))
 
-    def upload_archive(self, filename: str, file: IO[bytes]) -> None:
+    def upload_problem_config_archive(
+        self,
+        filename: str,
+        file: IO[bytes],
+        config_json_on_missing: schemas.ConfigJsonOnMissing,
+    ) -> None:
         self.ensure_branch()
 
         try:
@@ -394,9 +401,27 @@ class LakeFSBase:
             logger.info("write archive into {}", temp_file.name)
             archive = ArchiveStorage(file_path=temp_file.name)
             archive.extract_all()
+            config_json_path = Path("config.json")
+            try:
+                archive.getinfo(config_json_path)
+            except ResourceNotFound:
+                if config_json_on_missing == schemas.ConfigJsonOnMissing.raise_error:
+                    raise BizError(ErrorCode.ProblemConfigJsonNotFoundError)
+                if config_json_on_missing == schemas.ConfigJsonOnMissing.use_old:
+                    config_json_file = BytesIO()
+                    self.storage.download(config_json_path, config_json_file)
+                elif config_json_on_missing == schemas.ConfigJsonOnMissing.use_default:
+                    config_json_file = BytesIO(
+                        orjson.dumps(
+                            schemas.ProblemConfigJson.generate_default_value().dict(),
+                            option=orjson.OPT_INDENT_2,
+                        )
+                    )
+                config_json_file.seek(0)
+                archive.upload(config_json_path, config_json_file)
             manager = Manager(get_rclone(), archive, self.storage)
             logger.info(archive.path)
-            manager.sync_without_validation()
+            manager.sync_with_validation()
             temp_file.close()
 
         except ElephantError as e:

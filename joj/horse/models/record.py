@@ -132,10 +132,6 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
         def sync_func() -> None:
             lakefs_record = LakeFSRecord(problem, self)
             lakefs_record.ensure_branch()
-            # problem_submit.file = cast(UploadFile, problem_submit.file)
-            # lakefs_record.upload_archive(
-            #     problem_submit.file.filename, problem_submit.file.file
-            # )
             lakefs_record.upload_multiple_files(
                 [file.filename for file in problem_submit.files],
                 [file.file for file in problem_submit.files],

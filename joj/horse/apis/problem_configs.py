@@ -56,6 +56,7 @@ async def list_problem_config_commits(
 )
 async def update_problem_config_by_archive(
     file: UploadFile = File(...),
+    config_json_on_missing: schemas.ConfigJsonOnMissing = schemas.ConfigJsonOnMissing.raise_error,
     problem: models.Problem = Depends(parse_problem),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.ProblemConfigDetail]:
@@ -63,8 +64,9 @@ async def update_problem_config_by_archive(
 
     def sync_func() -> None:
         problem_config = LakeFSProblemConfig(problem)
-        # TODO: validate config.json
-        problem_config.upload_archive(file.filename, file.file)
+        problem_config.upload_problem_config_archive(
+            file.filename, file.file, config_json_on_missing
+        )
 
     await run_in_threadpool(sync_func)
     result = await models.ProblemConfig.make_commit(
@@ -88,7 +90,6 @@ async def update_problem_config_json(
 ) -> StandardResponse[schemas.ProblemConfigDetail]:
     def sync_func() -> None:
         problem_config = LakeFSProblemConfig(problem)
-        # TODO: validate config.json
         problem_config.upload_file(
             PathlibPath("config.json"),
             io.BytesIO(orjson.dumps(config.dict(), option=orjson.OPT_INDENT_2)),

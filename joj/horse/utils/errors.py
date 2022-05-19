@@ -26,6 +26,7 @@ class ErrorCode(str, Enum):
     ProblemGroupNotFoundError = "ProblemGroupNotFoundError"
 
     ProblemConfigNotFoundError = "ProblemConfigNotFoundError"
+    ProblemConfigJsonNotFoundError = "ProblemConfigJsonNotFoundError"
     FileValidationError = "FileValidationError"
     FileUpdateError = "FileUpdateError"
     FileDownloadError = "FileDownloadError"
