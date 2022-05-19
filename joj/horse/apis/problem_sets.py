@@ -238,7 +238,7 @@ async def submit_solution_to_problem_set(
 #             score = 0
 #             time = datetime(1970, 1, 1)
 #             time_spent = datetime.utcnow() - problem_set.unlock_at
-#             full_score = 1000  # TODO: modify later
+#             full_score = 1000
 #             if record is not None:
 #                 score = record.score
 #                 time = record.submit_at

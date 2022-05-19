@@ -146,7 +146,7 @@ def ensure_credentials(
     username: str, access_key_id: Optional[str] = None
 ) -> models.CredentialsWithSecret:
     client = get_lakefs_client()
-    # TODO: lakefs will not return secret_access_key for existed credentials
+    # lakefs will not return secret_access_key for existed credentials
     # if access_key_id is not None:
     #     try:
     #         return client.auth.get_credentials(

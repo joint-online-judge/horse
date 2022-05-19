@@ -156,7 +156,6 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
 
     async def create_task(self, celery_app: Celery) -> AsyncResult:
         # create a task in celery with this record
-        # TODO: get queue from problem config or somewhere else
         result = celery_app.send_task(
             "joj.tiger.task",
             args=[self.dict(), "http://horse:34765"],  # TODO: read from settings
