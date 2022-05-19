@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: c32fb09@2022-05-19T19:02:43Z",
+    "description": "Git version: 923f964@2022-05-19T20:29:56Z",
     "version": "1"
   },
   "paths": {
@@ -3340,6 +3340,19 @@
             },
             "name": "domain",
             "in": "path"
+          },
+          {
+            "required": false,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/ConfigJsonOnMissing"
+                }
+              ],
+              "default": "raise_error"
+            },
+            "name": "configJsonOnMissing",
+            "in": "query"
           }
         ],
         "requestBody": {
@@ -6013,6 +6026,16 @@
           }
         }
       },
+      "ConfigJsonOnMissing": {
+        "title": "ConfigJsonOnMissing",
+        "enum": [
+          "use_old",
+          "use_default",
+          "raise_error"
+        ],
+        "type": "string",
+        "description": "An enumeration."
+      },
       "Detail": {
         "title": "Detail",
         "required": [
@@ -6975,6 +6998,7 @@
           "ProblemSetNotFoundError",
           "ProblemGroupNotFoundError",
           "ProblemConfigNotFoundError",
+          "ProblemConfigJsonNotFoundError",
           "FileValidationError",
           "FileUpdateError",
           "FileDownloadError",
