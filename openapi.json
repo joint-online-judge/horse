@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 6a64ecc@2022-05-19T15:50:22Z",
+    "description": "Git version: c32fb09@2022-05-19T19:02:43Z",
     "version": "1"
   },
   "paths": {
@@ -5955,43 +5955,61 @@
         "title": "Case",
         "type": "object",
         "properties": {
+          "category": {
+            "title": "Category",
+            "type": "string",
+            "default": "pretest"
+          },
           "time": {
             "title": "Time",
-            "type": "string"
+            "type": "string",
+            "default": "1s"
           },
           "memory": {
             "title": "Memory",
-            "type": "string"
+            "type": "string",
+            "default": "64m"
           },
           "score": {
             "title": "Score",
-            "type": "integer"
+            "type": "integer",
+            "default": 10
           },
-          "category": {
-            "title": "Category",
-            "type": "string"
+          "ignoreWhitespace": {
+            "title": "Ignorewhitespace",
+            "type": "boolean",
+            "default": true
           },
           "executeFiles": {
             "title": "Executefiles",
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "default": [
+              "./a.out"
+            ]
           },
           "executeArgs": {
             "title": "Executeargs",
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "default": [
+              "./a.out",
+              "--test"
+            ]
           },
           "executeInputFile": {
             "title": "Executeinputfile",
-            "type": "string"
+            "type": "string",
+            "default": "case.in"
           },
           "executeOutputFile": {
             "title": "Executeoutputfile",
-            "type": "string"
+            "type": "string",
+            "default": "case.out"
           }
         }
       },
@@ -7251,14 +7269,21 @@
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "default": [
+              "a.cpp"
+            ]
           },
           "compileArgs": {
             "title": "Compileargs",
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "default": [
+              "gcc",
+              "a.cpp"
+            ]
           },
           "caseDefault": {
             "$ref": "#/components/schemas/Case"
@@ -7285,14 +7310,21 @@
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "default": [
+              "a.cpp"
+            ]
           },
           "compileArgs": {
             "title": "Compileargs",
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "default": [
+              "gcc",
+              "a.cpp"
+            ]
           },
           "caseDefault": {
             "$ref": "#/components/schemas/Case"
