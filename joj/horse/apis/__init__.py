@@ -15,11 +15,7 @@ from joj.horse.apis import (
     users as users,
 )
 from joj.horse.apis.auth import login
-from joj.horse.apis.problem_configs import (
-    update_problem_config_by_archive,
-    upload_file_to_problem_config,
-    upload_file_to_root_in_problem_config,
-)
+from joj.horse.apis.problem_configs import update_problem_config_by_archive
 from joj.horse.apis.problem_sets import submit_solution_to_problem_set
 from joj.horse.apis.problems import submit_solution_to_problem
 from joj.horse.app import app
@@ -51,10 +47,4 @@ include_router(judge)
 update_schema_name(app, submit_solution_to_problem, "ProblemSolutionSubmit")
 copy_schema(app, submit_solution_to_problem, submit_solution_to_problem_set)
 update_schema_name(app, update_problem_config_by_archive, "FileUpload")
-copy_schema(
-    app,
-    update_problem_config_by_archive,
-    upload_file_to_problem_config,
-    upload_file_to_root_in_problem_config,
-)
 update_schema_name(app, login, "OAuth2PasswordRequestForm")

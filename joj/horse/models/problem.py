@@ -3,6 +3,7 @@ from uuid import UUID
 
 from sqlalchemy import event
 from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
+from sqlalchemy.sql.expression import Select
 from sqlmodel import Field, Relationship
 from sqlmodel.sql.sqltypes import GUID
 
@@ -93,6 +94,13 @@ class Problem(DomainURLORMModel, ProblemDetail, table=True):  # type: ignore[cal
         async with db_session() as session:
             results = await session.exec(statement)
             return results.one_or_none()
+
+    def find_problem_config_commits_statement(self) -> Select:
+        from joj.horse import models
+
+        statement = models.ProblemConfig.sql_select()
+        statement = statement.where(models.ProblemConfig.problem_id == self.id)
+        return statement
 
 
 event.listen(Problem, "before_insert", url_pre_save)
