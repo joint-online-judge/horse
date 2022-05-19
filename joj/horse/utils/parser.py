@@ -264,7 +264,7 @@ def parse_ordering_query(
     ordering_fields: Optional[List[str]] = None,
 ) -> Callable[..., OrderingQuery]:
     description = (
-        "Comma seperated list of ordering the results.\n"
+        "Comma separated list of ordering the results.\n"
         "You may specify reverse orderings by prefixing the field name with '-'.\n\n"
     )
     if ordering_fields is None:

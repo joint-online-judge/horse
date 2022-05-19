@@ -10,7 +10,7 @@ from uvicorn.logging import AccessFormatter
 
 class InterceptHandler(logging.Handler):
     """
-    Default handler from examples in loguru documentaion.
+    Default handler from examples in loguru documentation.
     See https://loguru.readthedocs.io/en/stable/overview.html#entirely-compatible-with-standard-logging
     """
 
