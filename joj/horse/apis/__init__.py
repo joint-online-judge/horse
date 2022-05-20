@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 from joj.horse.apis import (
     admin as admin,
@@ -12,7 +12,6 @@ from joj.horse.apis import (
     problems as problems,
     records as records,
     user as user,
-    users as users,
 )
 from joj.horse.apis.auth import login
 from joj.horse.apis.problem_configs import update_problem_config_by_archive
@@ -21,27 +20,25 @@ from joj.horse.apis.problems import submit_solution_to_problem
 from joj.horse.app import app
 from joj.horse.utils.fastapi.router import copy_schema, update_schema_name
 
-
-def include_router(module: Any) -> None:
+modules: List[Any] = [
+    domains,
+    problem_sets,
+    problems,
+    problem_configs,
+    problem_groups,
+    records,
+    user,
+    auth,
+    misc,
+    admin,
+    judge,
+]
+for module in modules:
     app.include_router(
         module.router,
         prefix="/" + module.router_name if module.router_name else "",
         tags=[module.router_tag],
     )
-
-
-include_router(domains)
-include_router(problem_sets)
-include_router(problems)
-include_router(problem_configs)
-include_router(problem_groups)
-include_router(records)
-include_router(user)
-include_router(users)
-include_router(auth)
-include_router(misc)
-include_router(admin)
-include_router(judge)
 
 
 update_schema_name(app, submit_solution_to_problem, "ProblemSolutionSubmit")
