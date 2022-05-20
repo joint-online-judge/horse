@@ -56,7 +56,7 @@ async def list_problem_config_commits(
 )
 async def update_problem_config_by_archive(
     file: UploadFile = File(...),
-    config_json_on_missing: schemas.ConfigJsonOnMissing = schemas.ConfigJsonOnMissing.raise_error,
+    config_json_on_missing: schemas.ConfigMissing = schemas.ConfigMissing.raise_error,
     problem: models.Problem = Depends(parse_problem),
     user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.ProblemConfigDetail]:

@@ -390,7 +390,7 @@ class LakeFSBase:
         self,
         filename: str,
         file: IO[bytes],
-        config_json_on_missing: schemas.ConfigJsonOnMissing,
+        config_json_on_missing: schemas.ConfigMissing,
     ) -> None:
         self.ensure_branch()
 
@@ -405,12 +405,12 @@ class LakeFSBase:
             try:
                 archive.getinfo(config_json_path)
             except ResourceNotFound:
-                if config_json_on_missing == schemas.ConfigJsonOnMissing.raise_error:
+                if config_json_on_missing == schemas.ConfigMissing.raise_error:
                     raise BizError(ErrorCode.ProblemConfigJsonNotFoundError)
-                if config_json_on_missing == schemas.ConfigJsonOnMissing.use_old:
+                if config_json_on_missing == schemas.ConfigMissing.use_old:
                     config_json_file = BytesIO()
                     self.storage.download(config_json_path, config_json_file)
-                elif config_json_on_missing == schemas.ConfigJsonOnMissing.use_default:
+                elif config_json_on_missing == schemas.ConfigMissing.use_default:
                     config_json_file = BytesIO(
                         orjson.dumps(
                             schemas.ProblemConfigJson.generate_default_value().dict(),

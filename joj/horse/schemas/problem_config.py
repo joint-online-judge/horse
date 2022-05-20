@@ -8,7 +8,7 @@ from joj.elephant.schemas import Config, StrEnumMixin
 from joj.horse.schemas.base import BaseModel, BaseORMSchema, IDMixin, TimestampMixin
 
 
-class ConfigJsonOnMissing(StrEnumMixin, Enum):
+class ConfigMissing(StrEnumMixin, Enum):
     use_old = "use_old"
     use_default = "use_default"
     raise_error = "raise_error"
