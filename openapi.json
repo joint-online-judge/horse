@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 07c5ebf@2022-05-19T20:47:28Z",
+    "description": "Git version: 068be7d@2022-05-20T16:37:16Z",
     "version": "1"
   },
   "paths": {
@@ -3346,7 +3346,7 @@
             "schema": {
               "allOf": [
                 {
-                  "$ref": "#/components/schemas/ConfigJsonOnMissing"
+                  "$ref": "#/components/schemas/ConfigMissing"
                 }
               ],
               "default": "raise_error"
@@ -6026,8 +6026,8 @@
           }
         }
       },
-      "ConfigJsonOnMissing": {
-        "title": "ConfigJsonOnMissing",
+      "ConfigMissing": {
+        "title": "ConfigMissing",
         "enum": [
           "use_old",
           "use_default",
