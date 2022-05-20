@@ -74,7 +74,7 @@ class DomainTransfer(BaseModel):
 
 
 class DomainDetail(TimestampMixin, Domain):
-    pass
+    tag: Optional[str] = None
 
 
 class DomainTag(BaseModel):

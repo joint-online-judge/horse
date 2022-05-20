@@ -8,11 +8,12 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from joj.horse import models, schemas
 from joj.horse.schemas import Empty, StandardListResponse, StandardResponse
-from joj.horse.schemas.auth import Authentication
+from joj.horse.schemas.auth import Authentication, get_domain
 from joj.horse.schemas.permission import Permission
 from joj.horse.services.celery_app import celery_app_dependency
 from joj.horse.services.db import db_session_dependency
 from joj.horse.services.lakefs import LakeFSProblemConfig
+from joj.horse.utils.errors import ForbiddenError
 from joj.horse.utils.fastapi.router import MyRouter
 from joj.horse.utils.parser import (
     parse_domain_from_auth,
@@ -20,7 +21,6 @@ from joj.horse.utils.parser import (
     parse_pagination_query,
     parse_problem,
     parse_problem_without_validation,
-    parse_relevant_domain_with_tag,
     parse_user_from_auth,
     parse_view_hidden_problem,
 )
@@ -121,24 +121,21 @@ async def clone_problem(
     auth: Authentication = Depends(),
     session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardListResponse[schemas.Problem]:
-    from_domain = await parse_relevant_domain_with_tag(problem_clone.from_domain)
+    from_domain = await get_domain(problem_clone.from_domain)
+    if from_domain.tag != domain.tag:
+        raise ForbiddenError(message="relevant domain Permission Denied.")
     problems: List[models.Problem] = [
         parse_problem(await parse_problem_without_validation(oid, from_domain), auth)
         for oid in problem_clone.problems
     ]
-    new_group = problem_clone.new_group
-
     try:
-        res = []
+        new_problems = []
         for problem in problems:
             problem_group_id: Optional[UUID]
-            if new_group:
+            if problem_clone.new_group:
                 problem_group = models.ProblemGroup()
-                # TODO: transaction (since session has already committed here)
-                await problem_group.save_model()
+                session.sync_session.add(problem_group)
                 problem_group_id = problem_group.id
-                await session.refresh(problem)
-                await session.refresh(domain)
             else:
                 problem_group_id = problem.problem_group_id
             new_problem = models.Problem(
@@ -146,14 +143,20 @@ async def clone_problem(
                 owner_id=user.id,
                 title=problem.title,
                 content=problem.content,
+                url=problem.url if from_domain.id != domain.id else "",
                 problem_group_id=problem_group_id,
             )
-            await new_problem.save_model()
-            res.append(models.Problem.from_orm(new_problem))
+            session.sync_session.add(new_problem)
+            new_problems.append(new_problem)
             logger.info(f"problem cloned: {new_problem}")
+        await session.commit()
     except Exception as e:
         logger.exception(f"problems clone failed: {[problem for problem in problems]}")
         raise e
+    res = []
+    for problem in new_problems:
+        await session.refresh(problem)
+        res.append(models.Problem.from_orm(problem))
     return StandardListResponse(res)
 
 
