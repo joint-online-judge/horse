@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: e16d47c@2022-05-20T20:50:54Z",
+    "description": "Git version: fc491db@2022-05-20T21:40:10Z",
     "version": "1"
   },
   "paths": {
@@ -5954,6 +5954,10 @@
             "title": "Updatedat",
             "type": "string",
             "format": "date-time"
+          },
+          "tag": {
+            "title": "Tag",
+            "type": "string"
           }
         }
       },
