@@ -1,11 +1,14 @@
 from fastapi import Depends
 from fastapi_jwt_auth import AuthJWT
+from lakefs_client.models import CredentialsWithSecret
 from sqlmodel import select
+from starlette.concurrency import run_in_threadpool
 
 from joj.horse import models, schemas
 from joj.horse.models.permission import DefaultRole
 from joj.horse.schemas.auth import Authentication, auth_jwt_encode_user
 from joj.horse.schemas.base import StandardListResponse
+from joj.horse.services.lakefs import ensure_credentials, ensure_user
 from joj.horse.utils.errors import ForbiddenError
 from joj.horse.utils.fastapi.router import MyRouter
 from joj.horse.utils.parser import parse_ordering_query, parse_pagination_query
@@ -61,13 +64,22 @@ async def list_judgers(
 async def create_judger(
     judger_create: schemas.JudgerCreate,
     auth_jwt: AuthJWT = Depends(AuthJWT),
-) -> schemas.StandardResponse[schemas.AuthTokens]:
-    user_model = await models.User.create_judger(judger_create)
-    access_token, refresh_token = auth_jwt_encode_user(auth_jwt, user=user_model)
+) -> schemas.StandardResponse[schemas.AuthTokensWithLakefs]:
+    user = await models.User.create_judger(judger_create)
+    access_token, refresh_token = auth_jwt_encode_user(auth_jwt, user=user)
+
+    def sync_func() -> CredentialsWithSecret:
+        ensure_user(user.username)
+        return ensure_credentials(user.username)
+
+    credentials = await run_in_threadpool(sync_func)
+
     return schemas.StandardResponse(
-        schemas.AuthTokens(
+        schemas.AuthTokensWithLakefs(
             access_token=access_token,
             refresh_token=refresh_token,
             token_type="bearer",
+            access_key_id=credentials.access_key_id,
+            secret_access_key=credentials.secret_access_key,
         )
     )

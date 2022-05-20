@@ -9,11 +9,7 @@ from starlette.concurrency import run_in_threadpool
 from joj.horse import models, schemas
 from joj.horse.schemas.base import Empty, NoneNegativeInt, StandardResponse
 from joj.horse.schemas.permission import Permission
-from joj.horse.services.lakefs import (
-    LakeFSProblemConfig,
-    LakeFSRecord,
-    delete_credentials,
-)
+from joj.horse.services.lakefs import LakeFSProblemConfig, LakeFSRecord
 from joj.horse.utils.errors import BizError, ErrorCode
 from joj.horse.utils.fastapi.router import MyRouter
 from joj.horse.utils.lock import lock_record_judger
@@ -53,13 +49,9 @@ async def claim_record_by_judger(
     # the user have read access to all problems in the problem group,
     # actually only the access to one branch is necessary,
     # but it will create too many policies, so we grant all for simplicity
-    # the user have read/write access to all records in the problem,
+    # originally, the user have read/write access to all records in the problem,
     # because the judger will write test result to the repo
-    access_key = await models.UserAccessKey.get_lakefs_access_key(user)
-    access_key_id = access_key.access_key_id
-    secret_access_key = access_key.secret_access_key
-    record.lakefs_access_key_id = access_key.access_key_id
-    await record.save_model()
+    # now it only have read access
     await record.fetch_related("problem")
     lakefs_problem_config = LakeFSProblemConfig(record.problem)
     lakefs_record = LakeFSRecord(record.problem, record)
@@ -71,8 +63,6 @@ async def claim_record_by_judger(
     await run_in_threadpool(sync_func)
 
     judger_credentials = schemas.JudgerCredentials(
-        access_key_id=access_key_id,
-        secret_access_key=secret_access_key,
         problem_config_repo_name=lakefs_problem_config.repo_name,
         problem_config_commit_id=record.problem_config.commit_id,
         record_repo_name=lakefs_record.repo_name,
@@ -89,22 +79,10 @@ async def claim_record_by_judger(
 async def submit_record_by_judger(
     record_result: schemas.RecordSubmit = Depends(schemas.RecordSubmit.edit_dependency),
     record: models.Record = Depends(parse_record_judger),
-    user: models.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[Empty]:
     # TODO: check current record state
     # if record.state != schemas.RecordState.fetched:
     #     raise BizError(ErrorCode.Error)
-    if record.state in (
-        schemas.RecordState.accepted,
-        schemas.RecordState.rejected,
-        schemas.RecordState.failed,
-    ):
-
-        def sync_func() -> None:
-            if record.lakefs_access_key_id:
-                delete_credentials(user.username, record.lakefs_access_key_id)
-
-        await run_in_threadpool(sync_func)
     record.update_from_dict(record_result.dict())
     await record.save_model()
     return StandardResponse()

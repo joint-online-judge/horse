@@ -19,7 +19,6 @@ if TYPE_CHECKING:
         ProblemConfig,
         ProblemSet,
         Record,
-        UserAccessKey,
     )
     from joj.horse.schemas.auth import JWTAccessToken
 
@@ -44,7 +43,6 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
     )
 
     oauth_accounts: List["UserOAuthAccount"] = Relationship(back_populates="user")
-    access_keys: List["UserAccessKey"] = Relationship(back_populates="user")
     owned_domains: List["Domain"] = Relationship(back_populates="owner")
     domain_users: List["DomainUser"] = Relationship(back_populates="user")
     owned_problems: List["Problem"] = Relationship(back_populates="owner")

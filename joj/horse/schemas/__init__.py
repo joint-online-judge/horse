@@ -39,6 +39,7 @@ from joj.horse.schemas.lakefs import (
 )
 from joj.horse.schemas.misc import (
     AuthTokens as AuthTokens,
+    AuthTokensWithLakefs as AuthTokensWithLakefs,
     OAuth2Client as OAuth2Client,
     Redirect as Redirect,
 )
@@ -101,8 +102,4 @@ from joj.horse.schemas.user import (
     UserPreview as UserPreview,
     UserResetPassword as UserResetPassword,
     UserWithDomainRole as UserWithDomainRole,
-)
-from joj.horse.schemas.user_access_key import (
-    UserAccessKey as UserAccessKey,
-    UserAccessKeyDetail as UserAccessKeyDetail,
 )

@@ -142,29 +142,14 @@ def ensure_user(username: str) -> None:
         logger.info("LakeFS create user: {}", user)
 
 
-def ensure_credentials(
-    username: str, access_key_id: Optional[str] = None
-) -> models.CredentialsWithSecret:
+def ensure_credentials(username: str) -> models.CredentialsWithSecret:
     client = get_lakefs_client()
     # lakefs will not return secret_access_key for existed credentials
-    # if access_key_id is not None:
-    #     try:
-    #         return client.auth.get_credentials(
-    #             user_id=username, access_key_id=access_key_id
-    #         )
-    #     except LakeFSApiException:
-    #         logger.warning("LakeFS invalid credentials: {}", access_key_id)
     credentials: models.CredentialsWithSecret = client.auth.create_credentials(
         user_id=username
     )
-    logger.info("LakeFS create credentials: {}", access_key_id)
+    logger.info("LakeFS create credentials: {}", credentials.access_key_id)
     return credentials
-
-
-def delete_credentials(username: str, access_key_id: str) -> None:
-    client = get_lakefs_client()
-    client.auth.delete_credentials(user_id=username, access_key_id=access_key_id)
-    logger.info("LakeFS delete credentials: {}", access_key_id)
 
 
 def get_problem_config_repo_name(problem: "Problem") -> str:

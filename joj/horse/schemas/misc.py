@@ -20,6 +20,11 @@ class AuthTokens(BaseModel):
     token_type: str
 
 
+class AuthTokensWithLakefs(AuthTokens):
+    access_key_id: str
+    secret_access_key: str
+
+
 class OAuth2Client(BaseModel):
     oauth_name: str
     display_name: str
