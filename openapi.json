@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: fc491db@2022-05-20T21:40:10Z",
+    "description": "Git version: 59b0930@2022-05-20T21:53:14Z",
     "version": "1"
   },
   "paths": {
@@ -5285,7 +5285,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthTokensResp"
+                  "$ref": "#/components/schemas/AuthTokensWithLakefsResp"
                 }
               }
             }
@@ -5615,6 +5615,58 @@
           },
           "data": {
             "$ref": "#/components/schemas/AuthTokens"
+          }
+        }
+      },
+      "AuthTokensWithLakefs": {
+        "title": "AuthTokensWithLakefs",
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "tokenType",
+          "accessKeyId",
+          "secretAccessKey"
+        ],
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "title": "Accesstoken",
+            "type": "string"
+          },
+          "refreshToken": {
+            "title": "Refreshtoken",
+            "type": "string"
+          },
+          "tokenType": {
+            "title": "Tokentype",
+            "type": "string"
+          },
+          "accessKeyId": {
+            "title": "Accesskeyid",
+            "type": "string"
+          },
+          "secretAccessKey": {
+            "title": "Secretaccesskey",
+            "type": "string"
+          }
+        }
+      },
+      "AuthTokensWithLakefsResp": {
+        "title": "AuthTokensWithLakefsResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AuthTokensWithLakefs"
           }
         }
       },
@@ -6885,8 +6937,6 @@
       "JudgerCredentials": {
         "title": "JudgerCredentials",
         "required": [
-          "accessKeyId",
-          "secretAccessKey",
           "problemConfigRepoName",
           "problemConfigCommitId",
           "recordRepoName",
@@ -6894,14 +6944,6 @@
         ],
         "type": "object",
         "properties": {
-          "accessKeyId": {
-            "title": "Accesskeyid",
-            "type": "string"
-          },
-          "secretAccessKey": {
-            "title": "Secretaccesskey",
-            "type": "string"
-          },
           "problemConfigRepoName": {
             "title": "Problemconfigreponame",
             "type": "string"
