@@ -1945,7 +1945,7 @@ test = ["asynctest (>=0.13.0,<0.14.0)", "coverage (>=5.5,<6.0)", "pytest (>=6.2.
 
 [package.source]
 reference = "master"
-resolved_reference = "66b40c470aab423c4e58f649dd4804b6fc5d257b"
+resolved_reference = "e66f7b40de12b85efce8513760413765cc853e61"
 type = "git"
 url = "https://github.com/joint-online-judge/elephant.git"
 
