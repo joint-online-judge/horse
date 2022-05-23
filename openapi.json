@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 59b0930@2022-05-20T21:53:14Z",
+    "description": "Git version: 3520346@2022-05-23T03:34:13Z",
     "version": "1"
   },
   "paths": {
@@ -5066,6 +5066,179 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserListResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/admin/{uid}": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Get User",
+        "operationId": "v1_get_user",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Uid",
+              "type": "string"
+            },
+            "name": "uid",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/admin/{uid}/domains": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "List User Domains",
+        "operationId": "v1_list_user_domains",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Uid",
+              "type": "string"
+            },
+            "name": "uid",
+            "in": "path"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Role",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "name": "role",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Groups",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "name": "groups",
+            "in": "query"
+          },
+          {
+            "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+            "required": false,
+            "schema": {
+              "title": "Ordering",
+              "type": "string",
+              "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+              "default": ""
+            },
+            "name": "ordering",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Offset",
+              "minimum": 0.0,
+              "type": "integer",
+              "default": 0
+            },
+            "name": "offset",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Limit",
+              "maximum": 500.0,
+              "minimum": 0.0,
+              "type": "integer",
+              "default": 100
+            },
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DomainListResp"
                 }
               }
             }
