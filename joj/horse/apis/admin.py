@@ -1,4 +1,6 @@
-from fastapi import Depends
+from typing import List, Optional
+
+from fastapi import Depends, Query
 from fastapi_jwt_auth import AuthJWT
 from lakefs_client.models import CredentialsWithSecret
 from sqlmodel import select
@@ -7,11 +9,15 @@ from starlette.concurrency import run_in_threadpool
 from joj.horse import models, schemas
 from joj.horse.models.permission import DefaultRole
 from joj.horse.schemas.auth import Authentication, auth_jwt_encode_user
-from joj.horse.schemas.base import StandardListResponse
+from joj.horse.schemas.base import StandardListResponse, StandardResponse
 from joj.horse.services.lakefs import ensure_credentials, ensure_user
 from joj.horse.utils.errors import ForbiddenError
 from joj.horse.utils.fastapi.router import MyRouter
-from joj.horse.utils.parser import parse_ordering_query, parse_pagination_query
+from joj.horse.utils.parser import (
+    parse_ordering_query,
+    parse_pagination_query,
+    parse_uid,
+)
 
 
 def ensure_site_root(auth: Authentication = Depends()) -> None:
@@ -34,6 +40,28 @@ async def list_users(
         statement, ordering, pagination
     )
     return StandardListResponse(users, count)
+
+
+@router.get("/{uid}")
+async def get_user(
+    user: models.User = Depends(parse_uid),
+) -> StandardResponse[schemas.User]:
+    return StandardResponse(user)
+
+
+@router.get("/{uid}/domains")
+async def list_user_domains(
+    role: Optional[List[str]] = Query(None),
+    groups: Optional[List[str]] = Query(None),
+    ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
+    pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
+    user: models.User = Depends(parse_uid),
+) -> StandardListResponse[schemas.Domain]:
+    statement = user.find_domains_statement(role, groups)
+    domains, count = await models.Domain.execute_list_statement(
+        statement, ordering, pagination
+    )
+    return StandardListResponse(domains, count)
 
 
 @router.get("/domain_roles")
