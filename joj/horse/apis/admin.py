@@ -17,6 +17,7 @@ from joj.horse.utils.parser import (
     parse_ordering_query,
     parse_pagination_query,
     parse_uid,
+    parse_uid_detail,
 )
 
 
@@ -44,8 +45,8 @@ async def list_users(
 
 @router.get("/{uid}")
 async def get_user(
-    user: models.User = Depends(parse_uid),
-) -> StandardResponse[schemas.User]:
+    user: models.User = Depends(parse_uid_detail),
+) -> StandardResponse[schemas.UserDetail]:
     return StandardResponse(user)
 
 

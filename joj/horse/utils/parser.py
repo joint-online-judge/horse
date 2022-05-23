@@ -26,6 +26,18 @@ async def parse_uid(
     raise BizError(ErrorCode.UserNotFoundError)
 
 
+async def parse_uid_detail(
+    uid: str = Query("me", description="'me' or id of the user"),
+    auth: Authentication = Depends(),
+) -> models.User:
+    if uid == "me":
+        uid = auth.jwt.id
+    user = await models.User.one_or_none(id=uid)
+    if user:
+        return user
+    raise BizError(ErrorCode.UserNotFoundError)
+
+
 async def parse_uid_or_none(
     uid: Optional[str] = Query("", description="user id or 'me' or empty"),
     auth: Authentication = Depends(),
