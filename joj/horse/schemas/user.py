@@ -18,6 +18,8 @@ from joj.horse.schemas.base import (
 )
 
 if TYPE_CHECKING:
+    from pydantic.typing import CallableGenerator
+
     from joj.horse.models import DomainUser
 
 UID_RE = re.compile(r"-?\d+")
@@ -131,3 +133,19 @@ class UserDetail(TimestampMixin, User):
 
 class UserDetailWithDomainRole(UserDetail, UserWithDomainRole):
     ...
+
+
+class UserID(str):
+    @classmethod
+    def __modify_schema__(cls, field_schema: Dict[str, Any]) -> None:
+        field_schema.update(type="string")
+
+    @classmethod
+    def __get_validators__(cls) -> "CallableGenerator":
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, value: Any) -> bool:
+        if value != "me":
+            UUID(value)
+        return value

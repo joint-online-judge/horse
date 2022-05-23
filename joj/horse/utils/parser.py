@@ -1,6 +1,6 @@
 from datetime import datetime
 from functools import lru_cache
-from typing import Any, Callable, Coroutine, List, Optional
+from typing import Any, Callable, Coroutine, List, Optional, cast
 from uuid import UUID
 
 from fastapi import Depends, File, Path, Query, UploadFile
@@ -11,11 +11,12 @@ from joj.horse.models.permission import PermissionType, ScopeType
 from joj.horse.schemas.auth import Authentication, DomainAuthentication, get_domain
 from joj.horse.schemas.base import NoneEmptyLongStr, NoneNegativeInt, PaginationLimit
 from joj.horse.schemas.query import OrderingQuery, PaginationQuery
+from joj.horse.schemas.user import UserID
 from joj.horse.utils.errors import BizError, ErrorCode
 
 
 async def parse_uid(
-    uid: str = Query("me", description="'me' or id of the user"),
+    uid: UserID = Query("me", description="'me' or id of the user"),
     auth: Authentication = Depends(),
 ) -> models.User:
     if uid == "me":
@@ -27,26 +28,21 @@ async def parse_uid(
 
 
 async def parse_uid_detail(
-    uid: str = Query("me", description="'me' or id of the user"),
+    uid: UserID = Query("me", description="'me' or id of the user"),
     auth: Authentication = Depends(),
 ) -> models.User:
-    if uid == "me":
-        uid = auth.jwt.id
-    user = await models.User.one_or_none(id=uid)
-    if user:
-        return user
-    raise BizError(ErrorCode.UserNotFoundError)
+    return await parse_uid(uid if uid != "me" else cast(UserID, auth.jwt.id), auth)
 
 
 async def parse_uid_or_none(
-    uid: Optional[str] = Query("", description="user id or 'me' or empty"),
+    uid: Optional[UserID] = Query("", description="user id or 'me' or empty"),
     auth: Authentication = Depends(),
 ) -> Optional[models.User]:
     return await parse_uid(uid, auth) if uid else None
 
 
 async def parse_user_from_path_or_query(
-    user: str = Path("me", description="user id or 'me' or empty"),
+    user: UserID = Path("me", description="user id or 'me' or empty"),
     auth: Authentication = Depends(),
 ) -> models.User:
     return await parse_uid(user, auth)

@@ -99,6 +99,7 @@ from joj.horse.schemas.user import (
     UserDetail as UserDetail,
     UserDetailWithDomainRole as UserDetailWithDomainRole,
     UserEdit as UserEdit,
+    UserID as UserID,
     UserPreview as UserPreview,
     UserResetPassword as UserResetPassword,
     UserWithDomainRole as UserWithDomainRole,

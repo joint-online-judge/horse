@@ -11,7 +11,7 @@ from joj.horse.apis import (
     problem_sets as problem_sets,
     problems as problems,
     records as records,
-    user as user,
+    users as users,
 )
 from joj.horse.apis.auth import login
 from joj.horse.apis.problem_configs import update_problem_config_by_archive
@@ -27,7 +27,7 @@ modules: List[Any] = [
     problem_configs,
     problem_groups,
     records,
-    user,
+    users,
     auth,
     misc,
     admin,

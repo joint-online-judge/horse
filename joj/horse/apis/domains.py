@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import List, Optional, cast
 
 import sqlalchemy.exc
 from fastapi import Depends, Query
@@ -155,7 +155,9 @@ async def transfer_domain(
     user: models.User = Depends(parse_user_from_auth),
     auth: Authentication = Depends(),
 ) -> StandardResponse[schemas.Domain]:
-    target_user = await parse_uid(domain_transfer.target_user, auth)
+    target_user = await parse_uid(
+        cast(schemas.UserID, domain_transfer.target_user), auth
+    )
     # only domain owner (or site root) can transfer the domain
     if user.id != domain.owner_id and not auth.is_root():
         raise BizError(ErrorCode.DomainNotOwnerError)
@@ -200,7 +202,7 @@ async def add_domain_user(
     # only root member (or site root) can add root member
     if role == DefaultRole.ROOT and not domain_auth.auth.is_domain_root():
         raise BizError(ErrorCode.DomainNotRootError)
-    user = await parse_uid(domain_user_add.user, domain_auth.auth)
+    user = await parse_uid(cast(schemas.UserID, domain_user_add.user), domain_auth.auth)
     user_dict = user.dict()
     # add member
     domain_user = await models.DomainUser.add_domain_user(
