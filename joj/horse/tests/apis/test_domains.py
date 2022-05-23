@@ -20,7 +20,7 @@ from joj.horse.tests.utils.utils import (
 )
 from joj.horse.utils.errors import ErrorCode
 
-base_user_url = get_base_url(apis.user)
+base_user_url = get_base_url(apis.users)
 base_domain_url = get_base_url(apis.domains)
 
 

@@ -15,7 +15,7 @@ from joj.horse.tests.utils.utils import (
 )
 
 base_auth_url = get_base_url(apis.auth)
-base_user_url = get_base_url(apis.user)
+base_user_url = get_base_url(apis.users)
 base_domain_url = get_base_url(apis.domains)
 # base_problems_url = get_base_url(apis.problems)
 
