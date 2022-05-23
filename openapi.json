@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 3520346@2022-05-23T03:34:13Z",
+    "description": "Git version: 6232d1a@2022-05-23T12:43:27Z",
     "version": "1"
   },
   "paths": {
@@ -4177,7 +4177,7 @@
         ]
       }
     },
-    "/user": {
+    "/users/me": {
       "get": {
         "tags": [
           "user"
@@ -4267,7 +4267,7 @@
         ]
       }
     },
-    "/user/password": {
+    "/users/me/password": {
       "patch": {
         "tags": [
           "user"
@@ -4291,6 +4291,63 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserDetailResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/users/{uid}": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get User",
+        "operationId": "v1_get_user",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Uid",
+              "type": "string"
+            },
+            "name": "uid",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPreviewResp"
                 }
               }
             }
@@ -5122,7 +5179,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserResp"
+                  "$ref": "#/components/schemas/UserDetailResp"
                 }
               }
             }
@@ -9637,6 +9694,49 @@
           },
           "data": {
             "$ref": "#/components/schemas/UserList"
+          }
+        }
+      },
+      "UserPreview": {
+        "title": "UserPreview",
+        "required": [
+          "id",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          },
+          "gravatar": {
+            "title": "Gravatar",
+            "type": "string",
+            "default": ""
+          }
+        }
+      },
+      "UserPreviewResp": {
+        "title": "UserPreviewResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserPreview"
           }
         }
       },
