@@ -36,7 +36,7 @@ async def list_problems(
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
     include_hidden: bool = Depends(parse_view_hidden_problem),
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
 ) -> StandardListResponse[schemas.ProblemWithLatestRecord]:
     statement = domain.find_problems_statement(include_hidden)
     problems, count = await models.Problem.execute_list_statement(
@@ -56,7 +56,7 @@ async def create_problem(
     problem_create: schemas.ProblemCreate,
     background_tasks: BackgroundTasks,
     domain: models.Domain = Depends(parse_domain_from_auth),
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
     session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardResponse[schemas.ProblemDetail]:
     try:
@@ -84,7 +84,7 @@ async def create_problem(
 @router.get("/{problem}", permissions=[Permission.DomainProblem.view])
 async def get_problem(
     problem: models.Problem = Depends(parse_problem),
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.ProblemDetailWithLatestRecord]:
     record = await models.Record.get_user_latest_record(
         problem_set_id=None, problem_id=problem.id, user_id=user.id
@@ -117,7 +117,7 @@ async def update_problem(
 async def clone_problem(
     problem_clone: schemas.ProblemClone,
     domain: models.Domain = Depends(parse_domain_from_auth),
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
     auth: Authentication = Depends(),
     session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardListResponse[schemas.Problem]:
@@ -168,7 +168,7 @@ async def submit_solution_to_problem(
         schemas.ProblemSolutionSubmit.form_dependency
     ),
     problem: models.Problem = Depends(parse_problem),
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.Record]:
     record = await models.Record.submit(
         background_tasks=background_tasks,

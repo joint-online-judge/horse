@@ -61,13 +61,10 @@ class JWTToken(BaseModel):
 class JWTUserClaims(BaseModel):
     category: Literal["user", "oauth"]
     username: str
-    email: str
     gravatar: str = ""
-    student_id: str = ""
-    real_name: str = ""
     role: Optional[str] = None
-    oauth_name: Optional[str] = None
     is_active: bool
+    oauth_name: Optional[str] = None
 
 
 class JWTAccessToken(JWTUserClaims, JWTToken):
@@ -131,10 +128,7 @@ def auth_jwt_encode_user(
         user_claims = JWTUserClaims(
             category="user",
             username=user.username,
-            email=user.email,
             gravatar=user.gravatar,
-            student_id=user.student_id,
-            real_name=user.real_name,
             role=user.role,
             oauth_name=oauth_name,
             is_active=user.is_active,
@@ -144,10 +138,7 @@ def auth_jwt_encode_user(
         user_claims = JWTUserClaims(
             category="oauth",
             username=oauth.account_name,
-            email=oauth.account_email,
             gravatar="",
-            student_id=oauth.student_id,
-            real_name=oauth.real_name,
             oauth_name=oauth.oauth_name,
             is_active=False,
         )

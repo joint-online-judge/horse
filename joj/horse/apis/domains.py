@@ -49,7 +49,7 @@ async def list_domains(
     groups: Optional[List[str]] = Query(None),
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
 ) -> StandardListResponse[schemas.Domain]:
     """List all domains that the current user has a role."""
     statement = user.find_domains_statement(roles, groups)
@@ -62,7 +62,7 @@ async def list_domains(
 @router.post("", permissions=[Permission.SiteDomain.create])
 async def create_domain(
     domain_create: schemas.DomainCreate,
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
     session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardResponse[schemas.Domain]:
     try:
@@ -152,7 +152,7 @@ async def update_domain(
 async def transfer_domain(
     domain_transfer: schemas.DomainTransfer,
     domain: models.Domain = Depends(parse_domain_from_auth),
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
     auth: Authentication = Depends(),
 ) -> StandardResponse[schemas.Domain]:
     target_user = await parse_uid(
@@ -489,7 +489,7 @@ async def update_domain_invitation(
 async def join_domain_by_invitation(
     invitation_code: str = Query(...),
     domain: models.Domain = Depends(parse_domain_without_validation),
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.UserWithDomainRole]:
     if domain is None:
         raise BizError(ErrorCode.DomainInvitationBadRequestError)

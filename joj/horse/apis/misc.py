@@ -37,7 +37,7 @@ async def test_error_report() -> StandardResponse[Empty]:
 
 @router.post("/set_root_user")
 async def set_root_user(
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
     session: AsyncSession = Depends(db_session_dependency),
 ) -> StandardResponse[schemas.User]:
     root_user = await models.User.all(role=DefaultRole.ROOT)

@@ -30,7 +30,7 @@ async def list_records_in_domain(
     submitter_id: Optional[UUID] = Query(None, description="submitter uid"),
     ordering: schemas.OrderingQuery = Depends(parse_ordering_query()),
     pagination: schemas.PaginationQuery = Depends(parse_pagination_query),
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
 ) -> StandardListResponse[schemas.RecordListDetail]:
     statement = domain.find_records_statement(problem_set, problem, submitter_id)
 

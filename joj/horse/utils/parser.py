@@ -11,7 +11,7 @@ from joj.horse.models.permission import PermissionType, ScopeType
 from joj.horse.schemas.auth import Authentication, DomainAuthentication, get_domain
 from joj.horse.schemas.base import NoneEmptyLongStr, NoneNegativeInt, PaginationLimit
 from joj.horse.schemas.query import OrderingQuery, PaginationQuery
-from joj.horse.schemas.user import UserID
+from joj.horse.schemas.user import User, UserID
 from joj.horse.utils.errors import BizError, ErrorCode
 
 
@@ -48,15 +48,13 @@ async def parse_user_from_path_or_query(
     return await parse_uid(user, auth)
 
 
-def parse_user_from_auth(auth: Authentication = Depends()) -> models.User:
+def parse_user_from_auth(auth: Authentication = Depends()) -> User:
     if auth.jwt.category != "user":
         raise BizError(ErrorCode.UserNotFoundError)
-    return models.User(
+    return User(
         id=auth.jwt.id,
         username=auth.jwt.username,
-        email=auth.jwt.email,
-        student_id=auth.jwt.student_id,
-        real_name=auth.jwt.real_name,
+        gravatar=auth.jwt.gravatar,
         role=auth.jwt.role,
         is_active=auth.jwt.is_active,
     )
@@ -220,7 +218,7 @@ async def parse_problem_group(problem_group: str = Path(...)) -> models.ProblemG
 async def parse_record(
     record: UUID = Path(...),
     domain_auth: DomainAuthentication = Depends(),
-    user: models.User = Depends(parse_user_from_auth),
+    user: User = Depends(parse_user_from_auth),
 ) -> models.Record:
     record_model = await models.Record.one_or_none(id=record)
 

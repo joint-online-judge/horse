@@ -44,7 +44,7 @@ async def list_problem_sets(
 async def create_problem_set(
     problem_set_create: schemas.ProblemSetCreate,
     domain: models.Domain = Depends(parse_domain_from_auth),
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.ProblemSet]:
     problem_set = models.ProblemSet(
         **problem_set_create.dict(),
@@ -61,7 +61,7 @@ async def get_problem_set(
     problem_set: models.ProblemSet = Depends(
         parse_problem_set_factory(load_problems=True)
     ),
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.ProblemSetDetail]:
     problems = await models.Problem.get_problems_with_record_states(
         result_cls=schemas.ProblemPreviewWithLatestRecord,
@@ -104,7 +104,7 @@ async def list_problems_in_problem_set(
     problem_set: models.ProblemSet = Depends(
         parse_problem_set_factory(load_problems=True)
     ),
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
 ) -> StandardListResponse[schemas.ProblemWithLatestRecord]:
     problems = await problem_set.get_problems_with_record_states(
         cls=schemas.ProblemWithLatestRecord, user_id=user.id
@@ -134,7 +134,7 @@ async def add_problem_in_problem_set(
 )
 async def get_problem_in_problem_set(
     link: models.ProblemProblemSetLink = Depends(parse_problem_problem_set_link),
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.ProblemDetailWithLatestRecord]:
     # await link.problem_set.operate_problem(link.problem, Operation.Read)
     record = await models.Record.get_user_latest_record(
@@ -186,7 +186,7 @@ async def submit_solution_to_problem_set(
         schemas.ProblemSolutionSubmit.form_dependency
     ),
     link: models.ProblemProblemSetLink = Depends(parse_problem_problem_set_link),
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.Record]:
     record = await models.Record.submit(
         background_tasks=background_tasks,

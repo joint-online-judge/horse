@@ -188,12 +188,16 @@ def get_oauth_router(
         if not state_data:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
-        oauth_account = await models.UserOAuthAccount.create_or_update(
-            oauth_client.name, token, oauth_profile
-        )
-        logger.info(oauth_account)
+        try:
+            oauth_account, is_create = await models.UserOAuthAccount.create_or_update(
+                oauth_client.name, token, oauth_profile, request.client.host
+            )
+            logger.info(oauth_account)
+        except Exception as e:
+            logger.exception(e)
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
-        if not oauth_account.user_id:
+        if is_create:
             access_token, refresh_token = auth_jwt_encode_user(
                 auth_jwt, oauth=oauth_profile
             )

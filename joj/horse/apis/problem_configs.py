@@ -58,7 +58,7 @@ async def update_problem_config_by_archive(
     file: UploadFile = File(...),
     config_json_on_missing: schemas.ConfigMissing = schemas.ConfigMissing.raise_error,
     problem: models.Problem = Depends(parse_problem),
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.ProblemConfigDetail]:
     logger.info("problem config archive name: %s", file.filename)
 
@@ -86,7 +86,7 @@ async def update_problem_config_by_archive(
 async def update_problem_config_json(
     config: schemas.ProblemConfigJson,
     problem: models.Problem = Depends(parse_problem),
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.ProblemConfigDetail]:
     def sync_func() -> None:
         problem_config = LakeFSProblemConfig(problem)

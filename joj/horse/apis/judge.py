@@ -26,7 +26,7 @@ router_tag = "judge"
 async def claim_record_by_judger(
     judger_claim: schemas.JudgerClaim,
     record: models.Record = Depends(parse_record_judger),
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[schemas.JudgerCredentials]:
     # task_id can only be obtained by listening to the celery task queue
     # we give the worker with task_id the chance to claim the record
@@ -99,7 +99,7 @@ async def submit_case_by_judger(
         schemas.RecordCaseSubmit.edit_dependency
     ),
     record: models.Record = Depends(parse_record_judger),
-    user: models.User = Depends(parse_user_from_auth),
+    user: schemas.User = Depends(parse_user_from_auth),
 ) -> StandardResponse[Empty]:
     # TODO: check current record state
     # if record.state != schemas.RecordState.fetched:

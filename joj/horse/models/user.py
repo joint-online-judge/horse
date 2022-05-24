@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, cast
 
 from pydantic import EmailStr, root_validator
 from sqlalchemy.sql.expression import Select, or_
@@ -21,6 +21,7 @@ if TYPE_CHECKING:
         Record,
     )
     from joj.horse.schemas.auth import JWTAccessToken
+    from joj.horse.schemas.user import User as UserSchema
 
 
 class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
@@ -107,46 +108,42 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
         return user
 
     @classmethod
-    async def _create_user_by_oauth(
+    async def _update_user_by_oauth(
         cls,
         user_create: "UserCreate",
-        jwt_access_token: "JWTAccessToken",
+        oauth_account: UserOAuthAccount,
         register_ip: str,
-    ) -> Tuple["User", "UserOAuthAccount"]:
-        oauth_account = await UserOAuthAccount.one_or_none(
-            oauth_name=jwt_access_token.oauth_name,
-            account_id=jwt_access_token.id,
-        )
-        if oauth_account is None:
-            raise BizError(ErrorCode.UserRegisterError, "oauth account not matched")
+    ) -> "User":
+        username = user_create.username
         if not user_create.username:
             if not oauth_account.account_name:
                 raise BizError(ErrorCode.UserRegisterError, "username not provided")
             username = oauth_account.account_name
-        else:
-            username = user_create.username
+        username = cast(str, username)
         email = oauth_account.account_email
         if user_create.email and user_create.email != oauth_account.account_email:
             raise BizError(
                 ErrorCode.UserRegisterError,
                 "email must be same as the primary email of oauth account",
             )
+        # register with oauth can omit password
+        hashed_password = ""
         if user_create.password:
             hashed_password = cls._generate_password_hash(user_create.password)
-        else:
-            # register with oauth can omit password
-            hashed_password = ""  # pragma: no cover
-        user = User(
-            username=username,
-            email=email,
-            student_id=jwt_access_token.student_id,
-            real_name=jwt_access_token.real_name,
-            is_active=True,
-            hashed_password=hashed_password,
-            register_ip=register_ip,
-            login_ip=register_ip,
-        )
-        return user, oauth_account
+        user = await cls.one_or_none(id=oauth_account.user_id)
+        if user is None:
+            raise BizError(
+                ErrorCode.UserRegisterError,
+                "user not created on Oauth authorize",
+            )
+        user.email = cast(EmailStr, email)
+        user.email_lower = cast(EmailStr, email.lower())
+        user.username = username
+        user.username_lower = username.lower()
+        user.hashed_password = hashed_password
+        user.login_ip = register_ip
+        user.is_active = True
+        return user
 
     @classmethod
     async def create(
@@ -154,8 +151,8 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
         user_create: "UserCreate",
         jwt_access_token: Optional["JWTAccessToken"],
         register_ip: str,
-    ) -> "User":
-        oauth_account: Optional[UserOAuthAccount]
+    ) -> "UserSchema":
+        oauth_account: Optional[UserOAuthAccount] = None
         if user_create.oauth_name:
             if (
                 jwt_access_token is None
@@ -164,18 +161,20 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
                 or jwt_access_token.id != user_create.oauth_account_id
             ):
                 raise BizError(ErrorCode.UserRegisterError, "oauth account not matched")
-            user, oauth_account = await cls._create_user_by_oauth(
-                user_create, jwt_access_token, register_ip
+            oauth_account = await UserOAuthAccount.one_or_none(
+                oauth_name=jwt_access_token.oauth_name,
+                account_id=jwt_access_token.id,
+            )
+            if oauth_account is None:
+                raise BizError(ErrorCode.UserRegisterError, "oauth account not matched")
+            user = await cls._update_user_by_oauth(
+                user_create, oauth_account, register_ip
             )
         else:
             user = cls._create_user(user_create, register_ip)
-            oauth_account = None
 
         async with db_session() as session:
             session.sync_session.add(user)
-            if oauth_account:  # pragma: no cover
-                oauth_account.user_id = user.id
-                session.sync_session.add(oauth_account)
             await session.commit()
             await session.refresh(user)
             return user
