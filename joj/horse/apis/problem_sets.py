@@ -7,7 +7,7 @@ from joj.horse.schemas import Empty, Operation, StandardListResponse, StandardRe
 from joj.horse.schemas.auth import DomainAuthentication
 from joj.horse.schemas.permission import Permission
 from joj.horse.services.celery_app import celery_app_dependency
-from joj.horse.utils.fastapi.router import MyRouter
+from joj.horse.utils.fastapi.router import APIRouter
 from joj.horse.utils.parser import (
     parse_domain_from_auth,
     parse_ordering_query,
@@ -21,7 +21,7 @@ from joj.horse.utils.parser import (
     parse_view_hidden_problem_set,
 )
 
-router = MyRouter()
+router = APIRouter()
 router_name = "domains/{domain}/problem_sets"
 router_tag = "problem set"
 

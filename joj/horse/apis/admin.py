@@ -12,7 +12,7 @@ from joj.horse.schemas.auth import Authentication, auth_jwt_encode_user
 from joj.horse.schemas.base import StandardListResponse, StandardResponse
 from joj.horse.services.lakefs import ensure_credentials, ensure_user
 from joj.horse.utils.errors import ForbiddenError
-from joj.horse.utils.fastapi.router import MyRouter
+from joj.horse.utils.fastapi.router import APIRouter
 from joj.horse.utils.parser import (
     parse_ordering_query,
     parse_pagination_query,
@@ -26,7 +26,7 @@ def ensure_site_root(auth: Authentication = Depends()) -> None:
         raise ForbiddenError(message="site root Permission Denied.")
 
 
-router = MyRouter(dependencies=[Depends(ensure_site_root)])
+router = APIRouter(dependencies=[Depends(ensure_site_root)])
 router_name = "admin"
 router_tag = "admin"
 

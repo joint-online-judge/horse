@@ -11,11 +11,11 @@ from joj.horse.schemas.base import Empty, NoneNegativeInt, StandardResponse
 from joj.horse.schemas.permission import Permission
 from joj.horse.services.lakefs import LakeFSProblemConfig, LakeFSRecord
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.fastapi.router import MyRouter
+from joj.horse.utils.fastapi.router import APIRouter
 from joj.horse.utils.lock import lock_record_judger
 from joj.horse.utils.parser import parse_record_judger, parse_user_from_auth
 
-router = MyRouter()
+router = APIRouter()
 router_name = "domains/{domain}"
 router_tag = "judge"
 

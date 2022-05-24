@@ -14,7 +14,7 @@ from joj.horse.services.celery_app import celery_app_dependency
 from joj.horse.services.db import db_session_dependency
 from joj.horse.services.lakefs import LakeFSProblemConfig
 from joj.horse.utils.errors import ForbiddenError
-from joj.horse.utils.fastapi.router import MyRouter
+from joj.horse.utils.fastapi.router import APIRouter
 from joj.horse.utils.parser import (
     parse_domain_from_auth,
     parse_ordering_query,
@@ -25,7 +25,7 @@ from joj.horse.utils.parser import (
     parse_view_hidden_problem,
 )
 
-router = MyRouter()
+router = APIRouter()
 router_name = "domains/{domain}/problems"
 router_tag = "problem"
 

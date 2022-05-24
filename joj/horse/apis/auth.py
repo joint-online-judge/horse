@@ -26,10 +26,10 @@ from joj.horse.services.oauth import BaseOAuth2, OAuth2Dependency, OAuth2Token
 from joj.horse.services.oauth.github import GitHubOAuth2
 from joj.horse.services.oauth.jaccount import JaccountOAuth2
 from joj.horse.utils.errors import BizError, ErrorCode
-from joj.horse.utils.fastapi.router import MyRouter
+from joj.horse.utils.fastapi.router import APIRouter
 from joj.horse.utils.url import get_base_url
 
-router = MyRouter()
+router = APIRouter()
 router_name = "auth"
 router_tag = "auth"
 
@@ -110,8 +110,8 @@ def get_oauth_router(
     oauth_clients: List[BaseOAuth2[Any]],
     # backend: BaseAuthentication,
     callback_redirect_url: Optional[str] = None,
-) -> MyRouter:
-    oauth_router = MyRouter()
+) -> APIRouter:
+    oauth_router = APIRouter()
     authorize_route_name = "oauth_authorize"
     callback_route_name = "oauth_callback"
 

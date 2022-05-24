@@ -6,10 +6,10 @@ from loguru import logger
 from joj.horse import models, schemas
 from joj.horse.schemas import StandardResponse
 from joj.horse.schemas.auth import Authentication
-from joj.horse.utils.fastapi.router import MyRouter
+from joj.horse.utils.fastapi.router import APIRouter
 from joj.horse.utils.parser import parse_uid
 
-router = MyRouter()
+router = APIRouter()
 router_name = "users"
 router_tag = "user"
 

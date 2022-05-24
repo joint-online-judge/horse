@@ -2,7 +2,7 @@ import functools
 from inspect import Parameter, signature
 from typing import TYPE_CHECKING, Any, Callable, List, get_type_hints
 
-from fastapi import APIRouter, Depends, FastAPI
+from fastapi import APIRouter as OriginalAPIRouter, Depends, FastAPI
 from fastapi.routing import APIRoute
 from loguru import logger
 from pydantic.fields import ModelField
@@ -15,7 +15,7 @@ class Detail(BaseModel):
     detail: str
 
 
-class MyRouter(APIRouter):
+class APIRouter(OriginalAPIRouter):
     """
     Overrides the route decorator logic to use the annotated return type as the `response_model` if unspecified.
     Parse the permissions in endpoints args and add them to the dependencies.
@@ -48,14 +48,14 @@ class MyRouter(APIRouter):
 
         return wrapper
 
-    get = _parse_permissions(APIRouter.get)
-    put = _parse_permissions(APIRouter.put)
-    post = _parse_permissions(APIRouter.post)
-    delete = _parse_permissions(APIRouter.delete)
-    options = _parse_permissions(APIRouter.options)
-    head = _parse_permissions(APIRouter.head)
-    patch = _parse_permissions(APIRouter.patch)
-    trace = _parse_permissions(APIRouter.trace)
+    get = _parse_permissions(OriginalAPIRouter.get)
+    put = _parse_permissions(OriginalAPIRouter.put)
+    post = _parse_permissions(OriginalAPIRouter.post)
+    delete = _parse_permissions(OriginalAPIRouter.delete)
+    options = _parse_permissions(OriginalAPIRouter.options)
+    head = _parse_permissions(OriginalAPIRouter.head)
+    patch = _parse_permissions(OriginalAPIRouter.patch)
+    trace = _parse_permissions(OriginalAPIRouter.trace)
 
     def add_api_route(
         self, path: str, endpoint: Callable[..., Any], **kwargs: Any
