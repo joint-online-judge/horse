@@ -52,7 +52,7 @@ async def list_domains(
     user: schemas.User = Depends(parse_user_from_auth),
 ) -> StandardListResponse[schemas.Domain]:
     """List all domains that the current user has a role."""
-    statement = user.find_domains_statement(roles, groups)
+    statement = models.Domain.find_by_user_id_statement(user.id, roles, groups)
     domains, count = await models.Domain.execute_list_statement(
         statement, ordering, pagination
     )

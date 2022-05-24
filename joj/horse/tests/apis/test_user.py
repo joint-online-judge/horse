@@ -36,7 +36,7 @@ class TestUserGet:
         response = await do_api_request(
             client,
             "GET",
-            base_user_url,
+            f"{base_user_url}/me",
             user,
         )
         validate_user_profile(response, user)
@@ -66,7 +66,7 @@ class TestUserGetError:
     async def test_jwt_format_error_user(self, client: AsyncClient, user: User) -> None:
         access_token = AuthJWT().create_access_token(subject=str(user.id))
         headers = {"Authorization": f"Bearer {access_token}"}
-        r = await client.get(base_user_url, headers=headers)
+        r = await client.get(f"{base_user_url}/me", headers=headers)
         assert r.status_code == 401
 
 

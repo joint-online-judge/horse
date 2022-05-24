@@ -38,6 +38,22 @@ class Domain(URLORMModel, DomainDetail, table=True):  # type: ignore[call-arg]
     problems: List["Problem"] = Relationship(back_populates="domain")
     problem_sets: List["ProblemSet"] = Relationship(back_populates="domain")
 
+    @classmethod
+    def find_by_user_id_statement(
+        cls, user_id: UUID, roles: Optional[List[str]], groups: Optional[List[str]]
+    ) -> Select:
+        from joj.horse import models
+
+        statement = cls.sql_select().outerjoin(models.DomainUser).distinct()
+        # if user.role != "root":
+        #     # root user can view all domains
+        statement = statement.where(models.DomainUser.user_id == user_id)
+        if roles is not None:
+            statement = statement.where(models.DomainUser.role.in_(roles))  # type: ignore[attr-defined]
+        if groups is not None:
+            statement = statement.where(models.Domain.group.in_(groups))  # type: ignore[attr-defined]
+        return statement
+
     def find_problem_sets_statement(self, include_hidden: bool) -> Select:
         from joj.horse import models
 
