@@ -222,6 +222,21 @@ class ORMUtils(SQLModel, BaseModel):
         return statement
 
     @classmethod
+    async def count(cls, statement: Optional[Select] = None) -> int:
+        if statement is None:
+            statement = select(cls)
+        count_statement = cls.apply_count(statement)
+        async with db_session() as session:
+            try:
+                row_count = await session.exec(count_statement)
+            except StatementError:
+                return 0
+            row_count_value = row_count.one()
+            if not isinstance(row_count_value, int):
+                row_count_value = row_count_value[0]
+            return row_count_value
+
+    @classmethod
     async def execute_list_statement(
         cls,
         statement: Select,

@@ -172,6 +172,8 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
             )
         else:
             user = cls._create_user(user_create, register_ip)
+        if await cls.count() == 0:
+            user.role = DefaultRole.ROOT
 
         async with db_session() as session:
             session.sync_session.add(user)
