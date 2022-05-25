@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 2d4bf09@2022-05-25T04:20:17Z",
+    "description": "Git version: 13c24da@2022-05-25T04:42:42Z",
     "version": "1"
   },
   "paths": {
@@ -5036,42 +5036,6 @@
         }
       }
     },
-    "/set_root_user": {
-      "post": {
-        "tags": [
-          "miscellaneous"
-        ],
-        "summary": "Set Root User",
-        "operationId": "v1_set_root_user",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
     "/admin/users": {
       "get": {
         "tags": [
@@ -9740,25 +9704,6 @@
           "newPassword": {
             "title": "Newpassword",
             "type": "string"
-          }
-        }
-      },
-      "UserResp": {
-        "title": "UserResp",
-        "required": [
-          "errorCode"
-        ],
-        "type": "object",
-        "properties": {
-          "errorCode": {
-            "$ref": "#/components/schemas/ErrorCode"
-          },
-          "errorMsg": {
-            "title": "Errormsg",
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/User"
           }
         }
       },
