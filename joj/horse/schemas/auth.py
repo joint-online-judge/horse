@@ -137,8 +137,8 @@ def auth_jwt_encode_user(
         subject = str(oauth.account_id)
         user_claims = JWTUserClaims(
             category="oauth",
-            username=oauth.account_name,
-            gravatar="",
+            username=f"{oauth.oauth_name}-{oauth.account_id}",
+            gravatar=oauth.account_email,
             oauth_name=oauth.oauth_name,
             is_active=False,
         )

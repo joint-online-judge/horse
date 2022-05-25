@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from sqlalchemy.schema import Column, ForeignKey
 from sqlmodel import Field, Relationship, select
@@ -58,7 +58,7 @@ class UserOAuthAccount(BaseORMModel, table=True):  # type: ignore[call-arg]
 
                 # if the email is not unique, /callback will return 400
                 user = User(
-                    username=str(uuid4()),
+                    username=f"{profile.oauth_name}-{profile.account_id}",
                     email=profile.account_email,
                     gravatar=profile.account_email,
                     student_id=profile.student_id,
