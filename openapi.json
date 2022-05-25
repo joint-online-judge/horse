@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: d0459ba@2022-05-25T05:19:46Z",
+    "description": "Git version: 8ddb50e@2022-05-25T10:22:49Z",
     "version": "1"
   },
   "paths": {
@@ -4432,8 +4432,7 @@
                 "$ref": "#/components/schemas/OAuth2PasswordRequestForm"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -7304,10 +7303,6 @@
       },
       "OAuth2PasswordRequestForm": {
         "title": "OAuth2PasswordRequestForm",
-        "required": [
-          "username",
-          "password"
-        ],
         "type": "object",
         "properties": {
           "grantType": {
@@ -9810,7 +9805,14 @@
             "title": "Location",
             "type": "array",
             "items": {
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
             }
           },
           "msg": {
