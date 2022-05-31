@@ -71,12 +71,11 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
     def verify_password(self, plain_password: str) -> bool:
         from joj.horse.schemas.auth import pwd_context
 
-        return pwd_context.verify(plain_password, self.hashed_password)
+        return pwd_context.verify(plain_password, self.hashed_password or None)
 
     async def reset_password(self, current_password: str, new_password: str) -> None:
-        if self.hashed_password:
-            if not self.verify_password(current_password):
-                raise BizError(ErrorCode.UsernamePasswordError, "incorrect password")
+        if self.hashed_password and not self.verify_password(current_password):
+            raise BizError(ErrorCode.UsernamePasswordError, "incorrect password")
         self.hashed_password = self._generate_password_hash(new_password)
         await self.save_model()
 
