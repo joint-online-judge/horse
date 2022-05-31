@@ -209,9 +209,19 @@ def get_oauth_router(
                 await user.save_model()
                 logger.info(f"user oauth login: {user}")
 
-            access_token, refresh_token = auth_jwt_encode_user(
-                auth_jwt, user=user, oauth_name=oauth_profile.oauth_name
-            )
+            # FIXME: is it correct to use is_active to judge whether user has done /register ?
+            if user and not user.is_active:
+                access_token, refresh_token = auth_jwt_encode_user(
+                    auth_jwt,
+                    user=user,
+                    oauth_account_id=oauth_profile.account_id,
+                    oauth_name=oauth_profile.oauth_name,
+                    oauth_category=True,
+                )
+            else:
+                access_token, refresh_token = auth_jwt_encode_user(
+                    auth_jwt, user=user, oauth_name=oauth_profile.oauth_name
+                )
 
         return await get_login_response(
             request,

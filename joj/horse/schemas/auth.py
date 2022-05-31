@@ -109,9 +109,12 @@ def get_config() -> Settings:
 
 def auth_jwt_encode_user(
     auth_jwt: AuthJWT,
+    *,
     user: Optional[User] = None,
     oauth: Optional[OAuth2Profile] = None,
+    oauth_account_id: Optional[str] = None,
     oauth_name: Optional[str] = None,
+    oauth_category: bool = False,
     fresh: bool = True,
 ) -> Tuple[str, str]:
     if user is None and oauth is None:
@@ -124,9 +127,9 @@ def auth_jwt_encode_user(
         )
 
     if user is not None:
-        subject = str(user.id)
+        subject = str(oauth_account_id or user.id)
         user_claims = JWTUserClaims(
-            category="user",
+            category="user" if not oauth_category else "oauth",
             username=user.username,
             gravatar=user.gravatar,
             role=user.role,
