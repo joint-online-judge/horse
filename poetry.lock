@@ -2,7 +2,7 @@
 test = ["asgi-lifespan", "asynctest", "coverage", "pytest", "pytest-asyncio", "pytest-cov", "pytest-depends", "pytest-lazy-fixture"]
 
 [metadata]
-content-hash = "711b64279cf40194f14836eac55e92c0bcd807bcea84f6e7bb3cedd75f864d28"
+content-hash = "845ac7f60524dbfd0121bb61088c76e0c5f8048b67e76f1208b3de95dc105f63"
 lock-version = "1.1"
 python-versions = "^3.8"
 
@@ -128,8 +128,8 @@ botocore = [
     {file = "botocore-1.24.3.tar.gz", hash = "sha256:979e5c5e826ff115f4903fe9887b191f3809229f694a747f910e1221fe63efc7"},
 ]
 celery = [
-    {file = "celery-5.2.6-py3-none-any.whl", hash = "sha256:da31f8eae7607b1582e5ee2d3f2d6f58450585afd23379491e3d9229d08102d0"},
-    {file = "celery-5.2.6.tar.gz", hash = "sha256:d1398cadf30f576266b34370e28e880306ec55f7a4b6307549b0ae9c15663481"},
+    {file = "celery-5.2.7-py3-none-any.whl", hash = "sha256:138420c020cd58d6707e6257b6beda91fd39af7afde5d36c6334d175302c0e14"},
+    {file = "celery-5.2.7.tar.gz", hash = "sha256:fafbd82934d30f8a004f81e8f7a062e31413a23d444be8ee3326553915958c6d"},
 ]
 certifi = [
     {file = "certifi-2021.10.8-py2.py3-none-any.whl", hash = "sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569"},
@@ -434,8 +434,8 @@ hiredis = [
     {file = "hiredis-2.0.0.tar.gz", hash = "sha256:81d6d8e39695f2c37954d1011c0480ef7cf444d4e3ae24bc5e89ee5de360139a"},
 ]
 httpcore = [
-    {file = "httpcore-0.13.7-py3-none-any.whl", hash = "sha256:369aa481b014cf046f7067fddd67d00560f2f00426e79569d99cb11245134af0"},
-    {file = "httpcore-0.13.7.tar.gz", hash = "sha256:036f960468759e633574d7c121afba48af6419615d36ab8ede979f1ad6276fa3"},
+    {file = "httpcore-0.15.0-py3-none-any.whl", hash = "sha256:1105b8b73c025f23ff7c36468e4432226cbb959176eab66864b8e31c4ee27fa6"},
+    {file = "httpcore-0.15.0.tar.gz", hash = "sha256:18b68ab86a3ccf3e7dc0f43598eaddcf472b602aba29f9aa6ab85fe2ada3980b"},
 ]
 httptools = [
     {file = "httptools-0.4.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:fcddfe70553be717d9745990dfdb194e22ee0f60eb8f48c0794e7bfeda30d2d5"},
@@ -474,12 +474,8 @@ httptools = [
     {file = "httptools-0.4.0.tar.gz", hash = "sha256:2c9a930c378b3d15d6b695fb95ebcff81a7395b4f9775c4f10a076beb0b2c1ff"},
 ]
 httpx = [
-    {file = "httpx-0.19.0-py3-none-any.whl", hash = "sha256:9bd728a6c5ec0a9e243932a9983d57d3cc4a87bb4f554e1360fce407f78f9435"},
-    {file = "httpx-0.19.0.tar.gz", hash = "sha256:92ecd2c00c688b529eda11cedb15161eaf02dee9116712f621c70d9a40b2cdd0"},
-]
-httpx-oauth = [
-    {file = "httpx-oauth-0.3.8.tar.gz", hash = "sha256:e1b46b4ff390537fa002ac69c9d90f57ce2bf127e7387841ec2014aa9bac5050"},
-    {file = "httpx_oauth-0.3.8-py3-none-any.whl", hash = "sha256:656023a57af0c7a26edc5e1afebf73c82a0468a1d22fab40892a0cd1def59f25"},
+    {file = "httpx-0.23.0-py3-none-any.whl", hash = "sha256:42974f577483e1e932c3cdc3cd2303e883cbfba17fe228b0f63589764d7b9c4b"},
+    {file = "httpx-0.23.0.tar.gz", hash = "sha256:f28eac771ec9eb4866d3fb4ab65abd42d38c424739e80c08d8d20570de60b0ef"},
 ]
 identify = [
     {file = "identify-2.4.10-py2.py3-none-any.whl", hash = "sha256:7d10baf6ba6f1912a0a49f4c1c2c49fa1718765c3a37d72d13b07779567c5b85"},
@@ -623,14 +619,6 @@ networkx = [
 nodeenv = [
     {file = "nodeenv-1.6.0-py2.py3-none-any.whl", hash = "sha256:621e6b7076565ddcacd2db0294c0381e01fd28945ab36bcf00f41c5daf63bef7"},
     {file = "nodeenv-1.6.0.tar.gz", hash = "sha256:3ef13ff90291ba2a4a7a4ff9a979b63ffdd00a464dbe04acf0ea6471517a4c2b"},
-]
-oauth-jaccount = [
-    {file = "oauth_jaccount-0.1.5-py3-none-any.whl", hash = "sha256:e2ff4aa9d4d3468318b8cb7474fdd156b21a1934f8b23a9d6972eed33717765d"},
-    {file = "oauth_jaccount-0.1.5.tar.gz", hash = "sha256:82cc2f5eb313009ea8bda4ab97a4aa2b4bab87cdd6118bf1f1bc29d292951034"},
-]
-oauthlib = [
-    {file = "oauthlib-3.2.0-py3-none-any.whl", hash = "sha256:6db33440354787f9b7f3a6dbd4febf5d0f93758354060e802f6c06cb493022fe"},
-    {file = "oauthlib-3.2.0.tar.gz", hash = "sha256:23a8208d75b902797ea29fd31fa80a15ed9dc2c6c16fe73f5d346f83f6fa27a2"},
 ]
 orjson = [
     {file = "orjson-3.6.7-cp310-cp310-macosx_10_7_x86_64.whl", hash = "sha256:93188a9d6eb566419ad48befa202dfe7cd7a161756444b99c4ec77faea9352a4"},
@@ -1443,8 +1431,8 @@ category = "main"
 description = "Distributed Task Queue."
 name = "celery"
 optional = false
-python-versions = ">=3.7,"
-version = "5.2.6"
+python-versions = ">=3.7"
+version = "5.2.7"
 
 [package.dependencies]
 billiard = ">=3.6.4.0,<4.0"
@@ -1851,16 +1839,18 @@ category = "main"
 description = "A minimal low-level HTTP client."
 name = "httpcore"
 optional = false
-python-versions = ">=3.6"
-version = "0.13.7"
+python-versions = ">=3.7"
+version = "0.15.0"
 
 [package.dependencies]
 anyio = ">=3.0.0,<4.0.0"
+certifi = "*"
 h11 = ">=0.11,<0.13"
 sniffio = ">=1.0.0,<2.0.0"
 
 [package.extras]
 http2 = ["h2 (>=3,<5)"]
+socks = ["socksio (>=1.0.0,<2.0.0)"]
 
 [[package]]
 category = "main"
@@ -1878,31 +1868,20 @@ category = "main"
 description = "The next generation HTTP client."
 name = "httpx"
 optional = false
-python-versions = ">=3.6"
-version = "0.19.0"
+python-versions = ">=3.7"
+version = "0.23.0"
 
 [package.dependencies]
 certifi = "*"
-charset-normalizer = "*"
-httpcore = ">=0.13.3,<0.14.0"
+httpcore = ">=0.15.0,<0.16.0"
 rfc3986 = {version = ">=1.3,<2", extras = ["idna2008"]}
 sniffio = "*"
 
 [package.extras]
 brotli = ["brotlicffi", "brotli"]
+cli = ["click (>=8.0.0,<9.0.0)", "rich (>=10,<13)", "pygments (>=2.0.0,<3.0.0)"]
 http2 = ["h2 (>=3,<5)"]
-
-[[package]]
-category = "main"
-description = "Async OAuth client using HTTPX."
-name = "httpx-oauth"
-optional = false
-python-versions = ">=3.7"
-version = "0.3.8"
-
-[package.dependencies]
-httpx = ">=0.18,<0.21"
-typing-extensions = "*"
+socks = ["socksio (>=1.0.0,<2.0.0)"]
 
 [[package]]
 category = "dev"
@@ -2145,31 +2124,6 @@ name = "nodeenv"
 optional = false
 python-versions = "*"
 version = "1.6.0"
-
-[[package]]
-category = "main"
-description = "python package for jaccount oauth"
-name = "oauth-jaccount"
-optional = false
-python-versions = ">=3"
-version = "0.1.5"
-
-[package.dependencies]
-oauthlib = "*"
-PyJWT = "*"
-
-[[package]]
-category = "main"
-description = "A generic, spec-compliant, thorough implementation of the OAuth request-signing logic"
-name = "oauthlib"
-optional = false
-python-versions = ">=3.6"
-version = "3.2.0"
-
-[package.extras]
-rsa = ["cryptography (>=3.0.0)"]
-signals = ["blinker (>=1.4.0)"]
-signedtoken = ["cryptography (>=3.0.0)", "pyjwt (>=2.0.0,<3)"]
 
 [[package]]
 category = "main"
