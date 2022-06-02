@@ -181,47 +181,31 @@ def get_oauth_router(
             logger.info(token)
             oauth_profile, _ = await oauth_client.get_profile(token)
             state_data = auth_jwt_decode_oauth_state(auth_jwt, state)
+            if state_data is None:
+                raise ValueError("state_data is None")
         except Exception as e:
             logger.exception(e)
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
-
-        if not state_data:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
         try:
-            oauth_account, is_create = await models.UserOAuthAccount.create_or_update(
+            oauth_account = await models.UserOAuthAccount.create_or_update(
                 oauth_client.name, token, oauth_profile, request.client.host
             )
+            await oauth_account.fetch_related("user")
             logger.info(oauth_account)
+            user = oauth_account.user
+            if user is None:
+                raise ValueError("user is None")
         except Exception as e:
             logger.exception(e)
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
-
-        if is_create:
-            access_token, refresh_token = auth_jwt_encode_user(
-                auth_jwt, oauth=oauth_profile
-            )
-        else:
-            user = await models.User.one_or_none(id=oauth_account.user_id)
-            if user is not None:
-                user.login_at = datetime.now(tz=timezone.utc)
-                user.login_ip = request.client.host
-                await user.save_model()
-                logger.info(f"user oauth login: {user}")
-
-            # FIXME: is it correct to use is_active to judge whether user has done /register ?
-            if user and not user.is_active:
-                access_token, refresh_token = auth_jwt_encode_user(
-                    auth_jwt,
-                    user=user,
-                    oauth_account_id=oauth_profile.account_id,
-                    oauth_name=oauth_profile.oauth_name,
-                    oauth_category=True,
-                )
-            else:
-                access_token, refresh_token = auth_jwt_encode_user(
-                    auth_jwt, user=user, oauth_name=oauth_profile.oauth_name
-                )
+        user.login_at = datetime.now(tz=timezone.utc)
+        user.login_ip = request.client.host
+        await user.save_model()
+        logger.info(f"user oauth login: {user}")
+        access_token, refresh_token = auth_jwt_encode_user(
+            auth_jwt, user=user, oauth_name=oauth_profile.oauth_name
+        )
 
         return await get_login_response(
             request,
@@ -331,10 +315,9 @@ async def refresh(
     auth_jwt: AuthJWT = Depends(AuthJWT),
     jwt_refresh_token: JWTToken = Depends(auth_jwt_decode_refresh_token),
 ) -> schemas.StandardResponse[schemas.AuthTokens]:
+    access_token, refresh_token = "", ""
     user = await models.User.one_or_none(id=jwt_refresh_token.id)
-    if user is None:
-        access_token, refresh_token = "", ""
-    else:
+    if user:
         access_token, refresh_token = auth_jwt_encode_user(
             auth_jwt, user=user, fresh=False
         )

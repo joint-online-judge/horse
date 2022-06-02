@@ -114,11 +114,10 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
         register_ip: str,
     ) -> "User":
         username = user_create.username
-        if not user_create.username:
+        if not username:
             if not oauth_account.account_name:
                 raise BizError(ErrorCode.UserRegisterError, "username not provided")
             username = oauth_account.account_name
-        username = cast(str, username)
         email = oauth_account.account_email
         if user_create.email and user_create.email != oauth_account.account_email:
             raise BizError(
@@ -141,7 +140,6 @@ class User(BaseORMModel, UserDetail, table=True):  # type: ignore[call-arg]
         user.username_lower = username.lower()
         user.hashed_password = hashed_password
         user.login_ip = register_ip
-        user.is_active = True
         return user
 
     @classmethod

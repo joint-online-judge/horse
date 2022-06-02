@@ -24,7 +24,6 @@ from joj.horse.schemas.permission import (
     ScopeType,
     SitePermission,
 )
-from joj.horse.services.oauth import OAuth2Profile
 from joj.horse.utils.errors import (
     BizError,
     ErrorCode,
@@ -110,43 +109,19 @@ def get_config() -> Settings:
 def auth_jwt_encode_user(
     auth_jwt: AuthJWT,
     *,
-    user: Optional[User] = None,
-    oauth: Optional[OAuth2Profile] = None,
-    oauth_account_id: Optional[str] = None,
+    user: User,
     oauth_name: Optional[str] = None,
-    oauth_category: bool = False,
     fresh: bool = True,
 ) -> Tuple[str, str]:
-    if user is None and oauth is None:
-        raise UnauthorizedError(
-            "At least one of user and oauth2_profile should be provided."
-        )
-    if user is not None and oauth is not None:
-        raise UnauthorizedError(
-            "At most one of user and oauth2_profile should be provided."
-        )
-
-    if user is not None:
-        subject = str(oauth_account_id or user.id)
-        user_claims = JWTUserClaims(
-            category="user" if not oauth_category else "oauth",
-            username=user.username,
-            gravatar=user.gravatar,
-            role=user.role,
-            oauth_name=oauth_name,
-            is_active=user.is_active,
-        )
-    elif oauth is not None:
-        subject = str(oauth.account_id)
-        user_claims = JWTUserClaims(
-            category="oauth",
-            username=f"{oauth.oauth_name}-{oauth.account_id}",
-            gravatar=oauth.account_email,
-            oauth_name=oauth.oauth_name,
-            is_active=False,
-        )
-    else:
-        assert False
+    subject = str(user.id)
+    user_claims = JWTUserClaims(
+        category="user" if oauth_name is None else "oauth",
+        username=user.username,
+        gravatar=user.gravatar,
+        role=user.role,
+        oauth_name=oauth_name,
+        is_active=user.is_active,
+    )
 
     access_token = auth_jwt.create_access_token(
         subject=subject,

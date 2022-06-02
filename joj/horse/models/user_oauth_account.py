@@ -1,5 +1,6 @@
-from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
-from uuid import UUID
+import base64
+from typing import TYPE_CHECKING, Any, Dict, Optional
+from uuid import UUID, uuid4
 
 from sqlalchemy.schema import Column, ForeignKey
 from sqlmodel import Field, Relationship, select
@@ -32,12 +33,10 @@ class UserOAuthAccount(BaseORMModel, table=True):  # type: ignore[call-arg]
     @staticmethod
     async def create_or_update(
         oauth_name: str, token: Dict[str, Any], profile: OAuth2Profile, register_ip: str
-    ) -> Tuple["UserOAuthAccount", bool]:
+    ) -> "UserOAuthAccount":
         access_token = token["access_token"]
         refresh_token = token.get("refresh_token", None)
         expires_at = token.get("expires_at", None)
-        is_create = False
-
         async with db_session() as session:
             statement = (
                 select(UserOAuthAccount)
@@ -53,12 +52,14 @@ class UserOAuthAccount(BaseORMModel, table=True):  # type: ignore[call-arg]
                 oauth_account.account_name = profile.account_name
             else:
                 # create tmp user, waiting for /register
-                is_create = True
                 from joj.horse.models import User
 
+                username = f"{profile.oauth_name}-{profile.account_name}"
+                if User.one_or_none(username=username):
+                    username = base64.b64encode(uuid4().bytes).decode()
                 # if the email is not unique, /callback will return 400
                 user = User(
-                    username=f"{profile.oauth_name}-{profile.account_id}",
+                    username=username,
                     email=profile.account_email,
                     gravatar=profile.account_email,
                     student_id=profile.student_id,
@@ -69,8 +70,6 @@ class UserOAuthAccount(BaseORMModel, table=True):  # type: ignore[call-arg]
                     login_ip=register_ip,
                 )
                 session.sync_session.add(user)
-                await session.commit()
-                await session.refresh(user)
                 oauth_account = UserOAuthAccount(
                     oauth_name=oauth_name,
                     access_token=access_token,
@@ -84,5 +83,4 @@ class UserOAuthAccount(BaseORMModel, table=True):  # type: ignore[call-arg]
             session.sync_session.add(oauth_account)
             await session.commit()
             await session.refresh(oauth_account)
-
-        return oauth_account, is_create
+        return oauth_account
