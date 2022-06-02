@@ -1,4 +1,4 @@
-import base64
+from base64 import b64encode
 from typing import TYPE_CHECKING, Any, Dict, Optional
 from uuid import UUID, uuid4
 
@@ -54,9 +54,9 @@ class UserOAuthAccount(BaseORMModel, table=True):  # type: ignore[call-arg]
                 # create tmp user, waiting for /register
                 from joj.horse.models import User
 
-                username = f"{profile.oauth_name}-{profile.account_name}"
-                if User.one_or_none(username=username):
-                    username = base64.b64encode(uuid4().bytes).decode()
+                username = f"{profile.account_name}"
+                if await User.one_or_none(username=username):
+                    username = b64encode(uuid4().bytes).decode().rstrip("=")
                 # if the email is not unique, /callback will return 400
                 user = User(
                     username=username,
