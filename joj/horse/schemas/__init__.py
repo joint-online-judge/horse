@@ -94,6 +94,7 @@ from joj.horse.schemas.score import (
 )
 from joj.horse.schemas.user import (
     JudgerCreate as JudgerCreate,
+    JudgerDetail as JudgerDetail,
     User as User,
     UserCreate as UserCreate,
     UserDetail as UserDetail,

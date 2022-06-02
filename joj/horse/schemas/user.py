@@ -135,6 +135,10 @@ class UserDetailWithDomainRole(UserDetail, UserWithDomainRole):
     ...
 
 
+class JudgerDetail(TimestampMixin, User):
+    is_alive: bool
+
+
 class UserID(str):
     @classmethod
     def __modify_schema__(cls, field_schema: Dict[str, Any]) -> None:

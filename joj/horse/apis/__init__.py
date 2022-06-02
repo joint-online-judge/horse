@@ -29,9 +29,9 @@ modules: List[Any] = [
     records,
     users,
     auth,
-    misc,
     admin,
     judge,
+    misc,
 ]
 for module in modules:
     app.include_router(

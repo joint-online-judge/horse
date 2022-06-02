@@ -1,6 +1,7 @@
 import sqlalchemy.exc
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from loguru import logger
 from starlette.responses import JSONResponse
@@ -45,6 +46,16 @@ async def general_exception_handler(
     )
 
 
+async def validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
+    logger.error(exc)
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content=jsonable_encoder({"detail": exc.errors(), "body": exc.body}),
+    )
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     version = f"v{app.version}"
     logger.info("Register exception handlers: {}", version)
@@ -52,5 +63,6 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(
         sqlalchemy.exc.IntegrityError, sqlalchemy_integrity_error_handler
     )
+    app.add_exception_handler(RequestValidationError, validation_exception_handler)
     app.add_exception_handler(BizError, business_exception_handler)
     app.add_exception_handler(Exception, general_exception_handler)
