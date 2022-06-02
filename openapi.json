@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 23b9b03@2022-06-02T08:07:16Z",
+    "description": "Git version: 3deba0b@2022-06-02T14:50:42Z",
     "version": "1"
   },
   "paths": {
@@ -4937,111 +4937,13 @@
         }
       }
     },
-    "/version": {
-      "get": {
-        "tags": [
-          "miscellaneous"
-        ],
-        "summary": "Version",
-        "operationId": "v1_version",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Version"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/jwt_decoded": {
-      "get": {
-        "tags": [
-          "miscellaneous"
-        ],
-        "summary": "Jwt Decoded",
-        "operationId": "v1_jwt_decoded",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JWTAccessTokenResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/test/report": {
-      "get": {
-        "tags": [
-          "miscellaneous"
-        ],
-        "summary": "Test Error Report",
-        "operationId": "v1_test_error_report",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmptyResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/admin/users": {
       "get": {
         "tags": [
           "admin"
         ],
-        "summary": "List Users",
-        "operationId": "v1_list_users",
+        "summary": "Admin List Users",
+        "operationId": "v1_admin_list_users",
         "parameters": [
           {
             "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
@@ -5118,186 +5020,13 @@
         ]
       }
     },
-    "/admin/{uid}": {
-      "get": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "Get User",
-        "operationId": "v1_get_user",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "Uid",
-              "type": "string"
-            },
-            "name": "uid",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserDetailResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/admin/{uid}/domains": {
-      "get": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "List User Domains",
-        "operationId": "v1_list_user_domains",
-        "parameters": [
-          {
-            "required": true,
-            "schema": {
-              "title": "Uid",
-              "type": "string"
-            },
-            "name": "uid",
-            "in": "path"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Role",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "name": "role",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Groups",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "name": "groups",
-            "in": "query"
-          },
-          {
-            "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
-            "required": false,
-            "schema": {
-              "title": "Ordering",
-              "type": "string",
-              "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
-              "default": ""
-            },
-            "name": "ordering",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Offset",
-              "minimum": 0.0,
-              "type": "integer",
-              "default": 0
-            },
-            "name": "offset",
-            "in": "query"
-          },
-          {
-            "required": false,
-            "schema": {
-              "title": "Limit",
-              "maximum": 500.0,
-              "minimum": 0.0,
-              "type": "integer",
-              "default": 100
-            },
-            "name": "limit",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DomainListResp"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Detail"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
     "/admin/domain_roles": {
       "get": {
         "tags": [
           "admin"
         ],
-        "summary": "List Domain Roles",
-        "operationId": "v1_list_domain_roles",
+        "summary": "Admin List Domain Roles",
+        "operationId": "v1_admin_list_domain_roles",
         "parameters": [
           {
             "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
@@ -5379,8 +5108,8 @@
         "tags": [
           "admin"
         ],
-        "summary": "List Judgers",
-        "operationId": "v1_list_judgers",
+        "summary": "Admin List Judgers",
+        "operationId": "v1_admin_list_judgers",
         "parameters": [
           {
             "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
@@ -5424,7 +5153,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserListResp"
+                  "$ref": "#/components/schemas/JudgerDetailListResp"
                 }
               }
             }
@@ -5460,8 +5189,8 @@
         "tags": [
           "admin"
         ],
-        "summary": "Create Judger",
-        "operationId": "v1_create_judger",
+        "summary": "Admin Create Judger",
+        "operationId": "v1_admin_create_judger",
         "requestBody": {
           "content": {
             "application/json": {
@@ -5479,6 +5208,179 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AuthTokensWithLakefsResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/admin/{uid}": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin Get User",
+        "operationId": "v1_admin_get_user",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Uid",
+              "type": "string"
+            },
+            "name": "uid",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetailResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/admin/{uid}/domains": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin List User Domains",
+        "operationId": "v1_admin_list_user_domains",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Uid",
+              "type": "string"
+            },
+            "name": "uid",
+            "in": "path"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Role",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "name": "role",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Groups",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "name": "groups",
+            "in": "query"
+          },
+          {
+            "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+            "required": false,
+            "schema": {
+              "title": "Ordering",
+              "type": "string",
+              "description": "Comma separated list of ordering the results.\nYou may specify reverse orderings by prefixing the field name with '-'.\n\nAvailable fields: created_at,updated_at",
+              "default": ""
+            },
+            "name": "ordering",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Offset",
+              "minimum": 0.0,
+              "type": "integer",
+              "default": 0
+            },
+            "name": "offset",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Limit",
+              "maximum": 500.0,
+              "minimum": 0.0,
+              "type": "integer",
+              "default": 100
+            },
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DomainListResp"
                 }
               }
             }
@@ -5753,6 +5655,104 @@
             "HTTPBearer": []
           }
         ]
+      }
+    },
+    "/version": {
+      "get": {
+        "tags": [
+          "miscellaneous"
+        ],
+        "summary": "Version",
+        "operationId": "v1_version",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Version"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jwt_decoded": {
+      "get": {
+        "tags": [
+          "miscellaneous"
+        ],
+        "summary": "Jwt Decoded",
+        "operationId": "v1_jwt_decoded",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JWTAccessTokenResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/test/report": {
+      "get": {
+        "tags": [
+          "miscellaneous"
+        ],
+        "summary": "Test Error Report",
+        "operationId": "v1_test_error_report",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmptyResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Detail"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -7156,6 +7156,93 @@
           },
           "data": {
             "$ref": "#/components/schemas/JudgerCredentials"
+          }
+        }
+      },
+      "JudgerDetail": {
+        "title": "JudgerDetail",
+        "required": [
+          "id",
+          "username",
+          "isAlive"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          },
+          "gravatar": {
+            "title": "Gravatar",
+            "type": "string",
+            "default": ""
+          },
+          "role": {
+            "title": "Role",
+            "type": "string",
+            "default": "user"
+          },
+          "isActive": {
+            "title": "Isactive",
+            "type": "boolean",
+            "default": false
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "title": "Updatedat",
+            "type": "string",
+            "format": "date-time"
+          },
+          "isAlive": {
+            "title": "Isalive",
+            "type": "boolean"
+          }
+        }
+      },
+      "JudgerDetailList": {
+        "title": "JudgerDetailList",
+        "type": "object",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer",
+            "default": 0
+          },
+          "results": {
+            "title": "Results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JudgerDetail"
+            },
+            "default": []
+          }
+        }
+      },
+      "JudgerDetailListResp": {
+        "title": "JudgerDetailListResp",
+        "required": [
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorMsg": {
+            "title": "Errormsg",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/JudgerDetailList"
           }
         }
       },
