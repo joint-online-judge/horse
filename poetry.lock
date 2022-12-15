@@ -831,7 +831,6 @@ resolved_reference = "e66f7b40de12b85efce8513760413765cc853e61"
 type = "git"
 url = "https://github.com/joint-online-judge/elephant.git"
 reference = "master"
-resolved_reference = "e66f7b40de12b85efce8513760413765cc853e61"
 
 [[package]]
 name = "kombu"
