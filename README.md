@@ -1,7 +1,7 @@
 # JOJ Horse
 
 [![GitHub](https://img.shields.io/github/license/joint-online-judge/horse)](https://github.com/joint-online-judge/horse/blob/master/LICENSE)
-[![CI/CD](https://img.shields.io/github/workflow/status/joint-online-judge/horse/cicd/master)](https://github.com/joint-online-judge/horse/actions/workflows/cicd.yml)
+[![CI/CD](https://img.shields.io/github/actions/workflow/status/joint-online-judge/horse/cicd.yml?branch=master)](https://github.com/joint-online-judge/horse/actions/workflows/cicd.yml)
 [![GitHub branch checks state](https://img.shields.io/github/checks-status/joint-online-judge/horse/master)](https://github.com/joint-online-judge/horse)
 [![Codacy Badge](https://img.shields.io/codacy/grade/2d87ea14ebb34665aa9ace224f7ffef3)](https://www.codacy.com/gh/joint-online-judge/horse/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=joint-online-judge/horse&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://img.shields.io/codacy/coverage/2d87ea14ebb34665aa9ace224f7ffef3)](https://www.codacy.com/gh/joint-online-judge/horse/dashboard?utm_source=github.com&utm_medium=referral&utm_content=joint-online-judge/horse&utm_campaign=Badge_Coverage)
