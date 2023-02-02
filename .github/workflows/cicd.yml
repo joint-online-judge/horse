@@ -127,8 +127,8 @@ jobs:
             - name: Test and Generate coverage report
               if: success() && github.event_name == 'push' && github.ref == 'refs/heads/master'
               run: |
-                  docker exec horse /bin/bash -c "pytest -svv --cov=./ --cov-report=xml"
-                  docker cp horse:/root/coverage.xml .
+                  docker exec joj2-horse /bin/bash -c "pytest -svv --cov=./ --cov-report=xml"
+                  docker cp joj2-horse:/root/coverage.xml .
             - name: Upload coverage to Codacy
               uses: codacy/codacy-coverage-reporter-action@v1
               with:
