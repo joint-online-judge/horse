@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "JOJ Horse",
-    "description": "Git version: 52894e2@2023-02-02T07:47:05Z",
+    "description": "Git version: 0ae99f8@2023-02-03T06:54:51Z",
     "version": "1"
   },
   "paths": {
@@ -7248,9 +7248,6 @@
       },
       "Language": {
         "title": "Language",
-        "required": [
-          "name"
-        ],
         "type": "object",
         "properties": {
           "compileFiles": {
@@ -7286,7 +7283,8 @@
           },
           "name": {
             "title": "Name",
-            "type": "string"
+            "type": "string",
+            "default": "c++"
           }
         }
       },
