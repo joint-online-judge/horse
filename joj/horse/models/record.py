@@ -10,6 +10,7 @@ from sqlmodel import Field, Relationship
 from sqlmodel.sql.sqltypes import GUID
 from starlette.concurrency import run_in_threadpool
 
+from joj.horse.config import settings
 from joj.horse.models.base import BaseORMModel
 from joj.horse.schemas.cache import get_redis_cache
 from joj.horse.schemas.problem import ProblemSolutionSubmit
@@ -156,7 +157,7 @@ class Record(BaseORMModel, RecordDetail, table=True):  # type: ignore[call-arg]
         # create a task in celery with this record
         result = celery_app.send_task(
             "joj.tiger.task",
-            args=[self.dict(), "http://joj-horse:34765"],  # TODO: read from settings
+            args=[self.dict(), f"http://{settings.host}:{settings.port}"],
             queue="joj.tiger.official.default",
             task_id=str(self.task_id),
         )
